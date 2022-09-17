@@ -38,10 +38,11 @@
             <div class="info-con">
               <div class='subject'>
                 <a-space class="author-name">
-                  <img v-if="data.userAvatar" :src="data.userAvatar" alt="">
-                  <img v-else src="~@/assets/icons/library/default-avatar.png"/>
-                  <label for="" v-if="$store.getters.email !== data.sessionInfo.author">{{ data.userRealName }}</label>
-                  <label for="" v-else>Me</label>
+                  <a-tooltip :title="data.schoolId === '0' ? 'Personal' : data.schoolName ">
+                    <img v-if="data.userAvatar" :src="data.userAvatar" alt="">
+                    <img v-else src="~@/assets/icons/library/default-avatar.png"/>
+                  </a-tooltip>
+                  <label >{{ data.userRealName }}</label>
                 </a-space>
                 <div v-if="formatSessionType(data.sessionInfo.sessionType).name">
                   <a-tag :color="formatSessionType(data.sessionInfo.sessionType).color">{{ formatSessionType(data.sessionInfo.sessionType).name }}</a-tag>

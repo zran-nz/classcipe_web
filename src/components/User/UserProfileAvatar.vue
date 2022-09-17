@@ -152,7 +152,7 @@ export default {
       if (this.userMode === USER_MODE.SELF) {
         return this.info.avatar
       } else {
-        if (!this.currentSchool.schoolUser.avatar) {
+        if (!this.currentSchool || !this.currentSchool.schoolUser || !this.currentSchool.schoolUser.avatar) {
           return this.info.avatar
         }
         return this.currentSchool.schoolUser.avatar
@@ -163,6 +163,9 @@ export default {
         return this.info.firstname + ' ' + this.info.lastname
       } else {
         // 没有昵称 默认个人身份下昵称
+        if (!this.currentSchool || this.currentSchool.schoolUser) {
+          return this.info.firstname + ' ' + this.info.lastname
+        }
         if (!this.currentSchool.schoolUser.firstname && !this.currentSchool.schoolUser.lastname) {
           return this.info.firstname + ' ' + this.info.lastname
         }

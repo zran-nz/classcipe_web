@@ -50,10 +50,13 @@
 
           <a-space direction="vertical" style="align-items: flex-start;" class='update-time' v-show="!showEditSche">
             <label style="text-align:left;" for="" v-if="content.sessionStartTime">
-              <span style="display:inline-block; width: 80px;">Scheduled:</span> {{ content.sessionStartTime | dayjs('YYYY-MM-DD HH:mm') }} - {{ content.sessionEndTime | dayjs('YYYY-MM-DD HH:mm') }}
+              <span style="display:inline-block; width: 100px;">Scheduled:</span> {{ content.sessionStartTime | dayjs('YYYY-MM-DD HH:mm') }} - {{ content.sessionEndTime | dayjs('YYYY-MM-DD HH:mm') }}
             </label>
             <label style="text-align:left;" for="" v-if="filterDeadline && WORK_SHOPS_TYPE.FEATURE.value === content.workshopsType && isCurrentType(WORK_SHOPS_TYPE.FEATURE.value)">
-              <span style="display:inline-block; width: 80px;">Deadline:</span>  {{ filterDeadline | countDown }}
+              <span style="display:inline-block; width: 100px;">REG deadline:</span>  {{ filterDeadline | countDown }}
+            </label>
+            <label style="text-align:left;" for="" v-if="WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType && isCurrentType(WORK_SHOPS_TYPE.REGISTERED.value) && WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus ">
+              <span style="display:inline-block; width: 100px;">CANC deadline:</span>  {{ moment(content.sessionStartTime).subtract(24, 'hours') | countDown }}
             </label>
           </a-space>
           <div class="update-time" v-show="showEditSche">
@@ -106,22 +109,21 @@
       </div>
       <div class='action'>
         <div class="author-wrap">
-          <a-avatar v-if="content.userAvatar" :src="content.userAvatar" icon="user" />
-          <img
-            v-else
-            class="ant-avatar"
-            src="~@/assets/icons/library/default-avatar.png"
-            alt="avatar"
-          />
+          <a-tooltip :title="content.schoolId === '0' ? 'Personal' : content.schoolName ">
+            <a-avatar v-if="content.userAvatar" :src="content.userAvatar" icon="user" />
+            <img
+              v-else
+              class="ant-avatar"
+              src="~@/assets/icons/library/default-avatar.png"
+              alt="avatar"
+            />
+          </a-tooltip>
           <div class="author-con">
             <!-- <div style="font-weight: bold;" class="author-name" v-if="WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType || (content.sessionInfo && $store.getters.email === content.sessionInfo.author)">
               Me
             </div> -->
             <div class="author-name">
               {{ content.userRealName || (content.content && content.content.createBy) }}
-            </div>
-            <div>
-              {{ content.schoolId === '0' ? 'Personal' : content.schoolName }}
             </div>
           </div>
         </div>
@@ -165,7 +167,7 @@
             v-if="
               WORK_SHOPS_TYPE.FEATURE.value === content.workshopsType
                 && WORK_SHOPS_STATUS.ENDED.value !== content.workshopsStatus
-                && (content.session && (!filterDeadline || moment(filterDeadline).isAfter(moment())))
+                && (content.session && (!filterDeadline || moment.utc(filterDeadline).local().isAfter(moment())))
                 && isCurrentType(WORK_SHOPS_TYPE.FEATURE.value)">
             <!-- <a-button type='primary' shape='round' @click='handleRegister(content)'>
               <icon-font type="icon-register" class="detail-font"/>
@@ -176,6 +178,27 @@
               </template>
             </custom-button>
           </template>
+          <template
+            v-if="
+              WORK_SHOPS_TYPE.FEATURE.value === content.workshopsType
+                && WORK_SHOPS_STATUS.ENDED.value !== content.workshopsStatus
+                && (content.session && (filterDeadline && moment.utc(filterDeadline).local().isBefore(moment())))
+                && isCurrentType(WORK_SHOPS_TYPE.FEATURE.value)">
+            <!-- <a-button type='primary' shape='round' @click='handleRegister(content)'>
+              <icon-font type="icon-register" class="detail-font"/>
+              Register</a-button> -->
+            <custom-button label='Register' :disabled="true" disabledTooltip="Out of deadline">
+              <template v-slot:icon>
+                <icon-font type="icon-register" class="detail-font"/>
+              </template>
+            </custom-button>
+          </template>
+          <div
+            class='label-action'
+            v-if="WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType
+              && isCurrentType(WORK_SHOPS_TYPE.FEATURE.value)">
+            Registered
+          </div>
           <template
             v-if="
               WORK_SHOPS_TYPE.LUNCHEDBYME.value === content.workshopsType
@@ -215,7 +238,7 @@
                     </template> -->
                   </custom-button>
                 </div>
-                <div class='menu-item' v-if="0 === content.session.delFlag && WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus || 1 === content.session.delFlag">
+                <div class='menu-item' v-if="1 === content.session.delFlag && WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus">
                   <custom-button label='Delete' @click='handleDel(content)'>
                     <!-- <template v-slot:icon>
                       <icon-font type="icon-shanchu" class="detail-font"/>
@@ -237,36 +260,36 @@
             :trigger="['click']"
             :getPopupContainer='trigger => trigger.parentElement'
             v-if="WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType
-              && isCurrentType(WORK_SHOPS_TYPE.REGISTERED.value)
-              && isReadyStart24(content) ">
+              && isCurrentType(WORK_SHOPS_TYPE.REGISTERED.value) ">
             <div class='more-action'>
               <more-icon />
             </div>
             <div class='content-item-more-action' slot='overlay'>
-              <div class='menu-item' v-if="WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus">
+              <div class='menu-item' v-if="WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus && isReadyStart24(content)">
                 <custom-button label='Cancel' @click='handleCancel(content)'>
                   <template v-slot:icon>
                     <icon-font type="icon-cancel" class="detail-font"/>
                   </template>
                 </custom-button>
               </div>
-              <div class='menu-item' v-if="0 === content.session.delFlag && WORK_SHOPS_STATUS.ONGOING.value === content.workshopsStatus">
+              <div class='menu-item' v-if="0 === content.session.delFlag && WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus && !isReadyStart24(content)">
                 <custom-button label='Archive' @click='handleStatus("Archive")'>
                 </custom-button>
               </div>
-              <div class='menu-item' v-if="1 === content.session.delFlag && WORK_SHOPS_STATUS.ONGOING.value === content.workshopsStatus">
+              <div class='menu-item' v-if="0 === content.session.delFlag && (WORK_SHOPS_STATUS.ONGOING.value === content.workshopsStatus || WORK_SHOPS_STATUS.ENDED.value === content.workshopsStatus)">
+                <custom-button label='Archive' @click='handleStatus("Archive")'>
+                </custom-button>
+              </div>
+              <div class='menu-item' v-if="1 === content.session.delFlag">
                 <custom-button label='Restore' @click='handleStatus("Restore")'>
+                </custom-button>
+              </div>
+              <div class='menu-item' v-if="1 === content.session.delFlag">
+                <custom-button label='Delete' @click='handleDel(content)'>
                 </custom-button>
               </div>
             </div>
           </a-dropdown>
-          <div
-            class='label-action'
-            v-if="WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType
-              && (!isReadyStart24(content) || WORK_SHOPS_STATUS.ENDED.value === content.workshopsStatus)
-              && (isCurrentType(WORK_SHOPS_TYPE.FEATURE.value) || isCurrentType(WORK_SHOPS_TYPE.REGISTERED.value))">
-            Registered
-          </div>
           <!-- <template v-if="WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType && WORK_SHOPS_STATUS.ENDED.value !== content.workshopsStatus">
             <custom-button label='Cancel' @click='handleCancel(content)'>
               <template v-slot:icon>
@@ -582,9 +605,9 @@ export default {
       this.shareLink = { ...item }
     },
     handleRegister(item) {
-      if (item && item.content && item.sessionId) {
+      if (item && item.sessionId) {
         SaveRegisteredRecord({
-          contentId: item.content.id,
+          contentId: item.content ? item.content.id : null,
           sessionId: item.sessionId,
           channelId: getCookie(SET_PROMOTE_CODE)
         }).then(res => {
@@ -598,9 +621,9 @@ export default {
       }
     },
     handleCancel(item) {
-      if (item && item.content && item.sessionId) {
+      if (item && item.sessionId) {
         CancelRegistered({
-          contentId: item.content.id,
+          contentId: item.content ? item.content.id : null,
           sessionId: item.sessionId
         }).then(res => {
           if (res.success) {
@@ -968,6 +991,32 @@ export default {
     }
   }
 }
+/deep/ .disabled-button {
+  padding: 0.1em /* 10/100 */ 0.18em /* 18/100 */;
+  border-radius: 0.4em /* 40/100 */;
+  span {
+    padding: 0;
+  }
+  .icon {
+    display: flex;
+    -ms-flex-align: center;
+    align-items: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    padding-bottom: 1px;
+    i {
+      color: #515564 !important
+    }
+  }
+  .label {
+    font-size: 14px;
+    padding: 0 6px;
+    line-height: 18px;
+    white-space: nowrap;
+  }
+}
 .detail-share {
   /deep/ .share-button {
     width:  2.1em;
@@ -1137,6 +1186,10 @@ export default {
 
 .content-item-more-action {
   .cc-custom-button {
+    padding: 10px 18px!important;
+    border-radius: 40px!important;
+  }
+  .disabled-button {
     padding: 10px 18px!important;
     border-radius: 40px!important;
   }

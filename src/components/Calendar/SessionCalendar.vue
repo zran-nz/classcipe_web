@@ -688,7 +688,9 @@ export default {
                       start: item.startTime,
                       end: item.endTime,
                       userAvatar: item.userAvatar,
-                      userRealName: item.userRealName
+                      userRealName: item.userRealName,
+                      schoolId: item.schoolId,
+                      schoolName: item.schoolName
                     }
                   }
                 })

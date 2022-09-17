@@ -214,15 +214,15 @@ Vue.filter('countDown', function (expireTime) {
       result = parseZero(totalSeconds)
     }
     if (minutes >= 0) {
-      result = parseZero(minutes) + 'min(s)' // + ':' + result
+      result = parseZero(minutes) + ' min(s)' // + ':' + result
     }
     if (hours >= 0) {
-      result = parseZero(hours) + 'hour(s)' + result
+      result = parseZero(hours) + ' hour(s) ' + result
     }
     if (days > 0) {
-      result = parseInt(days) + 'day(s)' + result
+      result = parseInt(days) + ' day(s) ' + result
     }
     return result
   }
-  return moment.utc(expireTime).local().format('YYYY-MM-DD HH:mm:ss')
+  return '0 day(s) 0 hour(s) 0 min(s)'// moment.utc(expireTime).local().format('YYYY-MM-DD HH:mm:ss')
 })

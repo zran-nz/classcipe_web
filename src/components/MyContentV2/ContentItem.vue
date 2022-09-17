@@ -238,7 +238,14 @@
                 </template>
               </custom-button>
             </a-popconfirm>
-            <div class='menu-item'>
+            <div class='menu-item' v-if="content.sessionCount > 0">
+              <custom-button label='Delete' :disabled="true" disabled-tooltip="There are still sessions existing under this content, it cannot be deleted">
+                <template v-slot:icon>
+                  <delete-icon style='width: 13px; height:14px'/>
+                </template>
+              </custom-button>
+            </div>
+            <div class="menu-item" v-else>
               <a-popconfirm placement="topRight" ok-text="Yes" @confirm="handlePermanentDeleteItem" cancel-text="No">
                 <template v-slot:title>
                   All the relevant content will be <br/>

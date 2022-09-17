@@ -55,10 +55,11 @@
           for="">{{ info.event.title }} </label>
         <label v-if="info.view.type !== 'timeGridWeek'"> {{ info.event.title }} </label>
         <a-space v-if="info.event.extendedProps.userRealName && info.view.type === 'timeGridWeek'" class="user-avatar">
-          <img v-if="info.event.extendedProps.userAvatar" :src="info.event.extendedProps.userAvatar" alt="">
-          <img v-else src="~@/assets/icons/library/default-avatar.png"/>
-          <label for="" v-if="$store.getters.email !== info.event.extendedProps.author">{{ info.event.extendedProps.userRealName }}</label>
-          <label for="" v-else>Me</label>
+          <a-tooltip :title="info.event.extendedProps.schoolId === '0' ? 'Personal' : info.event.extendedProps.schoolName ">
+            <img v-if="info.event.extendedProps.userAvatar" :src="info.event.extendedProps.userAvatar" alt="">
+            <img v-else src="~@/assets/icons/library/default-avatar.png"/>
+          </a-tooltip>
+          <label for="" >{{ info.event.extendedProps.userRealName }}</label>
         </a-space>
       </div>
     </a-popover>

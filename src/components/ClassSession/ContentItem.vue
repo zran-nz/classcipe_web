@@ -43,14 +43,23 @@
           <div class='sub-row'>
             <div class='sub-left'>
               <div class='owner'>
-                <a-avatar :src='session.userAvatar' size="small" />
+                <a-tooltip :title="session.schoolId === '0' ? 'Personal' : session.schoolName ">
+                  <!-- <a-avatar :src='session.userAvatar' size="small" /> -->
+                  <a-avatar v-if="session.userAvatar" :src="session.userAvatar" icon="user" />
+                  <img
+                    v-else
+                    class="ant-avatar"
+                    src="~@/assets/icons/library/default-avatar.png"
+                    alt="avatar"
+                  />
+                </a-tooltip>
                 <div class="user-detail">
                   <div class='user-name'>
                     {{ session.userRealName }}
                   </div>
-                  <div class="user-mode">
+                  <!-- <div class="user-mode">
                     {{ session.schoolId === '0' ? 'Personal' : session.schoolName }}
-                  </div>
+                  </div> -->
                 </div>
               </div>
               <div class='teach-way'>
