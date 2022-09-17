@@ -79,6 +79,7 @@
       :review-edit='reviewEdit'
       :review-create='reviewCreate'
       :review-list='reviewList'
+      :is-library="filterSourceType === sourceType.Library"
       :school-resource="filterSourceType === sourceType.Resource"
       @close='handlePreviewClose' />
 
