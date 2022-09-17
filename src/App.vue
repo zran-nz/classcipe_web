@@ -94,6 +94,8 @@ export default {
     App.service('notice').on('created', (data) => {
       if (data.msgTxt) {
         this.showUserMessageNotification(data)
+      } else {
+        console.log('notice:', data)
       }
     })
     window.addEventListener('message', this.handlePostMessage, false)
