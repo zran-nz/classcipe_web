@@ -24,6 +24,9 @@
               :show-archive='shareType !== SourceType.Archived'
               :allow-permanent-delete='shareType === SourceType.Archived'
               :show-collaborate-delete='shareType === SourceType.SharedByOthers'
+              :show-subtask="shareType !== SourceType.SharedByOthers && shareType !== SourceType.SharedByMe"
+              :show-recommend="shareType !== SourceType.SharedByOthers && shareType !== SourceType.SharedByMe"
+              :show-related="shareType !== SourceType.SharedByOthers && shareType !== SourceType.SharedByMe"
               @delete='handleDeleteItem'
               @update-list='updateList'
               @update-publish='handleShowContentPublish'

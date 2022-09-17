@@ -198,6 +198,7 @@
       </div>
 
       <content-preview
+        v-bind='$attrs'
         :content-id='previewCurrentId'
         :content-type='previewType'
         :show-edit-button=!!content

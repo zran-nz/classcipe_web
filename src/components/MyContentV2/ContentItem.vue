@@ -265,6 +265,7 @@
     </div>
 
     <content-preview
+      v-bind='$attrs'
       :content-id='previewCurrentId'
       :content-type='previewType'
       :review-edit='reviewEdit'

@@ -54,8 +54,9 @@
       :content-id='previewCurrentId'
       :content-type='previewType'
       :show-buy-button="cardMode === 'library' || cardMode === 'resource'"
+      :is-library="cardMode === 'library'"
       :school-resource="cardMode === 'resource'"
-      :show-edit-button='true'
+      :show-subtask="cardMode !== 'resource'"
       :review-edit='false'
       :review-create='false'
       :show-enter-button='false'

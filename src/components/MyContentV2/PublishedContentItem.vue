@@ -135,6 +135,7 @@
       <content-preview
         :content-id='previewCurrentId'
         :content-type='previewType'
+        :is-library="true"
         v-if='previewVisible'
         @close='handlePreviewClose' />
 
