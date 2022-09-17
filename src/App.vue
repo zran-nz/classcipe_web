@@ -69,12 +69,12 @@ export default {
         })
       }
     },
-    '$store.state.websocket.currentNotificationMsg': function(newValue) {
-      console.log('currentNotificationMsg change', newValue)
-      if (newValue) {
-        this.showUserMessageNotification(newValue)
-      }
-    },
+    // '$store.state.websocket.currentNotificationMsg': function(newValue) {
+    //   console.log('currentNotificationMsg change', newValue)
+    //   if (newValue) {
+    //     this.showUserMessageNotification(newValue)
+    //   }
+    // },
     '$store.getters.school': function(newValue) {
       if (newValue) {
         this.$store.dispatch('initSubjectGradeData', {
@@ -90,7 +90,12 @@ export default {
     if (this.$store.getters.userInfo) {
       this.$store.dispatch('initData')
     }
-
+    window._this = this
+    App.service('notice').on('created', (data) => {
+      if (data.msgTxt) {
+        this.showUserMessageNotification(data)
+      }
+    })
     window.addEventListener('message', this.handlePostMessage, false)
     this.$store.dispatch('initCurriculumData')
     this.$store.dispatch('initTagData', storage.get(ACCESS_TOKEN))
@@ -130,9 +135,7 @@ export default {
         duration: 5,
         key,
         btn: h => {
-          return h(
-            'a-button',
-            {
+          return h('a-button', {
               props: {
                 type: 'primary'
               },
