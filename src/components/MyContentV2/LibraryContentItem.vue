@@ -87,8 +87,10 @@
         <div class='right-info'>
           <div class='buy-info' @click.stop=''>
             <a-space>
-              <div class='price'>${{ content.discountPrice || content.price || 0 }}</div>
-              <div v-if="content.discountPrice > 0 && content.discountPrice !== content.price" class='price_was'>${{ content.price }}</div>
+              <template v-if="!(content.createBy !== $store.getters.userInfo.email && content.buyed && content.myContentId == -1)">
+                <div class='price'>${{ content.discountPrice || content.price || 0 }}</div>
+                <div v-if="content.discountPrice > 0 && content.discountPrice !== content.price" class='price_was'>${{ content.price }}</div>
+              </template>
               <div class='buy'>
                 <a-button
                   type="danger"

@@ -1,7 +1,8 @@
 <template>
   <div class="no-more-resources">
     <div class="icon">
-      <img src="~@/assets/libraryv2/empty.png" />
+      <!-- <img src="~@/assets/libraryv2/empty.png" /> -->
+      <no-content />
     </div>
     <div class="tips">
       <a @click="showDialog()">
@@ -12,8 +13,12 @@
 </template>
 
 <script>
+import NoContent from '@/assets/v2/icons/no_content.svg?inline'
 export default {
   name: 'NoMoreResources',
+  components: {
+    NoContent
+  },
 
   methods: {
     showDialog () {
