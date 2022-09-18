@@ -195,7 +195,7 @@ export default {
       this.checkedClass = [item]
       this.currentSelectedClass = item
       this.loadCurrentClassStudent()
-      this.$emit('select-class-student')
+      this.$emit('select-class-student', this.checkedClass)
     },
 
     removeClassStudent(classItem) {

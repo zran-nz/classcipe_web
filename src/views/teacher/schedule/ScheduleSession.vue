@@ -168,11 +168,20 @@
       <template v-slot:right>
         <div class='right-button'>
           <a-space>
-            <a-button type='primary' @click='handleGoNext' :loading='creating' v-if='currentActiveStepIndex !== $classcipe.ScheduleSteps.length - 1'>
-              <template>
-                Next <a-icon type='right' />
-              </template>
-            </a-button>
+            <template v-if='currentActiveStepIndex !== $classcipe.ScheduleSteps.length - 1'>
+              <a-button type='primary' @click='handleGoNext' :loading='creating' v-if="scheduleReq.classIds && scheduleReq.classIds.length > 0">
+                <template>
+                  Next <a-icon type='right' />
+                </template>
+              </a-button>
+              <a-tooltip title="Please select a class" v-else>
+                <a-button type='primary' :disabled="true" :loading='creating' >
+                  <template>
+                    Next <a-icon type='right' />
+                  </template>
+                </a-button>
+              </a-tooltip>
+            </template>
             <template v-else>
               <a-tooltip :title="(scheduleReq.zoom == 1 && !$store.getters.zoomChecked) ? 'Please link your zoom account' : !scheduleReq.register.title ? 'Please Input title' : 'The scheduled time above will be cleared.'">
                 <a-button
@@ -312,7 +321,10 @@ export default {
     if (!this.scheduleReq.planId) {
       this.handleAssociate()
     }
-    this.currentClass = this.$route.query.classId
+    if (this.$route.query.classId) {
+      this.currentClass = this.$route.query.classId
+      this.scheduleReq.classIds = [this.$route.query.classId]
+    }
     this.loading = false
     this.sessionId = this.$route.query.sessionId
     this.getDetail()
@@ -490,6 +502,7 @@ export default {
       this.$logger.info('handleSelectClassStudent cls', cls)
       this.scheduleReq.openSession = false
       this.scheduleReq.workshopType = 0
+      this.scheduleReq.classIds = cls.map(item => item.id)
       this.$logger.info('handleSelectClassStudent scheduleReq', this.scheduleReq)
     },
 
