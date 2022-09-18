@@ -32,6 +32,7 @@
           :show-invite="showCollaborate && isOwner"
           :show-collaborate="showCollaborate && (isOwner || isCollaborater)"
           :show-share="showShare && (isOwner || isCollaborater)"
+          :form="form"
           :disable-publish='disablePublish'
           @collaborate="handleStartCollaborate"
           @share="handleSharing"
