@@ -272,6 +272,13 @@
                   </template>
                 </custom-button>
               </div>
+              <div class='menu-item' v-if="WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus && !isReadyStart24(content)">
+                <custom-button label='Cancel' :disabled="true" disabledTooltip="Out of deadline">
+                  <template v-slot:icon>
+                    <icon-font type="icon-cancel" class="detail-font"/>
+                  </template>
+                </custom-button>
+              </div>
               <div class='menu-item' v-if="0 === content.session.delFlag && WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus && !isReadyStart24(content)">
                 <custom-button label='Archive' @click='handleStatus("Archive")'>
                 </custom-button>
@@ -553,7 +560,7 @@ export default {
     isReadyStart24(item) {
       if (!item.sessionStartTime) return true
       const start = moment(item.sessionStartTime).utc().subtract(24, 'hours')
-      return moment().isAfter(start)
+      return moment().isBefore(start)
     },
     handleCancelSingle(item) {
       this.showEditName = false

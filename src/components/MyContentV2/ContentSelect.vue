@@ -580,6 +580,9 @@ export default {
             display: none;
           }
         }
+        /deep/ .empty-tips {
+          margin-top: 170px;
+        }
         /deep/ .content-preview-detail {
           .top-fixed-header {
             display: none!important;

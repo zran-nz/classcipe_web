@@ -231,34 +231,43 @@
           </template>
 
           <template v-if='showButton && content.delFlag && content.owner.email === $store.getters.email && allowPermanentDelete'>
-            <a-popconfirm placement="topRight" :title="'Confirm restore ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(content)" cancel-text="No">
-              <custom-button label='Restore'>
-                <template v-slot:icon>
-                  <edit-icon />
-                </template>
-              </custom-button>
-            </a-popconfirm>
-            <div class='menu-item' v-if="content.sessionCount > 0">
-              <custom-button label='Delete' :disabled="true" disabled-tooltip="There are still sessions existing under this content, it cannot be deleted">
-                <template v-slot:icon>
-                  <delete-icon style='width: 13px; height:14px'/>
-                </template>
-              </custom-button>
-            </div>
-            <div class="menu-item" v-else>
-              <a-popconfirm placement="topRight" ok-text="Yes" @confirm="handlePermanentDeleteItem" cancel-text="No">
-                <template v-slot:title>
-                  All the relevant content will be <br/>
-                  cleared and you will not be able <br/>
-                  to retrieve after deleting it
-                </template>
-                <custom-button label='Delete'>
-                  <template v-slot:icon>
-                    <delete-icon style='width: 13px; height:14px'/>
-                  </template>
-                </custom-button>
-              </a-popconfirm>
-            </div>
+            <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement'>
+              <div class='more-action'>
+                <more-icon />
+              </div>
+              <div class='content-item-more-action' slot='overlay'>
+                <div class='menu-item'>
+                  <a-popconfirm placement="topRight" :title="'Confirm restore ' +(content.name ? content.name : 'Untitled')+ ' ?'" ok-text="Yes" @confirm="handleRestoreItem(content)" cancel-text="No">
+                    <custom-button label='Restore'>
+                      <template v-slot:icon>
+                        <edit-icon />
+                      </template>
+                    </custom-button>
+                  </a-popconfirm>
+                </div>
+                <div class='menu-item' v-if="content.sessionCount > 0">
+                  <custom-button label='Delete' :disabled="true" disabled-tooltip="There are still sessions existing under this content, it cannot be deleted">
+                    <template v-slot:icon>
+                      <delete-icon style='width: 13px; height:14px'/>
+                    </template>
+                  </custom-button>
+                </div>
+                <div class="menu-item" v-else>
+                  <a-popconfirm placement="topRight" ok-text="Yes" @confirm="handlePermanentDeleteItem" cancel-text="No">
+                    <template v-slot:title>
+                      All the relevant content will be <br/>
+                      cleared and you will not be able <br/>
+                      to retrieve after deleting it
+                    </template>
+                    <custom-button label='Delete'>
+                      <template v-slot:icon>
+                        <delete-icon style='width: 13px; height:14px'/>
+                      </template>
+                    </custom-button>
+                  </a-popconfirm>
+                </div>
+              </div>
+            </a-dropdown>
           </template>
         </div>
       </div>
@@ -428,9 +437,9 @@ export default {
         //   return boolStatus && content.presentationId &&
         //     !content.fileDeleted && !content.presentationId.startsWith('fake_')
         // }
-        // if (content.type === typeMap.pd) {
-        //   return false
-        // }
+        if (content.type === typeMap.pd) {
+          return false
+        }
 
        return boolStatus
       }

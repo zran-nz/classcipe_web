@@ -174,6 +174,10 @@ export default {
     showNoData: {
       type: Boolean,
       default: false
+    },
+    onlyMe: {
+      type: Boolean,
+      default: false
     }
   },
   watch: {
@@ -704,6 +708,9 @@ export default {
                   }
                   if (this.$route.query && this.$route.query.sessionId) {
                     return event.extendedProps.sessionId !== this.$route.query.sessionId
+                  }
+                  if (this.queryType !== this.CALENDAR_QUERY_TYPE.CLASS.value && this.onlyMe && event.extendedProps.author !== this.info.email) {
+                    return false
                   }
                   return true
                 })
