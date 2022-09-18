@@ -17,10 +17,14 @@
               <div class="unit-tip" v-else>
                 <div
                   class="unit-tip-item"
-                  :style="{backgroundColor: BG_COLORS[item.index]}"
                   v-for="(item) in showSchoolOptions"
                   :key="'school_' + item.id">
-                  <span>{{ item.name }}</span>
+                  <a-space class="tip-tiem">
+                    <a-tooltip :title="item.name">
+                      <img :src="item.avatar"/>
+                    </a-tooltip>
+                    <span :style="{backgroundColor: BG_COLORS[item.index]}"></span>
+                  </a-space>
                 </div>
               </div>
               <div class="calendar-type" v-show="true">
@@ -234,6 +238,7 @@ export default {
         {
           value: '0',
           name: 'Personal',
+          avatar: this.info.avatar,
           id: '0',
           index: 0
         }
@@ -241,6 +246,7 @@ export default {
         return {
           value: item.id,
           name: item.schoolName,
+          avatar: (item.schoolUser && item.schoolUser.avatar) ? item.schoolUser.avatar : this.info.avatar,
           id: item.id,
           index: index + 1
         }
@@ -432,14 +438,22 @@ export default {
       }
       .unit-tip-item {
         padding: 0 5px;
+        .tip-tiem {
+          margin-bottom: 5px;
+        }
         span {
           display: inline-block;
-          height: 30px;
-          line-height: 30px;
-          width:100%;
+          height: 15px;
+          line-height: 15px;
+          width:10px;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+        }
+        img {
+          width: 30px;
+          height: 30px;
+          border-radius: 30px;
         }
       }
     }
