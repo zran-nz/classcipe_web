@@ -13,7 +13,7 @@
               The task is more likely to be purchased by other educators if it is simple, clear and focus on specific learning outcome(s).
               So dividing your main task into small sub-tasks with specific tags is always a good idea.
             </template>
-            <a-button class='cc-dark-button' @click='handleCreateSubtask'>
+            <a-button class='cc-dark-button' @click='handleCreateSubtask' v-if="isOwner">
               Create sub task
             </a-button>
           </a-tooltip>
@@ -21,7 +21,7 @@
             <template slot='title'>
               The task can not be split task without interactive slides, create edit google slides first
             </template>
-            <a-button class='cc-dark-button' :disabled="true">
+            <a-button class='cc-dark-button' :disabled="true" v-if="isOwner">
               Create sub task
             </a-button>
           </a-tooltip>
@@ -43,7 +43,7 @@
                 :show-schedule='true'
                 :show-publish='canPublish'
                 :show-sub='false'
-                :show-set-price='content.status === 1'
+                :show-set-price='content.status === 1 && isOwner'
                 @update-publish='handleShowContentPublish'
                 :show-archive='statusType === 0'
                 :allow-permanent-delete='statusType === 1'
@@ -138,6 +138,9 @@ export default {
     // },
     canPublish() {
       return this.parentTask && !this.parentTask.originalOwner && this.parentTask.owner.email === this.$store.getters.email
+    },
+    isOwner() {
+      return this.parentTask.owner.email === this.$store.getters.email
     }
   },
   created() {
@@ -145,7 +148,6 @@ export default {
       sessionStorage.setItem(SESSION_SUB_FLAG, this.$route.query.subFlag)
     }
     this.initTask()
-    this.QuerySubTask()
   },
   methods: {
     handleGoBack () {
@@ -161,8 +163,8 @@ export default {
         if (res.code === 0) {
           this.parentTask = res.result
         }
+        this.QuerySubTask()
       }).finally(() => {
-        this.loading = false
       })
     },
 
@@ -176,6 +178,9 @@ export default {
         this.$logger.info('QuerySubTask', res.result)
         if (res.code === 0) {
           this.subTaskList = res.result
+          if (this.parentTask.createBy !== this.$store.getters.userInfo.email) {
+            this.subTaskList = this.subTaskList.filter(item => item.status === 1)
+          }
           if (this.statusType === 1) {
             this.subTaskList.forEach(sub => {
               sub.delFlag = 1
