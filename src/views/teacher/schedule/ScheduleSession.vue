@@ -318,7 +318,7 @@ export default {
   created() {
     this.$logger.info(`ScheduleSession created with id: ${this.id} type ${this.type}`)
     this.scheduleReq.planId = this.$route.query.planId
-    if (!this.scheduleReq.planId) {
+    if (!this.scheduleReq.planId && !this.$route.query.hasOwnProperty('planId')) {
       this.handleAssociate()
     }
     if (this.$route.query.classId) {

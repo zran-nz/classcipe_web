@@ -445,7 +445,7 @@ export default {
           display: inline-block;
           height: 15px;
           line-height: 15px;
-          width:10px;
+          width:100px;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;

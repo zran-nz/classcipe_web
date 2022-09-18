@@ -6,7 +6,7 @@
     :maskClosable='false'
     :dialog-style="{ top: '50px'}"
     destroyOnClose
-    width='750px'>
+    width='1200px'>
     <modal-header title='Please select a Unit this session belongs to' :allow-close='false'/>
     <div class='content'>
       <div class='data-list'>
@@ -24,10 +24,23 @@
           </div>
         </div>
       </div>
+      <div class="preview-item">
+        <div class='empty-tips' v-if="!selected">
+          <no-more-resources tips="No content selected" />
+        </div>
+        <div v-else class="preview-wrap">
+          <content-preview-detail
+            :contentId="selected.id"
+            :contentType="selected.type"
+            v-if="!previewLoading"
+          />
+        </div>
+      </div>
     </div>
     <div class='modal-action-right'>
+      <a-button @click='handleBack'>Back</a-button>
       <a-space>
-        <a-button @click='handleBack'>Back</a-button>
+        <a-button @click='handleSkip'>Skip</a-button>
         <a-tooltip v-if="!selected || calculateCantSelect(selected)" title="No completed content selected">
           <a-button :disabled="true" type="primary">Next</a-button>
         </a-tooltip>
@@ -58,7 +71,8 @@ export default {
       selected: null,
       previewCurrentId: null,
       previewType: null,
-      previewVisible: false
+      previewVisible: false,
+      previewLoading: true
     }
   },
   created() {
@@ -83,6 +97,10 @@ export default {
         this.previewCurrentId = data.id
         this.previewType = data.type
         this.previewVisible = true
+        this.previewLoading = true
+        setTimeout(() => {
+          this.previewLoading = false
+        }, 300)
       })
     },
     handlePreviewClose () {
@@ -93,6 +111,9 @@ export default {
     },
     handleConfirmSelect () {
       this.$emit('select', this.selected)
+    },
+    handleSkip() {
+      this.$emit('select', { id: '' })
     },
     calculateCantSelect(content) {
       // (content.type === typeMap.task || content.type === typeMap.pd) &&
@@ -120,19 +141,65 @@ export default {
 .data-list {
   padding: 0 10px 0 5px;
   max-height: 500px;
-  width: 700px;
+  width: 600px;
   overflow-y: auto;
 }
 
 .preview-item {
   padding: 0 10px 0 5px;
   max-height: 500px;
-  width: 650px;
+  width: 600px;
   overflow-y: auto;
+  .preview-wrap {
+    .preview-iframe {
+      height: 100vh;
+      width: 100%;
+      border: none;
+      outline: none;
+    }
+    /deep/ .preview-carousel-wrapper {
+      height: 330px;
+      .slider-img-cover {
+        height: 300px;
+      }
+    }
+    /deep/ .my-common-preview {
+      .top-header {
+        display: none;
+      }
+      .extra-content-preview {
+        display: none;
+      }
+    }
+    /deep/ .empty-tips {
+      margin-top: 170px;
+    }
+    /deep/ .content-preview-detail {
+      .top-fixed-header {
+        display: none!important;
+      }
+      .card-list {
+        width: auto;
+      }
+      .reviews-edit {
+        .reviews-edit__check {
+          div {
+            label {
+              width: 110px;
+            }
+            .ant-rate{
+              font-size: 16px!important;
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 .modal-action-right {
   margin-top: 10px;
+  justify-content: space-between;
 }
 
 .data-content-item {

@@ -619,6 +619,11 @@ export default {
     height: 40px;
   }
 }
+.content-select-right {
+  .empty-tips {
+    margin-top: 170px;
+  }
+}
 .self-type-wrapper {
   cursor: pointer;
   display: flex;
