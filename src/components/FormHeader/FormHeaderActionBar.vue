@@ -20,7 +20,7 @@
         </a-dropdown>
       </div>
       <div class='action-item invite' @click="emitEvent('collaborate')" v-if="showInvite">
-        <a-tooltip title='Collaborate'>
+        <a-tooltip :title='collaborateTips'>
           <collaborate-icon />
         </a-tooltip>
       </div>
@@ -62,7 +62,22 @@ export default {
   data() {
     return {}
   },
+  computed: {
+    collaborateTips() {
+      if (this.form.sourceFrom) {
+        return 'The function of Collaboration cannot be used for non-original content'
+      } else if (!this.form.presentationId || this.form.presentationId.startsWith('fake_')) {
+        return 'Please create your slides first.'
+      } else {
+        return 'Collaborate'
+      }
+    }
+  },
   props: {
+    form: {
+      type: Object,
+      default: () => null
+    },
     showInvite: {
       type: Boolean,
       default: false
@@ -96,6 +111,9 @@ export default {
   },
   methods: {
     emitEvent(eventName) {
+      if (eventName === 'collaborate' && this.collaborateTips !== 'Collaborate') {
+        return
+      }
       this.$emit(eventName)
     }
   }
