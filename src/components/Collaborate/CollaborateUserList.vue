@@ -243,6 +243,7 @@ import { CollaborateStatus } from '@/const/teacher'
 import { isEmail } from '@/utils/util'
 // import { MSG } from '@/websocket/cmd'
 import { mapGetters } from 'vuex'
+import { ClasscipeEvent, ClasscipeEventBus } from '@/classcipeEventBus'
 // import { NotificationTypeMap } from '@/views/dashboard/NotificationTypeMap'
 const { debounce } = require('lodash-es')
 
@@ -342,6 +343,10 @@ export default {
     this.debounceSearchUser = debounce(this.searchUser, 500)
     this.queryContentCollaborates()
     this.findHistoryUsers()
+    ClasscipeEventBus.$on(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleEnsureSelect)
+  },
+  beforeDestroy() {
+    ClasscipeEventBus.$off(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleEnsureSelect)
   },
   methods: {
     handleFocusInput () {
@@ -360,7 +365,7 @@ export default {
       this.selectedUserList = list
       this.$logger.info('after handleCloseTag', this.selectedUserList)
     },
-    handleEnsureSelect () {
+    async handleEnsureSelect() {
       this.$logger.info('handleEnsureSelect', this.selectedUserList)
       const inviteData = {
         id: this.contentId,
@@ -370,20 +375,24 @@ export default {
         message: this.inviteMessage
       }
       this.conformLoading = true
-      CollaboratesInvite(inviteData).then(response => {
-        if (response.success) {
-          this.$message.success('Invite successfully')
-        } else {
-          this.$message.error(response.message)
+      const response = await CollaboratesInvite(inviteData)
+      if (response.success) {
+        if (response.code === 520 || response.code === 403) {
+          this.$logger.info('等待授权回调')
+          this.$message.loading('Waiting for Google Slides auth...', 10)
+          this.nextLoading = false
+          return
         }
-      }).finally(() => {
-        this.conformLoading = false
-        this.selectedUserList = []
-        this.userNameOrEmail = ''
-        this.queryContentCollaborates()
-        this.searchUser()
-        this.showUser = false
-      })
+        this.$message.success('Invite successfully')
+      } else {
+        this.$message.error(response.message)
+      }
+      this.conformLoading = false
+      this.selectedUserList = []
+      this.userNameOrEmail = ''
+      this.queryContentCollaborates()
+      this.searchUser()
+      this.showUser = false
     },
     searchUser () {
       this.$logger.info('searchUser ' + this.userNameOrEmail)

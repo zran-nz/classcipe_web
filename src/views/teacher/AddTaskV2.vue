@@ -808,13 +808,13 @@ export default {
     })
 
     this.$EventBus.$on('assessment-saved', this.autoSaveMixinUpdateSaveTime)
-    ClasscipeEventBus.$on(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleEditGoogleSlide)
+    ClasscipeEventBus.$on(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleGoogleAuthCallback)
   },
   beforeDestroy() {
     this.$EventBus.$off(SlideEvent.SELECT_TEMPLATE, this.handleSelectTemplate)
     this.$EventBus.$off(SlideEvent.CANCEL_SELECT_TEMPLATE, this.handleRemoveTemplate)
     this.$EventBus.$off('assessment-saved', this.autoSaveMixinUpdateSaveTime)
-    ClasscipeEventBus.$off(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleEditGoogleSlide)
+    ClasscipeEventBus.$off(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleGoogleAuthCallback)
   },
   methods: {
     initData() {
@@ -1753,6 +1753,11 @@ export default {
       this.$logger.info('handleUpdateQuestion', data)
       this.form.questions = data.map(item => ({ id: item.id, name: item.name }))
       this.$logger.info('handleUpdateQuestion questions', this.form.questions)
+    },
+    handleGoogleAuthCallback() {
+      if (!this.showCollaborateModalVisible) {
+        this.handleEditGoogleSlide()
+      }
     }
   }
 }
