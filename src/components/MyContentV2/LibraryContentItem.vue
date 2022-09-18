@@ -133,6 +133,7 @@
         :review-edit='false'
         :review-create='false'
         :school-resource=schoolResource
+        :is-library="true"
         v-if='previewVisible'
         @close='handlePreviewClose' />
 

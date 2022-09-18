@@ -39,6 +39,7 @@
               v-for='item in myContentList'
               :key='item.id'
               :content='item.content'
+              :school-resource="queryParams.queryType === 2"
               :session='item'>
               <template v-slot:cover-action>
                 <div class='cover-action'>

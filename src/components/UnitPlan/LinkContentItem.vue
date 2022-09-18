@@ -158,6 +158,7 @@
       :content-id='previewCurrentId'
       :content-type='previewType'
       :school-resource="schoolResource"
+      :is-library="isLibrary"
       v-if='previewVisible'
       @close='handlePreviewClose' />
 
@@ -268,6 +269,10 @@ export default {
       default: false
     },
     schoolResource: {
+      type: Boolean,
+      default: false
+    },
+    isLibrary: {
       type: Boolean,
       default: false
     }

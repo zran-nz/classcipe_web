@@ -111,6 +111,8 @@
       :content-id='previewCurrentId'
       :content-type='previewType'
       :showEditButton="false"
+      :is-library="isLibrary"
+      :school-resource="isSchoolResource"
       v-if='previewVisible'
       @close='handlePreviewClose' />
   </div>
@@ -128,6 +130,7 @@ import { BG_COLORS, CALENDAR_QUERY_TYPE } from '@/const/common'
 import { typeMap } from '@/const/teacher'
 import { ContentItemMixin } from '@/mixins/ContentItemMixin'
 import moment from 'moment'
+import { mapState } from 'vuex'
 
 export default {
   name: 'SessionEventContent',
@@ -200,6 +203,30 @@ export default {
   },
   created() {
     this.initData()
+  },
+  computed: {
+    ...mapState({
+      userInfo: state => state.user.info,
+      currentSchool: state => state.user.currentSchool
+    }),
+    isLibrary() {
+      if (this.info.event.extendedProps && this.info.event.extendedProps.author === this.userInfo.email) {
+        return false
+      }
+      return true
+    },
+    isSchoolResource() {
+      if (this.info.event.extendedProps.schoolId === '0') {
+        return false
+      } else if (this.info.event.extendedProps && this.info.event.extendedProps.author === this.userInfo.email) {
+        return false
+      } else {
+        return true
+      }
+    },
+    schoolResourceId() {
+      return this.info.event.extendedProps.schoolId
+    }
   },
   methods: {
     moment,

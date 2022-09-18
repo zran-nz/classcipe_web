@@ -1,5 +1,5 @@
 import { GetCollaborateComment, GetCollaborateModifiedHistory, QueryContentCollaborates } from '@/api/collaborate'
-import { COLLABORATE, SAVE_CONTENT } from '@/websocket/cmd'
+// import { COLLABORATE, SAVE_CONTENT } from '@/websocket/cmd'
 import CollborateMsg from '@/websocket/model/collborateMsg'
 import SaveContentMsg from '@/websocket/model/saveContentMsg'
 import { isEqualWith } from 'lodash-es'
@@ -271,8 +271,8 @@ export const BaseEventMixin = {
           }
       }
       if (userIds.length > 0) {
-          this.vueSocket.sendMessageToUsers(COLLABORATE, userIds,
-          CollborateMsg.convert2CollborateMsg(collaborate))
+          // this.vueSocket.sendMessageToUsers(COLLABORATE, userIds,
+          // CollborateMsg.convert2CollborateMsg(collaborate))
       }
     },
 
@@ -290,8 +290,8 @@ export const BaseEventMixin = {
         }
       }
       if (userIds.length > 0) {
-          this.vueSocket.sendMessageToUsers(SAVE_CONTENT, userIds,
-          SaveContentMsg.convert2SaveContentMsg(contentMsg))
+          // this.vueSocket.sendMessageToUsers(SAVE_CONTENT, userIds,
+          // SaveContentMsg.convert2SaveContentMsg(contentMsg))
       }
     },
 

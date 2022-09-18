@@ -241,9 +241,9 @@ import {
 import * as logger from '@/utils/logger'
 import { CollaborateStatus } from '@/const/teacher'
 import { isEmail } from '@/utils/util'
-import { MSG } from '@/websocket/cmd'
+// import { MSG } from '@/websocket/cmd'
 import { mapGetters } from 'vuex'
-import { NotificationTypeMap } from '@/views/dashboard/NotificationTypeMap'
+// import { NotificationTypeMap } from '@/views/dashboard/NotificationTypeMap'
 const { debounce } = require('lodash-es')
 
 export default {
@@ -530,11 +530,11 @@ export default {
         logger.info('handleChange', res)
         this.$message.success('Update successfully')
       }).then(() => {
-        this.vueSocket.sendMessageToUsers(MSG, [user.userId],
-          {
-            busType: NotificationTypeMap.changeCollaborate,
-            busId: user.sourceId
-          })
+        // this.vueSocket.sendMessageToUsers(MSG, [user.userId],
+        //   {
+        //     busType: NotificationTypeMap.changeCollaborate,
+        //     busId: user.sourceId
+        //   })
       })
     },
     handleRemove(user, index) {

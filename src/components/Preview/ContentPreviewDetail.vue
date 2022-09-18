@@ -512,7 +512,8 @@
 
       <div class='line-split'></div>
 
-      <div class='card-list-wrapper' v-if="content.subTasks && content.subTasks.length">
+      <!-- 学校模式下不展示subtask-->
+      <div class='card-list-wrapper' v-if="showSubtask && content.subTasks && content.subTasks.length">
         <div class='card-list-title'>
           <div class='sub-task-title'>
             Sub tasks ({{ content.subTasks.length }})
@@ -534,7 +535,7 @@
         </div>
       </div>
 
-      <div class='card-list-wrapper' v-if="associateList.length">
+      <div class='card-list-wrapper' v-if="showRelated && associateList.length">
         <div class='card-list-title'>
           <div class='sub-task-title'>
             <template v-if="associateList[0].type === typeMap['unit-plan']">Related Unit</template>
@@ -558,30 +559,30 @@
         </div>
       </div>
 
-      <div class='card-list-wrapper' v-if="associatePdList.length">
-        <div class='card-list-title'>
-          <div class='sub-task-title'>
-            Related PD
-            ({{ associatePdList.length }})
-          </div>
-          <div class='go-to-list'>
-            <!--            <custom-link-text text='Enter' @click='goTLinkList' v-show='content.createBy === $store.getters.email'></custom-link-text>-->
-          </div>
-        </div>
-        <div class='scroll-left' @click="scrollLeft('taskUnit')">
-          <a-icon type="left-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
-        </div>
-        <div class='scroll-right' @click="scrollRight('taskUnit')">
-          <a-icon type="right-circle" :style="{fontSize: '22px', color: '#dddddd'}" />
-        </div>
-        <div class='card-list' id='pd'>
-          <div class="card-item" v-for="(associate, i) in associatePdList" :key="i" @click='handlePreviewItem(associate)'>
-            <card-list-item :content="associate" :width="16" :inner-desc="false" :outer-desc="true" />
-          </div>
-        </div>
-      </div>
+      <!--      <div class='card-list-wrapper' v-if="showRelated && !schoolResource && associatePdList.length">-->
+      <!--        <div class='card-list-title'>-->
+      <!--          <div class='sub-task-title'>-->
+      <!--            Related PD-->
+      <!--            ({{ associatePdList.length }})-->
+      <!--          </div>-->
+      <!--          <div class='go-to-list'>-->
+      <!--            &lt;!&ndash;            <custom-link-text text='Enter' @click='goTLinkList' v-show='content.createBy === $store.getters.email'></custom-link-text>&ndash;&gt;-->
+      <!--          </div>-->
+      <!--        </div>-->
+      <!--        <div class='scroll-left' @click="scrollLeft('taskUnit')">-->
+      <!--          <a-icon type="left-circle" :style="{fontSize: '22px', color: '#dddddd'}" />-->
+      <!--        </div>-->
+      <!--        <div class='scroll-right' @click="scrollRight('taskUnit')">-->
+      <!--          <a-icon type="right-circle" :style="{fontSize: '22px', color: '#dddddd'}" />-->
+      <!--        </div>-->
+      <!--        <div class='card-list' id='pd'>-->
+      <!--          <div class="card-item" v-for="(associate, i) in associatePdList" :key="i" @click='handlePreviewItem(associate)'>-->
+      <!--            <card-list-item :content="associate" :width="16" :inner-desc="false" :outer-desc="true" />-->
+      <!--          </div>-->
+      <!--        </div>-->
+      <!--      </div>-->
 
-      <div class='card-list-wrapper' v-if="associateVideoList.length">
+      <div class='card-list-wrapper' v-if="showRelated && associateVideoList.length">
         <div class='card-list-title'>
           <div class='sub-task-title'>
             Video
@@ -604,7 +605,7 @@
         </div>
       </div>
 
-      <div class='card-list-wrapper' v-if="associateRecommendList.length">
+      <div class='card-list-wrapper' v-if="showRecommend && associateRecommendList.length">
         <div class='card-list-title'>
           <div class='sub-task-title'>
             Recommend
@@ -670,6 +671,8 @@
       :review-edit='reviewEdit'
       :review-create='reviewCreate'
       :review-list='reviewList'
+      :is-library="isLibrary"
+      :school-resource="schoolResource"
       v-if='previewVisible'
       @close='handlePreviewClose' />
 
@@ -796,6 +799,26 @@ export default {
       default: null
     },
     schoolResource: {
+      type: Boolean,
+      default: false
+    },
+    schoolResourceId: {
+      type: String,
+      default: null
+    },
+    showSubtask: {
+      type: Boolean,
+      default: true
+    },
+    showRelated: {
+      type: Boolean,
+      default: true
+    },
+    showRecommend: {
+      type: Boolean,
+      default: true
+    },
+    isLibrary: {
       type: Boolean,
       default: false
     }
@@ -960,7 +983,7 @@ export default {
         console.log('loadDetailByContentIDType', ret)
         if (ret.code === 0) {
           this.content = ret.result
-          this.favoriteFlag = this.content.isFavorite
+          this.favoriteFlag = this.content && this.content.isFavorite
           this.loadExtraData()
         } else {
           this.$message.error(ret.message)
@@ -984,6 +1007,12 @@ export default {
       }
       if (this.schoolResource) {
         params.schoolId = this.currentSchool.id
+        if (this.schoolResourceId) {
+          params.schoolId = this.schoolResourceId
+        }
+      }
+      if (this.isLibrary) {
+        params.published = 1
       }
       if (contentType === this.$classcipe.typeMap['unit-plan']) {
         return UnitPlanQueryById(params)
@@ -1067,13 +1096,13 @@ export default {
 
     initVideoList () {
       this.videoList = []
-      if (this.content.video) {
+      if (this.content && this.content.video) {
         this.videoList.push({
           url: this.content.video
         })
       }
 
-      if (this.content.coverVideo) {
+      if (this.content && this.content.coverVideo) {
         this.videoList.push({
           url: this.content.coverVideo
         })
@@ -1136,13 +1165,19 @@ export default {
 
     async loadAssociateData () {
       try {
-        const isLibrary = location.href.indexOf('library') > 0 || location.href.indexOf('my-published') > 0
-        const slideData = await GetAssociate({
+        const params = {
           id: this.contentId,
           type: this.contentType,
-          published: isLibrary ? 1 : 0,
+          published: this.isLibrary ? 1 : 0,
           preview: true // 只预览自己的内容
-        })
+        }
+        if (this.schoolResource) {
+          params.schoolId = this.currentSchool.id
+          if (this.schoolResourceId) {
+            params.schoolId = this.schoolResourceId
+          }
+        }
+        const slideData = await GetAssociate(params)
         console.log('loadAssociateData', slideData)
         const list = slideData.result.owner
         this.associateList = []
@@ -1177,10 +1212,20 @@ export default {
      */
     async loadAssociateRecommendData () {
       try {
-        const recommendData = await GetAssociateRecommend({
+        const params = {
           id: this.contentId,
           type: this.contentType
-        })
+        }
+        if (this.schoolResource) {
+          params.schoolId = this.currentSchool.id
+          if (this.schoolResourceId) {
+            params.schoolId = this.schoolResourceId
+          }
+        }
+        if (this.isLibrary) {
+          params.published = 1
+        }
+        const recommendData = await GetAssociateRecommend(params)
         this.associateRecommendList = recommendData.result
         console.log('loadAssociateRecommendData', this.associateRecommendList)
       } catch (e) {
