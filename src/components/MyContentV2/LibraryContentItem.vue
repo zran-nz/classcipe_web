@@ -64,18 +64,31 @@
             </div>
           </div>
           <div class='owner'>
-            <template v-if='content.owner'>
-              <a-avatar :src='content.owner.avatar' size="small" />
+            <template v-if="!schoolResource || content.createBy === $store.getters.userInfo.email">
+              <template v-if='content.owner'>
+                <a-avatar v-if='content.owner.avatar' :src='content.owner.avatar' size="small" />
+                <img v-else src="~@/assets/icons/library/default-avatar.png"/>
+              </template>
+              <template v-else>
+                <a-avatar size="small">{{ content.createBy.toUpperCase()[0] }}</a-avatar>
+              </template>
+              <div class='user-name'>
+                {{ (content.owner ? (content.owner.firstname + ' ' + content.owner.lastname) : content.createBy) | upCaseFirst }}
+              </div>
             </template>
             <template v-else>
-              <a-avatar size="small">{{ content.createBy.toUpperCase()[0] }}</a-avatar>
+              <template>
+                <template>
+                  <a-avatar v-if='currentSchool.logo' :src='currentSchool.logo' size="small" />
+                  <img v-else src="~@/assets/icons/library/default-avatar.png"/>
+                </template>
+                <a-tooltip :title="currentSchool.schoolName">
+                  <div class='user-name' style="width: 100px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                    {{ currentSchool.schoolName }}
+                  </div>
+                </a-tooltip>
+              </template>
             </template>
-            <!-- <div class='user-name' v-if="content.owner.email === $store.getters.email">
-              Me
-            </div> -->
-            <div class='user-name'>
-              {{ (content.owner ? (content.owner.firstname + ' ' + content.owner.lastname) : content.createBy) | upCaseFirst }}
-            </div>
           </div>
           <div class='update-time' v-if="category == 'released'">
             {{ (content.publishTime) | dayjs }}
@@ -87,7 +100,7 @@
         <div class='right-info'>
           <div class='buy-info' @click.stop=''>
             <a-space>
-              <template v-if="!(content.createBy !== $store.getters.userInfo.email && content.buyed && content.myContentId == -1)">
+              <template v-if="content.createBy === $store.getters.userInfo.email && (!schoolResource || !(content.buyed && content.myContentId == -1))">
                 <div class='price'>${{ content.discountPrice || content.price || 0 }}</div>
                 <div v-if="content.discountPrice > 0 && content.discountPrice !== content.price" class='price_was'>${{ content.price }}</div>
               </template>
@@ -174,6 +187,7 @@ import { ContentBuy } from '@/api/v2/mycontent'
 import { ContentGradeSave } from '@/api/contentGrade'
 import ModalHeader from '@/components/Common/ModalHeader'
 import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
+import { mapState } from 'vuex'
 
 export default {
   name: 'LibraryContentItem',
@@ -221,6 +235,11 @@ export default {
     this.allowPreview = this.clickPreview
   },
   computed: {
+     ...mapState({
+      currentSchool: state => state.user.currentSchool,
+      classList: state => state.user.classList,
+      info: state => state.user.info
+    }),
     status() {
       return this.content.status
     },

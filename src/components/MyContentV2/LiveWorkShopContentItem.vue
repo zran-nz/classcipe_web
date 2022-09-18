@@ -50,13 +50,16 @@
 
           <a-space direction="vertical" style="align-items: flex-start;" class='update-time' v-show="!showEditSche">
             <label style="text-align:left;" for="" v-if="content.sessionStartTime">
-              <span style="display:inline-block; width: 100px;">Scheduled:</span> {{ content.sessionStartTime | dayjs('YYYY-MM-DD HH:mm') }} - {{ content.sessionEndTime | dayjs('YYYY-MM-DD HH:mm') }}
+              <span style="display:inline-block; width: 100px;">Scheduled:</span> {{ content.sessionStartTime | dayjs('YYYY-MM-DD HH:mm') }} - {{ content.sessionEndTime | dayjs(filterSessionEndTime) }}
             </label>
-            <label style="text-align:left;" for="" v-if="filterDeadline && WORK_SHOPS_TYPE.FEATURE.value === content.workshopsType && isCurrentType(WORK_SHOPS_TYPE.FEATURE.value)">
-              <span style="display:inline-block; width: 100px;">REG deadline:</span>  {{ filterDeadline | countDown }}
+            <label style="text-align:left;" for="" v-if="filterDeadline && isCurrentType(WORK_SHOPS_TYPE.FEATURE.value) && WORK_SHOPS_TYPE.REGISTERED.value !== content.workshopsType">
+              <span style="display:inline-block; width: 100px;">REG deadline:</span>  <span style="font-weight: bold;color:#ef4136;">{{ filterDeadline | countDown }}</span>
             </label>
-            <label style="text-align:left;" for="" v-if="WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType && isCurrentType(WORK_SHOPS_TYPE.REGISTERED.value) && WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus ">
-              <span style="display:inline-block; width: 100px;">CANC deadline:</span>  {{ moment(content.sessionStartTime).subtract(24, 'hours') | countDown }}
+            <!-- <label style="text-align:left;" for="" v-if="WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType && isCurrentType(WORK_SHOPS_TYPE.REGISTERED.value) && WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus ">
+              <span style="display:inline-block; width: 100px;">CANC deadline:</span>  <span style="font-weight: bold;color:#ef4136;">{{ moment(content.sessionStartTime).subtract(24, 'hours') | countDown }}</span>
+            </label> -->
+            <label style="text-align:left;" for="" v-if="(isCurrentType(WORK_SHOPS_TYPE.LUNCHEDBYME.value) || isCurrentType(WORK_SHOPS_TYPE.REGISTERED.value)) && WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus ">
+              <span style="display:inline-block; width: 100px;">Countdown:</span>  <span style="font-weight: bold;color:#ef4136;">{{ content.sessionStartTime | countDown }}</span>
             </label>
           </a-space>
           <div class="update-time" v-show="showEditSche">
@@ -267,16 +270,12 @@
             <div class='content-item-more-action' slot='overlay'>
               <div class='menu-item' v-if="WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus && isReadyStart24(content)">
                 <custom-button label='Cancel' @click='handleCancel(content)'>
-                  <template v-slot:icon>
-                    <icon-font type="icon-cancel" class="detail-font"/>
-                  </template>
+
                 </custom-button>
               </div>
               <div class='menu-item' v-if="WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus && !isReadyStart24(content)">
                 <custom-button label='Cancel' :disabled="true" disabledTooltip="Out of deadline">
-                  <template v-slot:icon>
-                    <icon-font type="icon-cancel" class="detail-font"/>
-                  </template>
+
                 </custom-button>
               </div>
               <div class='menu-item' v-if="0 === content.session.delFlag && WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus && !isReadyStart24(content)">
@@ -444,7 +443,18 @@ export default {
       if (this.content && this.content.session && this.content.session.register && this.content.session.register.registerBefore) {
         return this.content.session.register.registerBefore
       }
+      if (this.content && this.content.sessionStartTime) {
+        return this.content.sessionStartTime
+      }
       return ''
+    },
+    filterSessionEndTime() {
+      if (this.content.sessionStartTime) {
+        if (moment(this.content.sessionStartTime).isSame(moment(this.content.sessionEndTime), 'day')) {
+          return 'HH:mm'
+        }
+      }
+      return 'YYYY-MM-DD HH:mm'
     },
     isLibrary() {
       if (this.content.content && this.content.content.createBy === this.info.email) {
@@ -559,7 +569,8 @@ export default {
     },
     isReadyStart24(item) {
       if (!item.sessionStartTime) return true
-      const start = moment(item.sessionStartTime).utc().subtract(24, 'hours')
+      const start = moment.utc(item.sessionStartTime).local().subtract(24, 'hours')
+      console.log(start.format('YYYY-MM-DD HH:mm:ss'))
       return moment().isBefore(start)
     },
     handleCancelSingle(item) {

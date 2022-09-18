@@ -258,7 +258,7 @@
           </div>
           <div class='col-info' v-else>
             <div class='price-info'>
-              <a-space :size='5' v-show='showPriceInfo'>
+              <a-space :size='5' v-show='showPriceInfo && (!schoolResource || !(content.buyed && content.myContentId == -1))'>
                 <div class='discount-price'>
                   ${{ content.discountPrice || content.price || 0 }}
                 </div>
@@ -1488,8 +1488,8 @@ export default {
     },
     isReadyStart24(item) {
       if (!item.sessionStartTime) return true
-      const start = moment(item.sessionStartTime).utc().subtract(24, 'hours')
-      return moment().isAfter(start)
+      const start = moment.utc(item.sessionStartTime).local().subtract(24, 'hours')
+      return moment().isBefore(start)
     }
   }
 }

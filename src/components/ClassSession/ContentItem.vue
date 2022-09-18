@@ -31,10 +31,14 @@
               {{ (session && session.session && session.session.register.title) || (content && content.name) || (session && session.session && session.session.className) }}
             </div>
             <div class='schedule-time'>
-              <template v-if='session.session.sessionStartTime && session.session.deadline'>
-                {{ session.session.sessionStartTime | dayjs('YYYY-MM-DD HH:mm') }} -
-                {{ session.session.deadline | dayjs('YYYY-MM-DD HH:mm') }}
-              </template>
+              <a-space direction="vertical" style="align-items: flex-start;line-height: 1;" class='update-time' v-if="session.session.sessionStartTime && session.session.deadline">
+                <label style="text-align:left;" for="" v-if="session.session.sessionStartTime">
+                  <span style="display:inline-block; width: 100px;">Scheduled:</span> {{ session.session.sessionStartTime | dayjs('YYYY-MM-DD HH:mm') }} - {{ session.session.deadline | dayjs(filterSessionEndTime) }}
+                </label>
+                <label style="text-align:left;" for="" v-if="WORK_SHOPS_STATUS.SCHEDULE.value === session.status ">
+                  <span style="display:inline-block; width: 100px;">Countdown:</span>  <span style="font-weight: bold;color:#ef4136;">{{ session.session.sessionStartTime | countDown }}</span>
+                </label>
+              </a-space>
               <template v-else>
                 session time not set
               </template>
@@ -323,6 +327,14 @@ export default {
         return true
       }
       return false
+    },
+    filterSessionEndTime() {
+      if (this.session.session.deadline) {
+        if (moment(this.session.session.deadline).isSame(moment(this.session.session.sessionStartTime), 'day')) {
+          return 'HH:mm'
+        }
+      }
+      return 'YYYY-MM-DD HH:mm'
     }
   },
   methods: {
@@ -579,7 +591,7 @@ export default {
           align-items: center;
           justify-content: space-between;
           .content-name {
-            width: calc(100% - 300px);
+            width: calc(100% - 400px);
             margin-right: 5px;
             color: #17181A;
             text-overflow: ellipsis;
