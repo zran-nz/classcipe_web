@@ -204,16 +204,25 @@
                 <sub-task-icon style='width: 13px; height:14px'/>
               </template>
             </custom-button>
-            <a-popconfirm v-if="showCollaborateDelete" placement="topRight" ok-text="Yes" @confirm="handleCollaborateDeleteItem" cancel-text="No">
-              <template v-slot:title>
-                Confirm delete this content?
-              </template>
-              <custom-button label="Delete" >
-                <template v-slot:icon >
-                  <delete-icon style='width: 13px; height:14px'/>
-                </template>
-              </custom-button>
-            </a-popconfirm>
+            <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement' v-if="showCollaborateDelete">
+              <div class='more-action'>
+                <more-icon />
+              </div>
+              <div class='content-item-more-action' slot='overlay'>
+                <div class='menu-item'>
+                  <a-popconfirm placement="topRight" ok-text="Yes" @confirm="handleCollaborateDeleteItem" cancel-text="No">
+                    <template v-slot:title>
+                      Confirm delete this content?
+                    </template>
+                    <custom-button label="Delete" >
+                      <!-- <template v-slot:icon >
+                        <delete-icon style='width: 13px; height:14px'/>
+                      </template> -->
+                    </custom-button>
+                  </a-popconfirm>
+                </div>
+              </div>
+            </a-dropdown>
             <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement' v-if="(showArchive && content.owner.email === $store.getters.email && content.status !== 1)">
               <div class='more-action'>
                 <more-icon />

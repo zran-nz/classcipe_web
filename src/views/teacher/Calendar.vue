@@ -5,7 +5,7 @@
         <div class="schedule-tip" v-show="attendanceVisible">
           <a-affix :target="affixTarget">
             <div class="tip-wrap">
-              <div class="unit-tip" v-if="queryType !== CALENDAR_QUERY_TYPE.MY.value">
+              <div class="unit-tip" v-if="queryType === CALENDAR_QUERY_TYPE.CLASS.value">
                 <div
                   class="unit-tip-item"
                   :style="{backgroundColor: BG_COLORS[item.index]}"
@@ -15,7 +15,19 @@
                 </div>
               </div>
               <div class="unit-tip" v-else>
-                <div
+                <a-checkbox-group
+                  :options="showSchoolOptions"
+                  v-model="schoolFilters"
+                  class="unit-tip-item"
+                >
+                  <a-space slot="label" class="tip-item" slot-scope="item">
+                    <a-tooltip :title="item.name">
+                      <img :src="item.avatar"/>
+                    </a-tooltip>
+                    <span :style="{backgroundColor: BG_COLORS[item.index]}"></span>
+                  </a-space>
+                </a-checkbox-group>
+                <!-- <div
                   class="unit-tip-item"
                   v-for="(item) in showSchoolOptions"
                   :key="'school_' + item.id">
@@ -25,25 +37,25 @@
                     </a-tooltip>
                     <span :style="{backgroundColor: BG_COLORS[item.index]}"></span>
                   </a-space>
-                </div>
+                </div> -->
               </div>
               <div class="calendar-type" v-show="true">
                 <div class="calendar-type-item">
                   <div class="type-item-title">
-                    <a-radio :checked="queryType === CALENDAR_QUERY_TYPE.WORKSHOP.value" @change="handleChangeType(CALENDAR_QUERY_TYPE.WORKSHOP)">
+                    <a-checkbox :checked="queryType.indexOf(CALENDAR_QUERY_TYPE.WORKSHOP.value) > -1" @change="e => handleChangeType(CALENDAR_QUERY_TYPE.WORKSHOP, e)">
                       {{ CALENDAR_QUERY_TYPE.WORKSHOP.label }}
-                    </a-radio>
+                    </a-checkbox>
                   </div>
                   <div class="type-item-desc">
                     <a-checkbox-group
                       :options="WorkShopOptions"
-                      v-model="typeFilters"
+                      v-model="workFilters"
                       @change="val => handleChangeFilters(val, CALENDAR_QUERY_TYPE.WORKSHOP.value)"
                       class="type-check algin-top"
                     >
                       <div slot="label" class="type-content" slot-scope="item">
                         <span>{{ item.name }}</span>
-                        <div v-if="item.children && typeFilters.includes(1)">
+                        <div v-if="item.children && workFilters.includes(1)">
                           <a-checkbox-group
                             :options="item.children"
                             v-model="subFilters"
@@ -61,9 +73,9 @@
                 </div>
                 <div class="calendar-type-item">
                   <div class="type-item-title">
-                    <a-radio :checked="queryType === CALENDAR_QUERY_TYPE.MY.value" @change="handleChangeType(CALENDAR_QUERY_TYPE.MY)">
+                    <a-checkbox :checked="queryType.indexOf(CALENDAR_QUERY_TYPE.MY.value) > -1" @change="e => handleChangeType(CALENDAR_QUERY_TYPE.MY, e)">
                       {{ CALENDAR_QUERY_TYPE.MY.label }}
-                    </a-radio>
+                    </a-checkbox>
                   </div>
                   <div class="type-item-desc">
                     <a-checkbox-group
@@ -87,6 +99,18 @@
                       </a-tooltip>
                     </a-radio>
                   </div>
+                  <div class="type-item-desc">
+                    <a-checkbox-group
+                      :options="ClassTypesOptions"
+                      v-model="type.clsFilters"
+                      @change="val => handleChangeFilters(val, CALENDAR_QUERY_TYPE.CLASS.value, type)"
+                      class="type-check"
+                    >
+                      <div slot="label" class="type-content" slot-scope="item">
+                        <span>{{ item.name }}</span>
+                      </div>
+                    </a-checkbox-group>
+                  </div>
                 </div>
               </div>
             </div>
@@ -95,8 +119,10 @@
         <div style="flex:1;">
           <session-calendar
             :showNoData="false"
+            :schoolFilters="schoolFilters"
             :searchType="queryType"
             :searchFilters="searchFilters"
+            :classFilters="classFilters"
             :showTerm="true"
             @change-units="initData"
           />
@@ -133,7 +159,7 @@ export default {
       BG_COLORS: BG_COLORS,
       CALENDAR_QUERY_TYPE: CALENDAR_QUERY_TYPE,
       typeMap: typeMap,
-      queryType: CALENDAR_QUERY_TYPE.MY.value,
+      queryType: [CALENDAR_QUERY_TYPE.MY.value, CALENDAR_QUERY_TYPE.WORKSHOP.value].join(','),
       queryClass: '',
       WorkShopOptions: [
       {
@@ -182,13 +208,31 @@ export default {
           value: 'IA'
         }
       ],
-      subFilters: [],
+      ClassTypesOptions: [
+        {
+          id: 1,
+          index: 1,
+          name: 'My Session',
+          value: 1
+        },
+         {
+          id: 2,
+          index: 2,
+          name: 'Others',
+          value: 2
+        }
+      ],
+      subFilters: [3, 4],
+      workFilters: [1, 2],
       typeFilters: ['FA', 'SA', 'Activity', 'IA'], // 根据类型的筛选条件
+      classFilters: [1, 2],
       currentUnitList: [],
       attendanceVisible: true,
       loading: false,
       // classList: [],
-      subjectOptions: []
+      subjectOptions: [],
+      showClassOptions: [],
+      schoolFilters: []
     }
   },
   // watch: {
@@ -223,16 +267,6 @@ export default {
         }
       })
     },
-    showClassOptions() {
-      return this.classList.map((item, index) => (
-        {
-          ...item,
-          value: item.id,
-          name: item.name,
-          index: index
-        }
-      ))
-    },
     showSchoolOptions() {
       return [
         {
@@ -253,7 +287,7 @@ export default {
       }))
     },
     searchFilters() {
-      return this.typeFilters.concat(this.subFilters)
+      return this.typeFilters.concat(this.subFilters).concat(this.workFilters)
     }
   },
   created() {
@@ -299,6 +333,17 @@ export default {
           this.subjectOptions = options
         }
       })
+      this.showClassOptions = this.classList.map((cls, index) => {
+        const item = { ...cls }
+        return {
+          ...item,
+          value: item.id,
+          name: item.name,
+          index: index,
+          clsFilters: []
+        }
+      })
+      this.schoolFilters = this.showSchoolOptions.map(item => item.value)
     },
     initData(currentUnitList) {
       this.currentUnitList = cloneDeep(currentUnitList)
@@ -317,41 +362,86 @@ export default {
       }
       return this[typeLabel] ? this[typeLabel] : []
     },
-    handleChangeType(type) {
-      this.queryType = type.value
-      if (type.value === CALENDAR_QUERY_TYPE.WORKSHOP.value) {
-        this.typeFilters = [1, 2]
+    handleChangeType(type, e) {
+      const checked = e.target.checked
+      const actualQuery = [CALENDAR_QUERY_TYPE.WORKSHOP.value, CALENDAR_QUERY_TYPE.MY.value].filter(item => {
+        return (type.value === item) ? checked : this.queryType.indexOf(item) > -1
+      })
+      this.queryType = actualQuery.join(',')
+
+      if (this.queryType.indexOf(CALENDAR_QUERY_TYPE.WORKSHOP.value) > -1) {
+        this.workFilters = [1, 2]
         this.subFilters = [3, 4]
-      } else if (type.value === CALENDAR_QUERY_TYPE.MY.value) {
-        this.typeFilters = ['FA', 'SA', 'IA', 'Activity']
+      } else {
         this.subFilters = []
+        this.workFilters = []
+      }
+      if (this.queryType.indexOf(CALENDAR_QUERY_TYPE.MY.value) > -1) {
+        this.typeFilters = ['FA', 'SA', 'IA', 'Activity']
+      } else {
+        this.typeFilters = []
       }
     },
-    handleChangeFilters(filter, val) {
-      if (!filter.includes(1)) {
+    handleChangeFilters(filter, val, cls) {
+      if (val === CALENDAR_QUERY_TYPE.CLASS.value) {
+        this.classFilters = filter
+        this.queryClass = cls.value
+        this.typeFilters = [cls.value]
         this.subFilters = []
-      } else {
-        this.subFilters = [3, 4]
+        this.workFilters = []
+        cls.clsFilters = filter
       }
-      if (this.queryType !== val) {
+      if (val === CALENDAR_QUERY_TYPE.WORKSHOP.value) {
+        if (!filter.includes(1)) {
+          this.subFilters = []
+        } else {
+          this.subFilters = [3, 4]
+        }
+      }
+      if (val === CALENDAR_QUERY_TYPE.CLASS.value) {
         this.queryType = val
+      } else {
+        const actualQuery = [CALENDAR_QUERY_TYPE.WORKSHOP.value, CALENDAR_QUERY_TYPE.MY.value].filter(item => {
+          return (val === item) ? true : this.queryType.indexOf(item) > -1
+        })
+        this.queryType = actualQuery.join(',')
       }
+
+      this.resetClsOptions()
     },
     handleChangeSubFilters(filter, val) {
-      if (filter.length > 0 && !this.typeFilters.includes(1)) {
-        this.typeFilters = this.typeFilters.concat([1])
+      if (filter.length > 0 && !this.workFilters.includes(1)) {
+        this.workFilters = this.workFilters.concat([1])
       }
-      if (filter.length === 0 && this.typeFilters.includes(1)) {
-        this.typeFilters = this.typeFilters.filter(item => item !== 1)
+      if (filter.length === 0 && this.workFilters.includes(1)) {
+        this.workFilters = this.workFilters.filter(item => item !== 1)
       }
-      if (this.queryType !== val) {
+      if (val === CALENDAR_QUERY_TYPE.CLASS.value) {
         this.queryType = val
+      } else {
+        const actualQuery = [CALENDAR_QUERY_TYPE.WORKSHOP.value, CALENDAR_QUERY_TYPE.MY.value].filter(item => {
+          return (val === item) ? true : this.queryType.indexOf(item) > -1
+        })
+        this.queryType = actualQuery.join(',')
       }
     },
     handleChangeClass(type) {
       this.queryType = this.CALENDAR_QUERY_TYPE.CLASS.value
       this.queryClass = type.value
       this.typeFilters = [type.value]
+      this.classFilters = [ ...type.clsFilters ]
+      this.workFilters = []
+      this.subFilters = []
+      this.resetClsOptions()
+    },
+    resetClsOptions() {
+      this.showClassOptions.forEach(item => {
+        if (item.value !== this.queryClass || this.queryType !== CALENDAR_QUERY_TYPE.CLASS.value) {
+          item.clsFilters = []
+        } else if (!item.clsFilters || item.clsFilters.length === 0) {
+          item.clsFilters = [1, 2]
+        }
+      })
     },
     formatViewName(id) {
       const findSubject = this.subjectOptions.find(subject => subject.subjectId === id)
@@ -438,13 +528,17 @@ export default {
       }
       .unit-tip-item {
         padding: 0 5px;
-        .tip-tiem {
+        /deep/ .tip-tiem {
           margin-bottom: 5px;
+          span {
+            height: 15px;
+            line-height: 15px;
+          }
         }
         span {
           display: inline-block;
-          height: 15px;
-          line-height: 15px;
+          height: 25px;
+          line-height: 25px;
           width:100px;
           white-space: nowrap;
           overflow: hidden;

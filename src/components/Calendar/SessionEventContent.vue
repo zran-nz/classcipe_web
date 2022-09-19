@@ -152,7 +152,7 @@ export default {
       default: () => []
     },
     type: {
-      type: Number,
+      type: [Number, String],
       default: CALENDAR_QUERY_TYPE.MY.value
     },
     allDatas: {

@@ -148,7 +148,7 @@ Vue.use(PermissionHelper)
 Vue.use(VueCropper)
 
 const IconFont = Icon.createFromIconfontCN({
-  scriptUrl: '//at.alicdn.com/t/font_3302558_9fyl19jduga.js'
+  scriptUrl: '//at.alicdn.com/t/c/font_3302558_a0c5rpmavgp.js'
 })
 
 Vue.component('icon-font', IconFont)

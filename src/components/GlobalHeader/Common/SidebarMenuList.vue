@@ -19,7 +19,8 @@
         <div class='sub-menu-item' :class="{'active-menu-item': menu.id === activeId && activeId}" v-for='menu in menuList' :key='menu.id' @click='handleClickMenu(menu)'>
           <div class='sub-menu-icon'>
             <student-icon v-if="menu.classType === 0"/>
-            <class-subject-icon v-if="menu.classType === 1" />
+            <!-- <class-subject-icon v-if="menu.classType === 1" /> -->
+            <icon-font v-if="menu.classType === 1" type="icon-boshimao"/>
           </div>
           <div class='sub-menu-label' :title='menu.name'>
             {{ menu.name }}

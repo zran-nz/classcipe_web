@@ -430,7 +430,7 @@ export const asyncRouterMap = [
                 props.endDate = query.endDate
               }
               if (query && query.searchType) {
-                props.searchType = parseInt(query.searchType)
+                props.searchType = query.searchType
               }
               if (query && query.source) {
                 props.source = query.source
