@@ -160,7 +160,7 @@
         >
           <div class="author-info">
             <div class="author-avatar">
-              <a-avatar v-if="isSchoolResource" size="large" :src="currentSchool.logo" />
+              <a-avatar v-if="isSchoolResource && content.owner.email !== $store.getters.email" size="large" :src="currentSchool.logo" />
               <a-avatar v-else-if="content.owner.avatar" size="large" :src="content.owner.avatar" />
               <a-avatar v-else size="large" style="background-color: #517f3f">{{
                 (content.owner
