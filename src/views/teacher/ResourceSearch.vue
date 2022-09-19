@@ -23,7 +23,7 @@
               :show-delete='false'
               :show-button='true'>
             </content-item> -->
-            <library-content-item v-for='item in dataList' :key='item.id' :content='item'></library-content-item>
+            <library-content-item :school-resource="$store.getters.userInfo.school === item.owner.schoolId" v-for='item in dataList' :key='item.id' :content='item'></library-content-item>
           </template>
           <template v-if='dataList.length === 0 && !searching'>
             <div class='empty-tips'>
