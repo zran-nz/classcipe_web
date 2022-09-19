@@ -520,7 +520,7 @@
           <div class='sub-task-title'>
             Sub tasks ({{ content.subTasks.length }})
           </div>
-          <div class='go-to-list' v-if="showEnterButton && !isLibrary">
+          <div class='go-to-list' v-if="showEnterButton && !isLibrary && !schoolResource">
             <custom-link-text text='Enter' @click='goToSubTaskList' v-show='content.createBy === $store.getters.email'></custom-link-text>
           </div>
         </div>
@@ -544,7 +544,7 @@
             <template v-if="associateList[0].type === typeMap.task">Related Task</template>
             ({{ associateList.length }})
           </div>
-          <div class='go-to-list' v-if="showEnterButton">
+          <div class='go-to-list' v-if="showEnterButton && !isLibrary && !schoolResource">
             <custom-link-text text='Enter' @click='goTLinkList' v-show='content.createBy === $store.getters.email'></custom-link-text>
           </div>
         </div>
