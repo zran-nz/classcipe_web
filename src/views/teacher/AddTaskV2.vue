@@ -51,8 +51,7 @@
             v-for='(step, stepIndex) in formSteps'
             :key='step.id'>
             <template v-for='fieldItem in $store.getters.formConfigData.taskCommonList'>
-              <div class='form-field-item' style="height:100%;" v-if='fieldItem.visible && step.commonFields.indexOf(fieldItem.fieldName) !== -1' :key='fieldItem.id'>
-                {{fieldItem.fieldName}} {{taskField}}
+              <div class='form-field-item' :style="fieldItem.fieldName === taskField.LearnOuts?'height:100%;':''" v-if='fieldItem.visible && !["yearList", "subjectList"].includes(fieldItem.fieldName) && step.commonFields.indexOf(fieldItem.fieldName) !== -1' :key='fieldItem.id'>
                 <div v-if='fieldItem.fieldName === taskField.Name' class='form-block tag-content-block'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Name />
                   <custom-form-item :required='emptyRequiredFields.indexOf(taskField.Name) !== -1' :required-field='requiredFields.indexOf(taskField.Name) !== -1'>
@@ -180,7 +179,6 @@
                       :placeholder='taskLabelHint(taskField.Question, $store.getters.formConfigData) || "Search key question(s)"' />
                   </custom-form-item>
                 </div>
-
                 <div v-else-if='fieldItem.fieldName === taskField.LearnOuts' class='form-block tag-content-block' style="height:100%;">
                   <iframe style="width:100%;height:100%;" :src="`/v2/com/task/outline/${taskId}?token=${token}`" frameborder="0"></iframe>
                   <!-- <div class='is-self-learning vertical-between'>
@@ -279,7 +277,7 @@
                     </div>
                   </div>
                 </div>
-                <div class='form-block tag-content-block material-list-block' style='clear: both' :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] && form[fieldItem.fieldName].length && isCopyContent}" v-if='(fieldItem.visible || (form[fieldItem.fieldName] && form[fieldItem.fieldName].length)) && isCopyContent && fieldItem.fieldName === taskField.MaterialList'>
+                <!-- <div class='form-block tag-content-block material-list-block' style='clear: both' :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] && form[fieldItem.fieldName].length && isCopyContent}" v-if='(fieldItem.visible || (form[fieldItem.fieldName] && form[fieldItem.fieldName].length)) && isCopyContent && fieldItem.fieldName === taskField.MaterialList'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.MaterialList />
                   <custom-form-item :required='emptyRequiredFields.indexOf(taskField.MaterialList) !== -1' :required-field='requiredFields.indexOf(taskField.MaterialList) !== -1'>
                     <template slot='label'>
@@ -357,7 +355,7 @@
                       <delete-icon color='#F16A39' />
                     </a-popconfirm>
                   </div>
-                </div>
+                </div> -->
               </div>
             </template>
             <div class='form-field-item custom-field' v-for='custFieldItem in $store.getters.formConfigData.taskCustomList' :key='custFieldItem.id'>
