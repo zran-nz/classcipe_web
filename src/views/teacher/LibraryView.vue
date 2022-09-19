@@ -9,6 +9,8 @@
       <content-preview-detail
         :content-id='contentId'
         :content-type='contentType'
+        :is-library="isLibrary"
+        :school-resource="schoolResource"
         :display-fixed-header='false'
       />
     </div>
@@ -28,6 +30,21 @@ export default {
     contentType: {
       type: String,
       required: true
+    }
+  },
+  computed: {
+    isLibrary() {
+      if (location.href.indexOf('/library-view') > 0) {
+        return true
+      }
+      return false
+    },
+    // feature分类下他人发布的，register他人在个人身份下发布，复用library 下的preview页面；他人在学校身份下发布，复用school resource下的preview页面
+    schoolResource() {
+      if (location.href.indexOf('/resource-view') > 0) {
+        return true
+      }
+      return false
     }
   },
   methods: {
