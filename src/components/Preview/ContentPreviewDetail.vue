@@ -173,7 +173,7 @@
               <!-- <div class='author-name' v-if="content.owner.email === $store.getters.email">
                 Me
               </div> -->
-              <div class='author-name' v-if="isSchoolResource">{{currentSchool.schoolName}}</div>
+              <div class='author-name' v-if="isSchoolResource">{{ currentSchool.schoolName }}</div>
               <div class='author-name' v-else>
                 {{ (content.owner ? (content.owner.firstname + ' ' + content.owner.lastname) : content.createBy) | upCaseFirst }}
               </div>
@@ -520,7 +520,7 @@
           <div class='sub-task-title'>
             Sub tasks ({{ content.subTasks.length }})
           </div>
-          <div class='go-to-list' v-if="showEnterButton">
+          <div class='go-to-list' v-if="showEnterButton && !isLibrary">
             <custom-link-text text='Enter' @click='goToSubTaskList' v-show='content.createBy === $store.getters.email'></custom-link-text>
           </div>
         </div>
