@@ -16,6 +16,7 @@ export const ContentItemMixin = {
       previewType: null,
       previewCode: null, // live workshop sessionId
       previewVisible: false,
+      previewSchoolId: '0',
       updateEditSlideLoading: false,
       setColor: [
         '#FFEDAF',
@@ -111,6 +112,7 @@ export const ContentItemMixin = {
           this.previewCurrentId = isOrigin ? (data.sourceFrom || data.id) : data.id
           this.previewType = data.type
           this.previewCode = data.sessionId || (data.sessionInfo && data.sessionInfo.classId)
+          this.previewSchoolId = data.schoolId ? data.schoolId : '0'
           // 原件显示创建编辑评论不显示评论列表，自己copy的时不显示创建编辑评论列表
           this.reviewList = false // !isOrigin
           this.reviewCreate = !!isOrigin

@@ -78,7 +78,7 @@
                   type='primary'
                   @click='handleDuplicateItem'
                   :loading='copyLoading'
-                  v-if='content.createBy !== $store.getters.userInfo.email && content.buyed && content.myContentId == -1'
+                  v-if='showBuyButton && content.createBy !== $store.getters.userInfo.email && content.buyed && content.myContentId == -1'
                   icon='copy'>
                   Copy
                 </a-button>
@@ -290,7 +290,7 @@
                   type='primary'
                   @click='handleDuplicateItem'
                   :loading='copyLoading'
-                  v-if='content.createBy !== $store.getters.userInfo.email && content.buyed && content.myContentId == -1'
+                  v-if='showCopyButton && content.createBy !== $store.getters.userInfo.email && content.buyed && content.myContentId == -1'
                   icon='copy'>
                   Copy
                 </a-button>

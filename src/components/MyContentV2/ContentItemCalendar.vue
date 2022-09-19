@@ -392,7 +392,7 @@ export default {
       this.$emit('save-response-limit', params)
     },
     handlePreview() {
-      this.$emit('close', { id: this.data.sessionInfo.contentId, type: this.data.sessionInfo.contentType })
+      this.$emit('close', { id: this.data.sessionInfo.contentId, type: this.data.sessionInfo.contentType, schoolId: this.data.schoolId })
       // this.handlePreviewDetail({ id: this.data.sessionInfo.contentId, type: typeMap.task })
     },
     handleChangeReview(checked) {}
