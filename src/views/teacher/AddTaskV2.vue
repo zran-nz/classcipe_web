@@ -46,13 +46,14 @@
         </div>
         <div class='form-body root-locate-form' id='form-body' :style="{ width: formBodyWidth }" v-show="formBodyWidth !== '0%'">
           <div
-            class='form-page-item'
+            class='form-page-item' style="height:100%;"
             v-show='currentActiveStepIndex === stepIndex'
             v-for='(step, stepIndex) in formSteps'
             :key='step.id'>
-            <div class='form-field-item' v-for='fieldItem in $store.getters.formConfigData.taskCommonList' :key='fieldItem.id'>
-              <template v-if='step.commonFields.indexOf(fieldItem.fieldName) !== -1'>
-                <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Name' :key='fieldItem.fieldName' >
+            <template v-for='fieldItem in $store.getters.formConfigData.taskCommonList'>
+              <div class='form-field-item' style="height:100%;" v-if='fieldItem.visible && step.commonFields.indexOf(fieldItem.fieldName) !== -1' :key='fieldItem.id'>
+                {{fieldItem.fieldName}} {{taskField}}
+                <div v-if='fieldItem.fieldName === taskField.Name' class='form-block tag-content-block'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Name />
                   <custom-form-item :required='emptyRequiredFields.indexOf(taskField.Name) !== -1' :required-field='requiredFields.indexOf(taskField.Name) !== -1'>
                     <template slot='label'>
@@ -75,11 +76,7 @@
                   </custom-form-item>
                 </div>
 
-                <div
-                  class='form-block over-form-block tag-content-block'
-                  id='overview'
-                  v-if='fieldItem.visible && fieldItem.fieldName === taskField.Overview'
-                  :key='fieldItem.fieldName'>
+                <div v-else-if='fieldItem.fieldName === taskField.Overview' class='form-block over-form-block tag-content-block' id='overview'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Overview />
                   <custom-form-item class='task-audio-line' ref='overview' :required='emptyRequiredFields.indexOf(taskField.Overview) !== -1' :required-field='requiredFields.indexOf(taskField.Overview) !== -1'>
                     <template slot='label'>
@@ -109,7 +106,7 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block taskType tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.TaskType' :key='fieldItem.fieldName'>
+                <div v-else-if='fieldItem.fieldName === taskField.TaskType' class='form-block taskType tag-content-block'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.TaskType style="left:20px" />
                   <custom-form-item class='task-audio-line' ref='taskType' :colon='false' :required='emptyRequiredFields.indexOf(taskField.TaskType) !== -1' :required-field='requiredFields.indexOf(taskField.TaskType) !== -1'>
                     <template slot='label'>
@@ -155,7 +152,7 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block form-question tag-content-block' :data-field-name='taskField.Question' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Question' :key='fieldItem.fieldName'>
+                <div v-else-if='fieldItem.fieldName === taskField.Question' class='form-block form-question tag-content-block' :data-field-name='taskField.Question' >
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.Question style="left:100px" />
                   <custom-form-item :colon='false' :required='emptyRequiredFields.indexOf(taskField.Question) !== -1' :required-field='requiredFields.indexOf(taskField.Question) !== -1'>
                     <template slot='label'>
@@ -184,8 +181,9 @@
                   </custom-form-item>
                 </div>
 
-                <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.LearnOuts' :key='fieldItem.fieldName'>
-                  <div class='is-self-learning vertical-between'>
+                <div v-else-if='fieldItem.fieldName === taskField.LearnOuts' class='form-block tag-content-block' style="height:100%;">
+                  <iframe style="width:100%;height:100%;" :src="`/v2/com/task/outline/${taskId}?token=${token}`" frameborder="0"></iframe>
+                  <!-- <div class='is-self-learning vertical-between'>
                     <div class='self-learning-label'>
                       Is this task suitable for self-learning?
                     </div>
@@ -223,15 +221,65 @@
                       :subject-list='form.subjectList'
                       :year-list='form.yearList'
                       :language-list='form.languageList' />
+                  </custom-form-item> -->
+                </div>
+
+
+                <div v-else-if='fieldItem.fieldName === taskField.Slides' class='form-block tag-content-block'>
+                  <form-slide
+                    :source-type='contentType.task'
+                    :source-id='taskId'
+                    :disabled='!canEdit'
+                    :slide-id='form.presentationId'
+                    :show-materials-and-tips='false'
+                    :show-selected="form.showSelected"
+                    :show-edit-google-slide='form.taskMode === 1'
+                    :default-thumbnail-list='thumbnailList'
+                    :selected-template-list='form.selectedTemplateList'
+                    :edit-loading="editGoogleSlideLoading"
+                    :empty-tips="'No slides created yet, click “Edit google slide” to create the first page!'"
+                    :empty-height="'350px'"
+                    @handle-change-selected='changeSelected'
+                    @edit-google-slide='handleEditGoogleSlide'
+                  />
+                </div>
+
+                <div v-else-if='fieldItem.fieldName === taskField.Link' class='form-block tag-content-block'>
+                  <div class='common-link-wrapper'>
+                    <form-linked-content :can-edit='canEdit' :from-id='taskId' :filter-types='[contentType["unit-plan"]]' :from-type='contentType.task' @update-unit-id-list='updateUnitIdList'/>
+                  </div>
+                </div>
+
+                <div v-else-if='fieldItem.fieldName === taskField.Image' class='form-block'>
+                  <!-- image-->
+                  <custom-form-item class='img-wrapper' :required='emptyRequiredFields.indexOf(taskField.Image) !== -1' :required-field='requiredFields.indexOf(taskField.Image) !== -1'>
+                    <template slot='label'>
+                      {{ 'Cover' | taskLabelName(taskField.Image, $store.getters.formConfigData) }}
+                    </template>
+                    <template v-if='taskFieldLabel(taskField.Image, $store.getters.formConfigData) && taskLabelName(taskField.Image, $store.getters.formConfigData) !== taskFieldLabel(taskField.Image, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="'Cover' | taskFieldLabel(taskField.Image, $store.getters.formConfigData)" placement='top'>
+                        <a-icon type="info-circle" />
+                      </a-tooltip>
+                    </template>
+                    <custom-image-uploader
+                      :can-edit='canEdit'
+                      v-if='taskId'
+                      :field='taskField.Image'
+                      :content-id='taskId'
+                      :content-type='contentType.task'
+                      :img-url='form.image'
+                      @update='handleUpdateCover' />
                   </custom-form-item>
                 </div>
 
-                <div
-                  class='form-block tag-content-block material-list-block'
-                  style='clear: both'
-                  :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] && form[fieldItem.fieldName].length && isCopyContent}"
-                  v-if='(fieldItem.visible || (form[fieldItem.fieldName] && form[fieldItem.fieldName].length)) && isCopyContent && fieldItem.fieldName === taskField.MaterialList'
-                  :key='fieldItem.fieldName'>
+                <div v-else-if="fieldItem.fieldName === taskField.AssessmentTools" class='form-field-item assessment-tools-item'>
+                  <div class='form-block tag-content-block'>
+                    <div class='common-link-wrapper assessment-tools'>
+                      <task-assessment-tools :task-id='taskId' :subject-list='form.subjectIds' :allow-create='canEdit' :disabled='!canEdit'/>
+                    </div>
+                  </div>
+                </div>
+                <div class='form-block tag-content-block material-list-block' style='clear: both' :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] && form[fieldItem.fieldName].length && isCopyContent}" v-if='(fieldItem.visible || (form[fieldItem.fieldName] && form[fieldItem.fieldName].length)) && isCopyContent && fieldItem.fieldName === taskField.MaterialList'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.MaterialList />
                   <custom-form-item :required='emptyRequiredFields.indexOf(taskField.MaterialList) !== -1' :required-field='requiredFields.indexOf(taskField.MaterialList) !== -1'>
                     <template slot='label'>
@@ -310,63 +358,8 @@
                     </a-popconfirm>
                   </div>
                 </div>
-
-                <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Slides' :key='fieldItem.fieldName'>
-                  <form-slide
-                    :source-type='contentType.task'
-                    :source-id='taskId'
-                    :disabled='!canEdit'
-                    :slide-id='form.presentationId'
-                    :show-materials-and-tips='false'
-                    :show-selected="form.showSelected"
-                    :show-edit-google-slide='form.taskMode === 1'
-                    :default-thumbnail-list='thumbnailList'
-                    :selected-template-list='form.selectedTemplateList'
-                    :edit-loading="editGoogleSlideLoading"
-                    :empty-tips="'No slides created yet, click “Edit google slide” to create the first page!'"
-                    :empty-height="'350px'"
-                    @handle-change-selected='changeSelected'
-                    @edit-google-slide='handleEditGoogleSlide'
-                  />
-                </div>
-
-                <div class='form-block tag-content-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Link' :key='fieldItem.fieldName'>
-                  <div class='common-link-wrapper'>
-                    <form-linked-content :can-edit='canEdit' :from-id='taskId' :filter-types='[contentType["unit-plan"]]' :from-type='contentType.task' @update-unit-id-list='updateUnitIdList'/>
-                  </div>
-                </div>
-
-                <div class='form-block' v-if='fieldItem.visible && fieldItem.fieldName === taskField.Image' :key='fieldItem.fieldName'>
-                  <!-- image-->
-                  <custom-form-item class='img-wrapper' :required='emptyRequiredFields.indexOf(taskField.Image) !== -1' :required-field='requiredFields.indexOf(taskField.Image) !== -1'>
-                    <template slot='label'>
-                      {{ 'Cover' | taskLabelName(taskField.Image, $store.getters.formConfigData) }}
-                    </template>
-                    <template v-if='taskFieldLabel(taskField.Image, $store.getters.formConfigData) && taskLabelName(taskField.Image, $store.getters.formConfigData) !== taskFieldLabel(taskField.Image, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="'Cover' | taskFieldLabel(taskField.Image, $store.getters.formConfigData)" placement='top'>
-                        <a-icon type="info-circle" />
-                      </a-tooltip>
-                    </template>
-                    <custom-image-uploader
-                      :can-edit='canEdit'
-                      v-if='taskId'
-                      :field='taskField.Image'
-                      :content-id='taskId'
-                      :content-type='contentType.task'
-                      :img-url='form.image'
-                      @update='handleUpdateCover' />
-                  </custom-form-item>
-                </div>
-
-                <div class='form-field-item assessment-tools-item' v-if="fieldItem.visible && fieldItem.fieldName === taskField.AssessmentTools">
-                  <div class='form-block tag-content-block'>
-                    <div class='common-link-wrapper assessment-tools'>
-                      <task-assessment-tools :task-id='taskId' :subject-list='form.subjectIds' :allow-create='canEdit' :disabled='!canEdit'/>
-                    </div>
-                  </div>
-                </div>
-              </template>
-            </div>
+              </div>
+            </template>
             <div class='form-field-item custom-field' v-for='custFieldItem in $store.getters.formConfigData.taskCustomList' :key='custFieldItem.id'>
               <template v-if='step.customFields.indexOf(custFieldItem.name) !== -1'>
                 <div class='form-block tag-content-block' v-if="custFieldItem.visible && form.customFieldData && form.customFieldData.hasOwnProperty(custFieldItem.id)" :key='custFieldItem.id' :data-field-name="'cust_' + custFieldItem.name" :data-field-id='custFieldItem.id'>
@@ -656,6 +649,7 @@ export default {
   },
   data() {
     return {
+      token: '',
       contentLoading: true,
       contentType: typeMap,
       creating: false,
@@ -770,7 +764,7 @@ export default {
     }
   },
   async created() {
-    this.$logger.info('add task created ' + this.taskId + ' ' + this.$route.path + ' mode: ' + this.mode)
+    this.$logger.info('add task created ' + this.taskId + ' ' + this.$route.path + ' mode: ' + this.mode, this.$route.params)
 
     this.$EventBus.$on(SlideEvent.SELECT_TEMPLATE, this.handleSelectTemplate)
     this.$EventBus.$on(SlideEvent.CANCEL_SELECT_TEMPLATE, this.handleRemoveTemplate)
@@ -778,6 +772,7 @@ export default {
     if (!token) {
       token = storage.get(ACCESS_TOKEN)
     }
+    this.token = token
     this.$store.dispatch('loadFormConfigData', token).then(() => {
       this.formSteps = this.$store.getters.formConfigData.taskSteps || []
       this.$logger.info('formSteps', this.formSteps)
