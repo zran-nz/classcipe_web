@@ -245,22 +245,26 @@ export default {
     },
 
     headerBlur() {
-      console.log('headerBlur', this.currentEditHeader)
+      console.log('headerBlur currentEditHeader', this.currentEditHeader, 'assessment', this.assessment)
       if (this.currentEditHeader) {
         this.currentEditHeader.editing = false
       }
-    },
 
-    handleClick () {
-      if (this.currentEditHeader && this.assessment.type === AssessmentToolType.Checklist) {
-        this.currentEditHeader.editing = false
+      if (this.assessment.type === AssessmentToolType.Checklist) {
         // 如果是checkList那么顺便修改对应的列数据
-        console.log('handleClick this.assessment.bodyList', this.assessment.bodyList, 'this.currentEditHeader', this.currentEditHeader)
+        console.log('headerBlur this.assessment.bodyList', this.assessment.bodyList, 'this.currentEditHeader', this.currentEditHeader)
         this.assessment.bodyList.forEach(row => {
           if (row[this.currentEditHeader.type]) {
             row[this.currentEditHeader.type].display = this.currentEditHeader.title
           }
         })
+      }
+    },
+
+    handleClick () {
+      console.log('handleClick currentEditHeader', this.currentEditHeader)
+      if (this.currentEditHeader) {
+        this.currentEditHeader.editing = false
       }
     },
 
