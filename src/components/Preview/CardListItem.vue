@@ -16,7 +16,7 @@
       </div>
       <div class="publish-tag" v-if="content.status === 0 && content.createBy === $store.getters.email">
         <a-tooltip title="Wait to publish">
-          <a-icon style="font-size: 20px;" type="vertical-align-top" />
+          <publish-icon style='width: 13px; height:14px'/>
         </a-tooltip>
       </div>
     </div>
@@ -59,10 +59,11 @@
 <script>
 
 import ShareButton from '@/components/Share/ShareButton'
+import PublishIcon from '@/assets/v2/icons/publish_new.svg?inline'
 
 export default {
   name: 'CardListItem',
-  components: { ShareButton },
+  components: { ShareButton, PublishIcon },
   props: {
     content: {
       type: Object,
