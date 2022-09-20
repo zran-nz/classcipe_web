@@ -247,18 +247,19 @@ export const ContentItemMixin = {
           //   })
           // }
         } else if (field === 'learnOuts') {
-          console.log('learnOuts test', this.content.learnOuts)
-          if (!this.content.learnOuts?.length) {
-            console.log('learnOuts is empty')
-            this.emptyRequiredFields.push(field)
-            this.formSteps.forEach(step => {
-              if (step.commonFields.indexOf(field) > -1) {
-                step.showRequiredTips = true
-                step.showSatisfiedTips = false
-                canPublish = false
-              }
-            })
-          }
+          // console.log('learnOuts test', this.content.learnOuts)
+          // if (!this.content.learnOuts?.length) {
+          //   console.log('learnOuts is empty')
+          //   this.emptyRequiredFields.push(field)
+            // this.formSteps.forEach(step => {
+            //   if (step.commonFields.indexOf(field) > -1) {
+            //     console.log(field, step)
+            //     step.showRequiredTips = true
+            //     step.showSatisfiedTips = false
+            //     canPublish = false
+            //   }
+            // })
+          // }
         } else if (field === 'questions') {
           // TODO列表后端未返回
           // console.log('questions is ', this.content.questions)
@@ -294,7 +295,7 @@ export const ContentItemMixin = {
         }
       })
 
-      console.log(canPublish)
+      console.log('canPublish: ', canPublish)
 
       if (this.content.canPublish !== canPublish) {
         // TODO 需要部分保存

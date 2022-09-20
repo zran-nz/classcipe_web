@@ -137,7 +137,7 @@ Vue.prototype.$warning = Modal.warning
 Vue.prototype.$destroyAll = Modal.destroyAll
 
 // logger
-Vue.prototype.$logger = logger
+Vue.prototype.$logger = console
 
 // classcipe 公用工具方法
 Vue.prototype.$classcipe = classcipe
