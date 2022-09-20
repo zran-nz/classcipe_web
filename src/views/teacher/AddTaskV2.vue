@@ -763,6 +763,7 @@ export default {
   },
   async created() {
     window.TaskFieldCheck = this.calculateCanPublish
+    window.TaskFieldSave = this.autoSaveData
     this.$logger.info('add task created ' + this.taskId + ' ' + this.$route.path + ' mode: ' + this.mode, this.$route.params)
 
     this.$EventBus.$on(SlideEvent.SELECT_TEMPLATE, this.handleSelectTemplate)
