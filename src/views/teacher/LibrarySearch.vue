@@ -11,7 +11,8 @@
       </div>
       <div class='create-new'>
         <a-space>
-          <custom-search-input :round='false' :value.sync='queryParams.searchKey' @search='loadMyContent' placeholder='Search your content'/>
+          <!-- <custom-search-input :round='false' :value.sync='queryParams.searchKey' @search='loadMyContent' placeholder='Search your content'/> -->
+          <global-search-input @search='handleSearch' />
           <common-content-filter
             @update-filter='handleUpdateFilter'
             :show-fa-sa-activity-type="true"
@@ -146,6 +147,14 @@ export default {
       userTags: {}
     }
   },
+  watch: {
+    '$route': {
+      handler(to, from) {
+        this.queryParams.searchKey = this.keyword
+        this.loadMyContent(true)
+      }
+    }
+  },
   created () {
     this.queryParams.searchKey = this.keyword
     this.loadMyContent(true)
@@ -194,6 +203,16 @@ export default {
       this.$router.replace({
         path: '/teacher/library'
       })
+    },
+
+    handleSearch (data) {
+      this.$logger.info('handleSearch', data)
+      if (data) {
+        // window.location.href = '/teacher/library/search/' + data
+        this.$router.push({ path: '/teacher/library/search/' + data })
+        this.queryParams.searchKey = data
+        this.loadMyContent()
+      }
     }
   }
 }
