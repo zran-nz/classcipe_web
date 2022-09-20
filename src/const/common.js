@@ -386,15 +386,15 @@ export const NOTIFY_TYPE = {
 export const CALENDAR_QUERY_TYPE = {
   WORKSHOP: {
     label: 'My workshops',
-    value: 1
+    value: '1'
   },
   CLASS: {
     label: 'Class',
-    value: 2
+    value: '2'
   },
   MY: {
     label: 'My calendar',
-    value: 3
+    value: '3'
   }
 }
 

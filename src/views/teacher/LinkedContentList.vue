@@ -2,7 +2,12 @@
   <div class='my-sub-task-list'>
     <fixed-vertical-header>
       <template v-slot:left>
-        <a-tooltip placement='leftBottom'>
+        <custom-link-text @click='handleGoBack' text='Back'>
+          <template v-slot:prefix>
+            <a-icon type='left' />
+          </template>
+        </custom-link-text>
+        <!-- <a-tooltip placement='leftBottom'>
           <template slot='title'>
             The task is more likely to be purchased by other educators if it is simple, clear and focus on specific learning outcome(s).
             So dividing your main task into small sub-tasks with specific tags is always a good idea.
@@ -10,7 +15,7 @@
           <a-button class='cc-dark-button' @click='handleCreateSubtask'>
             Create sub task
           </a-button>
-        </a-tooltip>
+        </a-tooltip> -->
       </template>
     </fixed-vertical-header>
     <div class='sub-task-container'>
@@ -50,10 +55,11 @@ import { GetAssociate, UpdateContentStatus } from '@/api/teacher'
 import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 import { typeMap } from '@/const/teacher'
 import EditPriceDialog from '@/components/MyContentV2/EditPriceDialog'
+import CustomLinkText from '@/components/Common/CustomLinkText'
 
 export default {
   name: 'LinkedContentList',
-  components: { EditPriceDialog, VerificationTip, FixedFormFooter, ContentItem, FixedVerticalHeader, FixedFormHeader },
+  components: { CustomLinkText, EditPriceDialog, VerificationTip, FixedFormFooter, ContentItem, FixedVerticalHeader, FixedFormHeader },
   props: {
     contentId: {
       type: String,
@@ -85,6 +91,9 @@ export default {
     this.loadAssociateData()
   },
   methods: {
+    handleGoBack () {
+      this.$router.push('/teacher/main/created-by-me')
+    },
     async loadAssociateData () {
       try {
         const slideData = await GetAssociate({
@@ -110,7 +119,7 @@ export default {
         })
         console.log('taskList', taskList)
         console.log('unitList', unitList)
-        if (this.contentType === this.$classcipe.typeMap.task) {
+        if (this.contentType === this.$classcipe.typeMap['unit-plan'] + '') {
           this.subTaskList = [...taskList]
         } else {
           this.subTaskList = [...unitList]

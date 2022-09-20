@@ -74,7 +74,7 @@ export const asyncRouterMap = [
             name: 'LibrarySearch',
             component: () => import('@/views/teacher/LibrarySearch'),
             props: true,
-            meta: { title: 'menu.librarySearch', owner: '/teacher/library', keepAlive: true, permission: ['teacher'], fullLayout: true }
+            meta: { title: 'menu.librarySearch', owner: '/teacher/library', keepAlive: false, permission: ['teacher'], fullLayout: true }
           },
           {
             path: '/teacher/library',
@@ -430,7 +430,7 @@ export const asyncRouterMap = [
                 props.endDate = query.endDate
               }
               if (query && query.searchType) {
-                props.searchType = parseInt(query.searchType)
+                props.searchType = query.searchType
               }
               if (query && query.source) {
                 props.source = query.source

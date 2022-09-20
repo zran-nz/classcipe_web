@@ -65,7 +65,6 @@ import './directives/selectPopover'
 import './directives/clickOutside'
 
 // logger
-import * as logger from '@/utils/logger'
 import CollapsePanel from 'ant-design-vue/lib/collapse/CollapsePanel'
 
 //
@@ -137,7 +136,7 @@ Vue.prototype.$warning = Modal.warning
 Vue.prototype.$destroyAll = Modal.destroyAll
 
 // logger
-Vue.prototype.$logger = logger
+Vue.prototype.$logger = console
 
 // classcipe 公用工具方法
 Vue.prototype.$classcipe = classcipe
@@ -148,7 +147,7 @@ Vue.use(PermissionHelper)
 Vue.use(VueCropper)
 
 const IconFont = Icon.createFromIconfontCN({
-  scriptUrl: '//at.alicdn.com/t/font_3302558_9fyl19jduga.js'
+  scriptUrl: '//at.alicdn.com/t/c/font_3302558_a0c5rpmavgp.js'
 })
 
 Vue.component('icon-font', IconFont)

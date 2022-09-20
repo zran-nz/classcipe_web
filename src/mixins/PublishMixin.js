@@ -151,72 +151,56 @@ export const PublishMixin = {
     },
     calculateCanPublish() {
       this.$logger.info('calculateCanPublish', this.canEdit)
-      if (this.canEdit) {
-        // 给有未填写字段的step添加红色提示
-        let canPublish = true
-        this.emptyRequiredFields = []
-        this.formSteps.forEach(step => {
-          step.showRequiredTips = false
-          step.showSatisfiedTips = false
-        })
-        this.requiredFields.forEach(field => {
-          if (field === TaskField.Slides || field === PdField.Slides) {
-            if (!this.form.presentationId || !this.form.pageObjects?.length) {
-              console.log('slide is empty', this.form)
-              this.emptyRequiredFields.push(field)
-              this.formSteps.forEach(step => {
-                if (step.commonFields.indexOf(field) > -1) {
-                  step.showRequiredTips = true
-                  step.showSatisfiedTips = false
-                  canPublish = false
-                }
-              })
-            }
-          } else if (field === TaskField.Link || field === PlanField.Link) {
-            if (!this.associateUnitPlanIdList?.length && !this.associateTaskIdList?.length) {
-              this.$logger.info(`${field} is empty`, this.associateUnitPlanIdList, this.associateTaskIdList)
-              this.emptyRequiredFields.push(field)
-              this.formSteps.forEach(step => {
-                if (step.commonFields.indexOf(field) > -1) {
-                  step.showRequiredTips = true
-                  step.showSatisfiedTips = false
-                  canPublish = false
-                }
-              })
-            }
-          } else if (field === 'learnOuts') {
-            console.log('learnOuts test', this.form.learnOuts)
-            if (!this.form.learnOuts?.length || !this.form.subjectList?.length || !this.form.yearList?.length || !this.form.curriculumId) {
-              console.log(this.form)
-              console.log('learnOuts is empty')
-              this.emptyRequiredFields.push(field)
-              this.formSteps.forEach(step => {
-                if (step.commonFields.indexOf(field) > -1) {
-                  step.showRequiredTips = true
-                  step.showSatisfiedTips = false
-                  canPublish = false
-                }
-              })
-            }
-          } else if (field === 'questions') {
-            console.log('questions is ', this.form.questions)
-            if (this.form.hasOwnProperty('questions')) {
-              console.log('questions test ', this.form.questions)
-              if (this.form.questions.length === 0) {
-                console.log('questions is empty')
-                this.emptyRequiredFields.push(field)
-                this.formSteps.forEach(step => {
-                  if (step.commonFields.indexOf(field) > -1) {
-                    step.showRequiredTips = true
-                    step.showSatisfiedTips = false
-                    canPublish = false
-                  }
-                })
+      if (!this.canEdit) return
+      // 给有未填写字段的step添加红色提示
+      let canPublish = true
+      this.emptyRequiredFields = []
+      this.formSteps.forEach(step => {
+        step.showRequiredTips = false
+        step.showSatisfiedTips = false
+      })
+      this.requiredFields.forEach(field => {
+        if (field === TaskField.Slides || field === PdField.Slides) {
+          if (!this.form.presentationId || !this.form.pageObjects?.length) {
+            console.log('slide is empty', this.form)
+            this.emptyRequiredFields.push(field)
+            this.formSteps.forEach(step => {
+              if (step.commonFields.indexOf(field) > -1) {
+                step.showRequiredTips = true
+                step.showSatisfiedTips = false
+                canPublish = false
               }
+            })
+          }
+        } else if (field === TaskField.Link || field === PlanField.Link) {
+          if (!this.associateUnitPlanIdList?.length && !this.associateTaskIdList?.length) {
+            this.$logger.info(`${field} is empty`, this.associateUnitPlanIdList, this.associateTaskIdList)
+            this.emptyRequiredFields.push(field)
+            this.formSteps.forEach(step => {
+              if (step.commonFields.indexOf(field) > -1) {
+                step.showRequiredTips = true
+                step.showSatisfiedTips = false
+                canPublish = false
+              }
+            })
+          }
+        } else if (field === 'learnOuts') {
+          const [ task, status ] = JSON.parse(localStorage.getItem('OutlineStatus')) ?? []
+          const isFinish = task === this.taskId && status
+          console.log('learnOuts check:', field, this.taskId, isFinish)
+          this.formSteps.forEach(step => {
+            if (step.commonFields.indexOf(field) > -1) {
+              step.showRequiredTips = !isFinish
+              step.showSatisfiedTips = false
+              canPublish = isFinish
             }
-          } else {
-            if (simpleIsEmpty(this.form[field])) {
-              this.$logger.info(`${field} is empty`, this.form[field])
+          })
+        } else if (field === 'questions') {
+          console.log('questions is ', this.form.questions)
+          if (this.form.hasOwnProperty('questions')) {
+            console.log('questions test ', this.form.questions)
+            if (this.form.questions.length === 0) {
+              console.log('questions is empty')
               this.emptyRequiredFields.push(field)
               this.formSteps.forEach(step => {
                 if (step.commonFields.indexOf(field) > -1) {
@@ -227,10 +211,22 @@ export const PublishMixin = {
               })
             }
           }
-        })
+        } else {
+          if (simpleIsEmpty(this.form[field])) {
+            this.$logger.info(`${field} is empty`, this.form[field])
+            this.emptyRequiredFields.push(field)
+            this.formSteps.forEach(step => {
+              if (step.commonFields.indexOf(field) > -1) {
+                step.showRequiredTips = true
+                step.showSatisfiedTips = false
+                canPublish = false
+              }
+            })
+          }
+        }
+      })
 
-        this.form.canPublish = canPublish
-      }
+      this.form.canPublish = canPublish
     },
 
     showEditPriceDialog() {

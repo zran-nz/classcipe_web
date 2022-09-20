@@ -411,7 +411,7 @@ export default {
     margin-top: 30px;
     display: flex;
     .content-select-left {
-      flex: 0.8;
+      flex: 1;
       background: #fff;
       padding-right: 5px;
       .content-select-filter {
@@ -465,13 +465,14 @@ export default {
                 flex-grow: 1;
 
                 .base-info {
+                  width: 100%;
                   .name {
                     line-height: 20px;
                     font-size: 14px;
                     color: #1D2041;
                     font-weight: 500;
-                    width: 200px;
-                    white-space: nowrap;
+                    max-width: 200px;
+                    // white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
                   }
@@ -512,7 +513,7 @@ export default {
               align-items: center;
               justify-content: space-between;
               .avatar-info {
-                width: 200px;
+                // width: 200px;
                 img {
                   width: 24px;
                   height: 24px;

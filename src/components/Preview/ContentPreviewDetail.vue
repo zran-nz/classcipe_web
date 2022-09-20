@@ -160,14 +160,16 @@
         >
           <div class="author-info">
             <div class="author-avatar">
-              <a-avatar v-if="isSchoolResource" size="large" :src="currentSchool.logo" />
-              <a-avatar v-else-if="content.owner.avatar" size="large" :src="content.owner.avatar" />
-              <a-avatar v-else size="large" style="background-color: #517f3f">{{
-                (content.owner
-                  ? content.owner.firstname + ' ' + content.owner.lastname
-                  : content.createBy
-                ).toUpperCase()[0]
-              }}</a-avatar>
+              <a-tooltip :title="!showAvatarTips ? '' : (session.schoolId === '0' ? 'Personal' : session.schoolName)">
+                <a-avatar v-if="isSchoolResource" size="large" :src="currentSchool.logo" />
+                <a-avatar v-else-if="content.owner.avatar" size="large" :src="content.owner.avatar" />
+                <a-avatar v-else size="large" style="background-color: #517f3f">{{
+                  (content.owner
+                    ? content.owner.firstname + ' ' + content.owner.lastname
+                    : content.createBy
+                  ).toUpperCase()[0]
+                }}</a-avatar>
+              </a-tooltip>
             </div>
             <div class="author-info-detail">
               <!-- <div class='author-name' v-if="content.owner.email === $store.getters.email">
@@ -821,6 +823,10 @@ export default {
       default: true
     },
     isLibrary: {
+      type: Boolean,
+      default: false
+    },
+    showAvatarTips: {
       type: Boolean,
       default: false
     }

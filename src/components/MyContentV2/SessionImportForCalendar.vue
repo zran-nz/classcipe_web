@@ -36,6 +36,16 @@
         @choose="item => handleChoose(item ,'task')"
         @cancel="handleCloseImport"
       />
+      <!-- 直接选pd的时候，即pd为第一步，则需要从全部课件里面过滤 -->
+      <content-select
+        v-show="'pd' === ScheduleStepsFilter[currentActiveStepIndex].type"
+        :type="typeMap.pd"
+        :datas="importDatas"
+        :need-filter="importType === typeMap['pd'] "
+        :back-txt="currentActiveStepIndex === 0 ? 'Discard': 'Discard'"
+        @choose="item => handleChoose(item ,'pd')"
+        @cancel="handleCloseImport"
+      />
       <!-- 直接页面跳转 -->
       <!-- <div class="content-select" v-show="['participants', 'schedule'].includes(ScheduleStepsFilter[currentActiveStepIndex].type)">
         <div class="content-select-wrap">
@@ -158,7 +168,7 @@ export default {
       default: ''
     },
     searchType: {
-      type: Number,
+      type: [Number, String],
       default: CALENDAR_QUERY_TYPE.MY.value
     }
   },
@@ -258,7 +268,8 @@ export default {
         startDate: null,
         endDate: null,
         task: null,
-        unit: null
+        unit: null,
+        pd: null
       },
       calendarSearchFilters: [],
       calendarSearchType: CALENDAR_QUERY_TYPE.CLASS.value
@@ -270,6 +281,17 @@ export default {
       currentSchool: state => state.user.currentSchool
     }),
     ScheduleStepsFilter() {
+      if (this.importType === typeMap.pd) {
+        return [
+          {
+            id: '3',
+            name: 'Select PD',
+            description: null,
+            filter: typeMap['pd'],
+            type: 'pd'
+          }
+        ]
+      }
       return this.ScheduleSteps.filter(item => !item.filter || item.filter === this.importType)
     },
     defaultDate() {
@@ -356,11 +378,18 @@ export default {
       //   this.calendarSearchType = CALENDAR_QUERY_TYPE.CLASS.value
       // }
       if (item && type) {
-        if (item.type === typeMap.task) {
+        if (item.type === typeMap.task || item.type === typeMap.pd) {
           this.scheduleReq.contentId = item.id
           this.scheduleReq.register.title = item.name
         }
         this.importModel[type] = { ...item }
+        if (type === 'pd') {
+          if (this.currentActiveStepIndex === this.ScheduleStepsFilter.length - 1) {
+            this.goCreateSession()
+          } else {
+            this.$refs['steps-nav'].nextStep()
+          }
+        }
         // 如果是从unit导入，则先选中unit，获取unit下的所有task供其选择
         // 如果从task导入，则获取task关联的所有unit，如果大于1则显示unit列表供其选择
         this.getAssociate(item.id, item.type).then(res => {
@@ -451,8 +480,9 @@ export default {
         return
       }
       let path = '/teacher/schedule-session/' + this.scheduleReq.contentId + '/' + typeMap.task
-      if (this.typeMode === CALENDAR_QUERY_TYPE.WORKSHOP.value) {
-        path = '/teacher/schedule-workshop/' + this.scheduleReq.contentId + '/' + typeMap.task
+      console.log(this.typeMode)
+      if (this.importType === typeMap.pd) {
+        path = '/teacher/schedule-workshop/' + this.scheduleReq.contentId + '/' + this.importType
       }
       this.$router.push({
         path: path,

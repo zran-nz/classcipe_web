@@ -37,7 +37,7 @@ export default {
       default: ''
     },
     searchType: {
-      type: Number,
+      type: String,
       default: null
     },
     source: {

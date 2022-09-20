@@ -83,7 +83,8 @@
       <div class="tooltip-wrap" ref="tooltip">
         <div class="tooltip-content">
           <div class="content-item" @click="handleAddUnit"><span>Import from Unit</span></div>
-          <div class="content-item" @click="handleAddSession"><span>Import from Task</span></div>
+          <div class="content-item" @click="handleAddSession()"><span>Import from Task</span></div>
+          <div class="content-item" @click="handleAddSession(typeMap.pd)"><span>Import from PD</span></div>
         </div>
       </div>
     </div>
@@ -140,12 +141,20 @@ export default {
   mixins: [UserModeMixin, CurrentSchoolMixin],
   props: {
     searchType: {
-      type: [String, Number],
-      default: CALENDAR_QUERY_TYPE.MY.value
+      type: [String],
+      default: [CALENDAR_QUERY_TYPE.MY.value, CALENDAR_QUERY_TYPE.WORKSHOP.value].join(',')
     },
     searchFilters: {
       type: Array,
       default: () => ['FA', 'SA', 'IA', 'Activity'] // 根据类型的筛选条件
+    },
+    classFilters: {
+      type: Array,
+      default: () => [1, 2] // 根据类型的筛选条件
+    },
+    schoolFilters: {
+      type: Array,
+      default: () => []
     },
     editable: {
       type: Boolean,
@@ -189,6 +198,14 @@ export default {
       this.typeFilters = [...val]
       this.debounceRefetch()
     },
+    classFilters(val) {
+      this.clsFilters = [...val]
+      this.debounceRefetch()
+    },
+    schoolFilters(val) {
+      this.schoolIds = [...val]
+      this.debounceRefetch()
+    },
     currentUnitList: {
       handler(val) {
         this.$emit('change-units', val)
@@ -213,6 +230,8 @@ export default {
       typeMap: typeMap,
       queryType: this.searchType,
       typeFilters: this.searchFilters, // 根据类型的筛选条件
+      clsFilters: this.classFilters,
+      schoolIds: this.schoolFilters,
       currentUnitList: [],
       timeLabelForYear: [],
       dayLabelForYear: [],
@@ -583,11 +602,16 @@ export default {
       let noNeedQuery = false
       if (this.queryType === this.CALENDAR_QUERY_TYPE.CLASS.value) {
         params.classIds = this.typeFilters
+        params.classTypes = this.clsFilters
         noNeedQuery = this.typeFilters.length === 0
-      } else if (this.queryType === this.CALENDAR_QUERY_TYPE.WORKSHOP.value) {
-        params.workshopStatus = this.typeFilters.join(',')
+      } else if (this.queryType.indexOf(this.CALENDAR_QUERY_TYPE.WORKSHOP.value) > -1) {
+        params.workshopStatus = this.typeFilters.filter(type => !['FA', 'SA', 'IA', 'Activity'].includes(type)).join(',')
         params.workshopType = '1,2'
         noNeedQuery = this.typeFilters.length === 0
+      }
+      if (this.queryType !== this.CALENDAR_QUERY_TYPE.CLASS.value) {
+        params.schoolIds = this.schoolIds
+        // noNeedQuery = params.schoolIds.length === 0
       }
       // 把term block加上
       this.loadBlock().then(termEvents => {
@@ -633,7 +657,7 @@ export default {
             ...params,
             startDate: moment(start + ' 00:00:00').utc().format('YYYY-MM-DD'),
             endDate: moment(end + ' 23:59:59').utc().format('YYYY-MM-DD'),
-            queryType: this.queryType
+            queryTypes: this.queryType.split(',')
           }).then(res => {
             if (res && res.success && res.result) {
               let totalEvents = []
@@ -644,7 +668,7 @@ export default {
                 const events = filterRes.map(item => {
                   // 根据classId获取颜色
                   let index = -1
-                  if (this.queryType === CALENDAR_QUERY_TYPE.MY.value) {
+                  if (this.queryType !== CALENDAR_QUERY_TYPE.CLASS.value) {
                     index = this.showSchoolOptions.findIndex(school => school.id === (item.sessionInfo ? item.sessionInfo.schoolId : '0'))
                   } else {
                     index = this.currentUnitList.findIndex(unit => unit.id === (item.unitPlanInfo ? item.unitPlanInfo.id : -1))
@@ -701,7 +725,7 @@ export default {
                 this.calendarDatas = res.result
                 this.allEvents = events
                 const filterEvents = events.filter(event => {
-                  if (this.queryType === this.CALENDAR_QUERY_TYPE.MY.value) {
+                  if (this.queryType.indexOf(this.CALENDAR_QUERY_TYPE.MY.value) > -1) {
                     if (!this.typeFilters.includes(event.extendedProps.taskType)) {
                       return false
                     }
@@ -988,9 +1012,9 @@ export default {
       this.$router.push(path)
       // this.importVisible = true
     },
-    handleAddSession() {
+    handleAddSession(type) {
       this.closeTip()
-      this.importType = typeMap.task
+      this.importType = type || typeMap.task
       const path = `/teacher/session-import/${this.importType}/${this.currentClass}?startDate=${this.importModel.startDate}&endDate=${this.importModel.endDate}&searchType=${this.searchType}&source=calendar`
       this.$router.push(path)
       // this.importVisible = true

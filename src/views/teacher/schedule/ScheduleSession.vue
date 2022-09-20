@@ -411,7 +411,8 @@ export default {
       this.$logger.info('ScheduleSession associateUnitList', this.associateUnitList)
       if (this.associateUnitList.length === 1) {
         this.scheduleReq.planId = this.associateUnitList[0].id
-      } else if (this.associateUnitList.length > 1) {
+      }
+      if (this.associateUnitList.length > 0) {
         this.selectSessionUnitVisible = true
       }
 

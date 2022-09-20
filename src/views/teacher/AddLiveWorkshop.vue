@@ -238,7 +238,9 @@
               <session-calendar
                 :editable="false"
                 :addable="false"
+                :onlyMe="true"
                 :forSelect="true"
+                :defaultSelect="initDate"
                 :searchFilters="[1,2,3,4]"
                 :searchType="CALENDAR_QUERY_TYPE.WORKSHOP.value"
                 @date-select="handleSelectSchedule"
@@ -466,7 +468,8 @@ export default {
       enableZoom: true,
       fromRelaunch: '',
 
-      deadlineVis: false
+      deadlineVis: false,
+      initDate: null
     }
   },
   created() {
@@ -480,7 +483,14 @@ export default {
       this.getRelaunch()
     }
     this.handleDisplayRightModule()
-    this.handleAssociate()
+    this.planId = this.$route.query.planId
+    if (!this.$route.query.hasOwnProperty('planId')) {
+      this.handleAssociate()
+    }
+    if (this.$route.query.startDate && this.$route.query.endDate) {
+      this.initDate = [moment(this.$route.query.startDate), moment(this.$route.query.endDate)]
+      this.handleDateChange(this.initDate)
+    }
     // if (!this.zoomAccessToken) {
     //   this.goToZoomAuth()
     // }

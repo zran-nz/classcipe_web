@@ -14,6 +14,11 @@
       <div class='inner-tag' v-if="outerDesc">
         <a-tag color="#15C39A">{{ content.type | type2Name }}</a-tag>
       </div>
+      <div class="publish-tag" v-if="content.status === 0 && content.createBy === $store.getters.email">
+        <a-tooltip title="Wait to publish">
+          <publish-icon style='width: 13px; height:14px'/>
+        </a-tooltip>
+      </div>
     </div>
     <div class="card-bottom-section outer-desc" v-if="outerDesc" :style="{'width' : width + 'rem'}">
       <div class='main-title-line'>
@@ -54,10 +59,11 @@
 <script>
 
 import ShareButton from '@/components/Share/ShareButton'
+import PublishIcon from '@/assets/v2/icons/publish_new.svg?inline'
 
 export default {
   name: 'CardListItem',
-  components: { ShareButton },
+  components: { ShareButton, PublishIcon },
   props: {
     content: {
       type: Object,
@@ -167,6 +173,11 @@ export default {
   position: absolute;
   left: 10px;
   bottom: 10px;
+}
+.publish-tag {
+  position: absolute;
+  right: 10px;
+  top: 10px;
 }
 
 .q-py-md {

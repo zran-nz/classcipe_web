@@ -46,7 +46,8 @@
         </div>
         <div class='form-body root-locate-form' id='form-body' :style="{ width: formBodyWidth }" v-show="formBodyWidth !== '0%'">
           <div
-            class='form-page-item' style="height:100%;"
+            class='form-page-item'
+            style="height:100%;"
             v-show='currentActiveStepIndex === stepIndex'
             v-for='(step, stepIndex) in formSteps'
             :key='step.id'>
@@ -221,7 +222,6 @@
                       :language-list='form.languageList' />
                   </custom-form-item> -->
                 </div>
-
 
                 <div v-else-if='fieldItem.fieldName === taskField.Slides' class='form-block tag-content-block'>
                   <form-slide
@@ -762,6 +762,8 @@ export default {
     }
   },
   async created() {
+    window.TaskFieldCheck = this.calculateCanPublish
+    window.TaskFieldSave = this.autoSaveData
     this.$logger.info('add task created ' + this.taskId + ' ' + this.$route.path + ' mode: ' + this.mode, this.$route.params)
 
     this.$EventBus.$on(SlideEvent.SELECT_TEMPLATE, this.handleSelectTemplate)
