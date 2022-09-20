@@ -316,7 +316,8 @@
       v-if='previewVisible'
       :liveWorkShopCode="previewCode"
       :is-library="isLibrary"
-      :school-resource="isSchoolResource"
+      :school-resource="content.schoolId !== '0'"
+      :school-resource-id="content.schoolId"
       @reload="handleRefresh"
       @close='handlePreviewClose' />
 
@@ -457,13 +458,6 @@ export default {
       return 'YYYY-MM-DD HH:mm'
     },
     isLibrary() {
-      if (this.content.content && this.content.content.createBy === this.info.email) {
-        return false
-      }
-      return true
-    },
-    // feature分类下他人发布的，register他人在个人身份下发布，复用library 下的preview页面；他人在学校身份下发布，复用school resource下的preview页面
-    isSchoolResource() {
       if (this.content.content && this.content.content.createBy === this.info.email) {
         return false
       }

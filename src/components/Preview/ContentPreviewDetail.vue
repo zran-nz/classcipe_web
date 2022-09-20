@@ -78,7 +78,7 @@
                   type='primary'
                   @click='handleDuplicateItem'
                   :loading='copyLoading'
-                  v-if='content.createBy !== $store.getters.userInfo.email && content.buyed && content.myContentId == -1'
+                  v-if='showBuyButton && content.createBy !== $store.getters.userInfo.email && content.buyed && content.myContentId == -1'
                   icon='copy'>
                   Copy
                 </a-button>
@@ -160,7 +160,8 @@
         >
           <div class="author-info">
             <div class="author-avatar">
-              <a-avatar v-if="content.owner.avatar" size="large" :src="content.owner.avatar" />
+              <a-avatar v-if="isSchoolResource" size="large" :src="currentSchool.logo" />
+              <a-avatar v-else-if="content.owner.avatar" size="large" :src="content.owner.avatar" />
               <a-avatar v-else size="large" style="background-color: #517f3f">{{
                 (content.owner
                   ? content.owner.firstname + ' ' + content.owner.lastname
@@ -172,7 +173,8 @@
               <!-- <div class='author-name' v-if="content.owner.email === $store.getters.email">
                 Me
               </div> -->
-              <div class='author-name'>
+              <div class='author-name' v-if="isSchoolResource">{{ currentSchool.schoolName }}</div>
+              <div class='author-name' v-else>
                 {{ (content.owner ? (content.owner.firstname + ' ' + content.owner.lastname) : content.createBy) | upCaseFirst }}
               </div>
               <div class="rate-star">
@@ -288,7 +290,7 @@
                   type='primary'
                   @click='handleDuplicateItem'
                   :loading='copyLoading'
-                  v-if='content.createBy !== $store.getters.userInfo.email && content.buyed && content.myContentId == -1'
+                  v-if='showCopyButton && content.createBy !== $store.getters.userInfo.email && content.buyed && content.myContentId == -1'
                   icon='copy'>
                   Copy
                 </a-button>
@@ -518,7 +520,7 @@
           <div class='sub-task-title'>
             Sub tasks ({{ content.subTasks.length }})
           </div>
-          <div class='go-to-list' v-if="showEnterButton">
+          <div class='go-to-list' v-if="showEnterButton && !isLibrary && !schoolResource">
             <custom-link-text text='Enter' @click='goToSubTaskList' v-show='content.createBy === $store.getters.email'></custom-link-text>
           </div>
         </div>
@@ -542,7 +544,7 @@
             <template v-if="associateList[0].type === typeMap.task">Related Task</template>
             ({{ associateList.length }})
           </div>
-          <div class='go-to-list' v-if="showEnterButton">
+          <div class='go-to-list' v-if="showEnterButton && !isLibrary && !schoolResource">
             <custom-link-text text='Enter' @click='goTLinkList' v-show='content.createBy === $store.getters.email'></custom-link-text>
           </div>
         </div>
@@ -828,6 +830,7 @@ export default {
     return {
       moment: moment,
       contentLoading: true,
+      isSchoolResource: false,
       WORK_SHOPS_TYPE: WORK_SHOPS_TYPE,
       WORK_SHOPS_STATUS: WORK_SHOPS_STATUS,
       content: null,
@@ -980,14 +983,15 @@ export default {
       try {
         this.contentLoading = true
         const ret = await this.loadDetailByContentIDType(this.contentId, this.contentType)
-        console.log('loadDetailByContentIDType', ret)
         if (ret.code === 0) {
           this.content = ret.result
+          this.isSchoolResource = this.$route.path.includes('/teacher/resource') && this.content.owner.schoolId === this.$store.getters.userInfo.school
           this.favoriteFlag = this.content && this.content.isFavorite
           this.loadExtraData()
         } else {
           this.$message.error(ret.message)
         }
+        console.log('loadDetailByContentIDType', ret, this.$route.path, this.isSchoolResource)
         await this.loadStat()
       } finally {
         this.contentLoading = false

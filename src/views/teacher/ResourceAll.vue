@@ -24,7 +24,7 @@
       <a-spin tip='Loading...' :spinning="loading">
         <div class='content-list'>
           <template v-if='pagination.total !== 0 && !loading'>
-            <library-content-item :school-resource="true" v-for='item in myContentList' :key='item.id' :content='item'></library-content-item>
+            <library-content-item :school-resource="$store.getters.userInfo.school === item.owner.schoolId" v-for='item in myContentList' :key='item.id' :content='item'></library-content-item>
           </template>
           <template v-if='pagination.total === 0 && !loading'>
             <div class='empty-tips'>

@@ -112,7 +112,8 @@
       :content-type='previewType'
       :showEditButton="false"
       :is-library="isLibrary"
-      :school-resource="isSchoolResource"
+      :school-resource="previewSchoolId !== '0'"
+      :school-resource-id="previewSchoolId"
       v-if='previewVisible'
       @close='handlePreviewClose' />
   </div>
@@ -214,18 +215,6 @@ export default {
         return false
       }
       return true
-    },
-    isSchoolResource() {
-      if (this.info.event.extendedProps.schoolId === '0') {
-        return false
-      } else if (this.info.event.extendedProps && this.info.event.extendedProps.author === this.userInfo.email) {
-        return false
-      } else {
-        return true
-      }
-    },
-    schoolResourceId() {
-      return this.info.event.extendedProps.schoolId
     }
   },
   methods: {

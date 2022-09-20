@@ -16,6 +16,7 @@ export const ContentItemMixin = {
       previewType: null,
       previewCode: null, // live workshop sessionId
       previewVisible: false,
+      previewSchoolId: '0',
       updateEditSlideLoading: false,
       setColor: [
         '#FFEDAF',
@@ -111,6 +112,7 @@ export const ContentItemMixin = {
           this.previewCurrentId = isOrigin ? (data.sourceFrom || data.id) : data.id
           this.previewType = data.type
           this.previewCode = data.sessionId || (data.sessionInfo && data.sessionInfo.classId)
+          this.previewSchoolId = data.schoolId ? data.schoolId : '0'
           // 原件显示创建编辑评论不显示评论列表，自己copy的时不显示创建编辑评论列表
           this.reviewList = false // !isOrigin
           this.reviewCreate = !!isOrigin
@@ -245,18 +247,19 @@ export const ContentItemMixin = {
           //   })
           // }
         } else if (field === 'learnOuts') {
-          console.log('learnOuts test', this.content.learnOuts)
-          if (!this.content.learnOuts?.length) {
-            console.log('learnOuts is empty')
-            this.emptyRequiredFields.push(field)
-            this.formSteps.forEach(step => {
-              if (step.commonFields.indexOf(field) > -1) {
-                step.showRequiredTips = true
-                step.showSatisfiedTips = false
-                canPublish = false
-              }
-            })
-          }
+          // console.log('learnOuts test', this.content.learnOuts)
+          // if (!this.content.learnOuts?.length) {
+          //   console.log('learnOuts is empty')
+          //   this.emptyRequiredFields.push(field)
+            // this.formSteps.forEach(step => {
+            //   if (step.commonFields.indexOf(field) > -1) {
+            //     console.log(field, step)
+            //     step.showRequiredTips = true
+            //     step.showSatisfiedTips = false
+            //     canPublish = false
+            //   }
+            // })
+          // }
         } else if (field === 'questions') {
           // TODO列表后端未返回
           // console.log('questions is ', this.content.questions)
@@ -292,7 +295,7 @@ export const ContentItemMixin = {
         }
       })
 
-      console.log(canPublish)
+      console.log('canPublish: ', canPublish)
 
       if (this.content.canPublish !== canPublish) {
         // TODO 需要部分保存

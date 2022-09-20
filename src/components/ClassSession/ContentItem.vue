@@ -205,7 +205,9 @@
         v-bind='$attrs'
         :content-id='previewCurrentId'
         :content-type='previewType'
-        :show-edit-button=!!content
+        :show-edit-button='showButton'
+        :show-buy-button='showButton'
+        :show-copy-button='showButton'
         :session="session"
         v-if='previewVisible'
         @close='handlePreviewClose' />

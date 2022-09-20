@@ -185,19 +185,24 @@ export const PublishMixin = {
               })
             }
           } else if (field === 'learnOuts') {
-            console.log('learnOuts test', this.form.learnOuts)
-            if (!this.form.learnOuts?.length || !this.form.subjectList?.length || !this.form.yearList?.length || !this.form.curriculumId) {
-              console.log(this.form)
-              console.log('learnOuts is empty')
-              this.emptyRequiredFields.push(field)
+            const [ task, status ] = JSON.parse(localStorage.getItem('OutlineStatus')) ?? []
+            const isFinish = task === this.taskId && status
+            console.log('learnOuts check:', field, this.taskId, isFinish)
+            // if (this.taskId !== task || !status) {
+              // this.emptyRequiredFields.push(field)
               this.formSteps.forEach(step => {
                 if (step.commonFields.indexOf(field) > -1) {
-                  step.showRequiredTips = true
+                  step.showRequiredTips = !isFinish
                   step.showSatisfiedTips = false
                   canPublish = false
                 }
               })
-            }
+            // }
+            // if (!this.form.learnOuts?.length || !this.form.subjectList?.length || !this.form.yearList?.length || !this.form.curriculumId) {
+              // console.log(this.form)
+              // console.log('learnOuts is empty')
+
+            // }
           } else if (field === 'questions') {
             console.log('questions is ', this.form.questions)
             if (this.form.hasOwnProperty('questions')) {

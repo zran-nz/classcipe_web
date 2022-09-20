@@ -67,7 +67,7 @@
             <template v-if="!schoolResource || content.createBy === $store.getters.userInfo.email">
               <template v-if='content.owner'>
                 <a-avatar v-if='content.owner.avatar' :src='content.owner.avatar' size="small" />
-                <img v-else src="~@/assets/icons/library/default-avatar.png"/>
+                <img v-else class="ant-avatar-sm" src="~@/assets/icons/library/default-avatar.png"/>
               </template>
               <template v-else>
                 <a-avatar size="small">{{ content.createBy.toUpperCase()[0] }}</a-avatar>
@@ -100,7 +100,7 @@
         <div class='right-info'>
           <div class='buy-info' @click.stop=''>
             <a-space>
-              <template v-if="content.createBy === $store.getters.userInfo.email && (!schoolResource || !(content.buyed && content.myContentId == -1))">
+              <template v-if="(!schoolResource || !(content.buyed && content.myContentId == -1))">
                 <div class='price'>${{ content.discountPrice || content.price || 0 }}</div>
                 <div v-if="content.discountPrice > 0 && content.discountPrice !== content.price" class='price_was'>${{ content.price }}</div>
               </template>
