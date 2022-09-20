@@ -43,6 +43,7 @@
               :show-button="false"
               :school-resource="item.schoolId !== '0'"
               :school-resource-id="item.schoolId"
+              :show-avatar-tips="true"
               :session='item'>
               <template v-slot:cover-action>
                 <div class='cover-action'>
