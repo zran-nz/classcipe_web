@@ -185,7 +185,7 @@ export const PublishMixin = {
               })
             }
           } else if (field === 'learnOuts') {
-            const [ task, status ] = JSON.parse(localStorage.getItem('OutlineStatus'))
+            const [ task, status ] = JSON.parse(localStorage.getItem('OutlineStatus')) ?? []
             const isFinish = task === this.taskId && status
             console.log('learnOuts check:', field, this.taskId, isFinish)
             // if (this.taskId !== task || !status) {
