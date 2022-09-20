@@ -46,7 +46,8 @@
         </div>
         <div class='form-body root-locate-form' id='form-body' :style="{ width: formBodyWidth }" v-show="formBodyWidth !== '0%'">
           <div
-            class='form-page-item' style="height:100%;"
+            class='form-page-item'
+            style="height:100%;"
             v-show='currentActiveStepIndex === stepIndex'
             v-for='(step, stepIndex) in formSteps'
             :key='step.id'>
@@ -221,7 +222,6 @@
                       :language-list='form.languageList' />
                   </custom-form-item> -->
                 </div>
-
 
                 <div v-else-if='fieldItem.fieldName === taskField.Slides' class='form-block tag-content-block'>
                   <form-slide

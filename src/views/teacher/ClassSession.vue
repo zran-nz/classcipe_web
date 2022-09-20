@@ -4,6 +4,7 @@
       <div class='source-type' :style="{visibility: WORK_SHOPS_TYPE.FEATURE.value !== queryParams.workshopsType ? 'visible' : 'hidden'}">
         <!-- <radio-switch @select="handleSelectWorkStatus" :menu-list='menuList' :default-selected-item="getSelectItem"/> -->
         <radio-switch
+          v-if="userMode !== USER_MODE.SELF"
           @select="handleSelectQueryType"
           :menu-list='queryTypeList'
           :default-selected-item="defaultQueryType"
@@ -113,7 +114,8 @@ import * as logger from '@/utils/logger'
 import {
   SESSION_CLASS_TYPE,
   WORK_SHOPS_STATUS,
-  WORK_SHOPS_TYPE
+  WORK_SHOPS_TYPE,
+  USER_MODE
 } from '@/const/common'
 import { typeMap } from '@/const/teacher'
 import ContentItem from '@/components/ClassSession/ContentItem'
@@ -165,6 +167,7 @@ export default {
   data () {
     return {
       typeMap: typeMap,
+      USER_MODE: USER_MODE,
       menuList: Object.values(WORK_SHOPS_STATUS).map(item => ({
         name: item.label,
         type: item.value

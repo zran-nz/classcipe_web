@@ -65,7 +65,6 @@ import './directives/selectPopover'
 import './directives/clickOutside'
 
 // logger
-import * as logger from '@/utils/logger'
 import CollapsePanel from 'ant-design-vue/lib/collapse/CollapsePanel'
 
 //
