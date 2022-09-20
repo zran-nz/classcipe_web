@@ -27,7 +27,7 @@
                 @focus.native='activeHeader(header)'
                 v-model='header.title'
                 @click.native.stop=''
-                @blur.native='currentEditHeader ? currentEditHeader.editing = false : null'/>
+                @blur.native='headerBlur'/>
             </template>
           </th>
         </tr>
@@ -244,11 +244,18 @@ export default {
       this.currentEditHeader = header
     },
 
+    headerBlur() {
+      console.log('headerBlur', this.currentEditHeader)
+      if (this.currentEditHeader) {
+        this.currentEditHeader.editing = false
+      }
+    },
+
     handleClick () {
       if (this.currentEditHeader && this.assessment.type === AssessmentToolType.Checklist) {
         this.currentEditHeader.editing = false
         // 如果是checkList那么顺便修改对应的列数据
-        console.log('this.assessment.bodyList', this.assessment.bodyList, 'this.currentEditHeader', this.currentEditHeader)
+        console.log('handleClick this.assessment.bodyList', this.assessment.bodyList, 'this.currentEditHeader', this.currentEditHeader)
         this.assessment.bodyList.forEach(row => {
           if (row[this.currentEditHeader.type]) {
             row[this.currentEditHeader.type].display = this.currentEditHeader.title
