@@ -88,7 +88,7 @@
       <a-spin tip='Loading...' :spinning="loading">
         <div class='content-list'>
           <template v-if='pagination.total !== 0 && !loading'>
-            <content-item @reload="loadMyContent" v-for='item in myContentList' :key='item.id' :content='item'></content-item>
+            <content-item @reload="loadMyContent" v-for='item in myContentList' :key='item.id' :content='item' :updateTime='updateTime'></content-item>
           </template>
           <div class='empty-tips' v-if='pagination.total === 0 && !loading'>
             <no-more-resources />
@@ -203,7 +203,10 @@ export default {
       radioSwitchShow: false,
 
       importVisible: false,
-      importType: typeMap.task
+      importType: typeMap.task,
+
+      timer: null,
+      updateTime: 0
     }
   },
   created() {
@@ -227,6 +230,7 @@ export default {
     this.queryParams.workshopsStatus = parseInt(workshopStatus || 1)
     console.log(this.queryParams)
     this.loadMyContent()
+    this.initTimer()
   },
   mounted() {
     window.addEventListener('resize', this.resizeFn, false)
@@ -234,8 +238,15 @@ export default {
   },
   beforeDestroy() {
     window.removeEventListener('resize', this.resizeFn)
+    this.timer && clearInterval(this.timer)
   },
   methods: {
+    initTimer() {
+      const interval = 60 * 1000
+      this.timer = setInterval(() => {
+       this.updateTime = new Date().getTime()
+      }, interval)
+    },
     handleSchoolChange(currentSchool) {
       this.pageNo = 1
       this.loadMyContent()

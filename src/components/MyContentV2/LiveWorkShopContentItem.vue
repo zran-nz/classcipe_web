@@ -59,7 +59,7 @@
               <span style="display:inline-block; width: 100px;">CANC deadline:</span>  <span style="font-weight: bold;color:#ef4136;">{{ moment(content.sessionStartTime).subtract(24, 'hours') | countDown }}</span>
             </label> -->
             <label style="text-align:left;" for="" v-if="(isCurrentType(WORK_SHOPS_TYPE.LUNCHEDBYME.value) || isCurrentType(WORK_SHOPS_TYPE.REGISTERED.value)) && WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus ">
-              <span style="display:inline-block; width: 100px;">Countdown:</span>  <span style="font-weight: bold;color:#ef4136;">{{ content.sessionStartTime | countDown }}</span>
+              <span style="display:inline-block; width: 100px;">Countdown:</span>  <span style="font-weight: bold;color:#ef4136;">{{ filterSessionStartTime | countDown }}</span>
             </label>
           </a-space>
           <div class="update-time" v-show="showEditSche">
@@ -398,6 +398,18 @@ export default {
     isSimple: {
       type: Boolean,
       default: false
+    },
+    updateTime: {
+      type: [String, Number],
+      default: 0
+    }
+  },
+  watch: {
+    updateTime: {
+      handler(val, newVal) {
+        this.updateFilterTime()
+      },
+      immediate: true
     }
   },
   data () {
@@ -423,7 +435,9 @@ export default {
         sessionStartTime: null,
         deadline: null
       },
-      loading: false
+      loading: false,
+      filterSessionStartTime: '',
+      filterDeadline: ''
     }
   },
   computed: {
@@ -439,15 +453,6 @@ export default {
         }
         return workshopsType + '' === WORK_SHOPS_TYPE.FEATURE.value + ''
       }
-    },
-    filterDeadline() {
-      if (this.content && this.content.session && this.content.session.register && this.content.session.register.registerBefore) {
-        return this.content.session.register.registerBefore
-      }
-      if (this.content && this.content.sessionStartTime) {
-        return this.content.sessionStartTime
-      }
-      return ''
     },
     filterSessionEndTime() {
       if (this.content.sessionStartTime) {
@@ -490,6 +495,17 @@ export default {
     }
   },
   methods: {
+    updateFilterTime() {
+      this.filterDeadline = ''
+      this.filterSessionStartTime = ''
+      if (this.content && this.content.session && this.content.session.register && this.content.session.register.registerBefore) {
+        this.filterDeadline = this.content.session.register.registerBefore
+      }
+      if (this.content && this.content.sessionStartTime) {
+        this.filterDeadline = this.content.sessionStartTime
+        this.filterSessionStartTime = this.content.sessionStartTime
+      }
+    },
     editItem (item) {
       if (item.type === typeMap['unit-plan']) {
         this.$router.push({

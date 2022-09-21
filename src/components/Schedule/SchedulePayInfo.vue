@@ -379,7 +379,7 @@ export default {
     min-height: 400px;
     max-height: calc(100vh - 160px);
     overflow-y: auto;
-    width: 30%;
+    width: 35%;
     .pay-title {
       margin: 10px 0;
       cursor: pointer;

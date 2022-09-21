@@ -694,6 +694,12 @@ export default {
                   if (moment(startTime).isBefore(moment())) {
                     editable = false
                   }
+                  if (item.workshopsDetailInfo) {
+                    editable = false
+                  }
+                  if (item.sessionInfo.author !== this.info.email) {
+                    editable = false
+                  }
                   return {
                     id: item.sessionInfo.id,
                     title: (item.workshopsDetailInfo && item.workshopsDetailInfo.title) ? item.workshopsDetailInfo.title : item.sessionInfo.sessionName,

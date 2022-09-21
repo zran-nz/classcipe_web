@@ -69,6 +69,14 @@
               <div class="title">Session title:</div>
               <a-textarea @blur="handleChangeTitle" auto-size :maxlength="500" v-model="scheduleReq.register.title"></a-textarea>
             </div>
+            <div class="choose-session-cover">
+              <custom-image-uploader
+                :field='PdField.Image'
+                :content-type='type'
+                :img-url='scheduleReq.register.image'
+                :need-del="false"
+                @update='handleUpdateCover' />
+            </div>
           </div>
         </schedule-date>
         <schedule-pay-info
@@ -113,6 +121,14 @@
               <div class="title">Session title:</div>
               <a-textarea auto-size :maxlength="500" v-model="scheduleReq.register.title"></a-textarea>
             </div>
+            <div class="choose-session-cover">
+              <custom-image-uploader
+                :field='PdField.Image'
+                :content-type='type'
+                :img-url='scheduleReq.register.image'
+                :need-del="false"
+                @update='handleUpdateCover' />
+            </div>
           </div>
         </schedule-pay-info>
         <school-schedule
@@ -156,6 +172,14 @@
             <div class="choose-title">
               <div class="title">Session title:</div>
               <a-textarea auto-size :maxlength="500" v-model="scheduleReq.register.title"></a-textarea>
+            </div>
+            <div class="choose-session-cover">
+              <custom-image-uploader
+                :field='PdField.Image'
+                :content-type='type'
+                :img-url='scheduleReq.register.image'
+                :need-del="false"
+                @update='handleUpdateCover' />
             </div>
           </div>
         </school-schedule>
@@ -238,7 +262,7 @@ import { DetailBySessionId } from '@/api/v2/live'
 import { ZoomAuthMixin } from '@/mixins/ZoomAuthMixin'
 import FixedFormFooter from '@/components/Common/FixedFormFooter'
 import ZoomMeetingSetting from '@/components/Schedule/ZoomMeetingSetting'
-import { CALENDAR_QUERY_TYPE, USER_MODE } from '@/const/common'
+import { CALENDAR_QUERY_TYPE, USER_MODE, PdField } from '@/const/common'
 import { lessonHost } from '@/const/googleSlide'
 import { typeMap } from '@/const/teacher'
 import { TaskQueryById } from '@/api/task'
@@ -248,11 +272,12 @@ import { mapState } from 'vuex'
 import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import CustomLinkText from '@/components/Common/CustomLinkText'
+import CustomImageUploader from '@/components/Common/CustomImageUploader'
 import moment from 'moment'
 
 export default {
   name: 'ScheduleSession',
-  components: { CustomLinkText, ZoomMeetingSetting, FixedFormFooter, SchedulePayInfo, SchoolSchedule, ScheduleDate, SelectParticipant, SelectSessionUnit, MyVerticalSteps },
+  components: { CustomLinkText, CustomImageUploader, ZoomMeetingSetting, FixedFormFooter, SchedulePayInfo, SchoolSchedule, ScheduleDate, SelectParticipant, SelectSessionUnit, MyVerticalSteps },
   mixins: [ AssociateMixin, ZoomAuthMixin ],
   props: {
     id: {
@@ -269,6 +294,7 @@ export default {
       CALENDAR_QUERY_TYPE: CALENDAR_QUERY_TYPE,
       USER_MODE: USER_MODE,
       typeMap: typeMap,
+      PdField: PdField,
       loading: true,
       currentActiveStepIndex: 0,
       selectSessionUnitVisible: false,
@@ -285,6 +311,9 @@ export default {
         planId: null,
         register: {
           title: null,
+          coverVideo: '',
+          image: '',
+          cover: '',
           discountInfo: [],
           maxParticipants: 0,
           price: 0,
@@ -358,6 +387,9 @@ export default {
             id: this.id
           }).then(response => {
             this.scheduleReq.register.title = response.result.name
+            this.scheduleReq.register.cover = response.result.image // this.type === typeMap.task ? response.result.image : (response.result.coverVideo || response.result.image)
+            this.scheduleReq.register.coverVideo = response.result.coverVideo
+            this.scheduleReq.register.image = response.result.image
             this.taskType = response.result.taskType
           }).finally(() => {
             this.loading = false
@@ -382,6 +414,8 @@ export default {
             this.scheduleReq.selectStudents = session.selectStudents
             this.scheduleReq.zoom = session.hasZoom
             this.scheduleReq.register.title = res.result.title || res.result.session.sessionName
+            this.scheduleReq.register.cover = res.result.cover || res.result.session.image
+            this.scheduleReq.register.image = res.result.cover || res.result.session.image
             this.initZoom = {
               enableZoom: Boolean(session.hasZoom)
             }
@@ -417,6 +451,15 @@ export default {
       }
 
       this.getClassList()
+    },
+
+     handleUpdateCover (coverData) {
+      if (coverData.type === 'video') {
+        this.scheduleReq.register.coverVideo = coverData.url
+      } else {
+        this.scheduleReq.register.image = coverData.url
+      }
+      this.scheduleReq.register.cover = coverData.url
     },
 
     getClassList() {

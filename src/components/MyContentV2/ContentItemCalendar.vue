@@ -1,7 +1,9 @@
 <template>
   <div class='content-item' v-if='data'>
     <div class='cover'>
-      <div class='cover-block' v-if="data.sessionInfo && data.sessionInfo.image" :style="{'background-image': `url('${data.sessionInfo.image || 'http://dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png'}')`}">
+      <div class='cover-block' v-if="data.workshopsDetailInfo && data.workshopsDetailInfo.cover" :style="{'background-image': `url('${data.workshopsDetailInfo.cover || 'http://dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png'}')`}">
+      </div>
+      <div class='cover-block' v-else-if="data.sessionInfo && data.sessionInfo.image" :style="{'background-image': `url('${data.sessionInfo.image || 'http://dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png'}')`}">
       </div>
       <div class='cover-block' v-else-if="data.content && data.content.image" :style="{'background-image': `url('${data.content.image || 'http://dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png'}')`}">
       </div>

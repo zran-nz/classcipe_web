@@ -383,7 +383,7 @@ export default {
     min-height: 400px;
     max-height: calc(100vh - 160px);
     overflow-y: auto;
-    width: 30%;
+    width: 35%;
   }
 
   .date-info {

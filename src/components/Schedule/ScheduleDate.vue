@@ -1,6 +1,6 @@
 <template>
   <div class='schedule-date'>
-    <div style="padding: 0;" :style="{width: showCalendarLink ? '30%' : '50%'}">
+    <div style="padding: 0;" :style="{width: showCalendarLink ? '35%' : '50%'}">
       <slot name="title" />
       <div class='choose-type'>
         <zoom-auth :enable-zoom.sync='enableZoom' :disabled="mustZoom" />
