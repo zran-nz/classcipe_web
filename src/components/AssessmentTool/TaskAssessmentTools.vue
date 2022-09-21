@@ -29,7 +29,7 @@
     </div>
     <div class='assessment-list'>
       <template v-if='assessmentList.length'>
-        <div class='assessment-item' v-for='assessment in assessmentList' :key='assessment.key' @click='handleSelectActiveTable(assessment)'>
+        <div class='assessment-item' v-for='assessment in assessmentList' :key='assessment.key' @click='handleSelectActiveTable(assessment.key)'>
           <assessment-tool
             :assessment='assessment'
             :allow-create='allowCreate'
@@ -301,9 +301,9 @@ export default {
       this.assessmentList.splice(this.assessmentList.findIndex(item => item.key === key), 1)
     },
 
-    handleSelectActiveTable (assessmentTable) {
-      this.$logger.info('handleSelectActiveTable', assessmentTable)
-      this.activeAssessmentTableKey = assessmentTable.key
+    handleSelectActiveTable (key) {
+      this.$logger.info('handleSelectActiveTable', key)
+      this.activeAssessmentTableKey = key
     },
 
     showAssessmentToolList () {
