@@ -31,432 +31,442 @@
     <div class='form-content'>
       <div class='step-content' v-if='!contentLoading'>
         <div class='form-body root-locate-form' id='form-body' :style="{ width: formBodyWidth }" v-show="formBodyWidth !== '0%'">
-          <div class='form-page-item' v-show='currentActiveStepIndex === stepIndex'
-            v-for='(step, stepIndex) in formSteps' :key='step.id'>
+          <div
+            class='form-page-item'
+            v-show='currentActiveStepIndex === stepIndex'
+            v-for='(step, stepIndex) in formSteps'
+            :key='step.id'>
             <template v-for='fieldItem in $store.getters.formConfigData.planCommonList'>
-            <div class='form-field-item' style="height:100%;" v-if='fieldItem.visible && !["yearList", "subjectList"].includes(fieldItem.fieldName) && step.commonFields.indexOf(fieldItem.fieldName) !== -1' :key='fieldItem.id'>
-              <div v-if='fieldItem.visible && fieldItem.fieldName === planField.Name' class='form-block tag-content-block' :key='fieldItem.fieldName'>
-                <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Name />
-                <custom-form-item :required='emptyRequiredFields.indexOf(planField.Name) !== -1' :required-field='requiredFields.indexOf(planField.Name) !== -1'>
-                  <template slot='label'>
-                    {{ 'Unit Name' | unitLabelName(planField.Name, $store.getters.formConfigData) }}
-                  </template>
-                  <template slot='action'>
-                    <a-space>
-                      <comment-switch
-                        v-show="canEdit"
-                        :is-active="currentFieldName === planField.Name"
-                        :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Name}"
-                        :field-name='planField.Name'
-                        @switch='handleSwitchComment'/>
-                    </a-space>
-                  </template>
-                  <template v-if='unitFieldLabel(planField.Name, $store.getters.formConfigData) && unitFieldLabel(planField.Name, $store.getters.formConfigData) !== unitLabelName(planField.Name, $store.getters.formConfigData)' slot='tips'>
-                    <a-tooltip :title="unitFieldLabel(planField.Name, $store.getters.formConfigData)" placement='top'>
-                      <a-icon type="info-circle" />
-                    </a-tooltip>
-                  </template>
-                  <a-input v-model='form.name' :placeholder='unitLabelHint(planField.Name, $store.getters.formConfigData)' class='cc-form-input' @change="handleCollaborateEvent(unitPlanId,planField.Name,form.name)" :disabled="!canEdit" />
-                </custom-form-item>
-              </div>
-              <div v-else-if='(fieldItem.visible || form[fieldItem.fieldName]) && fieldItem.fieldName === planField.Overview'
-                class='form-block tag-content-block'
-                id='overview'
-                :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] && isCopyContent}"
-                :key='fieldItem.fieldName'>
-                <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Overview />
-                <custom-form-item ref='overview' :required='emptyRequiredFields.indexOf(planField.Overview) !== -1' :required-field='requiredFields.indexOf(planField.Overview) !== -1'>
-                  <template slot='label'>
-                    {{ 'Overview' | unitLabelName(planField.Overview, $store.getters.formConfigData) }}
-                  </template>
-                  <template slot='action'>
-                    <a-space>
-                      <comment-switch
-                        v-show="canEdit"
-                        :field-name='planField.Overview'
-                        :is-active="currentFieldName === planField.Overview"
-                        @switch='handleSwitchComment'
-                        :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Overview}" />
-                    </a-space>
-                  </template>
-                  <template v-if='unitFieldLabel(planField.Overview, $store.getters.formConfigData) && unitFieldLabel(planField.Overview, $store.getters.formConfigData) !== unitLabelName(planField.Overview, $store.getters.formConfigData)' slot='tips'>
-                    <a-tooltip :title="unitFieldLabel(planField.Overview, $store.getters.formConfigData)" placement='top'>
-                      <a-icon type="info-circle" />
-                    </a-tooltip>
-                  </template>
-                  <a-textarea
-                    :auto-size="{ minRows: 2, maxRows: 6 }"
-                    v-model='form.overview'
-                    :placeholder='unitLabelHint(planField.Overview, $store.getters.formConfigData)'
-                    class='cc-form-textarea'
-                    allow-clear
-                    @change="handleCollaborateEvent(unitPlanId,planField.Overview,form.overview)"
-                    :disabled="!canEdit"/>
-                </custom-form-item>
-                <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && canEdit'>
-                  <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = ''" cancel-text="No">
-                    <delete-icon color='#F16A39' />
-                  </a-popconfirm>
-                </div>
-              </div>
-
-              <div v-else-if='(fieldItem.visible || form[fieldItem.fieldName] !== null) && fieldItem.fieldName === planField.ProjectBased'
-                class='form-block form-radio-wrapper tag-content-block'
-                :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] !== null && isCopyContent}"
-                :key='fieldItem.fieldName'>
-                <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.ProjectBased style="top:-30px" />
-                <custom-form-item :required='emptyRequiredFields.indexOf(planField.ProjectBased) !== -1' :required-field='requiredFields.indexOf(planField.ProjectBased) !== -1'>
-                  <template slot='label'>
-                    {{ 'Project-based Unit' | unitLabelName(planField.ProjectBased, $store.getters.formConfigData) }}
-                  </template>
-                  <template slot='action'>
-                    <a-space>
-                      <comment-switch
-                        v-show="canEdit"
-                        :field-name='planField.ProjectBased'
-                        :is-active="currentFieldName === planField.ProjectBased"
-                        @switch='handleSwitchComment'
-                        :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.ProjectBased}"
-                      />
-                    </a-space>
-                  </template>
-                  <template v-if='unitFieldLabel(planField.ProjectBased, $store.getters.formConfigData) && unitFieldLabel(planField.ProjectBased, $store.getters.formConfigData) !== unitLabelName(planField.ProjectBased, $store.getters.formConfigData)' slot='tips'>
-                    <a-tooltip :title="unitFieldLabel(planField.ProjectBased, $store.getters.formConfigData)" placement='top'>
-                      <a-icon type="info-circle" />
-                    </a-tooltip>
-                  </template>
-                  <custom-radio-button-group
-                    :list="[ {name: 'Yes', value: 1}, {name: 'No', value: 0}]"
-                    :disabled='!canEdit'
-                    :value.sync='form.projectBased'
-                    @change="handleCollaborateEvent(unitPlanId,planField.ProjectBased,form.projectBased)" >
-                  </custom-radio-button-group>
-                </custom-form-item>
-                <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && canEdit'>
-                  <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = null" cancel-text="No">
-                    <delete-icon color='#F16A39' />
-                  </a-popconfirm>
-                </div>
-              </div>
-
-              <div v-else-if='(fieldItem.visible || form[fieldItem.fieldName] !== null) && fieldItem.fieldName === planField.UnitType'
-                class='form-block form-radio-wrapper tag-content-block'
-                :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] !== null && isCopyContent}"
-                :key='fieldItem.fieldName'>
-                <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.UnitType style="top:-30px"/>
-                <custom-form-item :required='emptyRequiredFields.indexOf(planField.UnitType) !== -1' :required-field='requiredFields.indexOf(planField.UnitType) !== -1'>
-                  <template slot='label'>
-                    {{ 'Unit type' | unitLabelName(planField.UnitType, $store.getters.formConfigData) }}
-                  </template>
-                  <template slot='action'>
-                    <a-space>
-                      <comment-switch
-                        v-show="canEdit"
-                        :field-name='planField.UnitType'
-                        :is-active="currentFieldName === planField.UnitType"
-                        @switch='handleSwitchComment'
-                        :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.UnitType}" />
-                    </a-space>
-                  </template>
-                  <template v-if='unitFieldLabel(planField.UnitType, $store.getters.formConfigData) && unitFieldLabel(planField.UnitType, $store.getters.formConfigData) !== unitLabelName(planField.UnitType, $store.getters.formConfigData)' slot='tips'>
-                    <a-tooltip :title="unitFieldLabel(planField.UnitType, $store.getters.formConfigData)" placement='top'>
-                      <a-icon type="info-circle" />
-                    </a-tooltip>
-                  </template>
-                  <custom-radio-button-group
-                    :list="[ {name: 'Single-subject Unit', value: 0}, {name: 'Integrated Unit', value: 1}]"
-                    :disabled='!canEdit'
-                    :value.sync='form.unitType'
-                    @change="handleCollaborateEvent(unitPlanId,planField.UnitType,form.unitType)" >
-                  </custom-radio-button-group>
-                </custom-form-item>
-                <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && canEdit'>
-                  <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = null" cancel-text="No">
-                    <delete-icon color='#F16A39' />
-                  </a-popconfirm>
-                </div>
-              </div>
-              <template v-else-if="fieldItem.visible && fieldItem.fieldName === planField.Inquiry">
-                <div v-if='!form.inquiryKeywords'
-                  id='inquiry'
+              <div class='form-field-item' style="height:100%;" v-if='fieldItem.visible && !["yearList", "subjectList"].includes(fieldItem.fieldName) && step.commonFields.indexOf(fieldItem.fieldName) !== -1' :key='fieldItem.id'>
+                <div
+                  v-if='fieldItem.visible && fieldItem.fieldName === planField.Name'
                   class='form-block tag-content-block'
                   :key='fieldItem.fieldName'>
-                  <collaborate-tooltip :form-id="unitPlanId" :field-name='planField.Inquiry'/>
-                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.Inquiry) !== -1' :required-field='requiredFields.indexOf(planField.Inquiry) !== -1'>
+                  <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Name />
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.Name) !== -1' :required-field='requiredFields.indexOf(planField.Name) !== -1'>
                     <template slot='label'>
-                      {{ 'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelName(planField.Inquiry, $store.getters.formConfigData) }}
+                      {{ 'Unit Name' | unitLabelName(planField.Name, $store.getters.formConfigData) }}
                     </template>
                     <template slot='action'>
                       <a-space>
                         <comment-switch
                           v-show="canEdit"
-                          :is-active="currentFieldName === planField.Inquiry"
-                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Inquiry}"
-                          :field-name='planField.Inquiry'
-                          @switch='handleSwitchComment' />
+                          :is-active="currentFieldName === planField.Name"
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Name}"
+                          :field-name='planField.Name'
+                          @switch='handleSwitchComment'/>
                       </a-space>
                     </template>
-                    <template v-if='unitFieldLabel(planField.Inquiry, $store.getters.formConfigData) && unitFieldLabel(planField.Inquiry, $store.getters.formConfigData) !== unitLabelName(planField.Inquiry, $store.getters.formConfigData)' slot='tips'>
-                      <a-tooltip :title="unitFieldLabel(planField.Inquiry, $store.getters.formConfigData)" placement='top'>
+                    <template v-if='unitFieldLabel(planField.Name, $store.getters.formConfigData) && unitFieldLabel(planField.Name, $store.getters.formConfigData) !== unitLabelName(planField.Name, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="unitFieldLabel(planField.Name, $store.getters.formConfigData)" placement='top'>
+                        <a-icon type="info-circle" />
+                      </a-tooltip>
+                    </template>
+                    <a-input v-model='form.name' :placeholder='unitLabelHint(planField.Name, $store.getters.formConfigData)' class='cc-form-input' @change="handleCollaborateEvent(unitPlanId,planField.Name,form.name)" :disabled="!canEdit" />
+                  </custom-form-item>
+                </div>
+                <div
+                  v-else-if='(fieldItem.visible || form[fieldItem.fieldName]) && fieldItem.fieldName === planField.Overview'
+                  class='form-block tag-content-block'
+                  id='overview'
+                  :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] && isCopyContent}"
+                  :key='fieldItem.fieldName'>
+                  <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Overview />
+                  <custom-form-item ref='overview' :required='emptyRequiredFields.indexOf(planField.Overview) !== -1' :required-field='requiredFields.indexOf(planField.Overview) !== -1'>
+                    <template slot='label'>
+                      {{ 'Overview' | unitLabelName(planField.Overview, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <a-space>
+                        <comment-switch
+                          v-show="canEdit"
+                          :field-name='planField.Overview'
+                          :is-active="currentFieldName === planField.Overview"
+                          @switch='handleSwitchComment'
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Overview}" />
+                      </a-space>
+                    </template>
+                    <template v-if='unitFieldLabel(planField.Overview, $store.getters.formConfigData) && unitFieldLabel(planField.Overview, $store.getters.formConfigData) !== unitLabelName(planField.Overview, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="unitFieldLabel(planField.Overview, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
                     <a-textarea
-                      v-model='form.inquiry'
-                      :placeholder="unitLabelHint(planField.Inquiry, $store.getters.formConfigData)"
                       :auto-size="{ minRows: 2, maxRows: 6 }"
+                      v-model='form.overview'
+                      :placeholder='unitLabelHint(planField.Overview, $store.getters.formConfigData)'
                       class='cc-form-textarea'
-                      v-selectPopover="['ideaKeywords', setIdeaKeywords, 'inquiryKeywords', false]"
-                      @change="handleCollaborateEvent(unitPlanId,planField.Inquiry,form.inquiry)"
-                      :disabled="!canEdit" />
+                      allow-clear
+                      @change="handleCollaborateEvent(unitPlanId,planField.Overview,form.overview)"
+                      :disabled="!canEdit"/>
                   </custom-form-item>
-                  <a-tooltip title='Browse' @click.stop='selectBigIdeaDataVisible=true' v-if="canEdit">
-                    <span class='browse'>
-                      <a-icon theme='twoTone' twoToneColor='rgba(21, 195, 154, 1)' type='appstore' />
-                    </span>
-                  </a-tooltip>
+                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && canEdit'>
+                    <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = ''" cancel-text="No">
+                      <delete-icon color='#F16A39' />
+                    </a-popconfirm>
+                  </div>
                 </div>
-                <div v-else
-                  id='inquiry-keyword' class='form-block tag-content-block' :key='fieldItem.fieldName + "keyword"'>
-                  <custom-form-item :required='false' :required-field='requiredFields.indexOf(planField.InquiryKeywords) !== -1'>
+
+                <div
+                  v-else-if='(fieldItem.visible || form[fieldItem.fieldName] !== null) && fieldItem.fieldName === planField.ProjectBased'
+                  class='form-block form-radio-wrapper tag-content-block'
+                  :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] !== null && isCopyContent}"
+                  :key='fieldItem.fieldName'>
+                  <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.ProjectBased style="top:-30px" />
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.ProjectBased) !== -1' :required-field='requiredFields.indexOf(planField.ProjectBased) !== -1'>
                     <template slot='label'>
-                      {{ 'Key words' }}
+                      {{ 'Project-based Unit' | unitLabelName(planField.ProjectBased, $store.getters.formConfigData) }}
                     </template>
                     <template slot='action'>
+                      <a-space>
+                        <comment-switch
+                          v-show="canEdit"
+                          :field-name='planField.ProjectBased'
+                          :is-active="currentFieldName === planField.ProjectBased"
+                          @switch='handleSwitchComment'
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.ProjectBased}"
+                        />
+                      </a-space>
                     </template>
-                    <template slot='tips'>
-                      <a-tooltip title="Set key words by selecting the words" placement='top'>
+                    <template v-if='unitFieldLabel(planField.ProjectBased, $store.getters.formConfigData) && unitFieldLabel(planField.ProjectBased, $store.getters.formConfigData) !== unitLabelName(planField.ProjectBased, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="unitFieldLabel(planField.ProjectBased, $store.getters.formConfigData)" placement='top'>
                         <a-icon type="info-circle" />
                       </a-tooltip>
                     </template>
-                    <div class="inquiry-keyword-con" v-if="form.inquiryKeywords && form.inquiryKeywords.length > 0">
-                      <div
-                        class="inquiry-keyword-item"
-                        v-for="(tag, tagIndex) in form.inquiryKeywords"
-                        :key="'inquery_keyword_'+tagIndex"
-                      >
-                        <a-tag color="#a5a5a5" :closable="canEdit" @close="handleRmInquiryKey(form, 'inquiryKeywords', tagIndex)">{{ tag }}</a-tag>
+                    <custom-radio-button-group
+                      :list="[ {name: 'Yes', value: 1}, {name: 'No', value: 0}]"
+                      :disabled='!canEdit'
+                      :value.sync='form.projectBased'
+                      @change="handleCollaborateEvent(unitPlanId,planField.ProjectBased,form.projectBased)" >
+                    </custom-radio-button-group>
+                  </custom-form-item>
+                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && canEdit'>
+                    <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = null" cancel-text="No">
+                      <delete-icon color='#F16A39' />
+                    </a-popconfirm>
+                  </div>
+                </div>
+
+                <div
+                  v-else-if='(fieldItem.visible || form[fieldItem.fieldName] !== null) && fieldItem.fieldName === planField.UnitType'
+                  class='form-block form-radio-wrapper tag-content-block'
+                  :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] !== null && isCopyContent}"
+                  :key='fieldItem.fieldName'>
+                  <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.UnitType style="top:-30px"/>
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.UnitType) !== -1' :required-field='requiredFields.indexOf(planField.UnitType) !== -1'>
+                    <template slot='label'>
+                      {{ 'Unit type' | unitLabelName(planField.UnitType, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <a-space>
+                        <comment-switch
+                          v-show="canEdit"
+                          :field-name='planField.UnitType'
+                          :is-active="currentFieldName === planField.UnitType"
+                          @switch='handleSwitchComment'
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.UnitType}" />
+                      </a-space>
+                    </template>
+                    <template v-if='unitFieldLabel(planField.UnitType, $store.getters.formConfigData) && unitFieldLabel(planField.UnitType, $store.getters.formConfigData) !== unitLabelName(planField.UnitType, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="unitFieldLabel(planField.UnitType, $store.getters.formConfigData)" placement='top'>
+                        <a-icon type="info-circle" />
+                      </a-tooltip>
+                    </template>
+                    <custom-radio-button-group
+                      :list="[ {name: 'Single-subject Unit', value: 0}, {name: 'Integrated Unit', value: 1}]"
+                      :disabled='!canEdit'
+                      :value.sync='form.unitType'
+                      @change="handleCollaborateEvent(unitPlanId,planField.UnitType,form.unitType)" >
+                    </custom-radio-button-group>
+                  </custom-form-item>
+                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && canEdit'>
+                    <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = null" cancel-text="No">
+                      <delete-icon color='#F16A39' />
+                    </a-popconfirm>
+                  </div>
+                </div>
+                <template v-else-if="fieldItem.visible && fieldItem.fieldName === planField.Inquiry">
+                  <div
+                    v-if='!form.inquiryKeywords'
+                    id='inquiry'
+                    class='form-block tag-content-block'
+                    :key='fieldItem.fieldName'>
+                    <collaborate-tooltip :form-id="unitPlanId" :field-name='planField.Inquiry'/>
+                    <custom-form-item :required='emptyRequiredFields.indexOf(planField.Inquiry) !== -1' :required-field='requiredFields.indexOf(planField.Inquiry) !== -1'>
+                      <template slot='label'>
+                        {{ 'Big Idea/ Statement of Inquiry/ Central Idea' | unitLabelName(planField.Inquiry, $store.getters.formConfigData) }}
+                      </template>
+                      <template slot='action'>
+                        <a-space>
+                          <comment-switch
+                            v-show="canEdit"
+                            :is-active="currentFieldName === planField.Inquiry"
+                            :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Inquiry}"
+                            :field-name='planField.Inquiry'
+                            @switch='handleSwitchComment' />
+                        </a-space>
+                      </template>
+                      <template v-if='unitFieldLabel(planField.Inquiry, $store.getters.formConfigData) && unitFieldLabel(planField.Inquiry, $store.getters.formConfigData) !== unitLabelName(planField.Inquiry, $store.getters.formConfigData)' slot='tips'>
+                        <a-tooltip :title="unitFieldLabel(planField.Inquiry, $store.getters.formConfigData)" placement='top'>
+                          <a-icon type="info-circle" />
+                        </a-tooltip>
+                      </template>
+                      <a-textarea
+                        v-model='form.inquiry'
+                        :placeholder="unitLabelHint(planField.Inquiry, $store.getters.formConfigData)"
+                        :auto-size="{ minRows: 2, maxRows: 6 }"
+                        class='cc-form-textarea'
+                        v-selectPopover="['ideaKeywords', setIdeaKeywords, 'inquiryKeywords', false]"
+                        @change="handleCollaborateEvent(unitPlanId,planField.Inquiry,form.inquiry)"
+                        :disabled="!canEdit" />
+                    </custom-form-item>
+                    <a-tooltip title='Browse' @click.stop='selectBigIdeaDataVisible=true' v-if="canEdit">
+                      <span class='browse'>
+                        <a-icon theme='twoTone' twoToneColor='rgba(21, 195, 154, 1)' type='appstore' />
+                      </span>
+                    </a-tooltip>
+                  </div>
+                  <div
+                    v-else
+                    id='inquiry-keyword'
+                    class='form-block tag-content-block'
+                    :key='fieldItem.fieldName + "keyword"'>
+                    <custom-form-item :required='false' :required-field='requiredFields.indexOf(planField.InquiryKeywords) !== -1'>
+                      <template slot='label'>
+                        {{ 'Key words' }}
+                      </template>
+                      <template slot='action'>
+                      </template>
+                      <template slot='tips'>
+                        <a-tooltip title="Set key words by selecting the words" placement='top'>
+                          <a-icon type="info-circle" />
+                        </a-tooltip>
+                      </template>
+                      <div class="inquiry-keyword-con" v-if="form.inquiryKeywords && form.inquiryKeywords.length > 0">
+                        <div
+                          class="inquiry-keyword-item"
+                          v-for="(tag, tagIndex) in form.inquiryKeywords"
+                          :key="'inquery_keyword_'+tagIndex"
+                        >
+                          <a-tag color="#a5a5a5" :closable="canEdit" @close="handleRmInquiryKey(form, 'inquiryKeywords', tagIndex)">{{ tag }}</a-tag>
+                        </div>
+                      </div>
+                      <div v-else style="font-size: 12px;color: #666;">No data</div>
+                    </custom-form-item>
+                  </div>
+                </template>
+                <div v-else-if="fieldItem.visible && fieldItem.fieldName === planField.LearnOuts" class='tag-content-block' style="height:100%;margin:0 -30px;" :key='fieldItem.fieldName'>
+                  <iframe style="width:100%;height:100%;" :src="`/v2/com/task/outline/${unitPlanId}?token=${token}`" frameborder="0"></iframe>
+                  <!-- <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Assessment style="left:100px" />
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.LearnOuts) !== -1' :required-field='requiredFields.indexOf(planField.LearnOuts) !== -1'>
+                    <template slot='label'>
+                      {{ 'Learning objectives' | unitLabelName(planField.LearnOuts, $store.getters.formConfigData) }}
+                    </template>
+                    <learning-objective
+                      @change='handleUpdateLearningObjectives'
+                      :curriculumId='form.curriculumId'
+                      :learning-objectives='form.learnOuts'
+                      :subject-list='form.subjectList'
+                      :year-list='form.yearList'
+                      :can-edit='canEdit'
+                      :language-list='form.languageList' />
+                  </custom-form-item> -->
+                </div>
+                <div
+                  v-else-if="(fieldItem.visible || (form[fieldItem.fieldName] && form[fieldItem.fieldName].length)) && fieldItem.fieldName === planField.Scenarios"
+                  class='form-block tag-content-block'
+                  :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] && form[fieldItem.fieldName].length && isCopyContent}"
+                  :key='fieldItem.fieldName'>
+                  <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Sdg />
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.Sdg) !== -1' :required-field='requiredFields.indexOf(planField.Sdg) !== -1'>
+                    <template slot='label'>
+                      {{ 'UN Sustainable Development Goal(s)' | unitLabelName(planField.Scenarios, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <a-space>
+                        <comment-switch
+                          v-show="canEdit"
+                          :is-active="currentFieldName === planField.Sdg"
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Sdg}"
+                          :field-name='planField.Sdg'
+                          @switch='handleSwitchComment' />
+                        <plus-icon @click='handleAddMoreSdg' v-if='canEdit'/>
+                      </a-space>
+                    </template>
+                    <template v-if='unitFieldLabel(planField.Scenarios, $store.getters.formConfigData) && unitFieldLabel(planField.Scenarios, $store.getters.formConfigData) !== unitLabelName(planField.Scenarios, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="unitFieldLabel(planField.Scenarios, $store.getters.formConfigData)" placement='top'>
+                        <a-icon type="info-circle" />
+                      </a-tooltip>
+                    </template>
+                    <div
+                      v-for='(scenario, sdgIndex) in form.scenarios'
+                      id='sdg'
+                      :key='sdgIndex'
+                      class='sdg-form-block'
+                    >
+                      <!--description-->
+                      <div class='scenario-description'>
+                        <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteSdg(sdgIndex)" cancel-text="No" v-show='form.scenarios.length > 1 && canEdit'>
+                          <span class="delete-action" >
+                            <a-icon :style="{ fontSize: '14px', color: 'red' }" type='delete' />
+                          </span>
+                        </a-popconfirm>
+                        <!--sdg-->
+                        <custom-form-item :show-label='false' :required-field='requiredFields.indexOf(planField.scenarios) !== -1'>
+                          <a-select
+                            :getPopupContainer="trigger => trigger.parentElement"
+                            v-model='scenario.sdgId'
+                            @change="handleCollaborateEvent(unitPlanId,planField.Sdg,form.sdg)"
+                            class='cc-select'
+                            :placeholder='unitLabelHint(planField.Scenarios, $store.getters.formConfigData)'
+                            :disabled="!canEdit">
+                            <a-select-option
+                              v-for='(sdg,index) in sdgList'
+                              :key='index'
+                              :disabled='selectedSdg.indexOf(sdg.id) != -1'
+                              :value='sdg.id'>
+                              {{ sdg.name }}
+                            </a-select-option>
+                          </a-select>
+                        </custom-form-item>
                       </div>
                     </div>
-                    <div v-else style="font-size: 12px;color: #666;">No data</div>
+                  </custom-form-item>
+                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && form[fieldItem.fieldName].length && canEdit'>
+                    <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = []" cancel-text="No">
+                      <delete-icon color='#F16A39' />
+                    </a-popconfirm>
+                  </div>
+                </div>
+                <div
+                  v-else-if="(fieldItem.visible || form[fieldItem.fieldName]) && fieldItem.fieldName === planField.Rwc"
+                  class='form-block form-block-rwc tag-content-block'
+                  :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] && isCopyContent}"
+                  :key='fieldItem.fieldName'>
+                  <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Rwc />
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.Rwc) !== -1' :required-field='requiredFields.indexOf(planField.Rwc) !== -1'>
+                    <template slot='label'>
+                      {{ 'Real World Connection(s)' | unitLabelName(planField.Rwc, $store.getters.formConfigData) }}
+                    </template>
+                    <template v-if='unitFieldLabel(planField.Rwc, $store.getters.formConfigData) && unitLabelName(planField.Rwc, $store.getters.formConfigData) !== unitFieldLabel(planField.Rwc, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="unitFieldLabel(planField.Rwc, $store.getters.formConfigData)" placement='top'>
+                        <a-icon type="info-circle" />
+                      </a-tooltip>
+                    </template>
+                    <a-select
+                      :getPopupContainer="trigger => trigger.parentElement"
+                      v-model='form.rwc'
+                      class='cc-select'
+                      :placeholder='unitLabelHint(planField.Rwc, $store.getters.formConfigData)'
+                      @change="handleCollaborateEvent(unitPlanId,planField.Rwc,form.rwc)"
+                      :disabled="!canEdit" >
+                      <a-select-option :value='item.id' v-for='(item, index) in rwcList' :key='index'>
+                        {{ item.name }}
+                      </a-select-option>
+                    </a-select>
+                  </custom-form-item>
+                  <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && canEdit'>
+                    <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = ''" cancel-text="No">
+                      <delete-icon color='#F16A39' />
+                    </a-popconfirm>
+                  </div>
+                </div>
+                <div
+                  v-else-if="fieldItem.visible && fieldItem.fieldName === planField.Question"
+                  :class="{'form-block': true, 'form-block-disabled' : $store.getters.userInfo.disableQuestion, 'tag-content-block': true}"
+                  :key='fieldItem.fieldName'>
+                  <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Question />
+                  <custom-form-item class='unit-question' :required='emptyRequiredFields.indexOf(planField.Question) !== -1' :required-field='requiredFields.indexOf(planField.Question) !== -1'>
+                    <template slot='label'>
+                      {{ 'Key question(s) / Line(s) of inquiry' | unitLabelName(planField.Question, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <a-space>
+                        <comment-switch
+                          v-show="canEdit"
+                          v-if='!$store.getters.userInfo.disableQuestion'
+                          :is-active="currentFieldName === planField.Question"
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Question}"
+                          :field-name='planField.Question'
+                          @switch='handleSwitchComment' />
+                        <custom-link-text text='more' :size='13' @click='questionMoreVisible=true' v-if='canEdit'></custom-link-text>
+                      </a-space>
+                    </template>
+                    <template v-if='unitFieldLabel(planField.Question, $store.getters.formConfigData) && unitLabelName(planField.Question, $store.getters.formConfigData) !== unitFieldLabel(planField.Question, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="unitFieldLabel(planField.Question, $store.getters.formConfigData)" placement='top'>
+                        <a-icon type="info-circle" />
+                      </a-tooltip>
+                    </template>
+                    <div v-if='!$store.getters.userInfo.disableQuestion' style='position: relative'>
+                      <question-input
+                        :list='recommendQuestionList'
+                        :can-edit='canEdit'
+                        :selected='form.questions'
+                        :height='100'
+                        @update='handleUpdateQuestion'
+                        :placeholder='taskLabelHint(planField.Question, $store.getters.formConfigData) || "Search key question(s)"'
+                      />
+                    </div>
                   </custom-form-item>
                 </div>
-              </template>
-              <div v-else-if="fieldItem.visible && fieldItem.fieldName === planField.LearnOuts" class='tag-content-block' style="height:100%;margin:0 -30px;" :key='fieldItem.fieldName'>
-                <iframe style="width:100%;height:100%;" :src="`/v2/com/task/outline/${unitPlanId}?token=${token}`" frameborder="0"></iframe>
-                <!-- <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Assessment style="left:100px" />
-                <custom-form-item :required='emptyRequiredFields.indexOf(planField.LearnOuts) !== -1' :required-field='requiredFields.indexOf(planField.LearnOuts) !== -1'>
-                  <template slot='label'>
-                    {{ 'Learning objectives' | unitLabelName(planField.LearnOuts, $store.getters.formConfigData) }}
-                  </template>
-                  <learning-objective
-                    @change='handleUpdateLearningObjectives'
-                    :curriculumId='form.curriculumId'
-                    :learning-objectives='form.learnOuts'
-                    :subject-list='form.subjectList'
-                    :year-list='form.yearList'
-                    :can-edit='canEdit'
-                    :language-list='form.languageList' />
-                </custom-form-item> -->
-              </div>
+                <div v-else-if="fieldItem.visible && fieldItem.fieldName === planField.Prior" class='form-block tag-content-block' style='clear:both':key='fieldItem.fieldName'>
+                  <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Prior />
+                  <custom-form-item :required='emptyRequiredFields.indexOf(planField.Prior) !== -1' :required-field='requiredFields.indexOf(planField.Prior) !== -1'>
+                    <template slot='label'>
+                      {{ 'Prior learning experience' | unitLabelName(planField.Prior, $store.getters.formConfigData) }}
+                    </template>
+                    <template slot='action'>
+                      <a-space>
+                        <comment-switch
+                          v-show="canEdit"
+                          :is-active="currentFieldName === planField.Prior"
+                          :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Prior}"
+                          :field-name='planField.Prior'
+                          @switch='handleSwitchComment' />
+                      </a-space>
+                    </template>
+                    <template v-if='unitFieldLabel(planField.Prior, $store.getters.formConfigData) && unitFieldLabel(planField.Prior, $store.getters.formConfigData) !== unitLabelName(planField.Prior, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="unitFieldLabel(planField.Prior, $store.getters.formConfigData)" placement='top'>
+                        <a-icon type="info-circle" />
+                      </a-tooltip>
+                    </template>
+                    <a-textarea
+                      v-model='form.prior'
+                      allow-clear
+                      auto-size
+                      :placeholder='unitLabelHint(planField.Prior, $store.getters.formConfigData)'
+                      @change="handleCollaborateEvent(unitPlanId,planField.Prior,form.prior)"
+                      :disabled="!canEdit" />
+                  </custom-form-item>
+                </div>
 
-              <div v-else-if="(fieldItem.visible || (form[fieldItem.fieldName] && form[fieldItem.fieldName].length)) && fieldItem.fieldName === planField.Scenarios"
-                class='form-block tag-content-block'
-                :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] && form[fieldItem.fieldName].length && isCopyContent}"
-                :key='fieldItem.fieldName'>
-                <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Sdg />
-                <custom-form-item :required='emptyRequiredFields.indexOf(planField.Sdg) !== -1' :required-field='requiredFields.indexOf(planField.Sdg) !== -1'>
-                  <template slot='label'>
-                    {{ 'UN Sustainable Development Goal(s)' | unitLabelName(planField.Scenarios, $store.getters.formConfigData) }}
-                  </template>
-                  <template slot='action'>
-                    <a-space>
-                      <comment-switch
-                        v-show="canEdit"
-                        :is-active="currentFieldName === planField.Sdg"
-                        :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Sdg}"
-                        :field-name='planField.Sdg'
-                        @switch='handleSwitchComment' />
-                      <plus-icon @click='handleAddMoreSdg' v-if='canEdit'/>
-                    </a-space>
-                  </template>
-                  <template v-if='unitFieldLabel(planField.Scenarios, $store.getters.formConfigData) && unitFieldLabel(planField.Scenarios, $store.getters.formConfigData) !== unitLabelName(planField.Scenarios, $store.getters.formConfigData)' slot='tips'>
-                    <a-tooltip :title="unitFieldLabel(planField.Scenarios, $store.getters.formConfigData)" placement='top'>
-                      <a-icon type="info-circle" />
-                    </a-tooltip>
-                  </template>
-                  <div
-                    v-for='(scenario, sdgIndex) in form.scenarios'
-                    id='sdg'
-                    :key='sdgIndex'
-                    class='sdg-form-block'
-                  >
-                    <!--description-->
-                    <div class='scenario-description'>
-                      <a-popconfirm title="Delete?" ok-text="Yes" @confirm="handleDeleteSdg(sdgIndex)" cancel-text="No" v-show='form.scenarios.length > 1 && canEdit'>
-                        <span class="delete-action" >
-                          <a-icon :style="{ fontSize: '14px', color: 'red' }" type='delete' />
-                        </span>
-                      </a-popconfirm>
-                      <!--sdg-->
-                      <custom-form-item :show-label='false' :required-field='requiredFields.indexOf(planField.scenarios) !== -1'>
-                        <a-select
-                          :getPopupContainer="trigger => trigger.parentElement"
-                          v-model='scenario.sdgId'
-                          @change="handleCollaborateEvent(unitPlanId,planField.Sdg,form.sdg)"
-                          class='cc-select'
-                          :placeholder='unitLabelHint(planField.Scenarios, $store.getters.formConfigData)'
-                          :disabled="!canEdit">
-                          <a-select-option
-                            v-for='(sdg,index) in sdgList'
-                            :key='index'
-                            :disabled='selectedSdg.indexOf(sdg.id) != -1'
-                            :value='sdg.id'>
-                            {{ sdg.name }}
-                          </a-select-option>
-                        </a-select>
-                      </custom-form-item>
-                    </div>
+                <div v-else-if='fieldItem.visible && fieldItem.fieldName === planField.Link' class='form-block tag-content-block' :key='fieldItem.fieldName'>
+                  <div class='form-block'>
+                    <unit-linked-content :can-edit='canEdit' :from-id='unitPlanId' @update-task-id-list='updateTaskIdList' />
                   </div>
-                </custom-form-item>
-                <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && form[fieldItem.fieldName].length && canEdit'>
-                  <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = []" cancel-text="No">
-                    <delete-icon color='#F16A39' />
-                  </a-popconfirm>
                 </div>
-              </div>
 
-              <div v-else-if="(fieldItem.visible || form[fieldItem.fieldName]) && fieldItem.fieldName === planField.Rwc"
-                class='form-block form-block-rwc tag-content-block'
-                :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] && isCopyContent}"
-                :key='fieldItem.fieldName'>
-                <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Rwc />
-                <custom-form-item :required='emptyRequiredFields.indexOf(planField.Rwc) !== -1' :required-field='requiredFields.indexOf(planField.Rwc) !== -1'>
-                  <template slot='label'>
-                    {{ 'Real World Connection(s)' | unitLabelName(planField.Rwc, $store.getters.formConfigData) }}
-                  </template>
-                  <template v-if='unitFieldLabel(planField.Rwc, $store.getters.formConfigData) && unitLabelName(planField.Rwc, $store.getters.formConfigData) !== unitFieldLabel(planField.Rwc, $store.getters.formConfigData)' slot='tips'>
-                    <a-tooltip :title="unitFieldLabel(planField.Rwc, $store.getters.formConfigData)" placement='top'>
-                      <a-icon type="info-circle" />
-                    </a-tooltip>
-                  </template>
-                  <a-select
-                    :getPopupContainer="trigger => trigger.parentElement"
-                    v-model='form.rwc'
-                    class='cc-select'
-                    :placeholder='unitLabelHint(planField.Rwc, $store.getters.formConfigData)'
-                    @change="handleCollaborateEvent(unitPlanId,planField.Rwc,form.rwc)"
-                    :disabled="!canEdit" >
-                    <a-select-option :value='item.id' v-for='(item, index) in rwcList' :key='index'>
-                      {{ item.name }}
-                    </a-select-option>
-                  </a-select>
-                </custom-form-item>
-                <div class='close-hidden-value' v-if='!fieldItem.visible && form[fieldItem.fieldName] && canEdit'>
-                  <a-popconfirm title="Delete?" ok-text="Yes" @confirm="form[fieldItem.fieldName] = ''" cancel-text="No">
-                    <delete-icon color='#F16A39' />
-                  </a-popconfirm>
-                </div>
-              </div>
-
-              <div v-else-if="fieldItem.visible && fieldItem.fieldName === planField.Question"
-                :class="{'form-block': true, 'form-block-disabled' : $store.getters.userInfo.disableQuestion, 'tag-content-block': true}"
-                :key='fieldItem.fieldName'>
-                <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Question />
-                <custom-form-item class='unit-question' :required='emptyRequiredFields.indexOf(planField.Question) !== -1' :required-field='requiredFields.indexOf(planField.Question) !== -1'>
-                  <template slot='label'>
-                    {{ 'Key question(s) / Line(s) of inquiry' | unitLabelName(planField.Question, $store.getters.formConfigData) }}
-                  </template>
-                  <template slot='action'>
-                    <a-space>
-                      <comment-switch
-                        v-show="canEdit"
-                        v-if='!$store.getters.userInfo.disableQuestion'
-                        :is-active="currentFieldName === planField.Question"
-                        :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Question}"
-                        :field-name='planField.Question'
-                        @switch='handleSwitchComment' />
-                      <custom-link-text text='more' :size='13' @click='questionMoreVisible=true' v-if='canEdit'></custom-link-text>
-                    </a-space>
-                  </template>
-                  <template v-if='unitFieldLabel(planField.Question, $store.getters.formConfigData) && unitLabelName(planField.Question, $store.getters.formConfigData) !== unitFieldLabel(planField.Question, $store.getters.formConfigData)' slot='tips'>
-                    <a-tooltip :title="unitFieldLabel(planField.Question, $store.getters.formConfigData)" placement='top'>
-                      <a-icon type="info-circle" />
-                    </a-tooltip>
-                  </template>
-                  <div v-if='!$store.getters.userInfo.disableQuestion' style='position: relative'>
-                    <question-input
-                      :list='recommendQuestionList'
+                <div v-else-if='fieldItem.visible && fieldItem.fieldName === planField.Image' class='form-block' :key='fieldItem.fieldName'>
+                  <!-- image-->
+                  <custom-form-item class='img-wrapper' :required='emptyRequiredFields.indexOf(planField.Image) !== -1' :required-field='requiredFields.indexOf(planField.Image) !== -1'>
+                    <template slot='label'>
+                      {{ 'Cover' | unitLabelName(planField.Image, $store.getters.formConfigData) }}
+                    </template>
+                    <template v-if='unitFieldLabel(planField.Image, $store.getters.formConfigData) && unitLabelName(planField.Image, $store.getters.formConfigData) !== unitFieldLabel(planField.Image, $store.getters.formConfigData)' slot='tips'>
+                      <a-tooltip :title="'Cover' | unitFieldLabel(planField.Image, $store.getters.formConfigData)" placement='top'>
+                        <a-icon type="info-circle" />
+                      </a-tooltip>
+                    </template>
+                    <custom-image-uploader
+                      :field='planField.Image'
                       :can-edit='canEdit'
-                      :selected='form.questions'
-                      :height='100'
-                      @update='handleUpdateQuestion'
-                      :placeholder='taskLabelHint(planField.Question, $store.getters.formConfigData) || "Search key question(s)"'
-                    />
-                  </div>
-                </custom-form-item>
-              </div>
-
-
-              <div v-else-if="fieldItem.visible && fieldItem.fieldName === planField.Prior" class='form-block tag-content-block' style='clear:both'
-                :key='fieldItem.fieldName'>
-                <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Prior />
-                <custom-form-item :required='emptyRequiredFields.indexOf(planField.Prior) !== -1' :required-field='requiredFields.indexOf(planField.Prior) !== -1'>
-                  <template slot='label'>
-                    {{ 'Prior learning experience' | unitLabelName(planField.Prior, $store.getters.formConfigData) }}
-                  </template>
-                  <template slot='action'>
-                    <a-space>
-                      <comment-switch
-                        v-show="canEdit"
-                        :is-active="currentFieldName === planField.Prior"
-                        :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Prior}"
-                        :field-name='planField.Prior'
-                        @switch='handleSwitchComment' />
-                    </a-space>
-                  </template>
-                  <template v-if='unitFieldLabel(planField.Prior, $store.getters.formConfigData) && unitFieldLabel(planField.Prior, $store.getters.formConfigData) !== unitLabelName(planField.Prior, $store.getters.formConfigData)' slot='tips'>
-                    <a-tooltip :title="unitFieldLabel(planField.Prior, $store.getters.formConfigData)" placement='top'>
-                      <a-icon type="info-circle" />
-                    </a-tooltip>
-                  </template>
-                  <a-textarea
-                    v-model='form.prior'
-                    allow-clear
-                    auto-size
-                    :placeholder='unitLabelHint(planField.Prior, $store.getters.formConfigData)'
-                    @change="handleCollaborateEvent(unitPlanId,planField.Prior,form.prior)"
-                    :disabled="!canEdit" />
-                </custom-form-item>
-              </div>
-
-              <div v-else-if='fieldItem.visible && fieldItem.fieldName === planField.Link' class='form-block tag-content-block' :key='fieldItem.fieldName'>
-                <div class='form-block'>
-                  <unit-linked-content :can-edit='canEdit' :from-id='unitPlanId' @update-task-id-list='updateTaskIdList' />
+                      :content-id='unitPlanId'
+                      :content-type='contentType["unit-plan"]'
+                      :img-url='form.image'
+                      @update='handleUpdateCover' />
+                  </custom-form-item>
                 </div>
               </div>
-
-              <div v-else-if='fieldItem.visible && fieldItem.fieldName === planField.Image' class='form-block' :key='fieldItem.fieldName'>
-                <!-- image-->
-                <custom-form-item class='img-wrapper' :required='emptyRequiredFields.indexOf(planField.Image) !== -1' :required-field='requiredFields.indexOf(planField.Image) !== -1'>
-                  <template slot='label'>
-                    {{ 'Cover' | unitLabelName(planField.Image, $store.getters.formConfigData) }}
-                  </template>
-                  <template v-if='unitFieldLabel(planField.Image, $store.getters.formConfigData) && unitLabelName(planField.Image, $store.getters.formConfigData) !== unitFieldLabel(planField.Image, $store.getters.formConfigData)' slot='tips'>
-                    <a-tooltip :title="'Cover' | unitFieldLabel(planField.Image, $store.getters.formConfigData)" placement='top'>
-                      <a-icon type="info-circle" />
-                    </a-tooltip>
-                  </template>
-                  <custom-image-uploader
-                    :field='planField.Image'
-                    :can-edit='canEdit'
-                    :content-id='unitPlanId'
-                    :content-type='contentType["unit-plan"]'
-                    :img-url='form.image'
-                    @update='handleUpdateCover' />
-                </custom-form-item>
-              </div>
-            </div>
             </template>
             <div class='form-field-item custom-field' v-for='custFieldItem in $store.getters.formConfigData.planCustomList' :key='custFieldItem.id'>
               <template v-if='step.customFields.indexOf(custFieldItem.name) !== -1'>
@@ -2564,11 +2574,6 @@ export default {
     line-height: 25px;
     cursor: pointer;
     list-style-type: circle;
-
-    .add-question {
-      //float: right;
-    }
-
     &:hover {
       color: #15c39a;
     }
