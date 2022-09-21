@@ -268,13 +268,6 @@ export const asyncRouterMap = [
             meta: { title: 'menu.task', noSidebar: true, owner: '/teacher/main/created-by-me', keepAlive: false, permission: ['teacher'], fullLayout: true }
           },
           {
-            path: '/teacher/add-task-v3/:taskId?/:mode?', // mode:edit 编辑模式 pick-task-slide:选择slide创建task模式
-            name: 'AddTaskV3',
-            props: true,
-            component: () => import('@/views/teacher/AddTaskV3'),
-            meta: { title: 'menu.task', noSidebar: true, owner: '/teacher/main/created-by-me', keepAlive: false, permission: ['teacher'], fullLayout: true }
-          },
-          {
             path: '/teacher/sub-task/:taskId',
             name: 'MySubtask',
             props: true,
