@@ -453,7 +453,6 @@ import { QueryContentShare } from '@/api/share'
 import CollaborateTooltip from '@/components/Collaborate/CollaborateTooltip'
 import CollaborateUpdateContent from '@/components/Collaborate/CollaborateUpdateContent'
 import LocalStore from '@/websocket/localstore'
-import { addBatchElements } from '@/api/addMaterial'
 import AddGreenIcon from '@/assets/svgIcon/evaluation/form/tianjia_green.svg?inline'
 import { GoogleAuthCallBackMixin } from '@/mixins/GoogleAuthCallBackMixin'
 import MyVerticalSteps from '@/components/Steps/MyVerticalSteps'
@@ -1346,38 +1345,6 @@ export default {
         }
       }
       this.form.taskClassList = newTaskClassList
-    },
-
-    addMaterialList({ url, type }) {
-      this.$logger.info('addMaterialList', url, type)
-      const pageId = this.currentPageId
-      const itemData = {
-        page_id: pageId,
-        url: url,
-        type: type,
-        position: { x: 0, y: 0, w: 0, h: 0 }
-      }
-      const elementItem = {
-        data: itemData,
-        pageId: pageId,
-        slideId: this.form.presentationId
-      }
-      const elementList = [elementItem]
-      addBatchElements({
-        elementsList: elementList,
-        itemsList: []
-      }).then(response => {
-        this.$logger.info('addBatchElements', response)
-        if (response.success) {
-          this.$message.success('Upload successfully')
-        } else {
-          this.$message.error('Upload failed ' + response.message)
-        }
-        this.getClassInfo(this.form.presentationId)
-      })
-    },
-    deleteMaterial(id) {
-      this.$logger.info('addMaterialList', id)
     },
     checkUrl(url) {
       if (url && url.trim()) {
