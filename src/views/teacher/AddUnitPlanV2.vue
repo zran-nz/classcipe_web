@@ -1099,6 +1099,8 @@ export default {
     }
   },
   async created() {
+    window.TaskFieldCheck = this.calculateCanPublish
+    window.TaskFieldSave = this.autoSaveData
     this.$logger.info('unitPlanId ' + this.unitPlanId + ' ' + this.$route.path)
     LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
 

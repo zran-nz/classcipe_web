@@ -186,13 +186,13 @@ export const PublishMixin = {
           }
         } else if (field === 'learnOuts') {
           const [ task, status ] = JSON.parse(localStorage.getItem('OutlineStatus')) ?? []
-          const isFinish = task === this.taskId && status
-          console.log('learnOuts check:', field, this.taskId, isFinish)
+          const isFinish = task === this.contentId && status
+          console.log('learnOuts check:', field, this.contentId, isFinish)
           this.formSteps.forEach(step => {
             if (step.commonFields.indexOf(field) > -1) {
               step.showRequiredTips = !isFinish
               step.showSatisfiedTips = false
-              canPublish = isFinish
+              if (!isFinish) canPublish = false
             }
           })
         } else if (field === 'questions') {
