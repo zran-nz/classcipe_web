@@ -151,7 +151,7 @@
         </div>
       </div>
       <div class='action vertical-right'>
-        <template v-if='showButton'>
+        <template>
           <a-space :size='30'>
             <a-dropdown v-if="!hideEdit" :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement'>
               <div class='more-action'>
