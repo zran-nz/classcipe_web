@@ -462,8 +462,10 @@ export default {
         let promise = null
         const act = opt.key.split('_')[1]
         const actObj = Object.values(this.ACT).find(item => item.value === act)
+        let sub = ''
         if (act === this.ACT.DELETE.value) {
           promise = removeTeachers
+          sub = 'The session under this teacher will be deleted, do you want to continue?'
         } else if (act === this.ACT.RESET.value) {
           promise = resetPassword
         } else {
@@ -471,7 +473,7 @@ export default {
         }
         this.$confirm({
           title: `Confirm ${actObj.label}`,
-          content: `Do you want to ${actObj.label} this teacher(s)?`,
+          content: `Do you want to ${actObj.label} this teacher(s)? ${sub}`,
           centered: true,
           onOk: () => {
             this.loading = true
