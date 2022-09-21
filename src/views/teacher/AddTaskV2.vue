@@ -180,7 +180,7 @@
                       :placeholder='taskLabelHint(taskField.Question, $store.getters.formConfigData) || "Search key question(s)"' />
                   </custom-form-item>
                 </div>
-                <div v-else-if='fieldItem.fieldName === taskField.LearnOuts' class='form-block tag-content-block' style="height:100%;margin:-20px -30px;">
+                <div v-else-if='fieldItem.fieldName === taskField.LearnOuts' class='tag-content-block' style="height:100%;margin:0 -30px;">
                   <iframe style="width:100%;height:100%;" :src="`/v2/com/task/outline/${taskId}?token=${token}`" frameborder="0"></iframe>
                   <!-- <div class='is-self-learning vertical-between'>
                     <div class='self-learning-label'>
@@ -1822,11 +1822,15 @@ export default {
   }
 
   .form-body {
-    padding: 20px 30px;
     height: 100%;
     -moz-overflow-y: auto;
     overflow-y: overlay;
     background-color: #fff;
+  }
+  .form-body>div {
+    padding: 0px 30px 0 30px;
+    height: 100%;
+    .form-block{padding-top: 20px;}
   }
 
   .tag-body {
