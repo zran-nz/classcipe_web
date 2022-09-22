@@ -187,7 +187,6 @@
                 </div>
                 <template v-else-if="fieldItem.visible && fieldItem.fieldName === planField.Inquiry">
                   <div
-                    v-if='!form.inquiryKeywords'
                     id='inquiry'
                     class='form-block tag-content-block'
                     :key='fieldItem.fieldName'>
@@ -227,7 +226,7 @@
                     </a-tooltip>
                   </div>
                   <div
-                    v-else
+                    v-if='form.inquiryKeywords && form.inquiryKeywords.length > 0'
                     id='inquiry-keyword'
                     class='form-block tag-content-block'
                     :key='fieldItem.fieldName + "keyword"'>
@@ -2706,7 +2705,7 @@ code {
     padding: 0px 30px 0 30px;
     height: 100%;
   }
-  .form-page-item .form-field-item:first-child > .form-block{padding-top: 20px;}
+  .form-page-item .form-field-item:first-child > .form-block:first-child{padding-top: 20px;}
 
   .tag-body {
     padding: 20px 30px;
