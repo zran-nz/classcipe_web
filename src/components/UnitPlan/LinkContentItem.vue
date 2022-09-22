@@ -13,7 +13,13 @@
           </custom-button>
         </div>
         <div class='bottom-action' v-show='showEdit || allowPreview' v-if='showCoverBar'>
-          <div class='bottom-action-item vertical-left'>
+          <!-- <div class='bottom-action-item vertical-left'>
+          </div> -->
+          <div class='bottom-action-item vertical-left' @click='editItem' v-if="!content.delFlag && showEdit && isOwner">
+            <div class='bottom-action-item-icon'><a-icon type="form" /></div>
+            <div class='bottom-action-item-label'>Edit</div>
+          </div>
+          <div class='bottom-action-item vertical-left' v-else>
           </div>
           <div class='bottom-action-item vertical-right' @click="handlePreviewDetail(content)" v-show='!((content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing)'>
             <div class='bottom-action-item-icon'><a-icon type="eye" /></div>
