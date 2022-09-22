@@ -226,7 +226,6 @@
                     </a-tooltip>
                   </div>
                   <div
-                    v-if='form.inquiryKeywords && form.inquiryKeywords.length > 0'
                     id='inquiry-keyword'
                     class='form-block tag-content-block'
                     :key='fieldItem.fieldName + "keyword"'>
