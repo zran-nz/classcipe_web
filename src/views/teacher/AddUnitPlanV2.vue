@@ -2706,7 +2706,7 @@ code {
     padding: 0px 30px 0 30px;
     height: 100%;
   }
-  .form-page-item:first-child .form-body>div .form-block{padding-top: 20px;}
+  .form-page-item .form-field-item:first-child > .form-block{padding-top: 20px;}
 
   .tag-body {
     padding: 20px 30px;
