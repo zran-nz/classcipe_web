@@ -429,7 +429,7 @@ export default {
         if (clsRes.success) {
           this.clsInited = true
           this.clsObj = clsRes.result
-          if (this.clsObj.term && this.clsObj.blockSetting) {
+          if (this.clsObj && this.clsObj.term && this.clsObj.blockSetting) {
             const termObj = this.termsOptions.find(term => term.id === this.clsObj.term)
             if (termObj) {
               return this.transferSubjectClsBlock(this.clsObj.blockSetting, termObj.startTime, termObj.endTime)

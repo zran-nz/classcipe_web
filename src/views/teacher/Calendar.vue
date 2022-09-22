@@ -5,7 +5,7 @@
         <div class="schedule-tip" v-show="attendanceVisible">
           <a-affix :target="affixTarget">
             <div class="tip-wrap">
-              <div class="unit-tip" v-if="queryType === CALENDAR_QUERY_TYPE.CLASS.value">
+              <!-- <div class="unit-tip" v-if="queryType === CALENDAR_QUERY_TYPE.CLASS.value">
                 <div
                   class="unit-tip-item"
                   :style="{backgroundColor: BG_COLORS[item.index]}"
@@ -27,25 +27,44 @@
                     <span :style="{backgroundColor: BG_COLORS[item.index]}"></span>
                   </a-space>
                 </a-checkbox-group>
-                <!-- <div
+              </div> -->
+              <a-radio-group @change="changeSessionType" v-model="sessionType" button-style="solid">
+                <a-radio-button value="all">
+                  All
+                </a-radio-button>
+                <a-radio-button value="session">
+                  Session
+                </a-radio-button>
+                <a-radio-button value="workshop">
+                  Workshop
+                </a-radio-button>
+              </a-radio-group>
+              <div class="unit-tip" v-if="sessionType !== 'workshop'" style="margin-top: 20px;">
+                <a-checkbox-group
+                  :options="showSchoolOptions"
+                  v-model="schoolFilters"
+                  @change="changeSchoolFilters"
                   class="unit-tip-item"
-                  v-for="(item) in showSchoolOptions"
-                  :key="'school_' + item.id">
-                  <a-space class="tip-tiem">
+                >
+                  <a-space slot="label" class="tip-item" slot-scope="item">
                     <a-tooltip :title="item.name">
                       <img :src="item.avatar"/>
                     </a-tooltip>
-                    <span :style="{backgroundColor: BG_COLORS[item.index]}"></span>
                   </a-space>
-                </div> -->
+                </a-checkbox-group>
               </div>
               <div class="calendar-type" v-show="true">
-                <div class="calendar-type-item">
-                  <div class="type-item-title">
+                <div class="type-item-title" style="margin-top: 20px;">
+                  <a-checkbox :checked="isAll" @change="handleChangeAll">
+                    All
+                  </a-checkbox>
+                </div>
+                <div class="calendar-type-item" style="margin-bottom: 0" v-if="sessionType !== 'session'">
+                  <!-- <div class="type-item-title">
                     <a-checkbox :checked="queryType.indexOf(CALENDAR_QUERY_TYPE.WORKSHOP.value) > -1" @change="e => handleChangeType(CALENDAR_QUERY_TYPE.WORKSHOP, e)">
                       {{ CALENDAR_QUERY_TYPE.WORKSHOP.label }}
                     </a-checkbox>
-                  </div>
+                  </div> -->
                   <div class="type-item-desc">
                     <a-checkbox-group
                       :options="WorkShopOptions"
@@ -71,12 +90,12 @@
                     </a-checkbox-group>
                   </div>
                 </div>
-                <div class="calendar-type-item">
-                  <div class="type-item-title">
+                <div class="calendar-type-item" v-if="sessionType !== 'workshop'">
+                  <!-- <div class="type-item-title">
                     <a-checkbox :checked="queryType.indexOf(CALENDAR_QUERY_TYPE.MY.value) > -1" @change="e => handleChangeType(CALENDAR_QUERY_TYPE.MY, e)">
                       {{ CALENDAR_QUERY_TYPE.MY.label }}
                     </a-checkbox>
-                  </div>
+                  </div> -->
                   <div class="type-item-desc">
                     <a-checkbox-group
                       :options="MyCalendarOptions"
@@ -91,27 +110,29 @@
                   </div>
                 </div>
                 <!-- 每个class和querytype同级  -->
-                <div class="calendar-type-item" v-for="type in showClassOptions" :key="'showClass_' + type.value">
-                  <div :class="{'type-item-title': true, 'active': queryType === CALENDAR_QUERY_TYPE.CLASS.value && queryClass === type.value}">
-                    <a-radio :checked="queryType === CALENDAR_QUERY_TYPE.CLASS.value && queryClass === type.value" @change="handleChangeClass(type)">
-                      <a-tooltip :title="type.classType === 1 ? formatViewName(type.subject) : type.name">
-                        Class: {{ type.name }}
-                      </a-tooltip>
-                    </a-radio>
+                <template v-if="sessionType === 'session'">
+                  <div class="calendar-type-item" v-for="type in filterShowClassOptions" :key="'showClass_' + type.value">
+                    <div :class="{'type-item-title': true, 'active': queryType === CALENDAR_QUERY_TYPE.CLASS.value && queryClass === type.value}">
+                      <a-radio :checked="queryType === CALENDAR_QUERY_TYPE.CLASS.value && queryClass === type.value" @change="handleChangeClass(type)">
+                        <a-tooltip :title="type.classType === 1 ? formatViewName(type.subject) : type.name">
+                          Class: {{ type.name }}
+                        </a-tooltip>
+                      </a-radio>
+                    </div>
+                    <div class="type-item-desc">
+                      <a-checkbox-group
+                        :options="ClassTypesOptions"
+                        v-model="type.clsFilters"
+                        @change="val => handleChangeFilters(val, CALENDAR_QUERY_TYPE.CLASS.value, type)"
+                        class="type-check"
+                      >
+                        <div slot="label" class="type-content" slot-scope="item">
+                          <span>{{ item.name }}</span>
+                        </div>
+                      </a-checkbox-group>
+                    </div>
                   </div>
-                  <div class="type-item-desc">
-                    <a-checkbox-group
-                      :options="ClassTypesOptions"
-                      v-model="type.clsFilters"
-                      @change="val => handleChangeFilters(val, CALENDAR_QUERY_TYPE.CLASS.value, type)"
-                      class="type-check"
-                    >
-                      <div slot="label" class="type-content" slot-scope="item">
-                        <span>{{ item.name }}</span>
-                      </div>
-                    </a-checkbox-group>
-                  </div>
-                </div>
+                </template>
               </div>
             </div>
           </a-affix>
@@ -139,7 +160,7 @@ import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 
 import SessionCalendar from '@/components/Calendar/SessionCalendar'
 
-// import { listClass } from '@/api/v2/schoolClass'
+import { listClass } from '@/api/v2/schoolClass'
 import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
 
 import { BG_COLORS, CALENDAR_QUERY_TYPE } from '@/const/common'
@@ -147,6 +168,7 @@ import { typeMap } from '@/const/teacher'
 
 import { mapState } from 'vuex'
 import cloneDeep from 'lodash.clonedeep'
+import { isEqual } from 'lodash-es'
 
 export default {
   name: 'Calendar',
@@ -161,6 +183,7 @@ export default {
       typeMap: typeMap,
       queryType: [CALENDAR_QUERY_TYPE.MY.value, CALENDAR_QUERY_TYPE.WORKSHOP.value].join(','),
       queryClass: '',
+      sessionType: 'all',
       WorkShopOptions: [
       {
         value: 1,
@@ -184,26 +207,26 @@ export default {
       }],
       MyCalendarOptions: [
         {
-          id: 1,
-          index: 1,
+          id: 5,
+          index: 5,
           name: 'FA',
           value: 'FA'
         },
         {
-          id: 2,
-          index: 2,
+          id: 6,
+          index: 6,
           name: 'SA',
           value: 'SA'
         },
         {
-          id: 3,
-          index: 3,
+          id: 7,
+          index: 7,
           name: 'Activity',
           value: 'Activity'
         },
         {
-          id: 4,
-          index: 4,
+          id: 8,
+          index: 8,
           name: 'IA',
           value: 'IA'
         }
@@ -229,7 +252,7 @@ export default {
       currentUnitList: [],
       attendanceVisible: true,
       loading: false,
-      // classList: [],
+      classList: [],
       subjectOptions: [],
       showClassOptions: [],
       schoolFilters: []
@@ -243,21 +266,9 @@ export default {
   computed: {
     ...mapState({
       currentSchool: state => state.user.currentSchool,
-      classList: state => state.user.classList,
+      // classList: state => state.user.classList,
       info: state => state.user.info
     }),
-    [CALENDAR_QUERY_TYPE.CLASS.label]() {
-      return this.classList.map((item, index) => (
-        {
-          value: item.id,
-          name: item.name,
-          index: index
-        }
-      ))
-    },
-    showWorkshopOptions() {
-      return this[CALENDAR_QUERY_TYPE.WORKSHOP.label].slice(0, 2)
-    },
     showUnitOptions() {
       return this.currentUnitList.map((item, index) => {
         return {
@@ -288,6 +299,26 @@ export default {
     },
     searchFilters() {
       return this.typeFilters.concat(this.subFilters).concat(this.workFilters)
+    },
+    isAll() {
+      const subFiltersEqual = isEqual(this.subFilters, [3, 4])
+      const workFiltersEqual = isEqual(this.workFilters, [1, 2])
+      const typeFiltersEqual = isEqual(this.typeFilters, ['FA', 'SA', 'Activity', 'IA'])
+      if (this.sessionType === 'all') {
+        return subFiltersEqual && workFiltersEqual && typeFiltersEqual
+      }
+      if (this.sessionType === 'session') {
+        return typeFiltersEqual
+      }
+      if (this.sessionType === 'workshop') {
+        return subFiltersEqual && workFiltersEqual
+      }
+      return false
+    },
+    filterShowClassOptions() {
+      return this.showClassOptions.filter(item => {
+        return this.schoolFilters.includes(item.schoolId)
+      })
     }
   },
   created() {
@@ -307,41 +338,63 @@ export default {
     // },
     initDict() {
       // 获取所有班级用于筛选
-      Promise.all([
-        getSubjectBySchoolId({
-          schoolId: this.currentSchool.id
+      const schoolIds = ['0'].concat(this.info.schoolList.map(item => item.id))
+      const subjectPormises = schoolIds.map(id => getSubjectBySchoolId({
+        schoolId: id
+      }))
+      const classPormises = schoolIds.map(id => listClass({
+          schoolId: id,
+          myClass: true,
+          pageNo: 1,
+          pageSize: 10000
+      }))
+      this.subjectOptions = []
+      this.classList = []
+      Promise.all(subjectPormises).then((allRes) => {
+        allRes.forEach((subjectRes, index) => {
+          if (subjectRes.success) {
+            let subjects = []
+            subjectRes.result.forEach(item => {
+              if (item.subjectList && item.subjectList.length > 0) {
+                subjects = subjects.concat(item.subjectList)
+              }
+            })
+            const options = []
+            subjects.forEach(item => {
+              options.push({
+                subjectId: item.subjectId,
+                subjectName: item.subjectName,
+                schoolId: schoolIds[index]
+              })
+              options.push({
+                subjectId: item.parentSubjectId,
+                subjectName: item.parentSubjectName,
+                schoolId: schoolIds[index]
+              })
+            })
+            this.subjectOptions = this.subjectOptions.concat(options)
+          }
         })
-      ]).then(([subjectRes]) => {
-        if (subjectRes.success) {
-          let subjects = []
-          subjectRes.result.forEach(item => {
-            if (item.subjectList && item.subjectList.length > 0) {
-              subjects = subjects.concat(item.subjectList)
-            }
-          })
-          const options = []
-          subjects.forEach(item => {
-            options.push({
-              subjectId: item.subjectId,
-              subjectName: item.subjectName
-            })
-            options.push({
-              subjectId: item.parentSubjectId,
-              subjectName: item.parentSubjectName
-            })
-          })
-          this.subjectOptions = options
-        }
+        console.log(this.subjectOptions)
       })
-      this.showClassOptions = this.classList.map((cls, index) => {
-        const item = { ...cls }
-        return {
-          ...item,
-          value: item.id,
-          name: item.name,
-          index: index,
-          clsFilters: []
-        }
+      Promise.all(classPormises).then((allRes) => {
+        allRes.forEach((clsRes, index) => {
+          if (clsRes.success) {
+            const result = (clsRes.result.records || clsRes.result).filter(item => item.status !== 2)
+            this.classList = this.classList.concat(result)
+          }
+        })
+        console.log(this.classList)
+        this.showClassOptions = this.classList.map((cls, index) => {
+          const item = { ...cls }
+          return {
+            ...item,
+            value: item.id,
+            name: item.name,
+            index: index,
+            clsFilters: []
+          }
+        })
       })
       this.schoolFilters = this.showSchoolOptions.map(item => item.value)
     },
@@ -361,6 +414,66 @@ export default {
         }
       }
       return this[typeLabel] ? this[typeLabel] : []
+    },
+    changeSessionType(e) {
+      const sessionType = e.target.value
+      // if (this.queryType !== CALENDAR_QUERY_TYPE.CLASS.value) {
+        if (sessionType === 'all') {
+          this.subFilters = [3, 4]
+          this.workFilters = [1, 2]
+          this.typeFilters = ['FA', 'SA', 'Activity', 'IA']
+          this.queryType = [CALENDAR_QUERY_TYPE.WORKSHOP.value, CALENDAR_QUERY_TYPE.MY.value].join(',')
+        } else if (sessionType === 'session') {
+          this.subFilters = []
+          this.workFilters = []
+          this.typeFilters = ['FA', 'SA', 'Activity', 'IA']
+          this.queryType = CALENDAR_QUERY_TYPE.MY.value
+        } else if (sessionType === 'workshop') {
+          this.subFilters = [3, 4]
+          this.workFilters = [1, 2]
+          this.typeFilters = []
+          this.queryType = CALENDAR_QUERY_TYPE.WORKSHOP.value
+        }
+        this.schoolFilters = this.showSchoolOptions.map(item => item.value)
+        this.resetClsOptions()
+      // }
+    },
+    handleChangeAll(e) {
+      if (e.target.checked) {
+        this.subFilters = [3, 4]
+        this.workFilters = [1, 2]
+        this.typeFilters = ['FA', 'SA', 'Activity', 'IA']
+        this.queryType = [CALENDAR_QUERY_TYPE.WORKSHOP.value, CALENDAR_QUERY_TYPE.MY.value].join(',')
+      } else {
+        this.subFilters = []
+        this.workFilters = []
+        this.typeFilters = []
+        this.queryType = ''
+      }
+      this.resetClsOptions()
+    },
+    changeSchoolFilters(schoolIds) {
+      if (this.queryType === CALENDAR_QUERY_TYPE.CLASS.value) {
+        const cls = this.typeFilters[0]
+        if (cls) {
+          const clsObj = this.classList.find(item => item.id === cls)
+          const isIn = schoolIds.includes(clsObj.schoolId)
+          if (!isIn) {
+            const isInCls = this.classList.filter(c => schoolIds.includes(c.schoolId))
+            if (isInCls.length > 0) {
+              this.typeFilters = [isInCls[0].id]
+              this.queryClass = isInCls[0].id
+              this.classFilters = [1, 2]
+            } else {
+              this.typeFilters = []
+              this.queryType = ''
+              this.queryClass = ''
+              this.classFilters = []
+            }
+            this.resetClsOptions()
+          }
+        }
+      }
     },
     handleChangeType(type, e) {
       const checked = e.target.checked
@@ -494,10 +607,10 @@ export default {
     }
   }
   .schedule-tip {
-    width: 190px;
+    width: 230px;
     display: flex;
     flex-direction: column;
-    margin-top: 60px;
+    margin-top: 50px;
     margin-right: 10px;
     .unit-tip {
       display: flex;
@@ -528,6 +641,9 @@ export default {
       }
       .unit-tip-item {
         padding: 0 5px;
+        /deep/ .ant-checkbox-wrapper {
+          margin: 3px 0;
+        }
         /deep/ .tip-tiem {
           margin-bottom: 5px;
           span {
