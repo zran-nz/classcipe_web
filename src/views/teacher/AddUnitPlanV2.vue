@@ -37,7 +37,7 @@
             v-for='(step, stepIndex) in formSteps'
             :key='step.id'>
             <template v-for='fieldItem in $store.getters.formConfigData.planCommonList'>
-              <div class='form-field-item' style="height:100%;" v-if='fieldItem.visible && !["yearList", "subjectList"].includes(fieldItem.fieldName) && step.commonFields.indexOf(fieldItem.fieldName) !== -1' :key='fieldItem.id'>
+              <div class='form-field-item' :style="fieldItem.fieldName === planField.LearnOuts?'height:100%;':''" v-if='fieldItem.visible && !["yearList", "subjectList"].includes(fieldItem.fieldName) && step.commonFields.indexOf(fieldItem.fieldName) !== -1' :key='fieldItem.id'>
                 <div
                   v-if='fieldItem.visible && fieldItem.fieldName === planField.Name'
                   class='form-block tag-content-block'
@@ -2705,8 +2705,8 @@ code {
   .form-body>div {
     padding: 0px 30px 0 30px;
     height: 100%;
-    .form-block{padding-top: 20px;}
   }
+  .form-page-item:first-child .form-body>div .form-block{padding-top: 20px;}
 
   .tag-body {
     padding: 20px 30px;
