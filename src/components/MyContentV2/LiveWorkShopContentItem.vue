@@ -241,7 +241,7 @@
                     </template> -->
                   </custom-button>
                 </div>
-                <div class='menu-item' v-if="1 === content.session.delFlag && WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus">
+                <div class='menu-item' v-if="1 === content.session.delFlag">
                   <custom-button label='Delete' @click='handleDel(content)'>
                     <!-- <template v-slot:icon>
                       <icon-font type="icon-shanchu" class="detail-font"/>
@@ -263,6 +263,7 @@
             :trigger="['click']"
             :getPopupContainer='trigger => trigger.parentElement'
             v-if="WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType
+              && WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus
               && isCurrentType(WORK_SHOPS_TYPE.REGISTERED.value) ">
             <div class='more-action'>
               <more-icon />
@@ -278,7 +279,7 @@
 
                 </custom-button>
               </div>
-              <div class='menu-item' v-if="0 === content.session.delFlag && WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus && !isReadyStart24(content)">
+              <!-- <div class='menu-item' v-if="0 === content.session.delFlag && WORK_SHOPS_STATUS.SCHEDULE.value === content.workshopsStatus && !isReadyStart24(content)">
                 <custom-button label='Archive' @click='handleStatus("Archive")'>
                 </custom-button>
               </div>
@@ -293,7 +294,7 @@
               <div class='menu-item' v-if="1 === content.session.delFlag">
                 <custom-button label='Delete' @click='handleDel(content)'>
                 </custom-button>
-              </div>
+              </div> -->
             </div>
           </a-dropdown>
           <!-- <template v-if="WORK_SHOPS_TYPE.REGISTERED.value === content.workshopsType && WORK_SHOPS_STATUS.ENDED.value !== content.workshopsStatus">
@@ -686,7 +687,7 @@ export default {
       console.log(item)
       // if (WORK_SHOPS_STATUS.ARCHIVED.value === item.workshopsStatus) {
         this.$confirm({
-          title: 'Confirm remove live workshop',
+          title: 'Confirm delete this session',
           content: 'All the relevant content will be cleared and you will not be able to retrieve after deleting it.',
           centered: true,
           onOk: () => {

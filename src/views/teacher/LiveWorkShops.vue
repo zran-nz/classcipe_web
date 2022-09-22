@@ -19,7 +19,7 @@
       <a-space class="status-filter" :style="{visibility: WORK_SHOPS_TYPE.FEATURE.value !== queryParams.workshopsType ? 'visible' : 'hidden'}">
         <label
           :class="{active: queryParams.workshopsStatus == item.value}"
-          v-for="item in WORK_SHOPS_STATUS"
+          v-for="item in filterWorkshops"
           @click="changeStatus(item.value)"
           :key="item.label"><a>{{ item.label }}</a></label>
       </a-space>
@@ -207,6 +207,16 @@ export default {
 
       timer: null,
       updateTime: 0
+    }
+  },
+  computed: {
+    filterWorkshops() {
+      if (this.queryParams.workshopsType === WORK_SHOPS_TYPE.REGISTERED.value) {
+        const filter = { ...WORK_SHOPS_STATUS }
+        delete filter.ARCHIVED
+        return filter
+      }
+      return WORK_SHOPS_STATUS
     }
   },
   created() {
