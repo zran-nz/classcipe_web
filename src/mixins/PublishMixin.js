@@ -184,6 +184,7 @@ export const PublishMixin = {
               }
             })
           }
+        } else if (['subjectList', 'yearList'].includes(field)) { // disable
         } else if (field === 'learnOuts') {
           const [ task, status ] = JSON.parse(localStorage.getItem('OutlineStatus')) ?? []
           const isFinish = task === this.contentId && status
@@ -220,6 +221,7 @@ export const PublishMixin = {
                 step.showRequiredTips = true
                 step.showSatisfiedTips = false
                 canPublish = false
+                console.log(field, step.commonFields, this.form[field])
               }
             })
           }
@@ -227,6 +229,7 @@ export const PublishMixin = {
       })
 
       this.form.canPublish = canPublish
+      console.log('calculateCanPublish: ', canPublish)
     },
 
     showEditPriceDialog() {
