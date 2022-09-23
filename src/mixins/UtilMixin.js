@@ -67,6 +67,9 @@ export const UtilMixin = {
       } else if (item.type === typeMap.task) {
         window.open('/teacher/task-redirect/' + item.id
           , '_blank')
+      } else if (item.type === typeMap.pd) {
+        window.open('/teacher/pd-content-redirect/' + item.id
+          , '_blank')
       } else if (item.type === typeMap.evaluation) {
         window.open('/teacher/evaluation-redirect/' + item.id
           , '_blank')
@@ -78,6 +81,8 @@ export const UtilMixin = {
         window.location.href = '/teacher/unit-plan-redirect/' + item.id
       } else if (item.type === typeMap.task) {
         window.location.href = '/teacher/task-redirect/' + item.id
+      } else if (item.type === typeMap.pd) {
+        window.location.href = '/teacher/pd-content-redirect/' + item.id
       } else if (item.type === typeMap.evaluation) {
         window.location.href = '/teacher/evaluation-redirect/' + item.id
       }
