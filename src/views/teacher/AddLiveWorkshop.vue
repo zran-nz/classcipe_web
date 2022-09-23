@@ -241,6 +241,7 @@
                 :onlyMe="true"
                 :forSelect="true"
                 :defaultSelect="initDate"
+                :schoolFilters="schoolFilters"
                 :searchFilters="[1,2,3,4]"
                 :searchType="CALENDAR_QUERY_TYPE.WORKSHOP.value"
                 @date-select="handleSelectSchedule"
@@ -387,7 +388,8 @@ export default {
     ...mapState({
       userMode: state => state.app.userMode,
       currentSchool: state => state.user.currentSchool,
-      bindCurriculum: state => state.user.bindCurriculum
+      bindCurriculum: state => state.user.bindCurriculum,
+      info: state => state.user.info
     }),
     lastChangeSavedTime() {
       const time = this.form && (this.form.updateTime || this.form.createTime)
@@ -396,6 +398,11 @@ export default {
       } else {
         return ''
       }
+    },
+    schoolFilters() {
+      return [
+        '0'
+      ].concat(this.info.schoolList.map((item, index) => item.id))
     }
   },
   data() {

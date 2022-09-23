@@ -4,7 +4,7 @@
       <div id="scheduleContent" class="schedule-content" ref="scheduleContent">
         <div class="schedule-tip" v-show="attendanceVisible">
           <a-affix :target="affixTarget">
-            <div class="tip-wrap">
+            <div class="tip-wrap" style="height: 100vh;">
               <!-- <div class="unit-tip" v-if="queryType === CALENDAR_QUERY_TYPE.CLASS.value">
                 <div
                   class="unit-tip-item"
@@ -53,8 +53,13 @@
                   </a-space>
                 </a-checkbox-group>
               </div>
-              <div class="calendar-type" v-show="true">
-                <div class="type-item-title" style="margin-top: 20px;">
+              <div
+                class="calendar-type"
+                v-show="true"
+                style="height: calc(100% - 200px);
+                    overflow: auto;
+                }">
+                <div class="type-item-title" style="margin-top: 0px;">
                   <a-checkbox :checked="isAll" @change="handleChangeAll">
                     All
                   </a-checkbox>
@@ -121,7 +126,7 @@
                     </div>
                     <div class="type-item-desc">
                       <a-checkbox-group
-                        :options="ClassTypesOptions"
+                        :options="ClassTypesOptions.filter(item => type.schoolId !== '0' || item.value === 1 )"
                         v-model="type.clsFilters"
                         @change="val => handleChangeFilters(val, CALENDAR_QUERY_TYPE.CLASS.value, type)"
                         class="type-check"
