@@ -299,7 +299,7 @@ import CollaborateCommentView from '@/components/Collaborate/CollaborateCommentV
 import CollaborateCommentPanel from '@/components/Collaborate/CollaborateCommentPanel'
 import CollaborateTooltip from '@/components/Collaborate/CollaborateTooltip'
 import CollaborateUpdateContent from '@/components/Collaborate/CollaborateUpdateContent'
-import commentIcon from '@/assets/icons/collaborate/comment.svg'
+import commentIcon from '@/assets/icons/collaborate/comment.svg?inline'
 
 export default {
   name: 'AddPD',
