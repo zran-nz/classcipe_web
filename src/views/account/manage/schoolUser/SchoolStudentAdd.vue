@@ -588,6 +588,7 @@ export default {
             if (res.code === 0) {
               this.$message.success('Save successfully')
               this.clearLocalData()
+              this.origin = { ...params, id: this.id }
               if (cb) {
                 cb()
               } else {

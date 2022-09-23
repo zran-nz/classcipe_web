@@ -154,10 +154,10 @@
                                     <a href="javascript:;" @click="handleRestore(cls)">Restore</a>
                                   </a-menu-item>
                                 </template>
-                                <a-menu-item v-if="currentTab === 'archive' || (!isLastClass && cls.studentCount === 0)">
+                                <a-menu-item v-if="currentTab === 'archive'">
                                   <a href="javascript:;" @click="handleDelete(cls)">Delete</a>
                                 </a-menu-item>
-                                <a-menu-item v-if="currentTab !== 'archive' && cls.studentCount > 0 && !isLastClass">
+                                <a-menu-item v-if="currentTab !== 'archive'">
                                   <a href="javascript:;" @click="handleArchive(cls)">Archive</a>
                                 </a-menu-item>
                               </a-menu>
@@ -832,27 +832,44 @@ export default {
       this.loadData()
     },
     handleDelete(cls) {
-      this.$confirm({
-        title: 'Confirm delete class',
-        content: `Do you confirm to delete class [ ${cls.name} ]? `,
-        centered: true,
-        onOk: () => {
-          this.loading = true
-          deleteClass({
-            ids: cls.id
-          }).then(res => {
-            if (res.code === 0) {
-              this.$message.success('Delete successfully')
-              this.$store.dispatch('GetInfo')
-              this.debounceLoad()
-            } else {
-              this.loading = false
-            }
-          }).finally(() => {
-            // this.loading = false
-          })
-        }
-      })
+      if (cls.classType === 0) {
+        this.$confirm({
+          title: 'Confirm delete class',
+          content: `Students in the class will be removed, Do you confirm to delete class [ ${cls.name} ]?`,
+          centered: true,
+          onOk: () => {
+            this.loading = true
+            deleteClass({
+              ids: cls.id
+            }).then(res => {
+              if (res.code === 0) {
+                this.$message.success('Delete successfully')
+                this.$store.dispatch('GetInfo')
+                this.debounceLoad()
+              } else {
+                this.loading = false
+              }
+            }).finally(() => {
+              // this.loading = false
+            })
+          }
+        })
+      } else {
+        this.loading = true
+        deleteClass({
+          ids: cls.id
+        }).then(res => {
+          if (res.code === 0) {
+            this.$message.success('Delete successfully')
+            this.$store.dispatch('GetInfo')
+            this.debounceLoad()
+          } else {
+            this.loading = false
+          }
+        }).finally(() => {
+          // this.loading = false
+        })
+      }
     },
     changeClass(val, groupId, groupName) {
       console.log(val)
