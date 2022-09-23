@@ -610,7 +610,7 @@ export default {
         noNeedQuery = this.typeFilters.length === 0
       }
       if (this.queryType !== this.CALENDAR_QUERY_TYPE.CLASS.value) {
-        params.schoolIds = this.schoolIds
+        params.schoolIds = this.schoolIds.join(',')
         // noNeedQuery = params.schoolIds.length === 0
       }
       // 把term block加上
@@ -657,7 +657,7 @@ export default {
             ...params,
             startDate: moment(start + ' 00:00:00').utc().format('YYYY-MM-DD'),
             endDate: moment(end + ' 23:59:59').utc().format('YYYY-MM-DD'),
-            queryTypes: this.queryType.split(',')
+            queryTypes: this.queryType // .split(',')
           }).then(res => {
             if (res && res.success && res.result) {
               let totalEvents = []
