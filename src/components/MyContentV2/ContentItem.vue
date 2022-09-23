@@ -49,7 +49,7 @@
             </div>
           </div>
           <div class='set-price-line vertical-right' >
-            <div class='price-info vertical-left'>
+            <div class='price-info vertical-left' v-if="showPrice">
               <div class='price'>
                 ${{ content.discountPrice || content.price || 0 }}
               </div>
@@ -379,6 +379,10 @@ export default {
     showSetPrice: {
       type: Boolean,
       default: false
+    },
+    showPrice: {
+      type: Boolean,
+      default: true
     },
     showCoverBar: {
       type: Boolean,

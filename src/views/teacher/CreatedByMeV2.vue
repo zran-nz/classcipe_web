@@ -21,6 +21,7 @@
               v-for='item in myContentList'
               :key='item.id'
               :content='item'
+              :show-price="false"
               :show-archive='shareType !== SourceType.Archived'
               :allow-permanent-delete='shareType === SourceType.Archived'
               :show-collaborate-delete='shareType === SourceType.SharedByOthers'

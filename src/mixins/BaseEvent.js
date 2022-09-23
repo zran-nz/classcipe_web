@@ -38,7 +38,8 @@ export const BaseEventMixin = {
       historyList: [],
       collaborateCommentList: [],
       currentCollaborateCommentList: [],
-      currentRightModule: null // 当前右侧应该显示的module名称，新版本addTask使用
+      currentRightModule: null, // 当前右侧应该显示的module名称，新版本addTask使用,
+      showHistoryLoading: false
     }
   },
   watch: {

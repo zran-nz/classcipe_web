@@ -11,9 +11,9 @@
           :needConfirm="true"
           :collaborate='collaborate'
           :last-change-saved-time='lastChangeSavedTime'
-          :show-collaborate='false'
           @publish='handlePublish'
           @share='handleSharePd'
+          @view-collaborate='handleViewCollaborate'
           @collaborate='handleStartCollaborate'
           @back='goBack'>
         </form-header>
@@ -140,12 +140,51 @@
           </div>
         </div>
         <div class='tag-body' :style="{ width: tagBodyWidth }" v-show="tagBodyWidth !== '0%'">
+          <template v-if='currentRightModule === rightModule.collaborate'>
+            <a-skeleton :loading='showHistoryLoading' active>
+              <div
+                class='collaborate-panel'>
+                <div class='icon' style="margin-left:10px">
+                  <comment-icon />
+                </div>
+                <div class="panel-close">
+                  <a-icon type="close" @click="handleViewCollaborate()" :style="{ color: 'red', fontSize: '18px',cursor:'pointer' }"/>
+                </div>
+                <a-tabs :default-active-key='defaultHistoryKey'>
+                  <a-tab-pane key='1' tab='Comment'>
+                    <collaborate-comment-view
+                      :source-id='pdId'
+                      :source-type='typeMap.pd'
+                      :comment-list='collaborateCommentList'
+                      :collaborate-user-list="collaborate.users"
+                      @update-comment='handleUpdateCommentList' />
+                  </a-tab-pane>
+                  <a-tab-pane key='2' tab='History' force-render>
+                    <collaborate-history :source-type='typeMap.pd' :history-list='historyList' @restore='handleRestoreField' />
+                  </a-tab-pane>
+                </a-tabs>
+              </div>
+            </a-skeleton>
+          </template>
+          <template v-if='currentRightModule === rightModule.collaborateComment'>
+            <div
+              class='collaborate-panel'>
+              <collaborate-comment-panel
+                :source-id='pdId'
+                :source-type='typeMap.pd'
+                :field-name='currentFieldName'
+                :comment-list='currentCollaborateCommentList'
+                :collaborate-user-list="getCollaborateUsers(collaborate)"
+                @cancel-comment="handleCancelComment"
+                @update-comment='handleUpdateCommentList' />
+            </div>
+          </template>
           <template v-if='currentRightModule === rightModule.customTag'>
             <custom-tag-pd :custom-tags.sync='form.customTags'/>
           </template>
           <template v-if='currentRightModule === rightModule.associate'>
             <link-content-list
-              :filter-types="[typeMap.task]"
+              :filter-types="[typeMap.pd]"
               :selected-id-list='associateIdList' />
           </template>
           <template v-if='currentRightModule === rightModule.recommend'>
@@ -255,6 +294,12 @@ import CustomButton from '@/components/Common/CustomButton'
 import EditPriceDialog from '@/components/MyContentV2/EditPriceDialog'
 import { addFileUploadRecord, FileRecord } from '@/api/material'
 import * as logger from '@/utils/logger'
+import CollaborateHistory from '@/components/Collaborate/CollaborateHistory'
+import CollaborateCommentView from '@/components/Collaborate/CollaborateCommentView'
+import CollaborateCommentPanel from '@/components/Collaborate/CollaborateCommentPanel'
+import CollaborateTooltip from '@/components/Collaborate/CollaborateTooltip'
+import CollaborateUpdateContent from '@/components/Collaborate/CollaborateUpdateContent'
+import commentIcon from '@/assets/icons/collaborate/comment.svg'
 
 export default {
   name: 'AddPD',
@@ -279,7 +324,13 @@ export default {
     CustomTextButton,
     Collaborate,
     CollaborateUserList,
-    ShareContentSetting
+    ShareContentSetting,
+    CollaborateHistory,
+    CollaborateCommentView,
+    CollaborateCommentPanel,
+    CollaborateTooltip,
+    CollaborateUpdateContent,
+    commentIcon
   },
   props: {
     pdId: {
@@ -820,6 +871,30 @@ export default {
       this.saving = false
       this.$logger.info('updateSlideEditing', response.result)
       return response
+    },
+    // 每次点击都重新加载一下最新数据
+    handleViewCollaborate() {
+      this.showHistoryLoading = true
+      this.$logger.info('handleViewCollaborate')
+      if (this.currentRightModule === this.rightModule.collaborate) {
+        this.handleDisplayRightModule()
+      } else {
+        this.currentRightModule = this.rightModule.collaborate
+      }
+      this.showHistoryLoading = true
+      this.loadCollaborateData(this.form.type, this.form.id)
+    },
+    handleUpdateCommentList() {
+      this.$logger.info('handleUpdateCommentList')
+      this.GetCollaborateComment(this.form.type, this.form.id)
+    },
+    handleRestoreField(data) {
+      this.$logger.info('handleRestoreField', data, this.form)
+      if (data) {
+        this.form = data
+        this.$message.success('restore successfully!')
+      }
+      this.$logger.info('after handleRestoreField', this.form)
     }
   }
 }
