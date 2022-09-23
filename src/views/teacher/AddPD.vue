@@ -6,6 +6,7 @@
           title='Create PD Content'
           :form='form'
           :spin='saving'
+          :back-by-router='true'
           :share-status='shareStatus'
           :show-share='false'
           :needConfirm="true"
@@ -16,6 +17,8 @@
           @view-collaborate='handleViewCollaborate'
           @collaborate='handleStartCollaborate'
           @back='goBack'>
+          <template v-slot:right>
+          </template>
         </form-header>
       </template>
       <template v-slot:nav>
@@ -409,6 +412,7 @@ export default {
     this.currentStep = this.formSteps[this.currentActiveStepIndex]
     this.handleDisplayRightModule()
     this.checkIsFullBodyStep()
+    this.queryContentCollaborates(this.pdId, this.typeMap.pd)
 
     this.$EventBus.$on(SlideEvent.SELECT_TEMPLATE, this.handleSelectTemplate)
     this.$EventBus.$on(SlideEvent.CANCEL_SELECT_TEMPLATE, this.handleRemoveTemplate)
@@ -956,6 +960,22 @@ export default {
   justify-content: center;
   align-items: center;
   height: 400px;
+}
+
+.collaborate-panel {
+  background-color: #fff;
+  position: relative;
+  .panel-close{
+    position: absolute;
+    top:10px;
+    right:10px;
+  }
+  .icon {
+    margin-left:10px;
+    svg {
+      width: 30px;
+    }
+  }
 }
 
 </style>
