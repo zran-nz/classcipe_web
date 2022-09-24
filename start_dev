@@ -3,4 +3,4 @@ export NODE_OPTIONS=--openssl-legacy-provider
 export NODE_ENV=development
 cd /git
 yarn config set ignore-engines true
-yarn vue-cli-service serve --host 0.0.0.0 --port 8004 --public dev.classcipe.com
+yarn vue-cli-service serve --mode development --host 0.0.0.0 --port 8004 --public dev.classcipe.com
