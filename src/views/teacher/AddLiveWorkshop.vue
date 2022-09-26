@@ -234,6 +234,7 @@
                 :show-time="{ format: 'HH:mm' }"
               />
             </div> -->
+            <!-- :searchFilters="[1,2,3,4]" -->
             <div style="width: 100%;">
               <session-calendar
                 :editable="false"
@@ -242,7 +243,6 @@
                 :forSelect="true"
                 :defaultSelect="initDate"
                 :schoolFilters="schoolFilters"
-                :searchFilters="[1,2,3,4]"
                 :searchType="CALENDAR_QUERY_TYPE.WORKSHOP.value"
                 @date-select="handleSelectSchedule"
               />
