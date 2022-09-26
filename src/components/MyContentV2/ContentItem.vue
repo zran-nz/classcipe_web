@@ -164,7 +164,7 @@
               label='Workshop'
               :disabled='!content.canPublish || content.slideEditing'
               :disabled-tooltip="content.slideEditing ? 'Please save your slides' : 'Please complete the information'"
-              v-if='showSchedule && content.type === typeMap.pd && content.owner.email === $store.getters.email'
+              v-if='showSchedule && content.type === typeMap.pd'
               @click='handlePublicWorkshopSchedule'>
               <template v-slot:icon>
                 <schedule-icon style='width: 13px; height:14px' />

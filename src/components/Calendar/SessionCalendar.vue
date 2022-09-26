@@ -379,6 +379,11 @@ export default {
       return res
     },
     async loadBlock() {
+      if (this.queryType !== this.CALENDAR_QUERY_TYPE.CLASS.value) {
+        if (this.schoolIds.length > 1) {
+          return []
+        }
+      }
       await this.loadTerm()
       if (this.searchType === CALENDAR_QUERY_TYPE.CLASS.value && this.searchFilters.length > 0) {
         const blocks = await this.loadClass()
@@ -393,8 +398,13 @@ export default {
     },
     async loadTerm() {
       if (!this.termsInited) {
+        let schoolId = this.currentSchool.id
+        if (this.queryType !== this.CALENDAR_QUERY_TYPE.CLASS.value && this.schoolIds.length === 1) {
+          schoolId = this.schoolIds
+        }
+        console.log(schoolId)
         const termRes = await termList({
-          schoolId: this.currentSchool.id
+          schoolId: schoolId
         })
         if (termRes.success) {
           this.termsInited = true
@@ -611,6 +621,7 @@ export default {
       }
       if (this.queryType !== this.CALENDAR_QUERY_TYPE.CLASS.value) {
         params.schoolIds = this.schoolIds.join(',')
+        this.termsInited = false
         // noNeedQuery = params.schoolIds.length === 0
       }
       // 把term block加上

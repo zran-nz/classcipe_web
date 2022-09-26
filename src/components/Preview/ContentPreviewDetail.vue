@@ -9,7 +9,7 @@
           </div>
         </div>
         <a-space class='name'>
-          {{ content.name || 'Untitled' }}
+          {{ (liveWorkShopSession && liveWorkShopSession.title) || content.name || 'Untitled' }}
           <label for="" v-if="liveWorkShopCode && liveWorkShopSession && liveWorkShopSession.sessionStartTime">
             {{ liveWorkShopSession.sessionStartTime | dayjs('YYYY-MM-DD HH:mm') }} - {{ liveWorkShopSession.sessionEndTime | dayjs('YYYY-MM-DD HH:mm') }}
           </label>
@@ -121,7 +121,7 @@
       <div style="display:flex;align-items:center;justify-content:space-between;">
         <a-space class='content-info-item'>
           <div span='24' class='cc-ellipsis cc-info-left'>
-            <h3>{{ content.name || 'Untitled' }}</h3>
+            <h3>{{ (liveWorkShopSession && liveWorkShopSession.title) || content.name || 'Untitled' }}</h3>
           </div>
           <div class="more-action" style="margin-bottom: 8px;">
             <a-tooltip
@@ -134,7 +134,7 @@
                   <share-button
                     v-if="content"
                     :link="wrapperLink(content)"
-                    :title="content.name"
+                    :title="(liveWorkShopSession && liveWorkShopSession.title) || content.name"
                   />
                 </div>
               </template>

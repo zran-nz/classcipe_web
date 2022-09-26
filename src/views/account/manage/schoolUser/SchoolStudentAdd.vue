@@ -161,7 +161,7 @@
         <a-input v-model="formModel.parentPhone" placeholder="Phone" />
       </a-form-model-item>
       <a-form-model-item :wrapperCol="{offset: 6}" v-if="!studentId">
-        <a-button :disabled="hasErrors" :loading="loading" @click="handleSave" type="primary">{{ studentId ? 'Update': 'Create' }}</a-button>
+        <a-button :disabled="hasErrors" :loading="loading" @click="(e) => handleSave()" type="primary">{{ studentId ? 'Update': 'Create' }}</a-button>
       </a-form-model-item>
     </a-form-model>
 
@@ -293,8 +293,8 @@ export default {
         // parentLastName: [{ required: true, message: 'Please Input Last Name!' }],
         parentEmail: [
           { required: true, message: 'Please Input Email!', trigger: 'change' },
-          { type: 'email', message: 'Please Input Valid Email!', trigger: 'blur' },
-          { validator: this.validateRemoteParentEmail, trigger: 'blur' }
+          { type: 'email', message: 'Please Input Valid Email!', trigger: 'blur' }
+          // { validator: this.validateRemoteParentEmail, trigger: 'blur' }
         ],
         classes: [{ required: true, message: 'Please Select a class!', trigger: 'change' }]
         // parentPhone: [
@@ -510,7 +510,7 @@ export default {
           schoolId: this.currentSchool.id
         }).then(response => {
           if (response.code === 0 && response.result && response.result[0].exists) {
-            callback(new Error('same student already linked with this parent email'))
+            callback(new Error('This student already exists'))
           } else {
             callback()
           }
@@ -570,33 +570,39 @@ export default {
       this.$refs.form.validate(valid => {
         if (valid) {
           const params = { ...this.formModel }
-          params.schoolId = this.currentSchool.id
-          // 变成单选
-          // params.classes = params.classArr.join(',')
-          if (params.birthDay) {
-            params.birthday = params.birthDay = moment.utc(params.birthDay).format('YYYY-MM-DD HH:mm:ss')
-          }
-          params.classes = params.classes.split(',').concat(params.subjectCls).filter(item => !!item).join(',')
-          let promise = null
-          if (this.id) {
-            promise = updateStudent
-          } else {
-            promise = addStudents
-          }
-          this.loading = true
-          promise(params).then(res => {
-            if (res.code === 0) {
-              this.$message.success('Save successfully')
-              this.clearLocalData()
-              this.origin = { ...params, id: this.id }
-              if (cb) {
-                cb()
-              } else {
-                this.$emit('save', res.result)
+          this.validateRemoteParentEmail(null, params.parentEmail, (err) => {
+            if (err && err.message) {
+              this.$message.error(err.message)
+            } else {
+              params.schoolId = this.currentSchool.id
+              // 变成单选
+              // params.classes = params.classArr.join(',')
+              if (params.birthDay) {
+                params.birthday = params.birthDay = moment.utc(params.birthDay).format('YYYY-MM-DD HH:mm:ss')
               }
+              params.classes = params.classes.split(',').concat(params.subjectCls).filter(item => !!item).join(',')
+              let promise = null
+              if (this.id) {
+                promise = updateStudent
+              } else {
+                promise = addStudents
+              }
+              this.loading = true
+              promise(params).then(res => {
+                if (res.code === 0) {
+                  this.$message.success('Save successfully')
+                  this.clearLocalData()
+                  this.origin = { ...params, id: this.id }
+                  if (cb) {
+                    cb()
+                  } else {
+                    this.$emit('save', res.result)
+                  }
+                }
+              }).finally(() => {
+                this.loading = false
+              })
             }
-          }).finally(() => {
-            this.loading = false
           })
         } else {
           console.log(valid)
