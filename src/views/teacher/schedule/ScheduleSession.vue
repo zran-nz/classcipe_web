@@ -601,8 +601,8 @@ export default {
           this.$logger.info('zoom auth success')
         }
       }
-      console.log(zoom, status)
-      this.scheduleReq.zoom = zoom && !status ? 1 : 0
+      this.scheduleReq.zoom = zoom && status ? 1 : 0
+      console.log(zoom, status, this.scheduleReq.zoom)
     },
 
     /**
