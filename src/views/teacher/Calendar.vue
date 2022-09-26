@@ -60,7 +60,7 @@
                     overflow: auto;
                 }">
                 <div class="type-item-title" style="margin-top: 0px;">
-                  <a-checkbox :checked="isAll" @change="handleChangeAll">
+                  <a-checkbox :indeterminate="isIndeterminate" :checked="isAll" @change="handleChangeAll">
                     All
                   </a-checkbox>
                 </div>
@@ -70,7 +70,7 @@
                       {{ CALENDAR_QUERY_TYPE.WORKSHOP.label }}
                     </a-checkbox>
                   </div> -->
-                  <div class="type-item-desc">
+                  <div class="type-item-desc" style="width: 210px;">
                     <a-checkbox-group
                       :options="WorkShopOptions"
                       v-model="workFilters"
@@ -101,7 +101,7 @@
                       {{ CALENDAR_QUERY_TYPE.MY.label }}
                     </a-checkbox>
                   </div> -->
-                  <div class="type-item-desc">
+                  <div class="type-item-desc" style="width: 100px;">
                     <a-checkbox-group
                       :options="MyCalendarOptions"
                       v-model="typeFilters"
@@ -194,6 +194,7 @@ export default {
         value: 1,
         name: 'PD workshop',
         index: 1,
+        indeterminate: false,
         children: [
           {
             value: 3,
@@ -207,6 +208,7 @@ export default {
         ]
       }, {
         value: 2,
+        indeterminate: false,
         name: 'Student workshop',
         index: 2
       }],
@@ -317,6 +319,21 @@ export default {
       }
       if (this.sessionType === 'workshop') {
         return subFiltersEqual && workFiltersEqual
+      }
+      return false
+    },
+    isIndeterminate() {
+      const subFiltersLen = this.subFilters.length
+      const workFiltersLen = this.workFilters.length
+      const typeFiltersLen = this.typeFilters.length
+      if (this.sessionType === 'all') {
+        return (subFiltersLen + workFiltersLen + typeFiltersLen) > 0 && (subFiltersLen + workFiltersLen + typeFiltersLen) < 8
+      }
+      if (this.sessionType === 'session') {
+        return typeFiltersLen > 0 && typeFiltersLen < 4
+      }
+      if (this.sessionType === 'workshop') {
+        return (subFiltersLen + workFiltersLen) > 0 && (subFiltersLen + workFiltersLen) < 4
       }
       return false
     },
@@ -455,6 +472,7 @@ export default {
         this.typeFilters = []
         this.queryType = ''
       }
+      this.WorkShopOptions[0].indeterminate = false
       this.resetClsOptions()
     },
     changeSchoolFilters(schoolIds) {
@@ -510,11 +528,15 @@ export default {
         cls.clsFilters = filter
       }
       if (val === CALENDAR_QUERY_TYPE.WORKSHOP.value) {
+        console.log(filter)
         if (!filter.includes(1)) {
           this.subFilters = []
         } else {
-          this.subFilters = [3, 4]
+          if (this.subFilters.length === 0) {
+            this.subFilters = [3, 4]
+          }
         }
+        this.WorkShopOptions[0].indeterminate = this.subFilters.length === 1
       }
       if (val === CALENDAR_QUERY_TYPE.CLASS.value) {
         this.queryType = val
@@ -542,6 +564,7 @@ export default {
         })
         this.queryType = actualQuery.join(',')
       }
+      this.WorkShopOptions[0].indeterminate = filter.length === 1
     },
     handleChangeClass(type) {
       this.queryType = this.CALENDAR_QUERY_TYPE.CLASS.value
