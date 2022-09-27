@@ -735,7 +735,8 @@ export default {
                       userAvatar: item.userAvatar,
                       userRealName: item.userRealName,
                       schoolId: item.schoolId,
-                      schoolName: item.schoolName
+                      schoolName: item.schoolName,
+                      isWorkShop: !!item.workshopsDetailInfo
                     }
                   }
                 })
@@ -743,7 +744,7 @@ export default {
                 this.allEvents = events
                 const filterEvents = events.filter(event => {
                   if (this.queryType.indexOf(this.CALENDAR_QUERY_TYPE.MY.value) > -1) {
-                    if (!this.typeFilters.includes(event.extendedProps.taskType)) {
+                    if (!event.extendedProps.isWorkShop && !this.typeFilters.includes(event.extendedProps.taskType)) {
                       return false
                     }
                   }
@@ -1103,6 +1104,8 @@ export default {
         const params = {
           sessionStartTime: moment(current.start).utc().format('YYYY-MM-DD HH:mm:ss'),
           deadline: moment(current.end).utc().format('YYYY-MM-DD HH:mm:ss'),
+          startDate: moment(current.start).utc().format('YYYY-MM-DD HH:mm:ss'),
+          endDate: moment(current.end).utc().format('YYYY-MM-DD HH:mm:ss'),
           id: extendedProps.id
         }
         this.handleSave(params, event)
@@ -1120,6 +1123,8 @@ export default {
         const params = {
           sessionStartTime: moment(current.start).utc().format('YYYY-MM-DD HH:mm:ss'),
           deadline: moment(current.end).utc().format('YYYY-MM-DD HH:mm:ss'),
+          startDate: moment(current.start).utc().format('YYYY-MM-DD HH:mm:ss'),
+          endDate: moment(current.end).utc().format('YYYY-MM-DD HH:mm:ss'),
           id: extendedProps.id
         }
         this.handleSave(params, event)

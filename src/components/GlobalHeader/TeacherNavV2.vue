@@ -16,7 +16,7 @@
             <resource-icon />
           </template>
         </sidebar-menu-item>
-        <sidebar-menu-item label='Published' path='/teacher/main/my-published' v-if='userMode !== USER_MODE.SCHOOL'>
+        <sidebar-menu-item label='Published' path='/teacher/main/my-published'>
           <template v-slot:icon>
             <published-icon />
           </template>
