@@ -39,7 +39,7 @@
                   Workshop
                 </a-radio-button>
               </a-radio-group>
-              <div class="unit-tip" v-if="sessionType !== 'workshop'" style="margin-top: 20px;">
+              <div class="unit-tip" style="margin-top: 20px;">
                 <a-checkbox-group
                   :options="showSchoolOptions"
                   v-model="schoolFilters"
@@ -457,6 +457,7 @@ export default {
           this.queryType = CALENDAR_QUERY_TYPE.WORKSHOP.value
         }
         this.schoolFilters = this.showSchoolOptions.map(item => item.value)
+        this.WorkShopOptions[0].indeterminate = false
         this.resetClsOptions()
       // }
     },
@@ -542,7 +543,7 @@ export default {
         this.queryType = val
       } else {
         const actualQuery = [CALENDAR_QUERY_TYPE.WORKSHOP.value, CALENDAR_QUERY_TYPE.MY.value].filter(item => {
-          return (val === item) ? true : this.queryType.indexOf(item) > -1
+          return (val === item) ? filter.length > 0 : this.queryType.indexOf(item) > -1
         })
         this.queryType = actualQuery.join(',')
       }
@@ -560,7 +561,7 @@ export default {
         this.queryType = val
       } else {
         const actualQuery = [CALENDAR_QUERY_TYPE.WORKSHOP.value, CALENDAR_QUERY_TYPE.MY.value].filter(item => {
-          return (val === item) ? true : this.queryType.indexOf(item) > -1
+          return (val === item) ? this.workFilters.length > 0 : this.queryType.indexOf(item) > -1
         })
         this.queryType = actualQuery.join(',')
       }
