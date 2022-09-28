@@ -291,6 +291,7 @@ export default {
           value: '0',
           name: 'Personal',
           avatar: this.info.avatar,
+          disabled: this.schoolFilters.length === 1 && this.schoolFilters[0] === '0',
           id: '0',
           index: 0
         }
@@ -299,6 +300,7 @@ export default {
           value: item.id,
           name: item.schoolName,
           avatar: (item.schoolUser && item.schoolUser.avatar) ? item.schoolUser.avatar : this.info.avatar,
+          disabled: this.schoolFilters.length === 1 && this.schoolFilters[0] === item.id,
           id: item.id,
           index: index + 1
         }
@@ -311,6 +313,9 @@ export default {
       const subFiltersEqual = isEqual(this.subFilters, [3, 4])
       const workFiltersEqual = isEqual(this.workFilters, [1, 2])
       const typeFiltersEqual = isEqual(this.typeFilters, ['FA', 'SA', 'Activity', 'IA'])
+      if (this.queryType === CALENDAR_QUERY_TYPE.CLASS.value) {
+        return false
+      }
       if (this.sessionType === 'all') {
         return subFiltersEqual && workFiltersEqual && typeFiltersEqual
       }
@@ -326,6 +331,9 @@ export default {
       const subFiltersLen = this.subFilters.length
       const workFiltersLen = this.workFilters.length
       const typeFiltersLen = this.typeFilters.length
+      if (this.queryType === CALENDAR_QUERY_TYPE.CLASS.value) {
+        return false
+      }
       if (this.sessionType === 'all') {
         return (subFiltersLen + workFiltersLen + typeFiltersLen) > 0 && (subFiltersLen + workFiltersLen + typeFiltersLen) < 8
       }
@@ -526,6 +534,7 @@ export default {
         this.typeFilters = [cls.value]
         this.subFilters = []
         this.workFilters = []
+        this.schoolFilters = [cls.schoolId]
         cls.clsFilters = filter
       }
       if (val === CALENDAR_QUERY_TYPE.WORKSHOP.value) {
@@ -574,6 +583,7 @@ export default {
       this.classFilters = [ ...type.clsFilters ]
       this.workFilters = []
       this.subFilters = []
+      this.schoolFilters = [type.schoolId]
       this.resetClsOptions()
     },
     resetClsOptions() {

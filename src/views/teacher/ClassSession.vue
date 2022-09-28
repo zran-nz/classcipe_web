@@ -14,7 +14,7 @@
       </div>
       <div class='create-new'>
         <a-space>
-          <custom-search-input :round='false' :value.sync='queryParams.searchKey' @search='handleSearch' placeholder='Search your content'/>
+          <custom-search-input :round='false' :value.sync='queryParams.sessionName' @search='handleSearch' placeholder='Search your content'/>
           <class-create-new @create='handleImport'/>
           <user-profile-avatar />
         </a-space>
@@ -186,7 +186,7 @@ export default {
       queryParams: {
         classId: '',
         status: sessionStorage.getItem(SESSION_CLASS_TYPE) ? parseInt(sessionStorage.getItem(SESSION_CLASS_TYPE)) : WORK_SHOPS_STATUS.SCHEDULE.value, // 2: scheduled, 1: on-going, 3: ended
-        searchKey: '',
+        sessionName: '',
         queryType: 1,
         delFlag: 0
       },
