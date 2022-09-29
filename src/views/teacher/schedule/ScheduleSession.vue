@@ -629,9 +629,8 @@ export default {
         }
         this.scheduleReq.password = openSessionData.password
         this.scheduleReq.waitingRoom = openSessionData.waitingRoom
-        this.scheduleReq.zoom = openSessionData.zoom
       }
-
+      this.scheduleReq.zoom = this.$store.getters.zoomChecked ? 1 : 0
       if (!this.scheduleReq.startDate || !this.scheduleReq.endDate) {
         this.$message.warn('Please select Schedule time!')
         return
