@@ -3,6 +3,7 @@ import { checkAuthExpired, getThirdAuthURL, thirdAuthCallbackUrl, unbindAuth } f
 import { SESSION_CALLBACK_URL } from '@/const/common'
 import { SET_PROMOTE_CODE } from '@/store/mutation-types'
 import { getUrlWithNoParams, getCookie } from '@/utils/util'
+import notification from 'ant-design-vue/lib/notification'
 
 /**
  * zoom 授权公共方法
@@ -82,6 +83,17 @@ export const ZoomAuthMixin = {
         return true
       } else {
         this.$store.commit('SET_ZOOM_CHECKED', false)
+        notification.warning({
+          message: 'Reminder',
+          description: ret.message,
+          icon: h => {
+            return h('a-icon', {
+              props: {
+                type: 'alert'
+              }
+            })
+          }
+        })
         return false
       }
     },
