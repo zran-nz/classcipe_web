@@ -234,14 +234,14 @@
                 :show-time="{ format: 'HH:mm' }"
               />
             </div> -->
-            <!-- :searchFilters="[1,2,3,4]" -->
+            <!-- :onlyMe="true" -->
             <div style="width: 100%;">
               <session-calendar
                 :editable="false"
                 :addable="false"
-                :onlyMe="true"
                 :forSelect="true"
                 :defaultSelect="initDate"
+                :searchFilters="[1,2,3,4]"
                 :schoolFilters="schoolFilters"
                 :searchType="CALENDAR_QUERY_TYPE.WORKSHOP.value"
                 @date-select="handleSelectSchedule"
@@ -400,9 +400,10 @@ export default {
       }
     },
     schoolFilters() {
-      return [
-        '0'
-      ].concat(this.info.schoolList.map((item, index) => item.id))
+      // return [
+      //   '0'
+      // ].concat(this.info.schoolList.map((item, index) => item.id))
+      return [this.currentSchool.id]
     }
   },
   data() {

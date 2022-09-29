@@ -91,10 +91,10 @@
           </a-col>
         </a-row>
       </a-form-model-item> -->
-      <a-form-model-item class="mb0" label="Class">
+      <a-form-model-item class="mb0" label="Class" :required="true">
         <a-row :gutter=16>
           <a-col :span="18">
-            <a-form-model-item class="select">
+            <a-form-model-item class="select" prop="classes">
               <template v-if="!classUnModify">
                 <a-select
                   showSearch
@@ -443,6 +443,7 @@ export default {
       })
     },
     doValidate(key, value) {
+      console.log(key, value)
       this.fillValidate(key, value)
     },
     setAvatar (url) {

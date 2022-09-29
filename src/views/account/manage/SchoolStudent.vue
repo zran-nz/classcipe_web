@@ -90,7 +90,7 @@
               <img src="~@/assets/icons/library/default-avatar.png" alt="" v-else>
             </div> -->
             <div class="user-detail">
-              <label for="">{{ record.parentFirstName + record.parentLastName }}</label>
+              <label for="" v-if="record.parentFirstName || record.parentLastName">{{ record.parentFirstName }} {{ record.parentLastName }}</label>
               <label for="">{{ record.parentEmail }}<span v-if="isSelfEmail(record.parentEmail)"> (Me)</span></label>
             </div>
           </div>

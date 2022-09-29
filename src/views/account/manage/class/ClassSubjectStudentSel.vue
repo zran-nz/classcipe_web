@@ -121,7 +121,7 @@
       </a-result> -->
     </div>
     <div class="opt-con">
-      <a-button :loading="loading" @click="handleChoose" :disabled="selectedRowKeys.length === 0" type="primary">Add the selected sutdent(s)</a-button>
+      <a-button :loading="loading" @click="handleChoose" :disabled="selectedRowKeys.length === 0" type="primary">Add the selected student(s)</a-button>
     </div>
   </div>
 </template>
