@@ -140,6 +140,10 @@ export default {
       SourceType: SourceType
     }
   },
+  beforeRouteLeave(to, from, next) {
+    this.$store.commit('setV2Box', null)
+    next()
+  },
   computed: {
     ...mapState({
       info: state => state.user.info,

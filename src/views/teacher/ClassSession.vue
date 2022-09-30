@@ -165,6 +165,10 @@ export default {
         this.loadMyContent()
     }
   },
+  beforeRouteLeave(to, from, next) {
+    this.$store.commit('setV2Box', null)
+    next()
+  },
   data () {
     return {
       typeMap: typeMap,

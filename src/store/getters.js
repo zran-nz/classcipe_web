@@ -78,6 +78,8 @@ const getters = {
   priTagList: state => state.classcipeConfig.priTagList,
   pdTagList: state => state.classcipeConfig.pdTagList,
   globalLoading: state => state.app.globalLoading,
+  v2Show: state => state.app.v2Show,
+  v2Box: state => state.app.v2Box,
   zoomChecked: state => state.user.zoomChecked
 }
 

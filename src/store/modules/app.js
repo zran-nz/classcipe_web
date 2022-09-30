@@ -46,7 +46,9 @@ const app = {
     userMode: USER_MODE.SELF, // selfStudy: 自学习模式，schoolStudy：学校模式
     device: DEVICE.DESKTOP,
     promoteCode: '',
-    globalLoading: false
+    globalLoading: false,
+    v2Show: false,
+    v2Box: ''
   },
   mutations: {
     [HIDDEN_SIDEBAR]: (state, type) => {
@@ -123,6 +125,16 @@ const app = {
     [SET_GLOBAL_LOADING]: (state, globalLoading) => {
       state.globalLoading = globalLoading
       storage.set(SET_GLOBAL_LOADING, globalLoading)
+    },
+    setV2Box: (state, data) => { // data: { id:, type: }
+      if (!data) {
+        state.v2Show = false
+        state.v2Box = { path: '/v2Box'}
+      } else {
+        state.v2Show = true
+        const type = {4: 'task', 2: 'unit', 9: 'pd', 8: 'video'}[data.type]
+        state.v2Box = { path: `/${type}/view/${data.id}`, query: { header: 0 }}
+      }
     }
   },
   actions: {

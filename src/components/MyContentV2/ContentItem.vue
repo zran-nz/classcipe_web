@@ -19,10 +19,10 @@
           </div>
           <div class='bottom-action-item vertical-left' v-else>
           </div>
-          <a class='bottom-action-item vertical-right' :href="viewUrl" target="_blank" v-show='allowPreview && !((content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing)'>
+          <div class='bottom-action-item vertical-right' @click="$store.commit('setV2Box', content)" v-show='allowPreview && !((content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing)'>
             <div class='bottom-action-item-icon'><a-icon type="eye" /></div>
             <div class='bottom-action-item-label'>Preview</div>
-          </a>
+          </div>
         </div>
       </div>
     </div>
@@ -282,16 +282,6 @@
       </div>
     </div>
 
-    <content-preview
-      v-bind='$attrs'
-      :content-id='previewCurrentId'
-      :content-type='previewType'
-      :review-edit='reviewEdit'
-      :review-create='reviewCreate'
-      :review-list='reviewList'
-      v-if='previewVisible'
-      @close='handlePreviewClose' />
-
     <discounted-price ref="discountedPrice" @update="updatePrice"/>
   </div>
 </template>
@@ -311,7 +301,6 @@ import ScheduleIcon from '@/assets/v2/icons/schedule.svg?inline'
 import OriginalTipsIcon from '@/assets/v2/icons/original_tips.svg?inline'
 import DeleteIcon from '@/assets/v2/icons/delete.svg?inline'
 import MoreIcon from '@/assets/v2/icons/more.svg?inline'
-import ContentPreview from '@/components/Preview/ContentPreview'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import DiscountedPrice from '@/components/MyContentV2/DiscountedPrice'
 import * as logger from '@/utils/logger'
@@ -325,7 +314,6 @@ export default {
   components: {
     ModalHeader,
     ContentTypeIcon,
-    ContentPreview,
     CustomButton,
     SubTaskIcon,
     PreviewGrayIcon,
@@ -420,10 +408,7 @@ export default {
       isSelfLearning: false,
 
       enableDiscount: false,
-      visible: false,
-      reviewList: false,
-      reviewCreate: false,
-      reviewEdit: false
+      visible: false
     }
   },
   created() {
@@ -431,10 +416,6 @@ export default {
     this.isSelfLearning = this.content.contentType === 1
   },
   computed: {
-    viewUrl() {
-      const type = {4: 'task', 2: 'unit', 9: 'pd', 8: 'video'}[this.content.type]
-      return `/v2/${type}/view/${this.content.id}`
-    },
     status() {
       return this.content.status
     },

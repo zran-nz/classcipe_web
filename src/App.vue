@@ -4,6 +4,7 @@
       <router-view />
       <!--只允许登陆后才可以反馈-->
       <feedback v-if="showFeedback" />
+      <IframePreview />
       <div id='global-loading' v-show='globalLoading'>
         <div class='loading-gif'>
           <div class='loading-tips'>
@@ -27,9 +28,10 @@ import { mapGetters, mapMutations, mapState } from 'vuex'
 import { ACCESS_TOKEN, TOGGLE_DEVICE } from './store/mutation-types'
 import storage from 'store'
 import { USER_MODE } from '@/const/common'
+import IframePreview from '@/components/Preview/IframePreview'
 
 export default {
-  components: { Feedback },
+  components: { Feedback, IframePreview },
   data() {
     return {
       stopTimer: false,
