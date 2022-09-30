@@ -19,10 +19,10 @@
           </div>
           <div class='bottom-action-item vertical-left' v-else>
           </div>
-          <div class='bottom-action-item vertical-right' @click="handlePreviewDetail(content)" v-show='allowPreview && !((content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing)'>
+          <a class='bottom-action-item vertical-right' :href="viewUrl" target="_blank" v-show='allowPreview && !((content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing)'>
             <div class='bottom-action-item-icon'><a-icon type="eye" /></div>
             <div class='bottom-action-item-label'>Preview</div>
-          </div>
+          </a>
         </div>
       </div>
     </div>
@@ -431,6 +431,10 @@ export default {
     this.isSelfLearning = this.content.contentType === 1
   },
   computed: {
+    viewUrl() {
+      const type = {4: 'task', 2: 'unit', 9: 'pd', 8: 'video'}[this.content.type]
+      return `/v2/${type}/view/${this.content.id}`
+    },
     status() {
       return this.content.status
     },
