@@ -23,12 +23,12 @@ export default {
     return {}
   },
   computed: {
-    ...mapGetters(['v2Show']),
+    ...mapGetters(['v2Show'])
   },
   watch: {
     '$store.getters.v2Box': function(data) {
-      iframebox.contentWindow.postMessage({ id: 'iframeBox', data })
-    },
+      window.iframebox.contentWindow.postMessage({ id: 'iframeBox', data })
+    }
   },
   methods: {
     handleClose () {

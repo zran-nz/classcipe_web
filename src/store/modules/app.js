@@ -128,12 +128,12 @@ const app = {
     },
     setV2Box: (state, data) => { // data: { id:, type: }
       if (!data) {
-        state.v2Show = false 
-        state.v2Box = { path: '/v2Box'}
+        state.v2Show = false
+        state.v2Box = { path: '/v2Box' }
       } else {
         state.v2Show = true
-        const type = {4: 'task', 2: 'unit', 9: 'pd', 8: 'video', slide: 'session'}[data.type]
-        state.v2Box = { path: `/${type}${data?.isLib? '/': '/view/'}${data.id}`, query: { header: 0 }}
+        const type = { 4: 'task', 2: 'unit', 9: 'pd', 8: 'video', slide: 'session' }[data.type]
+        state.v2Box = { path: `/${type}${data?.isLib ? '/' : '/view/'}${data.id}`, query: { header: 0 } }
       }
     }
   },
