@@ -16,7 +16,7 @@
             <div class='bottom-action-item-label'>Preview</div>
           </div>
           <!--删除也可以预览-->
-          <div class='bottom-action-item vertical-right' @click="handlePreviewDeleteDetail(session.session)" v-if="!content">
+          <div class='bottom-action-item vertical-right' @click="$store.commit('setV2Box', session.session)" v-if="!content">
             <div class='bottom-action-item-icon'><a-icon type="eye" /></div>
             <div class='bottom-action-item-label'>Preview</div>
           </div>

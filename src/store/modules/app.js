@@ -134,7 +134,7 @@ const app = {
         console.log(data, 123)
         state.v2Show = true
         const type = {4: 'task', 2: 'unit', 9: 'pd', 8: 'video', slide: 'session'}[data.type]
-        state.v2Box = { path: `/${type}/view/${data.id}`, query: { header: 0 }}
+        state.v2Box = { path: `/${type}${data?.isLib? '/': '/view/'}${data.id}`, query: { header: 0 }}
       }
     }
   },

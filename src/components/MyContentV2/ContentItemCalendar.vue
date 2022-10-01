@@ -180,7 +180,7 @@
               </template>
             </custom-button> -->
 
-            <custom-button label='Preview' @click='handlePreview'>
+            <custom-button label='Preview' @click="$emit('close');$store.commit('setV2Box', content.sessionInfo)">
               <template v-slot:icon>
                 <icon-font type="icon-xianshi" class="detail-font"/>
               </template>
@@ -394,10 +394,6 @@ export default {
         id: this.data.sessionInfo.id
       }
       this.$emit('save-response-limit', params)
-    },
-    handlePreview() {
-      this.$emit('close', { id: this.data.sessionInfo.contentId, type: this.data.sessionInfo.contentType, schoolId: this.data.schoolId })
-      // this.handlePreviewDetail({ id: this.data.sessionInfo.contentId, type: typeMap.task })
     },
     handleChangeReview(checked) {}
   }

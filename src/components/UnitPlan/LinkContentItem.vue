@@ -21,7 +21,7 @@
           </div>
           <div class='bottom-action-item vertical-left' v-else>
           </div>
-          <div class='bottom-action-item vertical-right' @click="handlePreviewDetail(content)" v-show='!((content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing)'>
+          <div class='bottom-action-item vertical-right' @click="$store.commit('setV2Box', { ...content, isLib: isLibrary, isSchool: schoolResource })" v-show='!((content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing)'>
             <div class='bottom-action-item-icon'><a-icon type="eye" /></div>
             <div class='bottom-action-item-label'>Preview</div>
           </div>
@@ -160,14 +160,6 @@
       </a-popconfirm>
     </div>
 
-    <content-preview
-      :content-id='previewCurrentId'
-      :content-type='previewType'
-      :school-resource="schoolResource"
-      :is-library="isLibrary"
-      v-if='previewVisible'
-      @close='handlePreviewClose' />
-
     <discounted-price ref="discountedPrice" @update="updatePrice"/>
   </div>
 </template>
@@ -187,7 +179,6 @@ import ScheduleIcon from '@/assets/v2/icons/schedule.svg?inline'
 import OriginalTipsIcon from '@/assets/v2/icons/original_tips.svg?inline'
 import DeleteIcon from '@/assets/v2/icons/delete.svg?inline'
 import MoreIcon from '@/assets/v2/icons/more.svg?inline'
-import ContentPreview from '@/components/Preview/ContentPreview'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import DiscountedPrice from '@/components/MyContentV2/DiscountedPrice'
 import * as logger from '@/utils/logger'
@@ -199,7 +190,6 @@ export default {
   components: {
     ModalHeader,
     ContentTypeIcon,
-    ContentPreview,
     CustomButton,
     SubTaskIcon,
     PreviewGrayIcon,

@@ -119,7 +119,6 @@ import CcCalendar from '@/components/Calendar'
 import SessionEventContent from '@/components/Calendar/SessionEventContent'
 
 import SessionImportForCalendar from '@/components/MyContentV2/SessionImportForCalendar'
-import ContentItemCalendar from '@/components/MyContentV2/ContentItemCalendar'
 import LiveworkshopItem from '@/components/MyContentV2/LiveWorkShopContentItem'
 
 import { QueryForCalendar } from '@/api/v2/calendarSchedule'
@@ -218,7 +217,6 @@ export default {
     CcCalendar,
     SessionEventContent,
     SessionImportForCalendar,
-    ContentItemCalendar,
     LiveworkshopItem
   },
   data() {

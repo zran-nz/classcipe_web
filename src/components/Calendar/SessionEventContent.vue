@@ -106,16 +106,6 @@
         </div>
       </div>
     </a-popover>
-
-    <content-preview
-      :content-id='previewCurrentId'
-      :content-type='previewType'
-      :showEditButton="false"
-      :is-library="isLibrary"
-      :school-resource="previewSchoolId !== '0'"
-      :school-resource-id="previewSchoolId"
-      v-if='previewVisible'
-      @close='handlePreviewClose' />
   </div>
 </template>
 
@@ -123,7 +113,6 @@
 import SessionImportForCalendar from '@/components/MyContentV2/SessionImportForCalendar'
 import ContentItemCalendar from '@/components/MyContentV2/ContentItemCalendar'
 import LiveworkshopItem from '@/components/MyContentV2/LiveWorkShopContentItem'
-import ContentPreview from '@/components/Preview/ContentPreview'
 
 import { DeleteClassV2, EditSessionScheduleV2 } from '@/api/v2/classes'
 
@@ -138,8 +127,7 @@ export default {
   components: {
     SessionImportForCalendar,
     ContentItemCalendar,
-    LiveworkshopItem,
-    ContentPreview
+    LiveworkshopItem
   },
   mixins: [ContentItemMixin],
   props: {
@@ -332,11 +320,9 @@ export default {
         this.loading = false
       })
     },
-    closeAllModal(data) {
+    closeAllModal() {
       // this.$refs.scheduleContent.dispatchEvent(new MouseEvent('click'))
       document.getElementsByClassName('ant-popover').forEach(item => (item.style.display = 'none'))
-      console.log(data)
-      this.handlePreviewDetail(data)
     }
   }
 }
