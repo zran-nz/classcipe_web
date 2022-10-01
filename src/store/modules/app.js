@@ -128,10 +128,9 @@ const app = {
     },
     setV2Box: (state, data) => { // data: { id:, type: }
       if (!data) {
-        state.v2Show = false
+        state.v2Show = false 
         state.v2Box = { path: '/v2Box'}
       } else {
-        console.log(data, 123)
         state.v2Show = true
         const type = {4: 'task', 2: 'unit', 9: 'pd', 8: 'video', slide: 'session'}[data.type]
         state.v2Box = { path: `/${type}${data?.isLib? '/': '/view/'}${data.id}`, query: { header: 0 }}
@@ -139,6 +138,13 @@ const app = {
     }
   },
   actions: {
+    setV2Box({ commit, rootState }, data) {
+      const authur = data.author || data.createBy || data.create_by
+      const isCo = data.collaborates > 0
+      data.isLib = authur !== rootState.user.email && data.type !== 'slide' && !isCo
+      console.log('v2Box:', data.id, data.type, rootState.user.email, authur || data, data.isLib, 11111)
+      commit('setV2Box', data)
+    },
     setLang ({ commit }, lang) {
       return new Promise((resolve, reject) => {
         commit(APP_LANGUAGE, lang)

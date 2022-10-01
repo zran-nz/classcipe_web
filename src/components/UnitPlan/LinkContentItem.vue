@@ -21,7 +21,7 @@
           </div>
           <div class='bottom-action-item vertical-left' v-else>
           </div>
-          <div class='bottom-action-item vertical-right' @click="$store.commit('setV2Box', { ...content, isLib: isLibrary, isSchool: schoolResource })" v-show='!((content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing)'>
+          <div class='bottom-action-item vertical-right' @click="$store.dispatch('setV2Box', { ...content })" v-show='!((content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing)'>
             <div class='bottom-action-item-icon'><a-icon type="eye" /></div>
             <div class='bottom-action-item-label'>Preview</div>
           </div>
@@ -261,14 +261,6 @@ export default {
       default: false
     },
     showPublishStatus: {
-      type: Boolean,
-      default: false
-    },
-    schoolResource: {
-      type: Boolean,
-      default: false
-    },
-    isLibrary: {
       type: Boolean,
       default: false
     }

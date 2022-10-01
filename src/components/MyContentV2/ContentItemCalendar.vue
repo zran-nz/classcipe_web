@@ -180,7 +180,7 @@
               </template>
             </custom-button> -->
 
-            <custom-button label='Preview' @click="$emit('close');$store.commit('setV2Box', content.sessionInfo)">
+            <custom-button label='Preview' @click="$emit('close');$store.dispatch('setV2Box', content.sessionInfo)">
               <template v-slot:icon>
                 <icon-font type="icon-xianshi" class="detail-font"/>
               </template>
