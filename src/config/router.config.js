@@ -254,13 +254,6 @@ export const asyncRouterMap = [
             meta: { title: 'menu.my-class', keepAlive: true, permission: ['teacher'] }
           },
           {
-            path: '/teacher/add-task/:taskId?/:mode?', // mode:edit 编辑模式 pick-task-slide:选择slide创建task模式
-            name: 'AddTask',
-            props: true,
-            component: () => import('@/views/teacher/AddTask'),
-            meta: { title: 'menu.task', noSidebar: true, owner: '/teacher/main/created-by-me', keepAlive: true, permission: ['teacher'] }
-          },
-          {
             path: '/teacher/add-task-v2/:taskId?/:mode?', // mode:edit 编辑模式 pick-task-slide:选择slide创建task模式
             name: 'AddTaskV2',
             props: true,
@@ -293,13 +286,6 @@ export const asyncRouterMap = [
             name: 'TaskRedirect',
             props: true,
             component: () => import('@/views/teacher/TaskRedirect'),
-            meta: { title: 'menu.task', owner: '/teacher/main/created-by-me', keepAlive: true, permission: ['teacher'] }
-          },
-          {
-            path: '/teacher/task-redirect-by-mode/:taskMode',
-            name: 'TaskByModeRedirect',
-            props: true,
-            component: () => import('@/views/teacher/TaskRedirectByMode'),
             meta: { title: 'menu.task', owner: '/teacher/main/created-by-me', keepAlive: true, permission: ['teacher'] }
           },
           {

@@ -13,12 +13,12 @@
           </div>
           <div class='bottom-action-item vertical-right' @click="$store.dispatch('setV2Box', session.session)" v-if="content" v-show='!((content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing)'>
             <div class='bottom-action-item-icon'><a-icon type="eye" /></div>
-            <div class='bottom-action-item-label'>Preview2</div>
+            <div class='bottom-action-item-label'>Preview</div>
           </div>
           <!--删除也可以预览-->
           <div class='bottom-action-item vertical-right' @click="$store.dispatch('setV2Box', session.session)" v-if="!content">
             <div class='bottom-action-item-icon'><a-icon type="eye" /></div>
-            <div class='bottom-action-item-label'>Preview2</div>
+            <div class='bottom-action-item-label'>Preview</div>
           </div>
         </div>
       </div>
