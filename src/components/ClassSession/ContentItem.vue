@@ -11,7 +11,7 @@
           </div>
           <div class='bottom-action-item vertical-left' v-else >
           </div>
-          <div class='bottom-action-item vertical-right' @click="$store.commit('setV2Box', content)" v-if="content" v-show='!((content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing)'>
+          <div class='bottom-action-item vertical-right' @click="$store.commit('setV2Box', session.session)" v-if="content" v-show='!((content.type === typeMap.task || content.type === typeMap.pd) && content.slideEditing)'>
             <div class='bottom-action-item-icon'><a-icon type="eye" /></div>
             <div class='bottom-action-item-label'>Preview</div>
           </div>

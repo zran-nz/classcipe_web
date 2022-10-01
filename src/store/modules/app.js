@@ -131,8 +131,9 @@ const app = {
         state.v2Show = false
         state.v2Box = { path: '/v2Box'}
       } else {
+        console.log(data, 123)
         state.v2Show = true
-        const type = {4: 'task', 2: 'unit', 9: 'pd', 8: 'video'}[data.type]
+        const type = {4: 'task', 2: 'unit', 9: 'pd', 8: 'video', slide: 'session'}[data.type]
         state.v2Box = { path: `/${type}/view/${data.id}`, query: { header: 0 }}
       }
     }
