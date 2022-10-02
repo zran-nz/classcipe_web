@@ -132,6 +132,10 @@ const app = {
         state.v2Box = { path: '/v2Box' }
       } else {
         state.v2Show = true
+        if (data.path && !data.id) {
+          state.v2Box = data
+          return
+        }
         const type = { 4: 'task', 2: 'unit', 9: 'pd', 8: 'video', slide: 'session' }[data.type]
         state.v2Box = { path: `/${type}${data?.isLib ? '/' : '/view/'}${data.id}`, query: { header: 0 } }
       }
@@ -139,6 +143,7 @@ const app = {
   },
   actions: {
     setV2Box({ commit, rootState }, data) {
+      if (!data.id && data.path) return commit('setV2Box', data)
       const authur = data.author || data.createBy || data.create_by
       const isCo = data.collaborates > 0
       data.isLib = authur !== rootState.user.email && data.type !== 'slide' && !isCo

@@ -44,9 +44,16 @@
           </div>
         </guide-content>
       </div>
+      <!-- <div class="curiculum-tab" v-if="curriculumOptions.length > 0 && currentTab!=='archive'">
+        <a-radio-group v-model="currentCurriculum" button-style="solid" @change="loadData">
+          <a-radio-button :value="item.curriculumId" v-for="item in curriculumOptions" :key="item.curriculumId">
+            {{ item.curriculumName }}
+          </a-radio-button>
+        </a-radio-group>
+      </div> -->
       <div class="form-tab">
         <a-spin :spinning="loading">
-          <div class="list-view" v-if="allDatas[currentTab] && allDatas[currentTab].length > 0">
+          <div class="list-view" v-if="allDatas[currentTab] && allDatas[currentTab].length > 0 && currentClassLen > 0">
             <template v-for="(parentView, parentIndex) in allDatas[currentTab]">
               <div class="list-view-item" :key="parentView.parentId">
                 <a-space v-if="currentTab === 'subject'" style="margin-bottom: 20px;">
@@ -54,6 +61,10 @@
                     {{ parentView.parentName }}
                     <span v-if="currentTab === 'subject'">( {{ parentView.rangeTime }} )</span>
                   </label>
+                  <!-- <guide-content
+                    :guideKey="parentIndex === 0 ? 'addStandardClass' : ''"
+                    beginKey="addGrade"
+                  > -->
                   <a-space slot="content" class="view-item-opt" v-if="currentTab === 'subject'">
                     <a-button type="primary" v-if="isNotLimit" @click="handleAddSubjectClass(parentView)">Add Class</a-button>
                     <a-popover v-else title="Upgrading reminder" trigger="click">
@@ -63,9 +74,7 @@
                   </a-space>
                   <!-- </guide-content> -->
                 </a-space>
-                <!-- <div class="view-item-parent-content" v-for="(view, viewIndex) in parentView.cls" :key="view.parentId"> -->
-                <div class="view-item-parent-content" :key="viewIndex"
-                  v-for="(view, viewIndex) in currentTab === 'subject' ? parentView.cls : [...gradeList, { _id: 'ungraded', name: 'Ungraded classes' }]">
+                <div class="view-item-parent-content" v-for="(view, viewIndex) in parentView.cls.filter(cls => !cls.curriculumId || cls.curriculumId === currentCurriculum)" :key="view.parentId">
                   <div class="view-item-title">
                     <label for="">{{ view.name || formatViewName(view.id) }}</label>
                     <guide-content
@@ -86,15 +95,15 @@
                       filter='.undrag'
                       class="view-item-con"
                       animation="300"
-                      :list="currentTab === 'subject' ? view.classes : classGroupList[view._id]"
-                      @change="(params) => changeClass(params, view.id || view._id, view.name)"
+                      :list="view.classes"
+                      @change="(params) => changeClass(params, view.id, view.name)"
                       :sort='false'
                       group="item-class"
                     >
                       <div
-                        :id="`grade_${ci}`"
-                        v-for="(cls, ci) in currentTab === 'subject' ? view.classes : classGroupList[view._id]"
-                        :key="ci"
+                        v-for="cls in view.classes"
+                        :id="cls.key"
+                        :key="view.id + '_' + cls.key"
                         :class="{'item-class-wrap': true, 'archive': currentTab === 'archive', 'undrag': (currentTab !== 'gradeId' || cls.isNew) }"
                       >
                         <div class="item-class" v-clickOutside="() => handleBlurClick(cls)">
@@ -130,26 +139,37 @@
                               <a-icon type="more" />
                               <a-menu slot="overlay">
                                 <template v-if="currentTab !== 'archive'">
+                                  <!-- <a-menu-item v-if="userMode === USER_MODE.SCHOOL && currentTab === 'gradeId'">
+                                <a href="javascript:;" @click="handleImport(cls)">Import students</a>
+                              </a-menu-item>
+                              <a-menu-item v-if="userMode === USER_MODE.SCHOOL && currentTab === 'gradeId'">
+                                <a href="javascript:;" @click="handleEditTeachers(cls)">Edit teachers</a>
+                              </a-menu-item> -->
                                   <a-menu-item v-if="userMode === USER_MODE.SCHOOL && cls.classType === 1">
-                                    <a @click="handleEditSubjectClass(cls)">Edit</a>
+                                    <a href="javascript:;" @click="handleEditSubjectClass(cls)">Edit</a>
                                   </a-menu-item>
                                 </template>
-                                <a-menu-item v-else>
-                                  <a @click="handleRestore(cls)">Restore</a>
+                                <template v-else>
+                                  <a-menu-item>
+                                    <a href="javascript:;" @click="handleRestore(cls)">Restore</a>
+                                  </a-menu-item>
+                                </template>
+                                <a-menu-item v-if="currentTab === 'archive'">
+                                  <a href="javascript:;" @click="handleDelete(cls)">Delete</a>
                                 </a-menu-item>
-                                <a-menu-item>
-                                  <a v-if="currentTab === 'archive'" @click="handleDelete(cls)">Delete</a>
-                                  <a v-else @click="handleArchive(cls)">Archive</a>
+                                <a-menu-item v-if="currentTab !== 'archive'">
+                                  <a href="javascript:;" @click="handleArchive(cls)">Archive</a>
                                 </a-menu-item>
                               </a-menu>
                             </a-dropdown>
                           </div>
                           <div class="class-opt" style="font-size: 16px;" v-else>
+                            <!-- <a-icon type="close" @click="handleRemove(view.id, cls)"></a-icon> -->
                             <a-dropdown :getPopupContainer="trigger => trigger.parentElement">
                               <a-icon type="more" />
                               <a-menu slot="overlay">
                                 <a-menu-item>
-                                  <a @click="handleRemove(parentView.parentId, view.id || view._id, cls)">Delete</a>
+                                  <a href="javascript:;" @click="handleRemove(parentView.parentId, view.id, cls)">Delete</a>
                                 </a-menu-item>
                               </a-menu>
                             </a-dropdown>
@@ -231,10 +251,6 @@ export default {
       termsOptions: [],
       restoreChooseOptions: [],
       currentTab: 'gradeId',
-      gradeList: [],
-      classList: [],
-      ungradedList: [],
-      classGroupList: {},
       loading: false,
       queryParams: {
         keywords: ''
@@ -248,9 +264,9 @@ export default {
       currentCurriculum: '',
       totalClass: [],
       allDatas: {
-        gradeId: [{}],
+        gradeId: [],
         subject: [],
-        archive: [{}]
+        archive: []
       },
       viewDatas: [],
       selectedGrades: []
@@ -309,6 +325,23 @@ export default {
     totalClassActive() {
       return this.totalClass.filter(item => item.status !== 2)
     },
+    currentClassLen() {
+      const clsLen = this.allDatas[this.currentTab].map(item => {
+        let len = 0
+        item.cls.forEach(cls => {
+          // if (!cls.curriculumId || cls.curriculumId === this.currentCurriculum) {
+            len += cls.classes.length
+          // }
+        })
+        return len
+      })
+      let len = 0
+      clsLen.forEach(item => {
+        len += item
+      })
+      // 只有archive才会显示nodata
+      return this.currentTab === 'archive' ? len : 1
+    },
     isLastClass() {
       const gradeLen = this.allDatas['gradeId'].map(item => {
         let len = 0
@@ -353,37 +386,8 @@ export default {
     doFocus(e) {
       e.target.focus()
     },
-    getClassList(grade) {
-      return this.classList.filter(v => {
-        return v.gradeId === grade._id
-      })
-    },
-    async initDict() {
+    initDict() {
       this.loading = true
-      if (this.currentTab !== 'subject') {
-        this.allDatas.gradeId = [{}]
-        this.allDatas.archive = [{}]
-        const { val } = await App.service('conf-school').get('get', { query: { key: 'Grades', rid: this.currentSchool.id }})
-        this.gradeList = val
-        const { result } = await listClass({
-          schoolId: this.currentSchool.id, queryType: this.currentTab === 'archive' ? 2 : '',
-          pageNo: 1, pageSize: 10000
-        })
-        this.classList = result.records
-        const ungraded = []
-        this.gradeList.map(v => {
-          this.classGroupList[v._id] = []
-        })
-        this.classList.map(v => {
-          if (this.currentTab === 'gradeId' && v.term) return // subject class
-          if (this.classGroupList[v.gradeId]) this.classGroupList[v.gradeId].push(v)
-          else ungraded.push(v)
-        })
-        this.classGroupList.ungraded = ungraded
-        console.log(val, this.classList, this.classGroupList)
-        this.loading = false
-        return
-      }
       Promise.all([
         getSubjectBySchoolId({
           schoolId: this.currentSchool.id
@@ -459,6 +463,40 @@ export default {
     },
     loadData() {
       this.loading = true
+      if (this.curriculumOptions.length > 0) {
+        //  && this.totalClassActive.length > 0
+        // 年级班
+        const totalGradeClass = this.totalClassActive.filter(item => item.classType === 0)
+        const gradeClass = this.curriculumOptions.map(item => {
+          const parentJson = {
+            parentId: item.curriculumId,
+            parentName: item.curriculumName,
+            cls: []
+          }
+          if (item.gradeSettingInfo && item.gradeSettingInfo.length > 0) {
+            parentJson.cls = item.gradeSettingInfo.map(grade => {
+              const classes = totalGradeClass.filter(cls => cls.gradeId === grade.gradeId)
+              return {
+                ...grade,
+                id: grade.gradeId,
+                name: grade.gradeName,
+                curriculumId: item.curriculumId,
+                classes: classes.map(cls => ({
+                  ...cls,
+                  key: new Date().getTime() + Math.random(),
+                  isNew: false,
+                  isEdit: false,
+                  changeName: cls.name
+                }))
+              }
+            })
+          }
+          return parentJson
+        })
+        this.allDatas.gradeId = gradeClass
+      } else {
+        this.allDatas.gradeId = []
+      }
       if (this.termsOptions.length > 0) {
         //  && this.totalClassActive.length > 0
         // 学科班
@@ -503,6 +541,59 @@ export default {
         this.allDatas.subject = []
       }
 
+      if (this.totalClass.length > 0) {
+        // Archive
+        const totalArchiveClass = this.totalClass.filter(item => item.status === 2)
+        const archiveDatas = totalArchiveClass.map(item => {
+          let curriculumId = ''
+          if (item.classType === 0) {
+            const grade = this.gradeOptions.find(grade => grade.gradeId === item.gradeId)
+            if (grade) {
+              curriculumId = grade.curriculumId
+            }
+          } else if (item.classType === 1) {
+            const subject = this.subjectOptions.find(sub => sub.subjectId === item.subject)
+            if (subject) {
+              curriculumId = subject.curriculumId
+            }
+          }
+          return {
+            id: item.classType === 0 ? item.gradeId : item.subject,
+            name: item.classType === 0 ? item.gradeName : item.subjectName,
+            curriculumId: curriculumId,
+            cls: {
+              ...item,
+              curriculumId: curriculumId
+            }
+          }
+        })
+        this.archiveInfos = uniqBy(archiveDatas, 'id')
+        const groupDatas = groupBy(this.archiveInfos, 'id')
+        const currentDatas = []
+        for (const key in groupDatas) {
+          const viewName = groupDatas[key][0].name
+          currentDatas.push({
+            id: key,
+            name: viewName,
+            classes: groupDatas[key].map(item => ({
+              ...item.cls,
+              key: new Date().getTime() + Math.random(),
+              isNew: false,
+              isEdit: false,
+              changeName: item.cls.name
+            }))
+          })
+        }
+        this.allDatas.archive = [
+          {
+            parentId: 'archive',
+            parentName: 'archive',
+            cls: currentDatas
+          }
+        ]
+      } else {
+        this.allDatas.archive = []
+      }
       this.loading = false
     },
     toggleTab(status) {
@@ -646,10 +737,8 @@ export default {
       }
     },
     handleArchive(cls) {
-      console.log(cls)
       const clsLen = this.allDatas[this.currentTab].map(item => {
         let len = 0
-        if (!item.cls) return len
         item.cls.forEach(cls => {
           len += cls.classes.length
         })
@@ -812,6 +901,9 @@ export default {
         })
       }
     },
+    // goCurriculum() {
+    //   this.$router.push('/manage/curriculum')
+    // },
     goAcademic() {
       this.$router.push('/manage/academic')
     }
