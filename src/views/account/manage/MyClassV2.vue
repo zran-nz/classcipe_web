@@ -72,7 +72,7 @@
                       :guideKey="(parentIndex === 0 && viewIndex === 0) ? 'addStandardClass' : ''"
                       beginKey="addGrade"
                     >
-                      <a-space slot="content" class="view-item-opt" v-if="currentTab === 'gradeId'">
+                      <a-space slot="content" class="view-item-opt" v-if="currentTab === 'gradeId' && view._id !== 'ungraded'">
                         <a-button type="primary" v-if="isNotLimit" @click="addGradeClass(view)">Add Class</a-button>
                         <a-popover v-else title="Upgrading reminder" trigger="click">
                           <div style="width: 300px;" slot="content">Your class number has reached the limmit, please upgrade your plan to add more class</div>
@@ -526,35 +526,26 @@ export default {
       return 'Untitle'
     },
     addGradeClass(view) {
+      const post = {
+        key: new Date().getTime() + Math.random(),
+        isNew: true, isEdit: true,
+        name: '', changeName: '',
+        gradeId: view.id || view._id, gradeName: view.name,
+        schoolId: this.currentSchool.id,
+        classType: 0, teacherCount: 0, studentCount: 0
+      }
       // 只允许一个未创建
       let existsNew = false
-      this.allDatas.gradeId.forEach(parent => {
-        if (parent.cls && parent.cls.length > 0) {
-          parent.cls.forEach(group => {
-            if (group.classes.filter(item => item.isNew).length > 0) {
-              existsNew = true
-            }
-          })
-        }
-      })
-      // const existsNew = view.classes.find(item => item.isNew)
-      if (existsNew) {
-        this.$message.error('Please save first')
-        return
+      for (const _id of Object.keys(this.classGroupList)) {
+        this.classGroupList[_id].map(v => {
+          if (v.isNew) existsNew = true
+        })
       }
-      view.classes.push({
-        key: new Date().getTime() + Math.random(),
-        isNew: true,
-        isEdit: true,
-        name: '',
-        changeName: '',
-        gradeId: view.id,
-        gradeName: view.name,
-        schoolId: this.currentSchool.id,
-        classType: 0,
-        teacherCount: 0,
-        studentCount: 0
-      })
+      if (existsNew) return this.$message.error('Please save first')
+      this.classGroupList[view._id].push(post)
+      this.$forceUpdate()
+      console.log(this.classGroupList[view._id])
+      return
     },
     doEditClassName(cls) {
       if (cls.status !== 2) {
@@ -729,17 +720,6 @@ export default {
     },
     handleRemove(parentId, viewId, cls) {
       // // 移除没有保存的数据
-      // const parentView = this.allDatas[this.currentTab].find(item => item.parentId === parentId)
-      // const view = parentView ? parentView.cls.find(item => item.id === viewId) : ''
-      // if (view) {
-      //   const index = view.classes.findIndex(item => item.key === cls.key)
-      //   view.classes.splice(index, 1)
-      //   if (view.classes.length === 0) {
-      //     const groupIndex = this.allDatas[this.currentTab].findIndex(item => item.id === viewId)
-      //     this.allDatas[this.currentTab].splice(groupIndex, 1)
-      //     this.selectedGrades = this.allDatas.gradeId.map(item => item.id)
-      //   }
-      // }
       this.loadData()
     },
     handleDelete(cls) {
