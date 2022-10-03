@@ -20,8 +20,8 @@
             v-model='gradeId'
             @change="changeGrade"
             placeholder='Please select grade'>
-            <a-select-option v-for='item in gradeOptions' :key='item.gradeId'>
-              {{ item.gradeName }}
+            <a-select-option v-for='(item) in gradeOptions' :key='item._id'>
+              {{ item.name }}
             </a-select-option >
           </a-select>
         </a-col>
@@ -42,7 +42,6 @@
 </template>
 
 <script>
-import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
 import { moveClassStudent } from '@/api/v2/schoolUser'
 import { groupBy } from 'lodash-es'
 
@@ -89,29 +88,25 @@ export default {
     }
   },
   methods: {
-    initData() {
-      getCurriculumBySchoolId({
-          schoolId: this.currentSchool.id
-      }).then(curRes => {
-        let grades = []
-        if (curRes.success) {
-          this.curriculumOptions = curRes.result.forEach(item => {
-            grades = grades.concat(item.gradeSettingInfo || [])
-          })
-        }
-        this.grades = grades
-      })
+    async initData() {
+      let rs
+      if (this.school.id === '0') {
+        rs = await App.service('conf-user').get('Grades')
+      } else {
+        rs = await App.service('conf-school').get('get', { query: { key: 'Grades', rid: this.school.id }})
+      }
+      this.grades = rs?.val ?? []
+      console.log(this.school.id, this.grades, 123)
     },
     initGrade() {
       const standard = this.classList.filter(item => item.classType === 0)
       const groupData = groupBy(standard, 'gradeId')
       console.log(standard)
       this.gradeOptions = this.grades.filter(item => {
-        const isFind = groupData[item.gradeId]
-        return isFind
+        return groupData[item._id]
       })
       if (this.gradeOptions.length > 0) {
-        this.gradeId = this.gradeOptions[0].gradeId
+        this.gradeId = this.gradeOptions[0]._id
         this.changeGrade(this.gradeId)
       }
     },
