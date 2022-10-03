@@ -327,7 +327,7 @@ export default {
               title: 'Curriculum',
               desc: 'Set curriculum(s), subjects, years',
               // hidden: this.userMode === USER_MODE.SELF,
-              url: '/manage/curriculum',
+              url: '/manage/curriculum' + (this.userMode === USER_MODE.SCHOOL ? `/${this.currentSchool.id}` : ''),
               hidden: this.userMode === USER_MODE.SCHOOL && this.isNotAdmin
             },
             {
