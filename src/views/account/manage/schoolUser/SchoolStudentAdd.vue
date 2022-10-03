@@ -70,27 +70,6 @@
       <a-form-model-item label="DOB">
         <a-date-picker v-model="formModel.birthDay" :disabled-date="disabledDate"/>
       </a-form-model-item>
-      <!-- <a-form-model-item class="mb0" label="Class" :required="true">
-        <a-row :gutter=16>
-          <a-col :span="18">
-            <a-form-model-item prop="classes">
-              <a-select
-                optionFilterProp="children"
-                :getPopupContainer="trigger => trigger.parentElement"
-                v-model='formModel.classes'
-                :disabled="classUnModify"
-                placeholder='Please select class'>
-                <a-select-option v-for='item in classList' :key='item.id'>
-                  {{ item.name }}
-                </a-select-option >
-              </a-select>
-            </a-form-model-item>
-          </a-col>
-          <a-col :span="6" v-if="showClassLink">
-            <a-button type="link" @click="handelGoClass">Class Manage</a-button>
-          </a-col>
-        </a-row>
-      </a-form-model-item> -->
       <a-form-model-item class="mb0" label="Class" :required="true">
         <a-row :gutter=16>
           <a-col :span="18">
@@ -103,8 +82,8 @@
                   v-model='formModel.classes'
                   option-label-prop="label"
                   placeholder='Please select class'>
-                  <a-select-option :label="item.name" v-for='item in filterClassList' :key='item.id'>
-                    {{ item.curriculumName }} - {{ item.name }}
+                  <a-select-option :label="className" v-for='(className, id) in classNameList' :key='id'>
+                    {{ className }}
                   </a-select-option >
                 </a-select>
               </template>
@@ -244,6 +223,7 @@ export default {
       currentSchool: this.school,
       studentId: this.id,
       classList: [],
+      classNameList: {},
       formModel: {
         firstName: '',
         lastName: '',
@@ -323,76 +303,79 @@ export default {
     }
   },
   methods: {
-    initData() {
-       Promise.all([
-          listClass({
-            schoolId: this.currentSchool.id,
-            pageNo: 1,
-            pageSize: 10000
-          }),
-          getSubjectBySchoolId({
-            schoolId: this.currentSchool.id
-          }),
-          getCurriculumBySchoolId({
-            schoolId: this.currentSchool.id
-          })
-        ]).then(([clsRes, subjectRes, gradeRes]) => {
-          if (clsRes.code === 0) {
-            this.classList = clsRes.result.records
-            if (this.formModel.classes) {
-              const isFind = this.classList.find(item => item.id === this.formModel.classes)
-              if (!isFind) {
-                this.formModel.classes = ''
-                this.formModel.classArr = []
-              }
-            }
-            this.classUnModify = false
-            const query = this.$route.query
-            if (query.classId) {
-              const isFind = this.classList.find(item => item.id === query.classId)
-              if (isFind) {
-                if (!this.studentId) {
-                  this.formModel.classArr = [query.classId]
-                  this.formModel.classes = query.classId
-                }
-                this.classUnModify = true
-                this.$emit('getCls', isFind)
-              }
-            }
-          }
-          if (subjectRes.success) {
-            let subjects = []
-            subjectRes.result.forEach(item => {
-              if (item.subjectList && item.subjectList.length > 0) {
-                subjects = subjects.concat(item.subjectList)
-              }
-            })
-            const options = []
-            subjects.forEach(item => {
-              options.push({
-                subjectId: item.subjectId,
-                subjectName: item.subjectName
-              })
-              options.push({
-                subjectId: item.parentSubjectId,
-                subjectName: item.parentSubjectName
-              })
-            })
-            this.subjectOptions = options
-          }
-          if (gradeRes.success && gradeRes.result) {
-            let grades = []
-            this.curriculumOptions = gradeRes.result
-            gradeRes.result.forEach(item => {
-              grades = grades.concat((item.gradeSettingInfo || []).map(grade => ({
-                ...grade,
-                curriculumId: item.curriculumId,
-                curriculumName: item.curriculumName
-              })))
-            })
-            this.gradeOptions = grades
-          }
+    async initData() {
+      Promise.all([
+        listClass({
+          schoolId: this.currentSchool.id,
+          pageNo: 1,
+          pageSize: 10000
+        }),
+        getSubjectBySchoolId({
+          schoolId: this.currentSchool.id
+        }),
+        getCurriculumBySchoolId({
+          schoolId: this.currentSchool.id
         })
+      ]).then(([clsRes, subjectRes, gradeRes]) => {
+        if (clsRes.code === 0) {
+          this.classNameList = {}
+          this.classList = clsRes.result.records
+          clsRes.result.records.map(v => {
+            const arr = [v.name]
+            // if (v.gradeName) arr.unshift(v.gradeName)
+            this.classNameList[v.id] = arr.join(' - ')
+          })
+          this.$forceUpdate()
+          if (this.formModel.classes) {
+            if (!this.classNameList[this.formModel.classes]) {
+              this.formModel.classes = ''
+              this.formModel.classArr = []
+            }
+          }
+          this.classUnModify = false
+          const query = this.$route.query
+          if (query.classId && this.classNameList[query.classId]) {
+            if (!this.studentId) {
+              this.formModel.classArr = [query.classId]
+              this.formModel.classes = query.classId
+            }
+            this.classUnModify = true
+            this.$emit('getCls', true)
+          }
+        }
+        if (subjectRes.success) {
+          let subjects = []
+          subjectRes.result.forEach(item => {
+            if (item.subjectList && item.subjectList.length > 0) {
+              subjects = subjects.concat(item.subjectList)
+            }
+          })
+          const options = []
+          subjects.forEach(item => {
+            options.push({
+              subjectId: item.subjectId,
+              subjectName: item.subjectName
+            })
+            options.push({
+              subjectId: item.parentSubjectId,
+              subjectName: item.parentSubjectName
+            })
+          })
+          this.subjectOptions = options
+        }
+        if (gradeRes.success && gradeRes.result) {
+          let grades = []
+          this.curriculumOptions = gradeRes.result
+          gradeRes.result.forEach(item => {
+            grades = grades.concat((item.gradeSettingInfo || []).map(grade => ({
+              ...grade,
+              curriculumId: item.curriculumId,
+              curriculumName: item.curriculumName
+            })))
+          })
+          this.gradeOptions = grades
+        }
+      })
     },
     // modal模式传值
     initForm(defaultForm) {
