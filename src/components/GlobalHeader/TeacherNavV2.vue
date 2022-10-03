@@ -81,8 +81,6 @@ import { HIDDEN_SIDEBAR, TOOGLE_USER_MODE } from '@/store/mutation-types'
 import { SchoolUserRole } from '@/const/role'
 import { USER_MODE } from '@/const/common'
 import { SwitchUserModeSchool } from '@/api/user'
-import AvatarDropdown from './AvatarDropdown'
-import { Modal } from 'ant-design-vue'
 import SidebarMenuItem from '@/components/GlobalHeader/Common/SidebarMenuItem'
 import SidebarMenuList from '@/components/GlobalHeader/Common/SidebarMenuList'
 import AddPreference from '@/components/Teacher/AddPreference'
@@ -103,7 +101,6 @@ export default {
     CoTeachingIcon,
     ManagingIcon,
     PublishedIcon,
-    AvatarDropdown,
     ScheduleIcon,
     AddPreference
   },
@@ -258,21 +255,6 @@ export default {
     },
     handleToSettings () {
       this.$router.push({ path: '/account/settings' })
-    },
-    handleLogout (e) {
-      Modal.confirm({
-        title: this.$t('layouts.usermenu.dialog.title'),
-        content: this.$t('layouts.usermenu.dialog.content'),
-        onOk: () => {
-          // return new Promise((resolve, reject) => {
-          //   setTimeout(Math.random() > 0.5 ? resolve : reject, 1500)
-          // }).catch(() => console.log('Oops errors!'))
-          return this.$store.dispatch('Logout').then(() => {
-            this.$router.push({ name: 'login' })
-          })
-        },
-        onCancel () {}
-      })
     },
 
     handleExpandMenu() {

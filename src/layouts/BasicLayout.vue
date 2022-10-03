@@ -57,7 +57,6 @@ import { mapState } from 'vuex'
 import { CONTENT_WIDTH_TYPE, HIDDEN_SIDEBAR } from '@/store/mutation-types'
 
 import defaultSettings from '@/config/defaultSettings'
-import RightContent from '@/components/GlobalHeader/RightContent'
 import GlobalFooter from '@/components/GlobalFooter'
 import * as logger from '@/utils/logger'
 import TeacherNavV2 from '@/components/GlobalHeader/TeacherNavV2'
@@ -68,7 +67,6 @@ export default {
   name: 'BasicLayout',
   components: {
     StudentNav,
-    RightContent,
     GlobalFooter,
     TeacherNavV2
   },

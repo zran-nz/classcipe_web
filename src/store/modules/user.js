@@ -267,7 +267,7 @@ const user = {
     // 登出
     Logout ({ commit, state }) {
       return new Promise((resolve) => {
-        logout(state.token).then(() => {
+        // logout(state.token).then(() => {
           commit('SET_TOKEN', '')
           commit('SET_ROLES', [])
           commit('SET_NAME', '')
@@ -290,10 +290,10 @@ const user = {
           window.sessionStorage.removeItem(SESSION_ACTIVE_KEY)
           delCookie(ACCESS_TOKEN)
           resolve()
-        }).catch(() => {
-          resolve()
-        }).finally(() => {
-        })
+        // }).catch(() => {
+        //   resolve()
+        // }).finally(() => {
+        // })
       })
     },
 
