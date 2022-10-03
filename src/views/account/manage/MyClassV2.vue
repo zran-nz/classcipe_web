@@ -310,13 +310,6 @@ export default {
       return this.totalClass.filter(item => item.status !== 2)
     },
     isLastClass() {
-      const gradeLen = this.allDatas['gradeId'].map(item => {
-        let len = 0
-        item.cls.forEach(cls => {
-          len += cls.classes.filter(cls => !cls.isNew).length
-        })
-        return len
-      })
       const subjectLen = this.allDatas['subject'].map(item => {
         let len = 0
         item.cls.forEach(cls => {
@@ -324,10 +317,7 @@ export default {
         })
         return len
       })
-      let len = 0
-      gradeLen.forEach(item => {
-        len += item
-      })
+      let len = this.classList.length
       subjectLen.forEach(item => {
         len += item
       })
@@ -363,7 +353,9 @@ export default {
       if (this.currentTab !== 'subject') {
         this.allDatas.gradeId = [{}]
         this.allDatas.archive = [{}]
-        const { val } = await App.service('conf-school').get('get', { query: { key: 'Grades', rid: this.currentSchool.id }})
+        const query = { key: 'Grades', rid: this.currentSchool.id }
+        console.log(query, 1111)
+        const { val } = this.currentSchool.id === '0' ? await App.service('conf-user').get('Grades') : await App.service('conf-school').get('get', { query })
         this.gradeList = val
         const { result } = await listClass({
           schoolId: this.currentSchool.id, queryType: this.currentTab === 'archive' ? 2 : '',
@@ -541,6 +533,7 @@ export default {
           if (v.isNew) existsNew = true
         })
       }
+      console.log(this.classGroupList)
       if (existsNew) return this.$message.error('Please save first')
       this.classGroupList[view._id].push(post)
       this.$forceUpdate()
@@ -720,9 +713,16 @@ export default {
     },
     handleRemove(parentId, viewId, cls) {
       // // 移除没有保存的数据
-      this.loadData()
+      this.classGroupList[viewId].map((v, i) => {
+        if (v.key !== cls.key) return
+        this.classGroupList[viewId].splice(i, 1)
+      })
+      this.$forceUpdate()
+      console.log(parentId, viewId, cls, this.classGroupList[viewId])
+      // this.loadData()
     },
     handleDelete(cls) {
+      console.log('delete', cls)
       if (cls.classType === 0) {
         this.$confirm({
           title: 'Confirm delete class',
