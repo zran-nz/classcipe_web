@@ -1,26 +1,17 @@
 <template>
   <div class="class-student-sel">
     <div class="student-sel-title">
-      Student(s) under {{ curriculumName }}
+      Student(s)
     </div>
     <div class="student-sel-opt">
       <div class="sel-opt">
-        <a-select
-          optionFilterProp="children"
-          class="sel-option"
-          mode="multiple"
+        <a-select optionFilterProp="children" class="sel-option"
           :getPopupContainer="trigger => trigger.parentElement"
-          v-model='queryParams.gradeIds'
-          @change="changeGrade"
-          option-label-prop="label"
-          placeholder='Filter By Grade'>
-          <a-select-option
-            :value="option.gradeId"
-            :label="option.gradeName"
-            v-for="option in filterGradeOptions"
-            :key="option.gradeId"
-          >
-            <span>{{ option.gradeName }}</span>
+          v-model='queryParams.gradeIds' @change="changeGrade"
+          option-label-prop="label" placeholder='Filter By Grade'>
+          <a-select-option :value="option._id" :label="option.name"
+            v-for="option in filterGradeOptions" :key="option._id">
+            <span>{{ option.name }}</span>
           </a-select-option>
         </a-select>
         <a-select
@@ -164,7 +155,6 @@ export default {
       sortBy: sortBy,
       gradeOptions: [],
       subjectOptions: [],
-      curriculumOptions: [],
       totalClass: [],
       debounceLoad: null,
       queryParams: {
@@ -201,16 +191,6 @@ export default {
       userMode: state => state.app.userMode,
       currentSchool: state => state.user.currentSchool
     }),
-    curriculumName() {
-      if (this.subjectId && this.subjectOptions.length > 0 && this.curriculumOptions.length > 0) {
-        const subject = this.subjectOptions.find(item => item.subjectId === this.subjectId)
-        if (subject) {
-          const curriculum = this.curriculumOptions.find(item => item.curriculumId === subject.curriculumId)
-          return curriculum ? curriculum.curriculumName : ''
-        }
-      }
-      return ''
-    },
     filterClass() {
       if (this.totalClass && this.totalClass.length > 0) {
         return this.totalClass.filter(cls => {
@@ -225,8 +205,7 @@ export default {
     filterGradeOptions() {
       if (this.gradeOptions && this.gradeOptions.length > 0 && this.totalClass && this.totalClass.length > 0) {
         return this.gradeOptions.filter(grade => {
-          const find = this.totalClass.find(cls => cls.gradeId === grade.gradeId)
-          return find
+          return this.totalClass.find(cls => cls.gradeId === grade._id)
         })
       }
       return []
@@ -269,13 +248,17 @@ export default {
     isSelfEmail(email) {
       return email === this.info.email
     },
-    initDict() {
+    async initDict() {
       this.loading = true
+      let rs
+      if (this.currentSchool.id === '0') {
+        rs = await App.service('conf-user').get('Grades')
+      } else {
+        rs = await App.service('conf-school').get('get', { query: { key: 'Grades', rid: this.currentSchool.id }})
+      }
+      this.gradeOptions = rs?.val ?? []
       Promise.all([
         getSubjectBySchoolId({
-          schoolId: this.currentSchool.id
-        }),
-        getCurriculumBySchoolId({
           schoolId: this.currentSchool.id
         }),
         listClass({
@@ -284,7 +267,7 @@ export default {
           pageNo: 1,
           pageSize: 10000
         })
-      ]).then(([subjectRes, gradeRes, clsRes]) => {
+      ]).then(([subjectRes, clsRes]) => {
         if (subjectRes.success) {
           let subjects = []
           subjectRes.result.forEach(item => {
@@ -309,20 +292,6 @@ export default {
             })
           })
           this.subjectOptions = options
-        }
-        if (gradeRes.success && gradeRes.result) {
-          let grades = []
-          this.curriculumOptions = gradeRes.result
-          gradeRes.result.forEach(item => {
-            grades = grades.concat((item.gradeSettingInfo || []).map(grade => ({
-              ...grade,
-              curriculumId: item.curriculumId
-            })))
-          })
-          this.gradeOptions = grades
-          if (!this.currentCurriculum && this.curriculumOptions.length > 0) {
-            this.currentCurriculum = this.curriculumOptions[0].curriculumId
-          }
         }
         if (clsRes.success && clsRes.result) {
           this.totalClass = clsRes.result.records
