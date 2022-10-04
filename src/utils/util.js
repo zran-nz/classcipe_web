@@ -234,9 +234,9 @@ export function delCookie(name) {
 
 export function getToken() {
   let token = storage.get(ACCESS_TOKEN)
-  if (storage.get(NOT_REMEMBER_ME)) {
-     token = window.sessionStorage.getItem(SESSION_ACTIVE_KEY)
-  }
+  // if (storage.get(NOT_REMEMBER_ME)) {
+  //    token = window.sessionStorage.getItem(SESSION_ACTIVE_KEY)
+  // }
   return token
 }
 

@@ -103,7 +103,7 @@ export default {
           if (res.success) {
             this.loading = false
             this.$message.success('Password reset successfully!')
-            this.$router.replace({ path: '/user/login' })
+            location.href = '/v2/login'
           } else {
             this.loading = false
             this.$message.error(res.message)

@@ -109,7 +109,7 @@ export default {
         onOk: async() => {
           await this.$store.dispatch('Logout')
           await AppLogout('www', null)
-          this.$router.push({ name: 'login' })
+          location.href = '/v2/login?role=student'
         },
         onCancel () {}
       })

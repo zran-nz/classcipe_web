@@ -231,9 +231,9 @@ export default {
       currentStep: 0,
       selectedRole: null,
       form: this.$form.createForm(this),
-      loginPath: '/user/login',
-      teacherLoginPath: '/user/login?role=teacher',
-      studentLoginPath: '/user/login?role=student',
+      loginPath: '/v2/login',
+      teacherLoginPath: '/v2/login?role=teacher',
+      studentLoginPath: '/v2/login?role=student',
       disabled: true,
       callbackUrl: '',
       userRole: SchoolUserRole
@@ -243,9 +243,9 @@ export default {
     const paramSearch = new URLSearchParams(window.location.search)
     const redirect = paramSearch.get('redirect')
     if (redirect) {
-      this.loginPath = `/user/login?redirect=${redirect}`
-      this.teacherLoginPath = `/user/login?role=teacher&redirect=${redirect}`
-      this.studentLoginPath = `/user/login?role=student&redirect=${redirect}`
+      this.loginPath = `/v2/login?redirect=${redirect}`
+      this.teacherLoginPath = `/v2/login?role=teacher&redirect=${redirect}`
+      this.studentLoginPath = `/v2/login?role=student&redirect=${redirect}`
       this.callbackUrl = redirect
     }
     storage.set(NOT_REMEMBER_ME, false)
@@ -344,7 +344,7 @@ export default {
           } else if (this.$store.getters.currentRole) {
             this.$router.push(this.$store.getters.defaultRouter)
           } else {
-            this.$router.push({ path: this.loginPath })
+            location.href = this.loginPath
           }
         })
         .catch(e => {

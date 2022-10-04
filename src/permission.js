@@ -15,7 +15,7 @@ import { appLogin } from '@/api/v2/statsTarget'
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
 const allowList = ['login', 'register', 'resetPassword', 'registerResult', 'authResult', 'authCheck', 'pageRedirect', 'addonCallback', 'classGoBack', 'authRedirect', 'shareDetail', 'H5Live', 'PromoteTg', 'LiveWorkshops'] // no redirect allowList
-const loginRoutePath = '/user/login'
+const loginRoutePath = '/v2/login'
 
 router.beforeEach((to, from, next) => {
   NProgress.start() // start progress bar
@@ -80,7 +80,8 @@ router.beforeEach((to, from, next) => {
               })
               // 失败时，获取用户信息失败时，调用登出，来清空历史保留信息
               store.dispatch('ClearAuth').then(() => {
-                next({ path: loginRoutePath, query: { redirect: to.fullPath, role } })
+                location.href = loginRoutePath
+                // next({ path: loginRoutePath, query: { redirect: to.fullPath, role } })
               })
             })
         } else {
@@ -91,9 +92,10 @@ router.beforeEach((to, from, next) => {
       next()
     }
   } else {
-    console.log(to)
-    next({ path: loginRoutePath, query: { redirect: to.fullPath, role } })
-    NProgress.done() // if current page is login will not trigger afterEach hook, so manually handle it
+    console.log(to, loginRoutePath, 22222222)
+    location.href = loginRoutePath
+    // next({ path: loginRoutePath, query: { redirect: to.fullPath, role } })
+    // NProgress.done() // if current page is login will not trigger afterEach hook, so manually handle it
   }
 })
 
