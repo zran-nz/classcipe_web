@@ -35,7 +35,7 @@ router.beforeEach((to, from, next) => {
     if (token) {
       storage.set(ACCESS_TOKEN, token)
       window.sessionStorage.setItem(SESSION_ACTIVE_KEY, token)
-      setCookie(ACCESS_TOKEN, token)
+      // setCookie(ACCESS_TOKEN, token)
       appLogin(token)
     }
     const accessToken = getToken()

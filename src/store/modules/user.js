@@ -122,7 +122,7 @@ const user = {
           storage.set(ACCESS_TOKEN, accessToken, 7 * 24 * 60 * 60 * 1000)
           commit('SET_TOKEN', accessToken)
           window.sessionStorage.setItem(SESSION_ACTIVE_KEY, accessToken)
-          setCookie(ACCESS_TOKEN, accessToken)
+          // setCookie(ACCESS_TOKEN, accessToken)
           appLogin(accessToken)
           resolve()
         } else {
@@ -141,7 +141,7 @@ const user = {
             storage.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
             commit('SET_TOKEN', result.token)
             window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
-            setCookie(ACCESS_TOKEN, result.token)
+            // setCookie(ACCESS_TOKEN, result.token)
             appLogin(result.token)
             resolve(response)
           } else {
@@ -164,7 +164,7 @@ const user = {
             storage.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
             commit('SET_TOKEN', result.token)
             window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
-            setCookie(ACCESS_TOKEN, result.token)
+            // setCookie(ACCESS_TOKEN, result.token)
             appLogin(result.token)
             resolve(response)
           } else {
@@ -180,7 +180,8 @@ const user = {
     // 获取用户信息
     GetInfo ({ commit }) {
       return new Promise((resolve, reject) => {
-        getInfo({ token: storage.get(ACCESS_TOKEN) }).then(response => {
+        const token = storage.get(ACCESS_TOKEN)
+        getInfo({ token }).then(response => {
           logger.info('GetInfo result', response)
 
           if (response.success) {
@@ -219,13 +220,13 @@ const user = {
             storage.set(IS_ADD_PREFERENCE, result.isAddPreference)
             window.sessionStorage.setItem(SESSION_ACTIVE_KEY, storage.get(ACCESS_TOKEN))
             // 交换最新的后台token
-            if (result.token && result.currentRole === teacher && storage.get(ACCESS_TOKEN) !== result.token) {
-              storage.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
-              commit('SET_TOKEN', result.token)
-              setCookie(ACCESS_TOKEN, result.token)
-              appLogin(result.token)
-              window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
-            }
+            // if (result.token && result.currentRole === teacher && storage.get(ACCESS_TOKEN) !== result.token) {
+            //   storage.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
+            //   commit('SET_TOKEN', result.token)
+            //   // setCookie(ACCESS_TOKEN, result.token)
+            //   appLogin(result.token)
+            //   window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
+            // }
             resolve(response)
           } else {
             reject(response.message)
@@ -266,60 +267,50 @@ const user = {
 
     // 登出
     Logout ({ commit, state }) {
-      return new Promise((resolve) => {
-        // logout(state.token).then(() => {
-          commit('SET_TOKEN', '')
-          commit('SET_ROLES', [])
-          commit('SET_NAME', '')
-          commit('SET_EMAIL', '')
-          commit('SET_BIND_CURRICULUM', '')
-          commit('SET_AVATAR', '')
-          commit('SET_INFO', {})
-          commit('SET_CURRENT_ROLE', '')
-          commit('SET_PERMISSIONS', [])
-          commit('SET_IS_ADD_PREFERENCE', false)
-          // 不同角色菜单不一样需要重新生成
-          commit('SET_ROUTERS', [])
-          storage.remove(CURRENT_ROLE)
-          storage.remove(ACCESS_TOKEN)
-          storage.remove(IS_ADD_PREFERENCE)
-          storage.remove(USER_INFO)
-          storage.remove(ADD_PREFERENCE_SKIP_TIME)
-          storage.remove(SET_CLASS_LIST)
-          storage.remove(SET_CURRENT_SCHOOL)
-          window.sessionStorage.removeItem(SESSION_ACTIVE_KEY)
-          delCookie(ACCESS_TOKEN)
-          resolve()
-        // }).catch(() => {
-        //   resolve()
-        // }).finally(() => {
-        // })
-      })
+      commit('SET_TOKEN', '')
+      commit('SET_ROLES', [])
+      commit('SET_NAME', '')
+      commit('SET_EMAIL', '')
+      commit('SET_BIND_CURRICULUM', '')
+      commit('SET_AVATAR', '')
+      commit('SET_INFO', {})
+      commit('SET_CURRENT_ROLE', '')
+      commit('SET_PERMISSIONS', [])
+      commit('SET_IS_ADD_PREFERENCE', false)
+      // 不同角色菜单不一样需要重新生成
+      commit('SET_ROUTERS', [])
+      storage.remove(CURRENT_ROLE)
+      storage.remove(ACCESS_TOKEN)
+      storage.remove(IS_ADD_PREFERENCE)
+      storage.remove(USER_INFO)
+      storage.remove(ADD_PREFERENCE_SKIP_TIME)
+      storage.remove(SET_CLASS_LIST)
+      storage.remove(SET_CURRENT_SCHOOL)
+      window.sessionStorage.removeItem(SESSION_ACTIVE_KEY)
+      delCookie(ACCESS_TOKEN)
     },
 
     // CLear Info
     ClearAuth ({ commit, state }) {
-      return new Promise((resolve) => {
-        commit('SET_TOKEN', '')
-        commit('SET_ROLES', [])
-        commit('SET_NAME', '')
-        commit('SET_EMAIL', '')
-        commit('SET_BIND_CURRICULUM', '')
-        commit('SET_AVATAR', '')
-        commit('SET_INFO', {})
-        commit('SET_CURRENT_ROLE', '')
-        commit('SET_PERMISSIONS', [])
-        commit('SET_IS_ADD_PREFERENCE', false)
-        // 不同角色菜单不一样需要重新生成
-        commit('SET_ROUTERS', [])
-        storage.remove(CURRENT_ROLE)
-        storage.remove(ACCESS_TOKEN)
-        storage.remove(IS_ADD_PREFERENCE)
-        storage.remove(USER_INFO)
-        window.sessionStorage.removeItem(SESSION_ACTIVE_KEY)
-        delCookie(ACCESS_TOKEN)
-        resolve()
-      })
+      console.trace(123123)
+      commit('SET_TOKEN', '')
+      commit('SET_ROLES', [])
+      commit('SET_NAME', '')
+      commit('SET_EMAIL', '')
+      commit('SET_BIND_CURRICULUM', '')
+      commit('SET_AVATAR', '')
+      commit('SET_INFO', {})
+      commit('SET_CURRENT_ROLE', '')
+      commit('SET_PERMISSIONS', [])
+      commit('SET_IS_ADD_PREFERENCE', false)
+      // 不同角色菜单不一样需要重新生成
+      commit('SET_ROUTERS', [])
+      storage.remove(CURRENT_ROLE)
+      storage.remove(ACCESS_TOKEN)
+      storage.remove(IS_ADD_PREFERENCE)
+      storage.remove(USER_INFO)
+      window.sessionStorage.removeItem(SESSION_ACTIVE_KEY)
+      delCookie(ACCESS_TOKEN)
     },
 
     // get all class list

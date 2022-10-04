@@ -298,7 +298,7 @@ export default {
           } else if (this.$store.getters.currentRole) {
             this.$router.push(this.$store.getters.defaultRouter)
           } else {
-            this.$router.push({ path: '/user/login' })
+            location.href = '/v2/login?call='+location.pathname
           }
         })
         .catch(e => {

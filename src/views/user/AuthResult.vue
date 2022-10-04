@@ -56,7 +56,7 @@ export default {
       })
     }).catch(() => {
       this.handleOpener()
-      this.$router.push({ path: '/user/login' })
+      location.href = '/v2/login?call='+location.pathname
     })
   },
   methods: {

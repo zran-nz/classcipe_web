@@ -34,7 +34,7 @@ export default {
     }
     if (token) {
       storage.set(ACCESS_TOKEN, token)
-      setCookie(ACCESS_TOKEN, token)
+      // setCookie(ACCESS_TOKEN, token)
       appLogin(token)
     }
     // del cache

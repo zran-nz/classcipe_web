@@ -909,7 +909,7 @@ export const constantRouterMap = [
          {
            path: '/user',
            component: UserLayout,
-           redirect: '/user/login',
+          //  redirect: '/user/login',
            hidden: true,
            children: [
              {
