@@ -189,7 +189,7 @@
                 </template>
               </custom-button>
             </template>
-            <custom-button label="Review" @click='handlePreviewDetail(content, true)' v-if='content.sourceFrom'>
+            <custom-button label="Review" @click="$store.dispatch('setV2Box', { id: content.sourceFrom, type: content.type, isLib: true, header: 1 })" v-if='content.sourceFrom'>
               <template v-slot:icon >
                 <edit-icon style='width: 13px; height:14px'/>
               </template>
