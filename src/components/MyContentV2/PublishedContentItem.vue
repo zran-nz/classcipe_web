@@ -111,7 +111,7 @@
       <div class='action'>
         <template v-if='showButton'>
           <a-space :size='30'>
-            <custom-button label='Preview' @click='handlePreviewDetail(content)'>
+            <custom-button label='Preview' @click="$store.dispatch('setV2Box', { ...content, isLib: true, header: 1 })">
               <template v-slot:icon>
                 <preview-gray-icon />
               </template>
@@ -132,12 +132,6 @@
         </template>
       </div>
 
-      <content-preview
-        :content-id='previewCurrentId'
-        :content-type='previewType'
-        :is-library="true"
-        v-if='previewVisible'
-        @close='handlePreviewClose' />
 
       <discounted-price ref="discountedPrice" @update="updatePrice"/>
 
@@ -162,7 +156,6 @@ import OriginalTipsIcon from '@/assets/v2/icons/original_tips.svg?inline'
 import DeleteIcon from '@/assets/v2/icons/delete.svg?inline'
 import MoreIcon from '@/assets/v2/icons/more.svg?inline'
 
-import ContentPreview from '@/components/Preview/ContentPreview'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import ModalHeader from '@/components/Common/ModalHeader'
 import DiscountedPrice from '@/components/MyContentV2/DiscountedPrice'
@@ -172,7 +165,6 @@ export default {
   components: {
     ModalHeader,
     ContentTypeIcon,
-    ContentPreview,
     CustomButton,
     SubTaskIcon,
     EditIcon,

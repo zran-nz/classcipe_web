@@ -177,14 +177,8 @@
         <div class='empty-tips' v-if="!selectedId">
           <no-more-resources tips="No content selected" />
         </div>
-        <div v-else class="preview-wrap">
-          <!-- <iframe :src="iframeSrc" class='preview-iframe' id='library-iframe' v-if='iframeSrc'></iframe> -->
-          <!-- <common-preview-v2 v-if="!previewLoading" :id="selectedId" :type="type" /> -->
-          <content-preview-detail
-            :contentId="selectedObj.id"
-            :contentType="selectedObj.type"
-            v-if="!previewLoading"
-          />
+        <div v-show='selectedId' class="preview-wrap">
+          <iframe src="/v2/v2Box?header=0" class='preview-iframe' ref='previewFrame'></iframe>
         </div>
       </div>
     </div>
@@ -202,8 +196,6 @@
 import { FindMyContent } from '@/api/teacher'
 import { QueryContentsFilter } from '@/api/library'
 import NoMoreResources from '@/components/Common/NoMoreResources'
-import CommonPreviewV2 from '@/components/Common/CommonPreviewV2'
-import ContentPreviewDetail from '@/components/Preview/ContentPreviewDetail'
 import ContentTypeIcon from '@/components/Teacher/ContentTypeIcon'
 import CollaborateIcon from '@/assets/v2/icons/collaborate.svg?inline'
 import { UserModeMixin } from '@/mixins/UserModeMixin'
@@ -217,8 +209,6 @@ export default {
   mixins: [UserModeMixin, CurrentSchoolMixin],
   components: {
     NoMoreResources,
-    CommonPreviewV2,
-    ContentPreviewDetail,
     ContentTypeIcon,
     CollaborateIcon
   },
@@ -295,12 +285,6 @@ export default {
       userMode: state => state.app.userMode,
       currentSchool: state => state.user.currentSchool
     }),
-    iframeSrc() {
-      if (this.baseUrl) {
-        return this.baseUrl + '/v2/iframe/detail/' + this.type + '/' + this.selectedId
-      }
-      return null
-    }
   },
   created() {
     this.init()
@@ -347,11 +331,17 @@ export default {
         this.init()
       }
     },
-    handlePreviewDetail(item) {
-      // if (this.calculateCantSelect(item)) {
-      //   this.$message.warn('Incompleted content')
-      //   return
-      // }
+    async handlePreviewDetail(item) {
+      const type = { 4: 'task', 2: 'unit', 9: 'pd', 8: 'video', slide: 'session' }[item.type]
+      console.log(item, type, this.$refs.previewFrame)
+      window._test = this.$refs.previewFrame
+      this.$refs.previewFrame.contentWindow.postMessage({ id: 'iframeBox', data: {
+        path: `/v2Box`, query: { header: 0 }
+      }})
+      await sleep(300)
+      this.$refs.previewFrame.contentWindow.postMessage({ id: 'iframeBox', data: {
+        path: `/${type}/view/${item.id}`, query: { header: 0 }
+      }})
       if (this.selectedId === item.id) {
         this.selectedId = ''
         this.selectedObj = null

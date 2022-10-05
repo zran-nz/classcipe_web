@@ -308,19 +308,6 @@
         </a-space>
       </div>
     </div>
-    <!-- <preview-content :preview-current-id='previewCurrentId' :preview-type='previewType' v-if='previewVisible' @close='handlePreviewClose' /> -->
-    <content-preview
-      :content-id='previewCurrentId'
-      :content-type='previewType'
-      :show-edit-button=!!content.content
-      :session="content.session"
-      v-if='previewVisible'
-      :liveWorkShopCode="previewCode"
-      :is-library="isLibrary"
-      :school-resource="content.schoolId !== '0'"
-      :school-resource-id="content.schoolId"
-      @reload="handleRefresh"
-      @close='handlePreviewClose' />
 
     <a-modal
       v-model="showEditPrice"
@@ -640,7 +627,7 @@ export default {
     },
     handleGoWork(item) {
       if (item && item.session && item.session.classId && (this.isCurrentType(WORK_SHOPS_TYPE.REGISTERED.value) || this.isCurrentType(WORK_SHOPS_TYPE.LUNCHEDBYME.value))) {
-        const prefix = this.isCurrentType(WORK_SHOPS_TYPE.LUNCHEDBYME.value) ? 't/' : 's/'
+        const prefix = this.isCurrentType(WORK_SHOPS_TYPE.LUNCHEDBYME.value) ? 'd/' : 's/'
         const targetUrl = lessonHost + prefix + item.session.classId + '?token=' + storage.get(ACCESS_TOKEN)
         window.location.href = targetUrl
       }
@@ -761,20 +748,8 @@ export default {
       this.$message.info('coming soon...')
     },
     handlePreview(data) {
-      this.$emit('close')
+      this.$store.dispatch('setV2Box', { id: data.session.id, type: 'workshop', header: 1 })
       console.log(data)
-      this.handlePreviewDetail({
-        ...data.content,
-        sessionId: data.sessionId
-      })
-    },
-    handlePreviewClose () {
-      this.$logger.info('handlePreviewClose')
-      this.previewVisible = false
-      this.previewCurrentId = null
-      this.previewType = null
-      this.previewCode = null
-      this.needReload && this.$emit('reload')
     },
     handleRefresh() {
       this.needReload = true

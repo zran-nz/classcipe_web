@@ -136,8 +136,8 @@ const app = {
           state.v2Box = data
           return
         }
-        const type = { 4: 'task', 2: 'unit', 9: 'pd', 8: 'video', slide: 'session' }[data.type]
-        state.v2Box = { path: `/${type}${data?.isLib ? '/' : '/view/'}${data.id}`, query: { header: 0 } }
+        const type = { 4: 'task', 2: 'unit', 9: 'pd', 8: 'video', slide: 'session' }[data.type] || data.type
+        state.v2Box = { path: `/${type}${data?.isLib ? '/' : '/view/'}${data.id}`, query: { header: data.header || 0 } }
       }
     }
   },
@@ -146,7 +146,7 @@ const app = {
       if (!data.id && data.path) return commit('setV2Box', data)
       const authur = data.author || data.createBy || data.create_by
       const isCo = data.collaborates > 0
-      data.isLib = authur !== rootState.user.email && data.type !== 'slide' && !isCo
+      if (!data.isLib) data.isLib = authur !== rootState.user.email && data.type !== 'slide' && !isCo
       console.log('v2Box:', data.id, data.type, rootState.user.email, authur || data, data.isLib, 11111)
       commit('setV2Box', data)
     },
