@@ -58,6 +58,12 @@ export const asyncRouterMap = [
             meta: { title: 'menu.my-favorite', keepAlive: true, permission: ['teacher'], icon: DiscoverSvg }
           },
           {
+            path: '/teacher/main/my-register',
+            name: 'MyRegister',
+            component: () => import('@/views/teacher/MyRegister'),
+            meta: { title: 'menu.my-register', keepAlive: true, permission: ['teacher'], icon: DiscoverSvg }
+          },
+          {
             path: '/teacher/main/shared',
             name: 'Shared',
             component: () => import('@/views/teacher/Shared'),

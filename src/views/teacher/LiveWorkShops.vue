@@ -155,7 +155,7 @@ export default {
       typeMap: typeMap,
       WORK_SHOPS_STATUS: WORK_SHOPS_STATUS,
       WORK_SHOPS_TYPE: WORK_SHOPS_TYPE,
-      WORK_SHOPS_TYPE_VALUES: Object.values(WORK_SHOPS_TYPE),
+      WORK_SHOPS_TYPE_VALUES: Object.values(WORK_SHOPS_TYPE).slice(0, 2),
       dateTypeOptions: [{
         label: 'Weekdays only',
         value: 1
@@ -211,11 +211,11 @@ export default {
   },
   computed: {
     filterWorkshops() {
-      if (this.queryParams.workshopsType === WORK_SHOPS_TYPE.REGISTERED.value) {
-        const filter = { ...WORK_SHOPS_STATUS }
-        delete filter.ARCHIVED
-        return filter
-      }
+      // if (this.queryParams.workshopsType === WORK_SHOPS_TYPE.REGISTERED.value) {
+      //   const filter = { ...WORK_SHOPS_STATUS }
+      //   delete filter.ARCHIVED
+      //   return filter
+      // }
       return WORK_SHOPS_STATUS
     }
   },

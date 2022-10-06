@@ -36,6 +36,11 @@
             <live-workshops-icon />
           </template>
         </sidebar-menu-item>
+        <sidebar-menu-item label='My register' path='/teacher/main/my-register'>
+          <template v-slot:icon>
+            <live-workshops-icon />
+          </template>
+        </sidebar-menu-item>
 
         <sidebar-menu-list label='Classes' path-prefix='/teacher/class-session' :menu-list="classList" :active-id='activeClassId'>
           <template v-slot:icon>
