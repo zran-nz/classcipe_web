@@ -26,7 +26,7 @@
             <my-content-icon />
           </template>
         </sidebar-menu-item>
-        <sidebar-menu-item label='My favorites' path='/teacher/main/my-favorite'>
+        <sidebar-menu-item label='My saved' path='/teacher/main/my-favorite'>
           <template v-slot:icon>
             <my-favorite-icon />
           </template>
