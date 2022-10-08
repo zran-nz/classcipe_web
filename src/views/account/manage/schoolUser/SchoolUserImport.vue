@@ -143,7 +143,7 @@ export default {
         const convert = dataArr.filter(item => item.length > 0).map(item => {
           const json = {}
           item.forEach((i, index) => {
-            json[this.dataKey[index]] = i
+            json[this.dataKey[index]] = (i + '').replace(/[\r\n]/g, '').trim()
           })
           return json
         })
