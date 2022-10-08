@@ -276,11 +276,7 @@ export default {
       })
     },
     linkUrl () {
-      let linkUrl = this.collaborate.link ? (process.env.VUE_APP_API_BASE_URL + '/collaborate/' + this.collaborate.link.linkCode) : ''
-      if (linkUrl.indexOf('https://api') > -1) {
-        linkUrl = linkUrl.replace('https://api', 'https://my')
-      }
-      return linkUrl
+      return this.collaborate.link ? (location.origin + '/collaborate/' + this.collaborate.link.linkCode) : ''
     },
     displaySelectUserList () {
       const displayUserList = []
