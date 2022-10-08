@@ -64,25 +64,25 @@
           </div>
           <div class='extra-info'>
             <a-space>
-              <div class='info-item curriculum-info' v-show='curriculumName && content.type !== typeMap.pd'>
+              <!-- <div class='info-item curriculum-info' v-show='curriculumName && content.type !== typeMap.pd'>
                 {{ curriculumName }}
-              </div>
-              <div class='info-item subject-info'>
+              </div> -->
+              <!-- <div class='info-item subject-info'>
                 <a-space>
                   <div class='subject-item' v-for='(subject, idx) in content.subjectList.slice(0, 2)' :key="'sub' + idx">{{ subject }}</div>
                 </a-space>
                 <div class='more-item' v-if='content.subjectList.slice(2).length'>
                   <a-tooltip placement='top' :title='content.subjectList.slice(2).join("、 ")' >more({{ content.subjectList.slice(2).length }})</a-tooltip>
                 </div>
-              </div>
-              <div class='info-item year-info'>
+              </div> -->
+              <!-- <div class='info-item year-info'>
                 <a-space>
                   <div class='subject-item' v-for='(year, idx) in content.yearList.slice(0, 4)' :key="'year' + idx">{{ year }}</div>
                 </a-space>
                 <div class='more-item' v-if='content.yearList.slice(4).length'>
                   <a-tooltip placement='top' :title='content.yearList.slice(4).join("、 ")' >more({{ content.yearList.slice(4).length }})</a-tooltip>
                 </div>
-              </div>
+              </div> -->
               <div class='info-item task-type-info' v-if='content.taskType'>
                 <div class='self-type-wrapper'>
                   <div class='self-field-label'>
