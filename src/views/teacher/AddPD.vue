@@ -187,7 +187,7 @@
           </template>
           <template v-if='currentRightModule === rightModule.associate'>
             <link-content-list
-              :filter-types="[typeMap.pd]"
+              :filter-types="[typeMap.task]"
               :selected-id-list='associateIdList' />
           </template>
           <template v-if='currentRightModule === rightModule.recommend'>
