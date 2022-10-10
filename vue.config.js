@@ -130,6 +130,11 @@ const vueConfig = {
         target: ' https://dev.classcipe.com/',
         ws: true,
         changeOrigin: true
+      },
+      '/v2': {
+        target: ' https://dev.classcipe.com/',
+        ws: true,
+        changeOrigin: true
       }
     }
   },
