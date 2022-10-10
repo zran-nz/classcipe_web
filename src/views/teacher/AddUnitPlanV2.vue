@@ -250,6 +250,7 @@
                         </div>
                       </div>
                       <div v-else style="font-size: 12px;color: #666;">No data</div>
+                      <inquiry-input :selected='form.inquiryKeywords' @add='(item) => form.inquiryKeywords.push(item)' :can-edit='canEdit' />
                     </custom-form-item>
                   </div>
                 </template>
@@ -797,10 +798,12 @@ import { deepEqual } from '@/utils/util'
 import { QueryTagsByIds } from '@/api/v2/mycontent'
 import EditPriceDialog from '@/components/MyContentV2/EditPriceDialog'
 import QuestionInput from '@/components/Common/QuestionInput'
+import InquiryInput from '@/components/Common/InquiryInput'
 
 export default {
   name: 'AddUnitPlan',
   components: {
+    InquiryInput,
     QuestionInput,
     EditPriceDialog,
     CustomTagV3,
