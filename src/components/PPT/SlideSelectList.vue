@@ -14,12 +14,12 @@
         <a-radio-button :value="sourceType.SlideTemplate">
           Slide template
         </a-radio-button>
-        <a-radio-button :value="sourceType.Library">
-          Library
-        </a-radio-button>
-        <a-radio-button :value="sourceType.Resource" v-if='userMode === USER_MODE.SCHOOL'>
-          School resource
-        </a-radio-button>
+<!--        <a-radio-button :value="sourceType.Library">-->
+<!--          Library-->
+<!--        </a-radio-button>-->
+<!--        <a-radio-button :value="sourceType.Resource" v-if='userMode === USER_MODE.SCHOOL'>-->
+<!--          School resource-->
+<!--        </a-radio-button>-->
       </a-radio-group>
 
       <!--      <a-select-->
