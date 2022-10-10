@@ -388,7 +388,7 @@
                           :class="{'my-comment-switch':true,'my-comment-show':currentFieldName === planField.Question}"
                           :field-name='planField.Question'
                           @switch='handleSwitchComment' />
-                        <custom-link-text text='more' :size='13' @click='questionMoreVisible=true' v-if='canEdit'></custom-link-text>
+                        <custom-link-text text='Recommend' :size='13' @click='questionMoreVisible=true' v-if='canEdit'></custom-link-text>
                       </a-space>
                     </template>
                     <template v-if='unitFieldLabel(planField.Question, $store.getters.formConfigData) && unitLabelName(planField.Question, $store.getters.formConfigData) !== unitFieldLabel(planField.Question, $store.getters.formConfigData)' slot='tips'>
