@@ -3,14 +3,15 @@
     <div class='question-input'>
       <a-spin :spinning="updating">
         <a-input
+          ref="input"
           v-model='keyword'
-          @focus='showFilterList = true'
+          @focus='handleFocus'
           @click.native.stop='showFilterList = true'
           :placeholder='placeholder'
           class='cc-form-input'
           :disabled='!canEdit'/>
       </a-spin>
-      <div class='filter-list' v-show='showFilterList && filterList.length' @click.stop=''>
+      <div class='filter-list' v-show='showFilterList && filterList.length'>
         <div class='filter-item' v-for='(item, idx) in filterList' :key='idx' @click='handleSelectItem(item)' :data-id='item.id'>
           <div class='item-desc' v-html='item.html'></div>
           <div class='sub-desc' v-if='item.fromText'>{{ item.fromText }}</div>
@@ -77,10 +78,16 @@ export default {
     return {
       keyword: '',
       updating: false,
-      showFilterList: false,
+      showFilterList: true,
       filterList: [],
       selectedList: [],
-      asyncUpdateFilterListFn: null
+      asyncUpdateFilterListFn: null,
+      questionList: []
+    }
+  },
+  watch: {
+    list(newVal) {
+       this.questionList = newVal
     }
   },
   computed: {
@@ -102,7 +109,7 @@ export default {
   },
   created() {
     this.asyncUpdateFilterListFn = debounce(this.updateFilterList, 200)
-    this.$logger.info('QuestionInput list', this.list, 'selected', this.selected)
+    this.$logger.info('QuestionInput list', this.questionList, 'selected', this.selected)
     this.selectedList = this.selected.filter(item => !!item.name) || []
     this.$watch('keyword', (nv) => {
       this.$logger.info('QuestionInput keyword changed ' + nv)
@@ -111,6 +118,7 @@ export default {
       this.updating = false
     })
     this.updateFilterList()
+    this.questionList = this.list
   },
   mounted() {
     window.addEventListener('click', this.handleClick)
@@ -120,7 +128,18 @@ export default {
   },
   methods: {
     handleClick () {
+      console.log('handleClick')
       this.showFilterList = false
+    },
+    handleFocus() {
+      console.log('handleFocus')
+      // this.filterList = JSON.parse(JSON.stringify(this.list))
+      // this.filterList.forEach(item => {
+      //     item.html = item.name
+      // })
+      // this.filterList = this.filterList.filter(item => this.selectedIdList.indexOf(item.id) === -1).filter(item => this.inputList.indexOf(item.name) === -1)
+      this.showFilterList = true
+      this.updateFilterList()
     },
     handleEnsureInput () {
       console.log('QuestionInput handleEnsureInput', this.canEdit, this.keyword)
@@ -145,13 +164,13 @@ export default {
       this.$emit('update', this.selectedList)
     },
     updateFilterList () {
-      this.$logger.info('updateFilterList list init', this.list)
-      if (this.list.length) {
+      this.$logger.info('updateFilterList list init', this.questionList)
+      if (this.questionList.length) {
         console.log('QuestionInput selectedIdList', this.selectedIdList, this.selectedList)
-        let list = JSON.parse(JSON.stringify(this.list))
+        let list = JSON.parse(JSON.stringify(this.questionList))
         this.$logger.info('list', list)
         if (this.keyword.trim()) {
-          list = this.list.slice().filter(item => item.name.toLowerCase().indexOf(this.keyword.toLowerCase()) !== -1)
+          list = this.questionList.slice().filter(item => item.name.toLowerCase().indexOf(this.keyword.toLowerCase()) !== -1)
         }
         this.$logger.info('list filter', list)
         list.forEach(item => {

@@ -1741,7 +1741,7 @@ export default {
       if (!bigIdea) {
         return
       }
-      FindQuestionsByBigIdea({ bigIdea: bigIdea }).then(response => {
+      FindQuestionsByBigIdea({ bigIdea: bigIdea, limit: 5 }).then(response => {
         this.$logger.info('FindQuestionsByBigIdea ', response)
         this.recommendQuestionList = []
         if (response.success) {
