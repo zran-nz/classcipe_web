@@ -175,11 +175,11 @@
             <!-- <a-button type='primary' shape='round' @click='handleRegister(content)'>
               <icon-font type="icon-register" class="detail-font"/>
               Register</a-button> -->
-            <custom-button label='Register' @click='handleRegister(content)'>
+            <!-- <custom-button label='Register' @click='handleRegister(content)'>
               <template v-slot:icon>
                 <icon-font type="icon-register" class="detail-font"/>
               </template>
-            </custom-button>
+            </custom-button> -->
           </template>
           <template
             v-if="

@@ -220,13 +220,6 @@ const user = {
             storage.set(IS_ADD_PREFERENCE, result.isAddPreference)
             window.sessionStorage.setItem(SESSION_ACTIVE_KEY, storage.get(ACCESS_TOKEN))
             // 交换最新的后台token
-            // if (result.token && result.currentRole === teacher && storage.get(ACCESS_TOKEN) !== result.token) {
-            //   storage.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
-            //   commit('SET_TOKEN', result.token)
-            //   // setCookie(ACCESS_TOKEN, result.token)
-            //   appLogin(result.token)
-            //   window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
-            // }
             resolve(response)
           } else {
             reject(response.message)

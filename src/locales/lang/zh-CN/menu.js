@@ -18,7 +18,7 @@ export default {
     'menu.managing.academic': 'Year&Term setting',
     'menu.managing.curriculum': 'Curriculum',
     'menu.managing.school-info': 'School Info',
-    'menu.live-workshops': 'Live workshops',
+    'menu.live-workshops': 'My workshops',
     'menu.my-content': '我的内容',
     'menu.my-content.center': '我的内容',
     'menu.teacher.unit-plan': '添加单元计划',
