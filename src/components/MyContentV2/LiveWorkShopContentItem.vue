@@ -879,7 +879,7 @@ export default {
           font-weight: bold;
           color: #17181A;
           width: calc(100% - 3em);
-          word-break: break-all;
+          word-break: break-word;
           text-overflow: ellipsis;
           display: -webkit-box;
           /* autoprefixer: off */

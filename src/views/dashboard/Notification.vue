@@ -326,6 +326,7 @@ export default {
     font-weight: 900;
     line-height: 20px;
     color: #363636;
+    width: calc(100% - 170px);
 
     a {
       font-family: Arial;

@@ -771,7 +771,9 @@ export default {
               failCb({ message: 'Error' })
             }
           }).catch((e) => {
-            failCb({ message: (e && e.message) || 'Remote Api Error' })
+            const err = (e && (e.message || e)) || 'Remote Api Error'
+            failCb({ message: err })
+            this.$message.error(err)
           }).finally(() => {
             this.loading = false
           })

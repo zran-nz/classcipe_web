@@ -233,7 +233,7 @@ export default {
       confirmLoading: false,
       cacheKey: 'SUBMIT_VALIDATE_SCHOOL_TEACHER_',
       autoSaveLocalKey: 'FORM_SCHOOL_TEACHER_',
-      needAutoSave: !this.id,
+      needAutoSave: false, // !this.id,
       userHeaderTeacherCls: [],
       classUnModify: false,
       subjectOptions: []
@@ -363,10 +363,10 @@ export default {
           this.loading = false
         })
       } else {
-        const fromCache = this.getAutoLocalData()
+        // const fromCache = this.getAutoLocalData()
         this.formModel = {
           ...this.formModel,
-          ...fromCache,
+          // ...fromCache,
           ...defaultForm
         }
         if (this.formModel.classes) {

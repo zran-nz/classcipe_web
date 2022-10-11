@@ -40,7 +40,7 @@
             </div>
           </template>
         </a-space>
-        <a-space slot="action" slot-scope="text, record">
+        <a-space class="popover-link" slot="action" slot-scope="text, record">
           <a-popover
             placement="left"
             title="Choose User"
@@ -77,7 +77,7 @@
 
               </div>
             </div>
-            <a type="link" @click="handleResetFilter(record)">Add</a>
+            <a :id="'popover_'+record.id" type="link" @click="handleResetFilter(record)">Add</a>
           </a-popover>
 
           <!-- <a type="link" @click="handleDelete(record)">Delete</a> -->
@@ -313,6 +313,7 @@ export default {
           this.initSchoolUsers()
           this.debounceLoad()
           this.$store.dispatch('GetInfo')
+          document.getElementById(`popover_${cls.id}`).click()
         } else {
           this.loading = false
         }

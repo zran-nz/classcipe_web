@@ -73,7 +73,7 @@
               </template>
             </div>
           </a-form-model-item>
-          <a-form-model-item key="School" label="School" prop="school">
+          <!-- <a-form-model-item key="School" label="School" prop="school">
             <a-select
               v-model="formModel.school"
               ref="schoolRef"
@@ -168,7 +168,7 @@
                 </a-form-model-item>
               </a-col>
             </a-row>
-          </a-form-model-item>
+          </a-form-model-item> -->
           <a-form-model-item label="Age" v-hasRole="['student']">
             <a-select
               v-model="formModel.age"

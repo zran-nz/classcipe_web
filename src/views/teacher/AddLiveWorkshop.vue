@@ -108,13 +108,13 @@
                     </div>
                   </div>
                 </div>
-                <div class='add-discount'>
+                <!-- <div class='add-discount'>
                   <custom-text-button label='Add row' @click='handleAddDiscount'>
                     <template v-slot:icon>
                       <a-icon type='plus-circle' />
                     </template>
                   </custom-text-button>
-                </div>
+                </div> -->
               </div>
               <div class='pay-title'>
                 <div class='title'>
@@ -514,16 +514,16 @@ export default {
     }
   },
   methods: {
-    handleSchoolChange(currentSchool) {
-      this.initData()
-      this.initFilterOption()
-    },
-    handleModeChange(userMode) {
-      if (userMode === USER_MODE.SELF) {
-        this.initData()
-        this.initFilterOption()
-      }
-    },
+    // handleSchoolChange(currentSchool) {
+    //   this.initData()
+    //   this.initFilterOption()
+    // },
+    // handleModeChange(userMode) {
+    //   if (userMode === USER_MODE.SELF) {
+    //     this.initData()
+    //     this.initFilterOption()
+    //   }
+    // },
     initFilterOption() {
       getSubjectBySchoolId({ schoolId: this.currentSchool.id }).then(response => {
         this.$logger.info('getSubjectBySchoolId response', response.result)

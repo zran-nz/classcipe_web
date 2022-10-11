@@ -233,6 +233,10 @@ export default {
     initDict() {
       getCountry().then(res => {
         this.country = res
+        if (!this.formModel.phoneCountryCode && this.formModel.country && this.country) {
+          const current = this.country.find(item => item.en === this.formModel.country)
+          this.formModel.phoneCountryCode = current.no || ''
+        }
       })
     },
     loadData() {
@@ -243,6 +247,10 @@ export default {
         }).then(res => {
           if (res.code === 0) {
             this.formModel = { ...res.result }
+            if (!this.formModel.phoneCountryCode && this.formModel.country && this.country) {
+              const current = this.country.find(item => item.en === this.formModel.country)
+              this.formModel.phoneCountryCode = current.no || ''
+            }
           }
         }).finally(() => {
           this.loading = false

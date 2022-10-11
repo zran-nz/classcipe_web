@@ -39,13 +39,13 @@
         </div>
       </div>
     </div>
-    <div class='add-discount'>
+    <!-- <div class='add-discount'>
       <custom-text-button label='Add row' @click='handleAddDiscount'>
         <template v-slot:icon>
           <a-icon type='plus-circle' />
         </template>
       </custom-text-button>
-    </div>
+    </div> -->
   </div>
 </template>
 
