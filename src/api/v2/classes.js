@@ -85,6 +85,11 @@ export function AddSessionV2 (parameter) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  }).then(async rs => {
+    if (rs?.result?.[0]?.id) {
+      const one = await App.service('session').get(rs.result[0].id)
+    }
+    return rs
   })
 }
 
