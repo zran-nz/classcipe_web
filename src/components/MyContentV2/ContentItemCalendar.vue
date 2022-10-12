@@ -86,7 +86,7 @@
               </div>
               <div class="class-con">
                 <div class="session-deadline">
-                  <div class="session-deadline-tab">
+                  <div class="session-deadline-tab" v-if="data.sessionInfo.type !== 'workshop'">
                     <a-radio-group v-model="data.sessionInfo.responseLimitMode" button-style="solid" size="small">
                       <a-radio-button :value="0">
                         Off

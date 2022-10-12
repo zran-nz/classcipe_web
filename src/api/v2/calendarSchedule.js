@@ -28,17 +28,17 @@ export async function QueryForCalendar (parameter) {
       v.schoolId = v.school || '0'
       v.startTime = v.start
       v.endTime = v.end
-      v.userAvatar = v.owner.avatar
+      v.userAvatar = v.schoolInfo?.logo || v.owner.avatar
       v.userRealName = v.owner.nickname
       v.workshopsStatus = v.status === 'close' ? 2 : 1
       v.title = v.name
       v.cover = v.image
       v.content = {}
-      v.sessionInfo = { id: v.sid, type: 'workshop', isLib: true }
+      v.sessionInfo = { _id: v._id, school: v.school, id: v.sid, sessionName: v.name, type: 'workshop', isLib: true }
       v.unitPlanInfo = null
       v.workshopsDetailInfo = {
         sessionId: v.sid, sessionStartTime: v.start, sessionEndTime: v.end,
-        userAvatar: v.owner.avatar, userRealName: v.owner.nickname, title: v.name
+        userAvatar: v.schoolInfo?.logo || v.owner.avatar, userRealName: v.owner.nickname, title: v.name
       }
     }
     rs.result.push(...list)

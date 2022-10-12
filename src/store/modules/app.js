@@ -137,7 +137,8 @@ const app = {
           return
         }
         const type = { 4: 'task', 2: 'unit', 9: 'pd', 8: 'video', slide: 'session' }[data.type] || data.type
-        state.v2Box = { path: `/${type}${data?.isLib ? '/' : '/view/'}${data.id}`, query: { header: data.header || 0 } }
+        if (data.type === 'workshop') state.v2Box = { path: `/${type}${data?.school ? '/'+data.school+'/' : '/'}${data._id || data.id}`, query: { header: data.header || 0 } }
+        else state.v2Box = { path: `/${type}${data?.isLib ? '/' : '/view/'}${data._id || data.id}`, query: { header: data.header || 0 } }
       }
     }
   },
