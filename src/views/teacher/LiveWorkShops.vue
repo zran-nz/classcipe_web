@@ -2,13 +2,13 @@
   <div class='my-content' :style="{'font-size': fontSize}">
     <div class='content-header'>
       <div class='source-type'>
-        <radio-switch
+        <!-- <radio-switch
           v-if="radioSwitchShow"
           ref="radioSwitch"
           @select="changeType"
           :defaultSelectedItem="defaultSelectedItem"
           :menu-list='WORK_SHOPS_TYPE_VALUES'
-          displayProperty="label"/>
+          displayProperty="label"/> -->
       </div>
       <div style="font-size: 12px;">
         <user-profile-avatar />
@@ -155,7 +155,7 @@ export default {
       typeMap: typeMap,
       WORK_SHOPS_STATUS: WORK_SHOPS_STATUS,
       WORK_SHOPS_TYPE: WORK_SHOPS_TYPE,
-      WORK_SHOPS_TYPE_VALUES: Object.values(WORK_SHOPS_TYPE).slice(0, 2),
+      WORK_SHOPS_TYPE_VALUES: Object.values(WORK_SHOPS_TYPE).slice(1, 2),
       dateTypeOptions: [{
         label: 'Weekdays only',
         value: 1
@@ -172,7 +172,7 @@ export default {
       }],
 
       queryParams: {
-        workshopsType: WORK_SHOPS_TYPE.FEATURE.value,
+        workshopsType: 2,
         workshopsStatus: WORK_SHOPS_STATUS.SCHEDULE.value,
         searchKey: ''
       },
