@@ -657,7 +657,7 @@ export default {
           .left {
             width: calc(100% - 150px);
             .type-icon {
-              min-width: 40px;
+              // min-width: 40px;
               white-space: nowrap;
               .ant-space-item {
                 display: flex;

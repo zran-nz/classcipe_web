@@ -809,10 +809,12 @@ export default {
       const selfViews = this.selfViews
       if (this.viewType === 'timeGridFourDay') {
         const yearObj = this.yearOptions.find(item => item.id === this.currentYear)
-        const diff = moment.utc(yearObj.endTime).local().diff(moment.utc(yearObj.startTime).local(), 'month', true)
-        console.log(diff)
-        selfViews.timeGridFourDay.duration.days = Math.ceil(diff)
-        this.computeYearLines()
+        if (yearObj) {
+          const diff = moment.utc(yearObj.endTime).local().diff(moment.utc(yearObj.startTime).local(), 'month', true)
+          console.log(diff)
+          selfViews.timeGridFourDay.duration.days = Math.ceil(diff)
+          this.computeYearLines()
+        }
       }
       calendarApi.setOption('views', selfViews)
       calendarApi.changeView(viewType)
