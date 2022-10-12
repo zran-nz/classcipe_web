@@ -395,14 +395,23 @@ export default {
     expiredDay() {
       const remain = this.info.planInfo.unPaidPrice || 0
       const msg = []
-      if (this.info.planInfo && this.info.planInfo.planUser) {
+      if (this.info.planInfo) {
         // const exipire = this.info.planInfo.freeUsePlan ? this.info.planInfo.freeDays : (this.info.planInfo.planExpire + this.info.planInfo.freeDays)
         // const exipireUnit = this.info.planInfo.freeUsePlan ? 1 : this.info.planInfo.planExpireUnit
         // const days = exipire || 0
         // const unit = EXPIRE_UNIT.find(unit => unit.value === exipireUnit).label
         // const date = moment.utc(this.info.planInfo.createTime).local().add(days, unit).format('YYYY-MM-DD HH:mm')
-        const date = moment.utc(this.info.planInfo.planUser.planEndTime).local().format('YYYY-MM-DD HH:mm')
-        msg.push(`Valid up to ${date} `) // ${days} ${unit}${days > 1 ? 's' : ''}`
+        let date = ''
+        if (this.info.planInfo.freeUsePlan || remain > 0) {
+          date = moment.utc(this.info.planInfo.createTime).local().add(this.info.planInfo.freeDays, 'days').format('YYYY-MM-DD HH:mm')
+        } else {
+          if (this.info.planInfo.planUser) {
+            date = moment.utc(this.info.planInfo.planUser.planEndTime).local().format('YYYY-MM-DD HH:mm')
+          }
+        }
+        if (date) {
+          msg.push(`Valid up to ${date} `) // ${days} ${unit}${days > 1 ? 's' : ''}`
+        }
       }
       if (remain > 0) {
         msg.push(`Balance of $${remain} unpaid`)
