@@ -2,7 +2,7 @@
   <a-modal
     v-model='selVis'
     destroyOnClose
-    title='Move Student'
+    :title='isRestore ? "Restore Student" : "Move Student"'
     width='500px'
     okText='Confirm'
     :confirmLoading="loading"
@@ -11,7 +11,7 @@
     <div class="move-opt">
       <a-row type="flex" align="middle" justify="space-between">
         <a-col>
-          <label for="">Please select class to move students</label>
+          <label for="">Please select class to {{ isRestore ? 'restore' : 'move' }} students</label>
         </a-col>
         <a-col>
           <a-select
@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import { moveClassStudent } from '@/api/v2/schoolUser'
+import { moveClassStudent, bulkActStudent } from '@/api/v2/schoolUser'
 import { groupBy } from 'lodash-es'
 
 export default {
@@ -55,6 +55,10 @@ export default {
     school: {
       type: Object,
       default: () => {}
+    },
+    needRestore: {
+      type: Boolean,
+      default: false
     }
   },
   watch: {
@@ -73,12 +77,16 @@ export default {
       },
       deep: true,
       immediate: true
+    },
+    needRestore(val) {
+      this.isRestore = val
     }
   },
   data() {
     return {
       selVis: false,
       loading: false,
+      isRestore: this.needRestore,
       grades: [],
       gradeId: '',
       classId: '',
@@ -93,7 +101,7 @@ export default {
       if (this.school.id === '0') {
         rs = await App.service('conf-user').get('Grades')
       } else {
-        rs = await App.service('conf-school').get('get', { query: { key: 'Grades', rid: this.school.id }})
+        rs = await App.service('conf-school').get('get', { query: { key: 'Grades', rid: this.school.id } })
       }
       this.grades = rs?.val ?? []
       console.log(this.school.id, this.grades, 123)
@@ -127,26 +135,61 @@ export default {
         this.$message.error('Please select a class')
         return
       }
-      this.$confirm({
-        title: 'Confirm to move selected students to class ' + cls.name,
-        centered: true,
-        okText: 'Confirm',
-        onOk: () => {
-          // move
-          this.loading = true
-          moveClassStudent({
-            classId: this.classId,
-            userIds: this.userIds
-          }).then(res => {
-            if (res.code === 0) {
-              this.$emit('update')
-            }
-          }).finally(() => {
-            this.selVis = false
-            this.loading = false
-          })
-        }
-      })
+      if (this.isRestore) {
+        this.$confirm({
+          title: 'Confirm to restore selected students to class ' + cls.name,
+          centered: true,
+          okText: 'Confirm',
+          onOk: () => {
+            // move
+            this.loading = true
+            moveClassStudent({
+              classId: this.classId,
+              userIds: this.userIds
+            }).then(res => {
+              if (res.code === 0) {
+                bulkActStudent({
+                  act: 8,
+                  schoolId: this.currentSchool.id,
+                  userIdList: this.userIds,
+                  userIds: this.userIds // reset
+                }).then(res => {
+                  this.$message.success('Student Restored successfully.')
+                  this.$emit('update')
+                }).finally(() => {
+                  this.selVis = false
+                  this.loading = false
+                })
+              } else {
+                this.loading = false
+              }
+            }).catch(() => {
+              this.loading = false
+            })
+          }
+        })
+      } else {
+        this.$confirm({
+          title: 'Confirm to move selected students to class ' + cls.name,
+          centered: true,
+          okText: 'Confirm',
+          onOk: () => {
+            // move
+            this.loading = true
+            moveClassStudent({
+              classId: this.classId,
+              userIds: this.userIds
+            }).then(res => {
+              if (res.code === 0) {
+                this.$emit('update')
+              }
+            }).finally(() => {
+              this.selVis = false
+              this.loading = false
+            })
+          }
+        })
+      }
     }
   }
 }

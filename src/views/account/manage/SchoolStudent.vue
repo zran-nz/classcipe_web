@@ -161,6 +161,7 @@
 
     <school-student-move
       ref="schoolStudentMove"
+      :needRestore="needRestore"
       @update="debounceLoad"
       :school="currentSchool"
       :classes="classList"/>
@@ -262,7 +263,8 @@ export default {
 
       onlyClass: null,
       subjectOptions: [],
-      disableMixinCreated: true
+      disableMixinCreated: true,
+      needRestore: false
     }
   },
   created() {
@@ -481,6 +483,13 @@ export default {
         } else if (act === this.ACT.RESET.value) {
           promise = resetPassword
         } else if (act === this.ACT.MOVE.value) {
+          this.needRestore = true
+          this.$refs.schoolStudentMove.doCreate({
+            userIds: userIdList
+          })
+          return
+        } else if (act === this.ACT.RESTORE.value) {
+          this.needRestore = true
           this.$refs.schoolStudentMove.doCreate({
             userIds: userIdList
           })
@@ -513,6 +522,7 @@ export default {
       }
     },
     handleMove() {
+      this.needRestore = false
       this.$refs.schoolStudentMove.doCreate({
         userIds: this.selectedRowKeys
       })
