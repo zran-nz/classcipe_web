@@ -357,8 +357,8 @@ export default {
         this.allDatas.archive = [{}]
         const query = { key: 'Grades', rid: this.currentSchool.id }
         console.log(query, 1111)
-        const { val } = this.currentSchool.id === '0' ? await App.service('conf-user').get('Grades') : await App.service('conf-school').get('get', { query })
-        this.gradeList = val
+        const rs = this.currentSchool.id === '0' ? await App.service('conf-user').get('Grades') : await App.service('conf-school').get('get', { query })
+        this.gradeList = rs?.val ?? []
         const { result } = await listClass({
           schoolId: this.currentSchool.id,
 queryType: this.currentTab === 'archive' ? 2 : '',
@@ -376,7 +376,7 @@ pageSize: 10000
           else ungraded.push(v)
         })
         this.classGroupList.ungraded = ungraded
-        console.log(val, this.classList, this.classGroupList)
+        console.log(rs?.val, this.classList, this.classGroupList)
         this.loading = false
         return
       }
