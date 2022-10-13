@@ -921,7 +921,7 @@ export default {
       }
     },
     handleInitSelect() {
-      if (this.forSelect && this.defaultSelect && this.defaultSelect.length > 0) {
+      if (this.forSelect && this.defaultSelect && this.defaultSelect.length > 1) {
         const calendarApi = this.$refs.fullCalendar.getApi()
         const selectEvent = calendarApi.getEventById('DateSelect')
         if (!selectEvent) {
