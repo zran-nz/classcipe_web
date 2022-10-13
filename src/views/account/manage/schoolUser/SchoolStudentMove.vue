@@ -35,7 +35,12 @@
             </a-radio>
           </a-radio-group>
         </div>
-        <a-empty v-else/>
+        <a-empty v-else>
+          <span slot="description"> There is no existed class, please set a class first </span>
+          <a-button @click="goClass" type="primary">
+            Set class
+          </a-button>
+        </a-empty>
       </div>
     </div>
   </a-modal>
@@ -59,6 +64,10 @@ export default {
     needRestore: {
       type: Boolean,
       default: false
+    },
+    currentSel: {
+      type: Object,
+      default: () => {}
     }
   },
   watch: {
@@ -78,6 +87,15 @@ export default {
       deep: true,
       immediate: true
     },
+    currentSel: {
+      handler(val) {
+        console.log(val)
+        this.currentStudent = { ...val }
+        this.initGrade()
+      },
+      deep: true,
+      immediate: true
+    },
     needRestore(val) {
       this.isRestore = val
     }
@@ -92,7 +110,8 @@ export default {
       classId: '',
       userIds: [],
       result: [],
-      gradeOptions: []
+      gradeOptions: [],
+      currentStudent: this.currentSel
     }
   },
   methods: {
@@ -114,6 +133,18 @@ export default {
         return groupData[item._id]
       })
       if (this.gradeOptions.length > 0) {
+        if (this.currentStudent && this.currentStudent.classes) {
+          const standard = this.currentStudent.classes.filter(item => item.classType === 0 && item.status !== 2)
+          if (standard && standard.length > 0) {
+            this.classId = standard[0].id
+            const find = this.classList.find(item => item.id === this.classId)
+            if (find) {
+              this.gradeId = find.gradeId
+              this.result = this.classList.filter(item => item.gradeId === find.gradeId)
+              return
+            }
+          }
+        }
         this.gradeId = this.gradeOptions[0]._id
         this.changeGrade(this.gradeId)
       }
@@ -190,6 +221,9 @@ export default {
           }
         })
       }
+    },
+    goClass() {
+      this.$router.push('/manage/class/list')
     }
   }
 }

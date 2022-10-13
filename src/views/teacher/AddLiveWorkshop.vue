@@ -301,6 +301,9 @@
       @cancel="handleSkip"
       cancelText="Skip"
       :okText="'Save'"
+      :okButtonProps="{
+        props: {disabled: !form.registerBefore}
+      }"
     >
       <a-space class='pay-title'>
         <div class='title'>

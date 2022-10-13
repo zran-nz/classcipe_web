@@ -64,7 +64,9 @@
                   <!-- </guide-content> -->
                 </a-space>
                 <!-- <div class="view-item-parent-content" v-for="(view, viewIndex) in parentView.cls" :key="view.parentId"> -->
-                <div class="view-item-parent-content" :key="viewIndex"
+                <div
+                  class="view-item-parent-content"
+                  :key="viewIndex"
                   v-for="(view, viewIndex) in currentTab === 'subject' ? parentView.cls : [...gradeList, { _id: 'ungraded', name: 'Ungraded classes' }]">
                   <div class="view-item-title">
                     <label for="">{{ view.name || formatViewName(view.id) }}</label>
@@ -358,8 +360,10 @@ export default {
         const { val } = this.currentSchool.id === '0' ? await App.service('conf-user').get('Grades') : await App.service('conf-school').get('get', { query })
         this.gradeList = val
         const { result } = await listClass({
-          schoolId: this.currentSchool.id, queryType: this.currentTab === 'archive' ? 2 : '',
-          pageNo: 1, pageSize: 10000
+          schoolId: this.currentSchool.id,
+queryType: this.currentTab === 'archive' ? 2 : '',
+          pageNo: 1,
+pageSize: 10000
         })
         this.classList = result.records
         const ungraded = []
@@ -520,11 +524,16 @@ export default {
     addGradeClass(view) {
       const post = {
         key: new Date().getTime() + Math.random(),
-        isNew: true, isEdit: true,
-        name: '', changeName: '',
-        gradeId: view.id || view._id, gradeName: view.name,
+        isNew: true,
+isEdit: true,
+        name: '',
+changeName: '',
+        gradeId: view.id || view._id,
+gradeName: view.name,
         schoolId: this.currentSchool.id,
-        classType: 0, teacherCount: 0, studentCount: 0
+        classType: 0,
+teacherCount: 0,
+studentCount: 0
       }
       // 只允许一个未创建
       let existsNew = false
@@ -538,7 +547,6 @@ export default {
       this.classGroupList[view._id].push(post)
       this.$forceUpdate()
       console.log(this.classGroupList[view._id])
-      return
     },
     doEditClassName(cls) {
       if (cls.status !== 2) {
@@ -670,45 +678,53 @@ export default {
     },
     handleRestore(cls) {
       // 如果之前的grade，subject现在不存在了，需要重新选择
-      if (cls.classType === 0) {
-        const isExist = this.gradeOptions.find(item => item.gradeId === cls.gradeId)
-        if (!isExist) {
-          this.restoreChooseOptions = this.gradeOptions.map(item => ({
-            ...item,
-            id: item.gradeId,
-            name: item.gradeName
-          }))
-          this.$refs.restoreChoose.doCreate(cls)
-          return
-        }
-      } else if (cls.classType === 1) {
-        const isExist = this.subjectOptions.find(item => item.subjectId === cls.subject)
-        if (!isExist) {
-          this.restoreChooseOptions = this.subjectOptions.map(item => ({
-            ...item,
-            id: item.subjectId,
-            name: item.subjectName
-          }))
-          this.$refs.restoreChoose.doCreate(cls)
-          return
-        }
-      }
+      // if (cls.classType === 0) {
+      //   const isExist = this.gradeOptions.find(item => item.gradeId === cls.gradeId)
+      //   if (!isExist) {
+      //     this.restoreChooseOptions = this.gradeOptions.map(item => ({
+      //       ...item,
+      //       id: item.gradeId,
+      //       name: item.gradeName
+      //     }))
+      //     this.$refs.restoreChoose.doCreate(cls)
+      //     return
+      //   }
+      // } else if (cls.classType === 1) {
+      //   const isExist = this.subjectOptions.find(item => item.subjectId === cls.subject)
+      //   if (!isExist) {
+      //     this.restoreChooseOptions = this.subjectOptions.map(item => ({
+      //       ...item,
+      //       id: item.subjectId,
+      //       name: item.subjectName
+      //     }))
+      //     this.$refs.restoreChoose.doCreate(cls)
+      //     return
+      //   }
+      // }
       this.doRestore(cls)
     },
     doRestore(cls) {
-      this.loading = true
-      restoreClass({
-        classId: cls.id,
-        ...cls
-      }).then(res => {
-        if (res.success && res.code === 0) {
-          this.$message.success('Restore successfully')
-          this.$store.dispatch('GetInfo')
-          this.debounceLoad()
-        } else {
-          this.loading = false
+      this.$confirm({
+        title: 'Confirm restore class ' + cls.name,
+        content: 'Do you want to restore class ' + cls.name,
+        centered: true,
+        onOk: () => {
+          this.loading = true
+          restoreClass({
+            classId: cls.id,
+            ...cls
+          }).then(res => {
+            if (res.success && res.code === 0) {
+              this.$message.success('Restore successfully')
+              this.$store.dispatch('GetInfo')
+              this.debounceLoad()
+            } else {
+              this.loading = false
+            }
+          }).finally(() => {
+            this.loading = false
+          })
         }
-      }).finally(() => {
       })
     },
     handleRemove(parentId, viewId, cls) {

@@ -24,7 +24,8 @@
               >
                 <template slot="dataSource">
                   <a-select-option v-for="item in filterMembers" :key="item.id" :title="item.email">
-                    <div style="display:flex" :class="{'disabled-user': item.status !== 1}">
+                    <!-- :class="{'disabled-user': item.status !== 1}" -->
+                    <div style="display:flex">
                       <div class="user-avatar">
                         <div class="avatar">
                           <img :src="item.avatar" />
@@ -38,9 +39,9 @@
                           {{ item.email }}
                         </div>
                       </div>
-                      <div class="user-status" v-if="item.status !== 1">
+                      <!-- <div class="user-status" v-if="item.status !== 1">
                         {{ getStatusFormat(item.status) || ' - ' }}
-                      </div>
+                      </div> -->
                       <div class="action-wrapper">
                         <a-button type="link" @click="handleAddMember(item)">
                           Add
@@ -340,7 +341,7 @@ export default {
         pageSize: 1000
       })
       if (res.result) {
-        this.memberList = res.result.records || []
+        this.memberList = (res.result.records || []).filter(item => item.status !== 4)
       }
     },
     async loadData() {
@@ -388,7 +389,7 @@ export default {
       }
     },
     handleAddMember(user) {
-      if (user.status !== 1) return
+      // if (user.status !== 1) return
       if (!user.uid) this.$message.error('This user has not id')
       if (this.classMemberList.findIndex(member => member.uid === user.uid) > -1) {
         this.$message.error('This user has been added')

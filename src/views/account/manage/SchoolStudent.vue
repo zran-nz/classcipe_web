@@ -47,7 +47,7 @@
           <a-input-search v-model="queryParam.searchKey" placeholder="Search" @search="handleSearch" :allow-clear="true"></a-input-search>
         </div>
         <a-space class="filter-opt">
-          <a-button type="primary" :disabled="selectedRowKeys.length === 0" @click="handleMove">Move Class</a-button>
+          <a-button type="primary" v-if="queryParam.schoolUserStatus !== SCHOOL_USER_STATUS.ARCHIVE.value" :disabled="selectedRowKeys.length === 0" @click="handleMove">Move Class</a-button>
           <a-dropdown :disabled="selectedRowKeys.length === 0" v-if="queryParam.schoolUserStatus !== ''">
             <a-menu slot="overlay" @click="handleBatchOpt">
               <!-- <a-menu-item key="move"> Move Class </a-menu-item> -->
@@ -145,7 +145,7 @@
             <a @click="handleEdit(record)" v-if="record.status !== SCHOOL_USER_STATUS.ARCHIVE.value">Edit</a>
             <a-dropdown>
               <a-menu slot="overlay" @click="opt => handleSingleOpt(opt, record)">
-                <a-menu-item :key="'ACT_'+ACT.MOVE.value"> Move Class </a-menu-item>
+                <a-menu-item :key="'ACT_'+ACT.MOVE.value" v-if="record.status !== SCHOOL_USER_STATUS.ARCHIVE.value"> Move Class </a-menu-item>
                 <a-menu-item :key="'ACT_'+ACT.RESEND.value" v-if="record.status === SCHOOL_USER_STATUS.INACTIVE.value"> Resend </a-menu-item>
                 <a-menu-item :key="'ACT_'+ACT.RESET.value" v-if="record.status === SCHOOL_USER_STATUS.ACTIVE.value"> Reset password </a-menu-item>
                 <a-menu-item :key="'ACT_'+ACT.RESTORE.value" v-if="record.status === SCHOOL_USER_STATUS.ARCHIVE.value"> Restore </a-menu-item>
@@ -163,6 +163,7 @@
       ref="schoolStudentMove"
       :needRestore="needRestore"
       @update="debounceLoad"
+      :currentSel="currentSel"
       :school="currentSchool"
       :classes="classList"/>
 
