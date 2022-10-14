@@ -186,6 +186,10 @@ export default {
     onlyMe: {
       type: Boolean,
       default: false
+    },
+    allClassList: {
+      type: Array,
+      default: () => []
     }
   },
   watch: {
@@ -211,6 +215,13 @@ export default {
       },
       immediate: true,
       deep: true
+    },
+    allClassList: {
+      handler(val) {
+        this.classListAll = [...val]
+      },
+      immediate: true,
+      deep: true
     }
   },
   components: {
@@ -226,6 +237,7 @@ export default {
       CALENDAR_QUERY_TYPE: CALENDAR_QUERY_TYPE,
       USER_MODE: USER_MODE,
       typeMap: typeMap,
+      classListAll: this.allClassList,
       queryType: this.searchType,
       typeFilters: this.searchFilters, // 根据类型的筛选条件
       clsFilters: this.classFilters,
@@ -616,6 +628,9 @@ export default {
         params.workshopStatus = this.typeFilters.filter(type => !['FA', 'SA', 'IA', 'Activity'].includes(type)).join(',')
         params.workshopType = '1,2'
         noNeedQuery = this.typeFilters.length === 0
+      }
+      if (this.classListAll && this.classListAll.length > 0 && this.schoolIds) {
+        params.classIds = this.classListAll.filter(item => this.schoolIds.includes(item.schoolId)).map(item => item.id).join(',')
       }
       if (this.queryType !== this.CALENDAR_QUERY_TYPE.CLASS.value) {
         this.termsInited = false

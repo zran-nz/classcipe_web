@@ -149,6 +149,7 @@
             :searchType="queryType"
             :searchFilters="searchFilters"
             :classFilters="classFilters"
+            :allClassList="classList"
             :showTerm="true"
             @change-units="initData"
           />
