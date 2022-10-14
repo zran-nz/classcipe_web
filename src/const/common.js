@@ -393,7 +393,7 @@ export const CALENDAR_QUERY_TYPE = {
     value: '2'
   },
   MY: {
-    label: 'My calendar',
+    label: 'My session',
     value: '3'
   }
 }

@@ -61,7 +61,7 @@
                 }">
                 <div class="type-item-title" style="margin-top: 0px;">
                   <a-checkbox :indeterminate="isIndeterminate" :checked="isAll" @change="handleChangeAll">
-                    All
+                    {{ sessionType === 'session' ? 'My session' : 'All' }}
                   </a-checkbox>
                 </div>
                 <div class="calendar-type-item" style="margin-bottom: 0" v-if="sessionType !== 'session'">
@@ -96,11 +96,11 @@
                   </div>
                 </div>
                 <div class="calendar-type-item" v-if="sessionType !== 'workshop'">
-                  <!-- <div class="type-item-title">
-                    <a-checkbox :checked="queryType.indexOf(CALENDAR_QUERY_TYPE.MY.value) > -1" @change="e => handleChangeType(CALENDAR_QUERY_TYPE.MY, e)">
+                  <div class="type-item-title" v-if="sessionType === 'all'">
+                    <a-checkbox :indeterminate="isMyIndeterminate" :checked="isMyAll" @change="e => handleChangeType(CALENDAR_QUERY_TYPE.MY, e)">
                       {{ CALENDAR_QUERY_TYPE.MY.label }}
                     </a-checkbox>
-                  </div> -->
+                  </div>
                   <div class="type-item-desc" style="width: 100px;">
                     <a-checkbox-group
                       :options="MyCalendarOptions"
@@ -345,6 +345,21 @@ export default {
       }
       return false
     },
+    isMyAll() {
+      const typeFiltersEqual = isEqual(this.typeFilters, ['FA', 'SA', 'Activity', 'IA'])
+      if (this.queryType === CALENDAR_QUERY_TYPE.CLASS.value) {
+        return false
+      }
+      console.log(this.typeFilters)
+      return typeFiltersEqual
+    },
+    isMyIndeterminate() {
+      const typeFiltersLen = this.typeFilters.length
+      if (this.queryType === CALENDAR_QUERY_TYPE.CLASS.value) {
+        return false
+      }
+      return typeFiltersLen > 0 && typeFiltersLen < 4
+    },
     filterShowClassOptions() {
       return this.showClassOptions.filter(item => {
         return this.schoolFilters.includes(item.schoolId)
@@ -513,6 +528,7 @@ export default {
         return (type.value === item) ? checked : this.queryType.indexOf(item) > -1
       })
       this.queryType = actualQuery.join(',')
+      console.log(this.queryType)
 
       if (this.queryType.indexOf(CALENDAR_QUERY_TYPE.WORKSHOP.value) > -1) {
         this.workFilters = [1, 2]
@@ -522,7 +538,7 @@ export default {
         this.workFilters = []
       }
       if (this.queryType.indexOf(CALENDAR_QUERY_TYPE.MY.value) > -1) {
-        this.typeFilters = ['FA', 'SA', 'IA', 'Activity']
+        this.typeFilters = ['FA', 'SA', 'Activity', 'IA']
       } else {
         this.typeFilters = []
       }

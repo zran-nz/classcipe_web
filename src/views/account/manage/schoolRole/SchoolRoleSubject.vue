@@ -91,6 +91,8 @@
 <script>
 import { getRoleSubjectLeaders, bindRoleSubjectLeader } from '@/api/v2/schoolRole'
 import { getSchoolUsers } from '@/api/v2/schoolUser'
+import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
+import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
 
 const { debounce } = require('lodash-es')
 
@@ -136,6 +138,7 @@ export default {
       currentRole: this.role,
       searchPoverVis: false,
       subjectOptions: [],
+      curriculumOptions: [],
       classOptions: [],
       teacherList: [],
       currentRecord: null,
@@ -166,7 +169,10 @@ export default {
           title: 'Subject',
           align: 'center',
           dataIndex: 'subjectName',
-          width: 150
+          width: 150,
+          customRender: (text, record) => {
+            return this.formatViewName(record.subjectId) + text
+          }
         },
         {
           title: 'Teachers',
@@ -216,7 +222,44 @@ export default {
       })
     },
     initDict() {
-
+      // 获取所有班级用于筛选
+      Promise.all([
+        getSubjectBySchoolId({
+          schoolId: this.currentSchool.id
+        }),
+        getCurriculumBySchoolId({
+          schoolId: this.currentSchool.id
+        })
+      ]).then(([subjectRes, currentRes]) => {
+        if (subjectRes.success) {
+          let subjects = []
+          subjectRes.result.forEach(parent => {
+            if (parent.subjectList && parent.subjectList.length > 0) {
+              subjects = subjects.concat(parent.subjectList.map(item => ({
+                ...item,
+                curriculumId: parent.curriculumId
+              })))
+            }
+          })
+          const options = []
+          subjects.forEach(item => {
+            options.push({
+              curriculumId: item.curriculumId,
+              subjectId: item.subjectId,
+              subjectName: item.subjectName
+            })
+            options.push({
+              curriculumId: item.curriculumId,
+              subjectId: item.parentSubjectId,
+              subjectName: item.parentSubjectName
+            })
+          })
+          this.subjectOptions = options
+        }
+        if (currentRes.success) {
+          this.curriculumOptions = currentRes.result
+        }
+      })
     },
     initSchoolUsers() {
       getSchoolUsers({
@@ -320,6 +363,19 @@ export default {
       }).catch(() => {
         this.loading = false
       })
+    },
+    formatViewName(id) {
+      const findSubject = this.subjectOptions.find(subject => subject.subjectId === id)
+      console.log(findSubject)
+      if (findSubject && this.curriculumOptions) {
+        const cur = this.curriculumOptions.find(item => item.curriculumId === findSubject.curriculumId)
+        if (cur) {
+          return cur.curriculumName + '-'
+        }
+      }
+      // const findGrade = this.gradeOptions.find(grade => grade.gradeId === id)
+      // if (findGrade) return findGrade.gradeName
+      return ''
     }
   }
 }

@@ -618,9 +618,11 @@ export default {
         noNeedQuery = this.typeFilters.length === 0
       }
       if (this.queryType !== this.CALENDAR_QUERY_TYPE.CLASS.value) {
-        params.schoolIds = this.schoolIds.join(',')
         this.termsInited = false
         // noNeedQuery = params.schoolIds.length === 0
+      }
+      if (this.schoolIds) {
+        params.schoolIds = this.schoolIds.join(',')
       }
       // 把term block加上
       this.loadBlock().then(termEvents => {

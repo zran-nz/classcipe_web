@@ -1331,9 +1331,9 @@ export default {
     handleDuplicateItem () {
       this.$logger.info('handleDuplicateItem', this.content)
       // 其他人的资源走buy逻辑
-      if (this.content.createBy !== this.$store.getters.userInfo.email) {
-        return this.handleBuyItem('Copy successfully')
-      }
+      // if (this.content.createBy !== this.$store.getters.userInfo.email) {
+      //   return this.handleBuyItem('Copy successfully')
+      // }
       this.$confirm({
         title: 'Confirm to copy',
         content: 'Are you sure to copy ' + this.content.name + ' ?',

@@ -5,12 +5,20 @@
     </div>
     <div class="student-sel-opt">
       <div class="sel-opt">
-        <a-select optionFilterProp="children" class="sel-option"
+        <a-select
+          optionFilterProp="children"
+          class="sel-option"
+          allowClear
           :getPopupContainer="trigger => trigger.parentElement"
-          v-model='queryParams.gradeIds' @change="changeGrade"
-          option-label-prop="label" placeholder='Filter By Grade'>
-          <a-select-option :value="option._id" :label="option.name"
-            v-for="option in filterGradeOptions" :key="option._id">
+          v-model='queryParams.gradeIds'
+          @change="changeGrade"
+          option-label-prop="label"
+          placeholder='Filter By Grade'>
+          <a-select-option
+            :value="option._id"
+            :label="option.name"
+            v-for="option in filterGradeOptions"
+            :key="option._id">
             <span>{{ option.name }}</span>
           </a-select-option>
         </a-select>
@@ -254,7 +262,7 @@ export default {
       if (this.currentSchool.id === '0') {
         rs = await App.service('conf-user').get('Grades')
       } else {
-        rs = await App.service('conf-school').get('get', { query: { key: 'Grades', rid: this.currentSchool.id }})
+        rs = await App.service('conf-school').get('get', { query: { key: 'Grades', rid: this.currentSchool.id } })
       }
       this.gradeOptions = rs?.val ?? []
       Promise.all([
