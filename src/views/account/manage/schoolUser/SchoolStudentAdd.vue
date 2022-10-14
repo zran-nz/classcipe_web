@@ -340,7 +340,10 @@ export default {
               this.formModel.classes = query.classId
             }
             this.classUnModify = true
-            this.$emit('getCls', true)
+            this.$emit('getCls', {
+              id: query.classId,
+              name: this.classNameList[query.classId]
+            })
           }
         }
         if (subjectRes.success) {

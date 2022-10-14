@@ -370,7 +370,14 @@ pageSize: 10000
         this.gradeList.map(v => {
           this.classGroupList[v._id] = []
         })
-        this.classList.map(v => {
+        this.classList.map(cls => {
+          const v = {
+            ...cls,
+            key: new Date().getTime() + Math.random(),
+            isNew: false,
+            isEdit: false,
+            changeName: cls.name
+          }
           if (this.currentTab === 'gradeId' && v.term) return // subject class
           if (this.classGroupList[v.gradeId]) this.classGroupList[v.gradeId].push(v)
           else ungraded.push(v)
@@ -551,6 +558,7 @@ studentCount: 0
     doEditClassName(cls) {
       if (cls.status !== 2) {
         cls.isEdit = true
+        this.$forceUpdate()
         this.$nextTick(() => {
           this.$refs['name' + cls.key][0].focus()
         })
