@@ -629,8 +629,11 @@ export default {
         params.workshopType = '1,2'
         noNeedQuery = this.typeFilters.length === 0
       }
-      if (this.classListAll && this.classListAll.length > 0 && this.schoolIds) {
-        params.classIds = this.classListAll.filter(item => this.schoolIds.includes(item.schoolId)).map(item => item.id).join(',')
+      if (this.queryType.indexOf(this.CALENDAR_QUERY_TYPE.MY.value) > -1) {
+        const classAll = (this.classListAll && this.classListAll.length > 0) ? this.classListAll : this.classList
+        if (classAll && this.schoolIds) {
+          params.classIds = classAll.filter(item => this.schoolIds.includes(item.schoolId)).map(item => item.id).join(',')
+        }
       }
       if (this.queryType !== this.CALENDAR_QUERY_TYPE.CLASS.value) {
         this.termsInited = false
