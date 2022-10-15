@@ -181,7 +181,7 @@ const user = {
     GetInfo ({ commit }) {
       return new Promise((resolve, reject) => {
         const token = storage.get(ACCESS_TOKEN)
-        getInfo({ token }).then(response => {
+        getInfo(token).then(response => {
           logger.info('GetInfo result', response)
 
           if (response.success) {

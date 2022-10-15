@@ -45,9 +45,9 @@
             <div class="item-child-title">Google Account</div>
             <div class="item-child-content">
               <div class="child-content-item">
-                <label for="">{{ googleAuthToken ? googleAuthToken.email + ' connected' : 'Not connect' }}</label>
-                <a-button :loading="loading" :disabled="true || onlyOneAuth" @click="connect('googleAuthToken')" type="primary" v-if="googleAuthToken">disconnect</a-button>
-                <a-button :loading="loading" @click="connect('googleAuthToken')" type="primary" v-else>connect</a-button>
+                <label for="">{{ googleAuth ? googleAuth.email + ' connected' : 'Not connect' }}</label>
+                <a-button :loading="loading" :disabled="true || onlyOneAuth" @click="connect('googleAuth')" type="primary" v-if="googleAuth">disconnect</a-button>
+                <a-button :loading="loading" @click="connect('googleAuth')" type="primary" v-else>connect</a-button>
               </div>
             </div>
           </div>
@@ -55,9 +55,9 @@
             <div class="item-child-title">Microsoft Account</div>
             <div class="item-child-content">
               <div class="child-content-item">
-                <label for="">{{ mircosoftAuthToken ? mircosoftAuthToken.email + ' connected' : 'Not connect' }}</label>
-                <a-button :loading="loading" :disabled="onlyOneAuth" @click="disconnect('mircosoftAuthToken')" type="primary" v-if="mircosoftAuthToken">disconnect</a-button>
-                <a-button :loading="loading" @click="connect('mircosoftAuthToken')" type="primary" v-else>connect</a-button>
+                <label for="">{{ mircosoftAuth ? mircosoftAuth.email + ' connected' : 'Not connect' }}</label>
+                <a-button :loading="loading" :disabled="onlyOneAuth" @click="disconnect('mircosoftAuth')" type="primary" v-if="mircosoftAuth">disconnect</a-button>
+                <a-button :loading="loading" @click="connect('mircosoftAuth')" type="primary" v-else>connect</a-button>
               </div>
             </div>
           </div> -->
@@ -65,9 +65,9 @@
             <div class="item-child-title">Zoom Account</div>
             <div class="item-child-content">
               <div class="child-content-item">
-                <label for="">{{ zoomAuthToken ? zoomAuthToken.email + ' connected' : 'Not connect' }}</label>
-                <a-button :loading="loading" :disabled="onlyOneAuth" @click="disconnect('zoomAuthToken')" type="primary" v-if="zoomAuthToken">disconnect</a-button>
-                <a-button :loading="loading" @click="connect('zoomAuthToken')" type="primary" v-else>connect</a-button>
+                <label for="">{{ zoomAuth ? zoomAuth.email + ' connected' : 'Not connect' }}</label>
+                <a-button :loading="loading" :disabled="onlyOneAuth" @click="disconnect('zoomAuth')" type="primary" v-if="zoomAuth">disconnect</a-button>
+                <a-button :loading="loading" @click="connect('zoomAuth')" type="primary" v-else>connect</a-button>
               </div>
             </div>
           </div>
@@ -149,17 +149,17 @@ export default {
       }
       return ''
     },
-    mircosoftAuthToken() {
-      return (this.info && this.info.mircosoftAuthToken && this.info.mircosoftAuthToken.email) ? this.info.mircosoftAuthToken : null
+    mircosoftAuth() {
+      return (this.info && this.info.mircosoftAuth && this.info.mircosoftAuth.email) ? this.info.mircosoftAuth : null
     },
-    googleAuthToken() {
-      return (this.info && this.info.googleAuthToken && this.info.googleAuthToken.email) ? this.info.googleAuthToken : null
+    googleAuth() {
+      return (this.info && this.info.googleAuth && this.info.googleAuth.email) ? this.info.googleAuth : null
     },
-    zoomAuthToken() {
-      return (this.info && this.info.zoomAuthToken && this.info.zoomAuthToken.email) ? this.info.zoomAuthToken : null
+    zoomAuth() {
+      return (this.info && this.info.zoomAuth && this.info.zoomAuth.email) ? this.info.zoomAuth : null
     },
     onlyOneAuth() {
-      const nums = [this.mircosoftAuthToken, this.googleAuthToken, this.zoomAuthToken].filter(auth => auth === null).length
+      const nums = [this.mircosoftAuth, this.googleAuth, this.zoomAuth].filter(auth => auth === null).length
       return nums === 2
     }
   },
@@ -189,26 +189,26 @@ export default {
       this.loadData()
     },
     async disconnect(tokenKey) {
-      if (tokenKey === 'zoomAuthToken') {
+      if (tokenKey === 'zoomAuth') {
         this.loading = true
         await this.unbindZoomAuth()
         this.loading = false
-      } else if (tokenKey === 'googleAuthToken') {
+      } else if (tokenKey === 'googleAuth') {
         this.loading = true
         await this.unbindGoogleAuth()
         this.loading = false
-      } else if (tokenKey === 'mircosoftAuthToken') {
+      } else if (tokenKey === 'mircosoftAuth') {
         this.loading = true
         await this.unbindMicrosoftAuth()
         this.loading = false
       }
     },
     connect(tokenKey) {
-      if (tokenKey === 'zoomAuthToken') {
+      if (tokenKey === 'zoomAuth') {
         this.goToZoomAuth()
-      } else if (tokenKey === 'googleAuthToken') {
+      } else if (tokenKey === 'googleAuth') {
         this.goToGoogleAuth()
-      } else if (tokenKey === 'mircosoftAuthToken') {
+      } else if (tokenKey === 'mircosoftAuth') {
         this.goToMicrosoftAuth()
       }
     }

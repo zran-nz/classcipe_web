@@ -56,11 +56,15 @@ export function signUp (parameter) {
  * @param parameter
  * @returns {AxiosPromise}
  */
-export function getInfo (parameter) {
+export function getInfo (token) {
   return request({
     url: userApi.UserInfo,
     method: 'get',
-    params: parameter
+    // params: parameter,
+    headers: {
+      'X-Access-Token': token,
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
   })
 }
 

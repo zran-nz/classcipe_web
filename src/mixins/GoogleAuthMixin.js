@@ -11,8 +11,8 @@ import { getUrlWithNoParams, getCookie } from '@/utils/util'
 export const GoogleAuthMixin = {
   computed: {
     ...mapState({
-      goolgeAccessToken: state => state.user.info.googleAuthToken?.accessToken,
-      googleRefreshToken: state => state.user.info.googleAuthToken?.refreshToken
+      goolgeAccessToken: state => state.user.info.googleAuth?.email,
+      googleRefreshToken: state => state.user.info.googleAuth?.refreshToken
     })
   },
   created() {
