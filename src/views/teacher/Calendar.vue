@@ -95,7 +95,12 @@
                     </a-checkbox-group>
                   </div>
                 </div>
-                <div class="calendar-type-item" v-if="sessionType !== 'workshop'">
+                <div
+                  class="calendar-type-item"
+                  :style="{
+                    marginLeft: sessionType == 'all' ? '24px' : '0'
+                  }"
+                  v-if="sessionType !== 'workshop'">
                   <div class="type-item-title" v-if="sessionType === 'all'">
                     <a-checkbox :indeterminate="isMyIndeterminate" :checked="isMyAll" @change="e => handleChangeType(CALENDAR_QUERY_TYPE.MY, e)">
                       {{ CALENDAR_QUERY_TYPE.MY.label }}
