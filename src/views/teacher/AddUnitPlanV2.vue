@@ -1785,6 +1785,7 @@ export default {
           this.form.questions.push({ name: q })
         }
       })
+      this.form.questions = this.form.questions.filter(item => this.selectedQuestionList.indexOf(item.name) > -1)
       this.questionMoreVisible = false
     },
     getSessionStep() {
