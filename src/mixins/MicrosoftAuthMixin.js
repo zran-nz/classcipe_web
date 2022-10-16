@@ -11,8 +11,8 @@ import { getUrlWithNoParams, getCookie } from '@/utils/util'
 export const MicrosoftAuthMixin = {
   computed: {
     ...mapState({
-      microsoftAccessToken: state => state.user.info.mircosoftAuthToken?.accessToken,
-      microsoftRefreshToken: state => state.user.info.mircosoftAuthToken?.refreshToken
+      microsoftAccessToken: state => state.user.info.mircosoftAuth?.email,
+      microsoftRefreshToken: state => state.user.info.mircosoftAuth?.refreshToken
     })
   },
   created() {

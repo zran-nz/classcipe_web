@@ -12,11 +12,11 @@ import notification from 'ant-design-vue/lib/notification'
 export const ZoomAuthMixin = {
   computed: {
     ...mapState({
-      zoomAccessToken: state => state.user.info.zoomAuthToken?.email,
-      zoomRefreshToken: state => state.user.info.zoomAuthToken?.refreshToken
+      zoomAccessToken: state => state.user.info.zoomAuth?.email,
+      zoomRefreshToken: state => state.user.info.zoomAuth?.refreshToken
     }),
     zoomMeetingCapacity () {
-      const extInfoJson = this.$store.state.user.info.zoomAuthToken?.extInfo
+      const extInfoJson = this.$store.state.user.info.zoomAuth?.extInfo
       if (extInfoJson) {
         const extInfo = JSON.parse(extInfoJson)
         return extInfo.meeting_capacity
