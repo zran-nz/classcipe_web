@@ -88,6 +88,9 @@ export default {
   watch: {
     list(newVal) {
        this.questionList = newVal
+    },
+    selected(newVal) {
+      this.selectedList = newVal.filter(item => !!item.name) || []
     }
   },
   computed: {

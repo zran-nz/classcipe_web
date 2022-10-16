@@ -2490,7 +2490,7 @@ export default {
   padding: 0px 5px;
   position: absolute;
   right: -30px;
-  top: 50px;
+  top: 75px;
   cursor: pointer;
   display: flex;
   flex-direction: row;
