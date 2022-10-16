@@ -67,7 +67,7 @@
             </a-space>
             <div class="choose-title">
               <div class="title">Session title:</div>
-              <a-textarea @blur="handleChangeTitle" auto-size :maxlength="500" v-model="scheduleReq.register.title"></a-textarea>
+              <a-textarea @blur="handleChangeTitle" auto-size :maxlength="100" v-model="scheduleReq.register.title"></a-textarea>
             </div>
             <div class="choose-session-cover">
               <custom-image-uploader
@@ -119,7 +119,7 @@
             </a-space>
             <div class="choose-title">
               <div class="title">Session title:</div>
-              <a-textarea auto-size :maxlength="500" v-model="scheduleReq.register.title"></a-textarea>
+              <a-textarea auto-size :maxlength="100" v-model="scheduleReq.register.title"></a-textarea>
             </div>
             <div class="choose-session-cover">
               <custom-image-uploader
@@ -171,7 +171,7 @@
             </a-space>
             <div class="choose-title">
               <div class="title">Session title:</div>
-              <a-textarea auto-size :maxlength="500" v-model="scheduleReq.register.title"></a-textarea>
+              <a-textarea auto-size :maxlength="100" v-model="scheduleReq.register.title"></a-textarea>
             </div>
             <div class="choose-session-cover">
               <custom-image-uploader
