@@ -7,6 +7,9 @@
     okText='Confirm'
     :confirmLoading="loading"
     @ok='handleSave'
+    :okButtonProps="{
+      props: {disabled: !classId}
+    }"
     @cancel='selVis = false'>
     <div class="move-opt">
       <a-row type="flex" align="middle" justify="space-between">
@@ -146,7 +149,7 @@ export default {
           }
         }
         this.gradeId = this.gradeOptions[0]._id
-        this.changeGrade(this.gradeId)
+        this.result = this.classList.filter(item => item.gradeId === this.gradeId)
       }
     },
     doCreate(item) {

@@ -36,8 +36,9 @@
             <a-button size="small" type="primary" @click="goToProfile">Go to profile</a-button>
           </div>
           <div class="header-detail-plan">
-            <div class='plan-name' v-if="info.planInfo && !info.planInfo.freeUsePlan">{{ info.planInfo.planName }} {{ planStatus }}</div>
+            <div class='plan-name' v-if="info.planInfo && !info.planInfo.freeUsePlan">{{ info.planInfo.planName }} {{ planStatus }}Info</div>
             <div class='plan-name' v-else>Free plan</div>
+            <!-- <div class='plan-name'>{{ planInfoStatus }}</div> -->
             <div class="plan-deadline" v-if="info.planInfo">
               {{ expiredDay }}
             </div>
@@ -391,6 +392,33 @@ export default {
       } else {
         return true
       }
+    },
+    planInfoStatus() {
+      if (this.info.planInfo) {
+        let txt = ''
+        switch (this.info.planInfo) {
+          case 0:
+            txt = 'Account Created'
+            break
+          case 1:
+            txt = 'Plan Applied'
+            break
+          case 2:
+            txt = 'Trial Period'
+            break
+          case 3:
+            txt = 'Plan Opened'
+            break
+          case -1:
+            txt = 'Plan Expired'
+            break
+
+          default:
+            break
+        }
+        return txt
+      }
+      return 'Account Created'
     },
     expiredDay() {
       const remain = this.info.planInfo.unPaidPrice || 0
