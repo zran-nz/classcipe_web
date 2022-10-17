@@ -633,6 +633,7 @@ export default {
         const classAll = (this.classListAll && this.classListAll.length > 0) ? this.classListAll : this.classList
         if (classAll && this.schoolIds) {
           params.classIds = classAll.filter(item => this.schoolIds.includes(item.schoolId)).map(item => item.id).join(',')
+          params.classTypes = [1]
         }
       }
       if (this.queryType !== this.CALENDAR_QUERY_TYPE.CLASS.value) {

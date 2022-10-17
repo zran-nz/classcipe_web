@@ -128,16 +128,16 @@
             <!-- <a-tag :color="getStatusFormat(status, 'color')">{{ getStatusFormat(status) || ' - ' }}</a-tag> -->
             <a-space>
               <a-tooltip title="Student Active" v-if="status === 1">
-                <a-icon style="color:#007990" type="check" />
+                <a-icon style="color:#007990" type="check-circle" theme="filled" />
               </a-tooltip>
               <a-tooltip title="Student InActive" v-else>
-                <a-icon style="color: #8D9496" type="check" />
+                <a-icon style="color: #8D9496" type="check-circle" theme="filled" />
               </a-tooltip>
               <a-tooltip title="Parent Active" v-if="record.parentEmailStatus" >
-                <a-icon style="color:#007990" type="check" />
+                <a-icon style="color:#007990" type="check-circle" theme="filled" />
               </a-tooltip>
               <a-tooltip title="Parent InActive" v-else >
-                <a-icon style="color: #8D9496" type="check" />
+                <a-icon style="color: #8D9496" type="check-circle" theme="filled" />
               </a-tooltip>
             </a-space>
           </div>
@@ -163,7 +163,7 @@
       ref="schoolStudentMove"
       :needRestore="needRestore"
       @update="debounceLoad"
-      :currentSel="currentSel"
+      :chooseCls="chooseCls"
       :school="currentSchool"
       :classes="classList"/>
 
@@ -265,7 +265,8 @@ export default {
       onlyClass: null,
       subjectOptions: [],
       disableMixinCreated: true,
-      needRestore: false
+      needRestore: false,
+      chooseCls: ''
     }
   },
   created() {
@@ -491,6 +492,23 @@ export default {
           return
         } else if (act === this.ACT.RESTORE.value) {
           this.needRestore = true
+          const cls = []
+          userIdList.forEach(uid => {
+            const currentStudent = this.dataSource.find(item => item.uid === uid)
+            if (currentStudent && currentStudent.classes) {
+              const standard = currentStudent.classes.filter(item => item.classType === 0 && item.status !== 2)
+              if (standard && standard.length > 0) {
+                if (!cls.includes(standard[0].id)) {
+                  cls.push(standard[0].id)
+                }
+              }
+            }
+          })
+          if (cls.length === 1) {
+            this.chooseCls = cls[0]
+          } else {
+            this.chooseCls = ''
+          }
           this.$refs.schoolStudentMove.doCreate({
             userIds: userIdList
           })

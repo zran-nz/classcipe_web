@@ -140,7 +140,7 @@
                                   <a @click="handleRestore(cls)">Restore</a>
                                 </a-menu-item>
                                 <a-menu-item>
-                                  <a v-if="currentTab === 'archive'" @click="handleDelete(cls)">Delete</a>
+                                  <a v-if="currentTab === 'archive' || cls.classType === 1" @click="handleDelete(cls)">Delete</a>
                                   <a v-else @click="handleArchive(cls)">Archive</a>
                                 </a-menu-item>
                               </a-menu>

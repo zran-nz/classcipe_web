@@ -12,7 +12,7 @@
     }"
     @cancel='selVis = false'>
     <div class="move-opt">
-      <a-row type="flex" align="middle" justify="space-between">
+      <a-row type="flex" align="middle" justify="space-between" v-if="result && result.length > 0">
         <a-col>
           <label for="">Please select class to {{ isRestore ? 'restore' : 'move' }} students</label>
         </a-col>
@@ -30,7 +30,7 @@
         </a-col>
       </a-row>
       <div class="student-import-detail">
-        <div class="import-detail-title">Class</div>
+        <div class="import-detail-title" v-if="result && result.length > 0">Class</div>
         <div class="import-detail-con" v-if="result && result.length > 0">
           <a-radio-group v-model="classId" >
             <a-radio class="detail-con-item" v-for="item in result" :key="item.id" :value="item.id">
@@ -71,6 +71,10 @@ export default {
     currentSel: {
       type: Object,
       default: () => {}
+    },
+    chooseCls: {
+      type: [String, Number],
+      default: ''
     }
   },
   watch: {
@@ -101,6 +105,10 @@ export default {
     },
     needRestore(val) {
       this.isRestore = val
+    },
+    chooseCls(val) {
+      this.selCls = val
+      this.initGrade()
     }
   },
   data() {
@@ -114,7 +122,8 @@ export default {
       userIds: [],
       result: [],
       gradeOptions: [],
-      currentStudent: this.currentSel
+      currentStudent: this.currentSel,
+      selCls: this.chooseCls
     }
   },
   methods: {
@@ -136,16 +145,13 @@ export default {
         return groupData[item._id]
       })
       if (this.gradeOptions.length > 0) {
-        if (this.currentStudent && this.currentStudent.classes) {
-          const standard = this.currentStudent.classes.filter(item => item.classType === 0 && item.status !== 2)
-          if (standard && standard.length > 0) {
-            this.classId = standard[0].id
-            const find = this.classList.find(item => item.id === this.classId)
-            if (find) {
-              this.gradeId = find.gradeId
-              this.result = this.classList.filter(item => item.gradeId === find.gradeId)
-              return
-            }
+        if (this.selCls) {
+          this.classId = this.selCls
+          const find = this.classList.find(item => item.id === this.classId)
+          if (find) {
+            this.gradeId = find.gradeId
+            this.result = this.classList.filter(item => item.gradeId === find.gradeId)
+            return
           }
         }
         this.gradeId = this.gradeOptions[0]._id
