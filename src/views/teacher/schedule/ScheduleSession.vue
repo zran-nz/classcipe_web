@@ -533,7 +533,7 @@ export default {
       this.scheduleReq.endDate = moment().add(40, 'm').utc().format('YYYY-MM-DD HH:mm:ss')
       const res = await this.createSession(true)
       this.$message.success('The scheduled tiem above will be cleard by starting the session now.')
-      const url = lessonHost + 't/' + res[0].classId + '?token=' + storage.get(ACCESS_TOKEN)
+      const url = lessonHost + 'd/' + res[0].classId + '?token=' + storage.get(ACCESS_TOKEN)
       window.location.href = url
     },
 
