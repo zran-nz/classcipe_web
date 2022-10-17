@@ -344,6 +344,9 @@ export default {
               id: query.classId,
               name: this.classNameList[query.classId]
             })
+            this.$nextTick(() => {
+              this.initValidate(!!this.studentId)
+            })
           }
         }
         if (subjectRes.success) {
@@ -419,6 +422,11 @@ export default {
           ...this.formModel,
           ...fromCache,
           ...defaultForm
+        }
+        const query = this.$route.query
+        if (query.classId && this.classNameList[query.classId]) {
+          this.formModel.classArr = [query.classId]
+          this.formModel.classes = query.classId
         }
         if (this.formModel.classes) {
           this.formModel.classArr = this.formModel.classes.split(',')

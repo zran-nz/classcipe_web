@@ -121,8 +121,8 @@
                             <div :class="{'class-con-item': true, 'pointer': currentTab !== 'archive'}" @click="handleEditStudents(cls)">
                               <div class="con-item-label">Students</div>
                               <div class="con-item-detail">
-                                <label v-if="currentTab === 'archive'" for="">{{ cls.studentCount }}</label>
-                                <a v-if="!cls.isNew && currentTab !== 'archive'" for="">{{ cls.studentCount }}</a>
+                                <label v-if="currentTab === 'archive'" for="">{{ cls.realStudentCount }}</label>
+                                <a v-if="!cls.isNew && currentTab !== 'archive'" for="">{{ cls.realStudentCount }}</a>
                                 <a type="link" v-if="cls.isNew">Upload</a>
                               </div>
                             </div>
