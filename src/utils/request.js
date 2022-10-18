@@ -20,10 +20,13 @@ const request = axios.create({
 
 // 异常拦截处理器
 const errorHandler = (error) => {
-  if (error.response) {
-    const data = error.response.data
+  const { config, request, response } = error
+  ErrCall({ type: 'classcipe_web.request', method: config.method, headers: config.headers,
+    href: request.responseURL, body: config.data, msg: response.data?.message || 'request error', status: response.status, stack: JSON.stringify(response.data) })
+  if (response) {
+    const data = response.data
     // 从 localstorage 获取 token
-    if (error.response.status === 403) {
+    if (response.status === 403) {
       notification.error({
         message: 'Forbidden',
         description: data.message
