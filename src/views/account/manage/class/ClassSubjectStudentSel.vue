@@ -205,6 +205,9 @@ export default {
           if (this.queryParams.gradeIds && this.queryParams.gradeIds.length > 0) {
             return this.queryParams.gradeIds.includes(cls.gradeId)
           }
+          if (cls.gradeId === 'ungraded' || !cls.gradeId) {
+            return false
+          }
           return true
         })
       }

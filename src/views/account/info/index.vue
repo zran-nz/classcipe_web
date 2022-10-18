@@ -36,13 +36,18 @@
             <a-button size="small" type="primary" @click="goToProfile">Go to profile</a-button>
           </div>
           <div class="header-detail-plan">
-            <div class='plan-name' v-if="info.planInfo && !info.planInfo.freeUsePlan">{{ info.planInfo.planName }} {{ planStatus }}Info</div>
-            <div class='plan-name' v-else>Free plan</div>
-            <!-- <div class='plan-name'>{{ planInfoStatus }}</div> -->
-            <div class="plan-deadline" v-if="info.planInfo">
+            <!-- <div class='plan-name' v-if="info.planInfo && !info.planInfo.freeUsePlan">{{ info.planInfo.planName }} {{ planStatus }}Info</div>
+            <div class='plan-name' v-else>Free plan</div> -->
+            <div class='plan-name'>{{ planInfoStatus }}</div>
+            <div
+              class="plan-deadline"
+              :style="{
+                color: (info.planInfo && info.planInfo.schoolInfo && info.planInfo.schoolInfo.planStatus === -1) ? '#ef4136' : '#2F86FD'
+              }"
+              v-if="info.planInfo && info.planInfo.schoolInfo && [2, 3, -1].includes(info.planInfo.schoolInfo.planStatus)">
               {{ expiredDay }}
             </div>
-            <div class="plan-pay" v-if="info.planInfo && info.planInfo.unPaidPrice && info.planInfo.unPaidPrice > 0">
+            <div class="plan-pay" v-if="info.planInfo && info.planInfo.unPaidPrice && info.planInfo.unPaidPrice > 0 && info.planInfo.schoolInfo && [2, 3, -1].includes(info.planInfo.schoolInfo.planStatus)">
               <a-button type='primary'>Pay</a-button>
             </div>
           </div>
@@ -394,9 +399,9 @@ export default {
       }
     },
     planInfoStatus() {
-      if (this.info.planInfo) {
+      if (this.info.planInfo && this.info.planInfo.schoolInfo) {
         let txt = ''
-        switch (this.info.planInfo) {
+        switch (this.info.planInfo.schoolInfo.planStatus) {
           case 0:
             txt = 'Account Created'
             break
