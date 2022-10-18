@@ -21,7 +21,7 @@ export const ZoomAuthMixin = {
         const extInfo = JSON.parse(extInfoJson)
         return extInfo.meeting_capacity
       } else {
-        return 100
+        return 500
       }
     }
   },
