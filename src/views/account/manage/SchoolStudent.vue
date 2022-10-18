@@ -130,7 +130,7 @@
               <a-tooltip title="Student Active" v-if="status === 1">
                 <a-icon style="color:#007990" type="check-circle" theme="filled" />
               </a-tooltip>
-              <a-tooltip title="Student InActive" v-else>
+              <a-tooltip title="Student InActive" v-if="status === 0">
                 <a-icon style="color: #8D9496" type="check-circle" theme="filled" />
               </a-tooltip>
               <a-tooltip title="Parent Active" v-if="record.parentEmailStatus" >

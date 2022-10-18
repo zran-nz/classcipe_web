@@ -156,6 +156,7 @@ export default {
         }
         this.gradeId = this.gradeOptions[0]._id
         this.result = this.classList.filter(item => item.gradeId === this.gradeId)
+        this.classId = ''
       }
     },
     doCreate(item) {
