@@ -123,8 +123,9 @@
               </a-tag>
             </a-popover>
           </div>
-          <div slot="status" slot-scope="status">
-            <a-tag :color="getStatusFormat(status, 'color')">{{ getStatusFormat(status) || ' - ' }}</a-tag>
+          <div slot="status" slot-scope="status, record">
+            <a-tag v-if="record.status === SCHOOL_USER_STATUS.ARCHIVE.value" :color="getStatusFormat(record.beforeArchiveStatus, 'color')">{{ getStatusFormat(record.beforeArchiveStatus) || ' - ' }}</a-tag>
+            <a-tag v-else :color="getStatusFormat(status, 'color')">{{ getStatusFormat(status) || ' - ' }}</a-tag>
           </div>
           <a-space slot="action" slot-scope="text, record">
             <a @click="handleEdit(record)" v-if="record.status !== SCHOOL_USER_STATUS.ARCHIVE.value">Edit</a>
