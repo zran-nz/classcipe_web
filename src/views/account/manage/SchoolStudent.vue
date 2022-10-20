@@ -142,15 +142,20 @@
             </a-space>
           </div>
           <a-space slot="action" slot-scope="text, record">
-            <a @click="handleEdit(record)" v-if="record.status !== SCHOOL_USER_STATUS.ARCHIVE.value">Edit</a>
+            <a @click="handleEdit(record)" v-if="queryParam.schoolUserStatus !== SCHOOL_USER_STATUS.ARCHIVE.value">Edit</a>
             <a-dropdown>
               <a-menu slot="overlay" @click="opt => handleSingleOpt(opt, record)">
-                <a-menu-item :key="'ACT_'+ACT.MOVE.value" v-if="record.status !== SCHOOL_USER_STATUS.ARCHIVE.value"> Move Class </a-menu-item>
-                <a-menu-item :key="'ACT_'+ACT.RESEND.value" v-if="record.status === SCHOOL_USER_STATUS.INACTIVE.value"> Resend </a-menu-item>
-                <a-menu-item :key="'ACT_'+ACT.RESET.value" v-if="record.status === SCHOOL_USER_STATUS.ACTIVE.value"> Reset password </a-menu-item>
-                <a-menu-item :key="'ACT_'+ACT.RESTORE.value" v-if="record.status === SCHOOL_USER_STATUS.ARCHIVE.value"> Restore </a-menu-item>
-                <a-menu-item :key="'ACT_'+ACT.ARCHIVE.value" v-if="record.status === SCHOOL_USER_STATUS.ACTIVE.value"> Archive </a-menu-item>
-                <a-menu-item :key="'ACT_'+ACT.DELETE.value" v-if="record.status === SCHOOL_USER_STATUS.ARCHIVE.value || record.status === SCHOOL_USER_STATUS.INACTIVE.value"> Delete </a-menu-item>
+                <a-menu-item :key="'ACT_'+ACT.MOVE.value" v-if="queryParam.schoolUserStatus !== SCHOOL_USER_STATUS.ARCHIVE.value"> Move Class </a-menu-item>
+                <template v-if="queryParam.schoolUserStatus !== SCHOOL_USER_STATUS.ARCHIVE.value">
+                  <a-menu-item :key="'ACT_'+ACT.RESEND.value" v-if="record.status === SCHOOL_USER_STATUS.INACTIVE.value"> Resend </a-menu-item>
+                  <a-menu-item :key="'ACT_'+ACT.RESET.value" v-if="record.status === SCHOOL_USER_STATUS.ACTIVE.value"> Reset password </a-menu-item>
+                  <a-menu-item :key="'ACT_'+ACT.ARCHIVE.value" v-if="record.status === SCHOOL_USER_STATUS.ACTIVE.value"> Archive </a-menu-item>
+                  <a-menu-item :key="'ACT_'+ACT.ARCHIVE.value" v-if="record.status === SCHOOL_USER_STATUS.INACTIVE.value"> Delete </a-menu-item>
+                </template>
+                <template v-else>
+                  <a-menu-item :key="'ACT_'+ACT.RESTORE.value"> Restore </a-menu-item>
+                  <a-menu-item :key="'ACT_'+ACT.DELETE.value"> Delete </a-menu-item>
+                </template>
               </a-menu>
               <a style="margin-left: 8px"> More <a-icon type="down" /> </a>
             </a-dropdown>
