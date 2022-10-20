@@ -1,5 +1,5 @@
-#!/bin/bash
-export NODE_OPTIONS=--openssl-legacy-provider
+#!/bin/sh
+#export NODE_OPTIONS=--openssl-legacy-provider
 export NODE_ENV=development
 cd /git
 yarn config set ignore-engines true
