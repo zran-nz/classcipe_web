@@ -263,19 +263,20 @@ export default {
       })
     },
     hasSetCurriculum() {
-      getCurriculumBySchoolId({
-        schoolId: this.currentSchool.id
-      }).then(res => {
-        if (res.code === 0) {
-          if (res.result && res.result.length > 0) {
-            if (res.result[0].gradeSettingInfo.length === 0) {
-              this.doConfirmGoCuriculum()
-            }
-          } else {
-            this.doConfirmGoCuriculum()
-          }
-        }
-      })
+      return
+      // getCurriculumBySchoolId({
+      //   schoolId: this.currentSchool.id
+      // }).then(res => {
+      //   if (res.code === 0) {
+      //     if (res.result && res.result.length > 0) {
+      //       if (res.result[0].gradeSettingInfo.length === 0) {
+      //         this.doConfirmGoCuriculum()
+      //       }
+      //     } else {
+      //       this.doConfirmGoCuriculum()
+      //     }
+      //   }
+      // })
     },
     doConfirmGoCuriculum() {
       if (this.userMode === USER_MODE.SCHOOL) {
