@@ -503,25 +503,20 @@ export default {
         this.startLoading = false
       }
     },
-    goToClassPage(classId) {
-      const dashUrl = lessonHost + 'd/' + classId + '?token=' + storage.get(ACCESS_TOKEN)
-      const url = lessonHost + 't/' + classId + '?token=' + storage.get(ACCESS_TOKEN)
+    goToClassPage(classId, pace) {
+      const ext = classId + '?token=' + storage.get('feathers-jwt')
       var height = document.documentElement.clientHeight * 0.7
       var width = document.documentElement.clientWidth * 0.7
       var strWindowFeatures = 'width=' + width + ',height=' + height + ',menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'
       var windowObjectReference
-      if (this.mode === 1) {
-        windowObjectReference = window.open(
-          'about:blank',
-          '_blank',
-          strWindowFeatures
-        )
-        windowObjectReference.location = url
+      if (pace === 'teacher-paced') {
+        windowObjectReference = window.open('about:blank', '_blank', strWindowFeatures)
+        windowObjectReference.location = lessonHost + 't/' + ext
         setTimeout(function () {
-          window.location.href = dashUrl
+          window.location.href = lessonHost + 'd/' + ext
         }, 1000)
       } else {
-        window.location.href = dashUrl
+        window.location.href = lessonHost + 's/' + ext
       }
     },
 
@@ -539,10 +534,10 @@ export default {
 
         AddOrUpdateClass(data).then(response => {
           item.loading = false
-          this.goToClassPage(item.classId)
+          this.goToClassPage(item.classId, paced)
         })
       } else {
-        this.goToClassPage(item.classId)
+        this.goToClassPage(item.classId, paced)
         this.loading = false
       }
     }
