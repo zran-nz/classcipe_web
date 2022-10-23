@@ -516,7 +516,7 @@ export default {
           window.location.href = lessonHost + 'd/' + ext
         }, 1000)
       } else {
-        window.location.href = lessonHost + 's/' + ext
+        window.location.href = lessonHost + 'd/' + ext
       }
     },
 
