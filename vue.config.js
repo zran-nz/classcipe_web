@@ -1,21 +1,23 @@
 const path = require('path')
 const webpack = require('webpack')
-const GitRevisionPlugin = require('git-revision-webpack-plugin')
-const GitRevision = new GitRevisionPlugin()
+// const GitRevisionPlugin = require('git-revision-webpack-plugin')
+// const GitRevision = new GitRevisionPlugin()
 const buildDate = JSON.stringify(new Date().toLocaleString())
 const createThemeColorReplacerPlugin = require('./config/plugin.config')
+const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
+const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 
 function resolve (dir) {
   return path.join(__dirname, dir)
 }
 
 // check Git
-function getGitHash () {
-  try {
-    return GitRevision.version()
-  } catch (e) {}
-  return 'unknown'
-}
+// function getGitHash () {
+//   try {
+//     return GitRevision.version()
+//   } catch (e) {}
+//   return 'unknown'
+// }
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -45,13 +47,23 @@ const vueConfig = {
     devtool: 'eval',
     // webpack plugins
     plugins: [
+      new HardSourceWebpackPlugin({
+        root: process.cwd(),
+        directories: [],
+        environmentHash: {
+          root: process.cwd(),
+          directories: [],
+          files: ['package.json', 'yarn.lock']
+        }
+      }),
+      new SpeedMeasurePlugin(),
       // Ignore all locale files of moment.js
       new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-      new webpack.DefinePlugin({
-        APP_VERSION: `"${require('./package.json').version}"`,
-        GIT_HASH: JSON.stringify(getGitHash()),
-        BUILD_DATE: buildDate
-      }),
+      // new webpack.DefinePlugin({
+      //   APP_VERSION: `"${require('./package.json').version}"`,
+      //   GIT_HASH: JSON.stringify(getGitHash()),
+      //   BUILD_DATE: buildDate
+      // }),
     ]
     // if prod, add externals
     // externals: isProd ? assetsCDN.externals : {}
@@ -63,6 +75,33 @@ const vueConfig = {
     .loader('cache-loader')
     .before('vue-loader')
 
+    config.resolve.alias
+      .set('@$', resolve('src'))
+
+    const svgRule = config.module.rule('svg')
+    svgRule.uses.clear()
+    svgRule
+      .oneOf('inline')
+      .resourceQuery(/inline/)
+      .use('vue-svg-icon-loader')
+      .loader('vue-svg-icon-loader')
+      .end()
+      .end()
+      .oneOf('external')
+      .use('file-loader')
+      .loader('file-loader')
+      .options({
+        name: 'assets/[name].[hash:8].[ext]'
+      })
+
+    // if prod is on
+    // assets require on cdn
+    // if (isProd) {
+    //   config.plugin('html').tap(args => {
+    //     args[0].cdn = assetsCDN
+    //     return args
+    //   })
+    // }
   },
 
   css: {

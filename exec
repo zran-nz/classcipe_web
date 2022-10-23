@@ -1,0 +1,2 @@
+#!/bin/sh
+sudo docker exec -it dev.web sh -c "cd git && $*"
