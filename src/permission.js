@@ -6,7 +6,7 @@ import '@/components/NProgress/nprogress.less' // progress bar custom style
 import { domTitle, setDocumentTitle } from '@/utils/domUtil'
 import { ACCESS_TOKEN, CURRENT_ROLE } from '@/store/mutation-types'
 import { i18nRender } from '@/locales'
-import { defaultExpertRouter, defaultStudentRouter, defaultTeacherRouter } from '@/config/router.config'
+import { defaultTeacherRouter } from '@/config/router.config'
 import * as logger from '@/utils/logger'
 import { SESSION_ACTIVE_KEY } from '@/const/common'
 import { getToken, setCookie } from './utils/util'
@@ -54,7 +54,7 @@ router.beforeEach((to, from, next) => {
           store
             .dispatch('GetInfo')
             .then(res => {
-              const currentRole = res.result && res.result.currentRole
+              const currentRole =  'teacher' // res.result && res.result.currentRole
               // generate dynamic router
               store.dispatch('GenerateRoutes', { roles: { permissionList: [currentRole, 'common'] } }).then(() => {
                 // 根据roles权限生成可访问的路由表

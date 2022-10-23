@@ -33,8 +33,8 @@
           增加 Header 左侧内容区自定义
     -->
     <template v-slot:menuRender>
-      <teacher-nav-v2 v-if="$store.getters.currentRole === 'teacher' && !noSidebar"></teacher-nav-v2>
-      <student-nav v-if="$store.getters.currentRole === 'student' && !noSidebar"></student-nav>
+      <teacher-nav-v2 v-if="!noSidebar"></teacher-nav-v2>
+      <!-- <student-nav v-if="$store.getters.currentRole === 'student' && !noSidebar"></student-nav> -->
     </template>
 
     <!-- custom footer / 自定义Footer -->
