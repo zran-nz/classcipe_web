@@ -1,5 +1,5 @@
 #!/bin/sh
-export NODE_OPTIONS="--openssl-legacy-provider --max-old-space-size=8192"
+export NODE_OPTIONS="--max-old-space-size=8192"
 export NODE_ENV=production
 cd /git
 yarn config set ignore-engines true
