@@ -53,11 +53,11 @@ const vueConfig = {
         GIT_HASH: JSON.stringify(getGitHash()),
         BUILD_DATE: buildDate
       }),
-      new CompressionWebpackPlugin({
-        test: /\.js$|\.html$|.\css/,
-        algorithm: 'gzip',
-        threshold: 10240
-      })
+      // new CompressionWebpackPlugin({
+      //   test: /\.js$|\.html$|.\css/,
+      //   algorithm: 'gzip',
+      //   threshold: 10240
+      // })
     ]
     // if prod, add externals
     // externals: isProd ? assetsCDN.externals : {}

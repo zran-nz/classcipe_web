@@ -522,24 +522,24 @@ export default {
 
     handleStartOrJoin (item, paced) {
       this.$logger.info('handleStartOrJoin', item, 'paced:', paced)
-      this.loading = true
-      if (item.status !== paced) {
-        const data = Object.assign({}, item)
-        // 状态需要提交后台处理
-        data.status = paced
-        // 课程开始时间未设置
-        if (!data.date) {
-          data.date = parseInt(moment.utc(new Date()).toDate().getTime() / 1000)
-        }
+      return this.goToClassPage(item.classId, paced)
+      // this.loading = true
+      // if (item.status !== paced) {
+      //   const data = Object.assign({}, item)
+      //   // 状态需要提交后台处理
+      //   data.status = paced
+      //   // 课程开始时间未设置
+      //   if (!data.date) {
+      //     data.date = parseInt(moment.utc(new Date()).toDate().getTime() / 1000)
+      //   }
 
-        AddOrUpdateClass(data).then(response => {
-          item.loading = false
-          this.goToClassPage(item.classId, paced)
-        })
-      } else {
-        this.goToClassPage(item.classId, paced)
-        this.loading = false
-      }
+      //   AddOrUpdateClass(data).then(response => {
+      //     item.loading = false
+      //   })
+      // } else {
+      //   this.goToClassPage(item.classId, paced)
+      //   this.loading = false
+      // }
     }
   }
 }
