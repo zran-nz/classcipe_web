@@ -354,7 +354,6 @@ import RateLevel from '@/components/RateLevel'
 import CommandTermAdd from '@/components/CommandTerm/CommandTermAdd.vue'
 import QuickWordButton from '@/components/Button/QuickWordButton'
 import { DICT_BLOOM_TAXONOMY, DICT_KNOWLEDGE_DIMENSION } from '@/const/common'
-import { GetAuCurriculum, GetNzCurriculum } from '@/api/v2/curriculumn'
 import { mapState } from 'vuex'
 
 export default {
@@ -605,22 +604,22 @@ export default {
         this.filterConfig.curriculumId = id
         const curriculum = this.curriculumOptions.find(item => item.id === id)
         if (id === '1') {
-          if (!this.cachedCurriculum['au']) {
-            this.$set(this.cachedCurriculum, 'au', await GetAuCurriculum())
-          }
-          this.data = this.cachedCurriculum['au']
-          this.subjectOptions = this.data['__subject']
-          this.yearOptions = this.data['__years']
-          this.yearIndex = this.data['__year']
+          // if (!this.cachedCurriculum['au']) {
+            // this.$set(this.cachedCurriculum, 'au', await GetAuCurriculum())
+          // }
+          // this.data = this.cachedCurriculum['au']
+          // this.subjectOptions = this.data['__subject']
+          // this.yearOptions = this.data['__years']
+          // this.yearIndex = this.data['__year']
           console.log('filterConfig.curriculumId update data', this.data)
         } else if (id === '2') {
-          if (!this.cachedCurriculum['nz']) {
-            this.$set(this.cachedCurriculum, 'nz', await GetNzCurriculum())
-          }
-          this.data = this.cachedCurriculum['nz']
-          this.subjectOptions = this.data['__subject']
-          this.yearOptions = this.data['__years']
-          this.yearIndex = this.data['Learning outcomes']['__year']
+          // if (!this.cachedCurriculum['nz']) {
+            // this.$set(this.cachedCurriculum, 'nz', await GetNzCurriculum())
+          // }
+          // this.data = this.cachedCurriculum['nz']
+          // this.subjectOptions = this.data['__subject']
+          // this.yearOptions = this.data['__years']
+          // this.yearIndex = this.data['Learning outcomes']['__year']
           console.log('filterConfig.curriculumId update data', this.data)
         } else {
           this.$logger.warn('No curriculum data.')

@@ -85,13 +85,13 @@
         </div>
       </div>
     </template>
-    <div class="filter-icon-item">
+    <!-- <div class="filter-icon-item">
       <filter-icon class="filter-icon" />
       <filter-active-icon class="filter-active-icon"/>
       <div class="filter-label">
         Filter
       </div>
-    </div>
+    </div> -->
   </a-popover>
 </template>
 

@@ -8,12 +8,12 @@
             :value.sync='searchKey'
             placeholder="Search" />
         </div>
-        <div class="filter-icon" @click.stop="showFilter = !showFilter">
+        <!-- <div class="filter-icon" @click.stop="showFilter = !showFilter">
           <div class="filter-item">
             <filter-icon class="filter-icon" />
             <filter-active-icon class="filter-active-icon"/>
           </div>
-        </div>
+        </div> -->
       </a-space>
     </div>
     <div v-if="showFilter" @click.stop='' class='filter-wrapper'>

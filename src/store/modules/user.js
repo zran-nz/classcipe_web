@@ -18,7 +18,7 @@ import { teacher } from '@/const/role'
 // import { myClassesList } from '@/api/v2/classes'
 import { listClass } from '@/api/v2/schoolClass'
 import { appLogin } from '@/api/v2/statsTarget'
-import { GetAuCurriculum, GetNzCurriculum } from '@/api/v2/curriculumn'
+// import { GetAuCurriculum, GetNzCurriculum } from '@/api/v2/curriculumn'
 
 const user = {
   state: {
@@ -337,23 +337,23 @@ const user = {
       if (curriculumId) {
         curriculumId = parseInt(curriculumId)
         if (curriculumId === 1) {
-          GetAuCurriculum().then(res => {
-            console.log('GetAuCurriculum res', res)
-            commit('SET_SUBJECTS', res.__subject)
-            commit('SET_YEARS', res.__years)
-          })
+          // GetAuCurriculum().then(res => {
+          //   console.log('GetAuCurriculum res', res)
+          //   commit('SET_SUBJECTS', res.__subject)
+          //   commit('SET_YEARS', res.__years)
+          // })
         } else if (curriculumId === 2) {
-          GetNzCurriculum().then(res => {
-            console.log('GetNzCurriculum res', res)
-            commit('SET_SUBJECTS', res.__subject)
-            commit('SET_YEARS', res.__years)
-          })
+          // GetNzCurriculum().then(res => {
+          //   console.log('GetNzCurriculum res', res)
+          //   commit('SET_SUBJECTS', res.__subject)
+          //   commit('SET_YEARS', res.__years)
+          // })
         } else {
-          GetAuCurriculum().then(res => {
-            console.log('GetAuCurriculum res', res)
-            commit('SET_SUBJECTS', res.__subject)
-            commit('SET_YEARS', res.__years)
-          })
+          // GetAuCurriculum().then(res => {
+          //   console.log('GetAuCurriculum res', res)
+          //   commit('SET_SUBJECTS', res.__subject)
+          //   commit('SET_YEARS', res.__years)
+          // })
           console.warn('no found curriculum, default use GetAuCurriculum ' + curriculumId)
         }
       }
