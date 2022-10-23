@@ -7,11 +7,11 @@ export const UserModeMixin = {
   },
   computed: {
     redirectUrl() {
-      if (this.$store.state.user.currentRole === 'student') {
-        return '/student/main/my-task'
-      } else {
-        return '/account/info'
-      }
+      return '/account/info?_=UserModeMixin:13'
+      // if (this.$store.state.user.currentRole === 'student') {
+      //   return '/student/main/my-task'
+      // } else {
+      // }
     }
   },
   created() {
