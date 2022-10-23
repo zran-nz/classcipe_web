@@ -42,9 +42,9 @@ router.beforeEach((to, from, next) => {
     logger.info('accessToken check', accessToken)
     if (accessToken) {
       if (to.path === loginRoutePath) {
-        const defaultRoutePath = storage.get(CURRENT_ROLE) === 'expert' ? defaultExpertRouter
-         : storage.get(CURRENT_ROLE) === 'teacher' ? defaultTeacherRouter : defaultStudentRouter
-        next({ path: defaultRoutePath })
+        // const defaultRoutePath = storage.get(CURRENT_ROLE) === 'expert' ? defaultExpertRouter
+        //  : storage.get(CURRENT_ROLE) === 'teacher' ? defaultTeacherRouter : defaultStudentRouter
+        next({ path: defaultTeacherRouter })
         NProgress.done()
       } else {
         // 检查是否已经获取了用户信息

@@ -4,7 +4,6 @@ export const commonAPIUrl = {
   UploadFile: '/classcipe/common/upload',
   GetSysConfig: '/classcipe/common/getSysConfig',
   GetDictItems: '/classcipe/sys/dict/getDictItems',
-  GetAllCountrys: '/classcipe/api/country/getAllCountrys',
   queryTeachers: '/classcipe/sys/sysUserPreference/queryTeachers'
 }
 /**
@@ -21,14 +20,6 @@ export function getSysConfig () {
 export function GetDictItems (code) {
   return request({
     url: commonAPIUrl.GetDictItems + '/' + code,
-    method: 'get'
-  })
-}
-
-export function GetAllCountrys () {
-  return request({
-    url: '/country.json',
-    baseURL: '/',
     method: 'get'
   })
 }

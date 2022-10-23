@@ -4,7 +4,6 @@ const GitRevisionPlugin = require('git-revision-webpack-plugin')
 const GitRevision = new GitRevisionPlugin()
 const buildDate = JSON.stringify(new Date().toLocaleString())
 const createThemeColorReplacerPlugin = require('./config/plugin.config')
-const CompressionWebpackPlugin = require('compression-webpack-plugin')
 
 function resolve (dir) {
   return path.join(__dirname, dir)
@@ -53,11 +52,6 @@ const vueConfig = {
         GIT_HASH: JSON.stringify(getGitHash()),
         BUILD_DATE: buildDate
       }),
-      // new CompressionWebpackPlugin({
-      //   test: /\.js$|\.html$|.\css/,
-      //   algorithm: 'gzip',
-      //   threshold: 10240
-      // })
     ]
     // if prod, add externals
     // externals: isProd ? assetsCDN.externals : {}
@@ -118,6 +112,7 @@ const vueConfig = {
   devServer: {
     // development server port 8000
     port: 8000,
+    compress: true,
     disableHostCheck: true,
     // If you want to turn on the proxy, please remove the mockjs /src/main.jsL11
     proxy: {
