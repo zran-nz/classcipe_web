@@ -1,2 +1,4 @@
 #!/bin/sh
-sudo docker exec -it dev.web sh -c "cd git && $*"
+# sudo docker exec -it dev.web sh -c "cd git && $*"
+# sudo docker run --rm -it -v $PWD:/git --user $(id -u):$(id -g) node:lts-alpine sh -c "cd git && $*"
+sudo docker run --rm -it -v $PWD:/git --user $(id -u):$(id -g) node:14-alpine sh -c "cd git && $*"
