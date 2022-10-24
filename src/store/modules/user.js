@@ -308,7 +308,7 @@ const user = {
 
     // get all class list
     GetClassList({ commit, state }, schoolId = '0') {
-      const remotePromise = state.currentRole === 'student' ? StudentClasses : listClass
+      const remotePromise = listClass
       return new Promise((resolve, reject) => {
         remotePromise({
           // queryType: 0,
