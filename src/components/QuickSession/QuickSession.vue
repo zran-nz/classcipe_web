@@ -274,10 +274,10 @@ export default {
         this.$logger.info('start session response', response)
         this.startLoading = false
         if (response.success) {
-          const targetUrl = lessonHost + 'd/' + response.result.classId + '?token=' + storage.get(ACCESS_TOKEN)
+          const targetUrl = lessonHost + 'd/' + response.result.classId + '?token=' + storage.get('feathers-jwt')
           this.$logger.info('try open ' + targetUrl)
           // 课堂那边需要点击返回回到表单，改成location.href跳转
-          const url = lessonHost + 't/' + response.result.classId + '?token=' + storage.get(ACCESS_TOKEN)
+          const url = lessonHost + 't/' + response.result.classId + '?token=' + storage.get('feathers-jwt')
           var windowObjectReference
           var height = document.documentElement.clientHeight * 0.7
           var width = document.documentElement.clientWidth * 0.7

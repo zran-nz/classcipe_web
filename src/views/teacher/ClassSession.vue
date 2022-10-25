@@ -473,9 +473,9 @@ export default {
           this.$logger.info('StartOpenSession res', res)
           if (res.success) {
             this.startLoading = false
-            const targetUrl = lessonHost + 'd/' + res.result.classId + '?token=' + storage.get(ACCESS_TOKEN)
+            const targetUrl = lessonHost + 'd/' + res.result.classId + '?token=' + storage.get('feathers-jwt')
             this.$logger.info('try open ' + targetUrl)
-            const url = lessonHost + 't/' + res.result.classId + '?token=' + storage.get(ACCESS_TOKEN)
+            const url = lessonHost + 't/' + res.result.classId + '?token=' + storage.get('feathers-jwt')
             let windowObjectReference
             const height = document.documentElement.clientHeight * 0.7
             const width = document.documentElement.clientWidth * 0.7

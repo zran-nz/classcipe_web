@@ -457,11 +457,11 @@ export default {
 
     handleTeacherProjecting (item) {
       this.$logger.info('handleStartSession', item)
-      const targetUrl = lessonHost + 'd/' + item.classId + '?token=' + storage.get(ACCESS_TOKEN)
+      const targetUrl = lessonHost + 'd/' + item.classId + '?token=' + storage.get('feathers-jwt')
       this.$logger.info('try open ' + targetUrl)
       // window.open(targetUrl, '_blank')
       // 课堂那边需要点击返回回到表单，改成location.href跳转
-      const url = lessonHost + 't/' + item.classId + '?token=' + storage.get(ACCESS_TOKEN)
+      const url = lessonHost + 't/' + item.classId + '?token=' + storage.get('feathers-jwt')
       var height = document.documentElement.clientHeight * 0.7
       var width = document.documentElement.clientWidth * 0.7
       var strWindowFeatures = 'width=' + width + ',height=' + height + ',menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'

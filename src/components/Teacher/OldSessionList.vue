@@ -202,8 +202,8 @@ export default {
     },
 
     goToClassPage(classId) {
-      const dashUrl = lessonHost + 'd/' + classId + '?token=' + storage.get(ACCESS_TOKEN)
-      const url = lessonHost + 't/' + classId + '?token=' + storage.get(ACCESS_TOKEN)
+      const dashUrl = lessonHost + 'd/' + classId + '?token=' + storage.get('feathers-jwt')
+      const url = lessonHost + 't/' + classId + '?token=' + storage.get('feathers-jwt')
       var height = document.documentElement.clientHeight * 0.7
       var width = document.documentElement.clientWidth * 0.7
       var strWindowFeatures = 'width=' + width + ',height=' + height + ',menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'

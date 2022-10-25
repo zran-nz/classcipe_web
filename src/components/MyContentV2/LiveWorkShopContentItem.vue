@@ -628,7 +628,7 @@ export default {
     handleGoWork(item) {
       if (item && item.session && item.session.classId && (this.isCurrentType(WORK_SHOPS_TYPE.REGISTERED.value) || this.isCurrentType(WORK_SHOPS_TYPE.LUNCHEDBYME.value))) {
         const prefix = this.isCurrentType(WORK_SHOPS_TYPE.LUNCHEDBYME.value) ? 'd/' : 's/'
-        const targetUrl = lessonHost + prefix + item.session.classId + '?token=' + storage.get(ACCESS_TOKEN)
+        const targetUrl = lessonHost + prefix + item.session.classId + '?token=' + storage.get('feathers-jwt')
         window.location.href = targetUrl
       }
     },
