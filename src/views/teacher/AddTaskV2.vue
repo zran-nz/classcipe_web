@@ -1134,7 +1134,7 @@ export default {
             this.$message.success('Created Successfully in Google Slides')
             await this.save()
             await this.updateSlideEditing()
-            window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId
+            top.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId
           }
         } finally {
           this.creating = false

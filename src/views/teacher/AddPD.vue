@@ -694,7 +694,7 @@ export default {
           this.form.presentationId = response.result.presentationId
           await this.save()
           await this.updateSlideEditing()
-          window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId
+          top.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId
         } finally {
           hideLoading()
           this.creating = false
@@ -784,7 +784,7 @@ export default {
           content: 'Check the changes in Google slides then save.',
           centered: true,
           onOk: () => {
-            window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit'
+            top.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit'
           }
         })
 
