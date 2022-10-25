@@ -139,7 +139,7 @@ const vueConfig = {
         changeOrigin: true
       },
       '/v2': {
-        target: ' https://dev.classcipe.com/',
+        target: 'http://127.0.0.1:9003',
         ws: true,
         changeOrigin: true
       }
