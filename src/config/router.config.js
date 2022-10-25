@@ -1,5 +1,5 @@
 // eslint-disable-next-line
-import { BasicLayout, BlankLayout, IframeLayout, UserLayout, H5Layout } from '@/layouts'
+import { BasicLayout, BlankLayout, EmptyLayout, IframeLayout, UserLayout, H5Layout } from '@/layouts'
 import { bxAnaalyse } from '@/core/icons'
 import { CurriculumType, USER_MODE } from '@/const/common'
 
@@ -1065,6 +1065,20 @@ export const constantRouterMap = [
                props: true,
                component: () => import('@/views/share/ShareDetail'),
                meta: { title: 'Share', keepAlive: true }
+             }
+           ]
+         },
+         // empty
+         {
+           path: '/empty',
+           name: 'empty',
+           component: EmptyLayout,
+           meta: { title: 'empty', keepAlive: true },
+           children: [
+             {
+               path: '/empty',
+               props: true,
+               component: () => import('@/views/empty'),
              }
            ]
          },

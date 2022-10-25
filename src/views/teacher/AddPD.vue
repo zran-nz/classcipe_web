@@ -634,7 +634,7 @@ export default {
             await this.save()
             const res = await this.updateSlideEditing()
             if (res.code === 0) {
-              window.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit'
+              top.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit'
             } else if (res.code === 520 || res.code === 403) {
               this.$logger.info('等待授权回调')
               this.$message.loading('Waiting for Google Slides auth...', 10)
