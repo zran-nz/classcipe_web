@@ -1,0 +1,10 @@
+{
+  "apps" : [{
+    "name" : "old",
+    "script" : "yarn",
+    "args" : "dev2",
+    "env": {
+    },
+    "ignore_watch" : ["node_modules"]
+  }]
+}
