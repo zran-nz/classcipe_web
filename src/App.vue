@@ -104,12 +104,18 @@ export default {
     this.$store.dispatch('initCurriculumData')
     this.$store.dispatch('initTagData', storage.get(ACCESS_TOKEN))
   },
-  mounted() {
+  async mounted() {
     var that = this
     enquireScreen(device => {
       console.log(device)
       that[TOGGLE_DEVICE](device)
     })
+    console.log('mounted:', )
+    var syncDom = document.createElement("iframe")
+    document.body.appendChild(syncDom)
+    syncDom.src=`//${location.hostname === 'my.classcipe.com' ? 'www':'dev'}.classcipe.com/fio/authSync.html?jwt=` + await App.authentication.getAccessToken()
+    await sleep(2000)
+    syncDom.remove()
   },
   methods: {
     ...mapMutations([TOGGLE_DEVICE]),
