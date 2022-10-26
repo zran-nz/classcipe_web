@@ -110,7 +110,6 @@ export default {
       console.log(device)
       that[TOGGLE_DEVICE](device)
     })
-    console.log('mounted:', )
     var syncDom = document.createElement("iframe")
     document.body.appendChild(syncDom)
     syncDom.src=`//${location.hostname === 'my.classcipe.com' ? 'www':'dev'}.classcipe.com/fio/authSync.html?jwt=` + await App.authentication.getAccessToken()
