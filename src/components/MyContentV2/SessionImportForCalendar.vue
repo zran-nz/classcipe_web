@@ -394,7 +394,7 @@ export default {
         // 如果从task导入，则获取task关联的所有unit，如果大于1则显示unit列表供其选择
         this.getAssociate(item.id, item.type).then(res => {
           if (this.importType === item.type) {
-            associates = res.filter(item => item.owner.email === this.$store.getters.email)
+            associates = res.filter(item => item.owner.email === this.$store.getters.email && item.delFlag === 0)
           }
           if (this.importType === typeMap['unit-plan'] && typeMap['unit-plan'] === item.type) {
             this.importDatas = res.filter(item => item.owner.email === this.$store.getters.email)

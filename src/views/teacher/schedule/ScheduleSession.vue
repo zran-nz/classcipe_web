@@ -454,12 +454,14 @@ export default {
     },
 
      handleUpdateCover (coverData) {
+      console.log(coverData)
       if (coverData.type === 'video') {
         this.scheduleReq.register.coverVideo = coverData.url
       } else {
         this.scheduleReq.register.image = coverData.url
       }
       this.scheduleReq.register.cover = coverData.url
+      this.$forceUpdate()
     },
 
     getClassList() {
