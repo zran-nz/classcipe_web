@@ -7,6 +7,7 @@ import { SESSION_CURRENT_PAGE, SESSION_CURRENT_TYPE, SESSION_CURRENT_TYPE_LABEL 
 import { mapActions, mapGetters, mapState } from 'vuex'
 import storage from 'store'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
+import { CollaborateStatus } from '@/const/teacher'
 
 export const RightModule = {
   'collaborate': 1,
@@ -137,7 +138,8 @@ export const BaseEventMixin = {
       }
       const index = this.collaborate.users.findIndex(item => item.email === this.$store.getters.userInfo.email)
       if (index > -1) {
-        return this.collaborate.users[index].permissions === 'Edit'
+        return this.collaborate.users[index].permissions === 'Edit' &&
+          this.collaborate.users[index].agreeFlag === CollaborateStatus.agree
       }
       return false
     },
