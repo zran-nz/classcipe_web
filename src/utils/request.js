@@ -22,7 +22,7 @@ const request = axios.create({
 const errorHandler = (error) => {
   const { config, request, response } = error
   ErrCall({ type: 'classcipe_web.request', method: config.method, headers: config.headers,
-    href: request.responseURL, body: config.data, msg: response.data?.message || 'request error', status: response.status, stack: JSON.stringify(response.data) })
+    href: request.responseURL, body: config.data, msg: response?.data?.message || 'request error', status: response?.status, stack: JSON.stringify(response?.data) })
   if (response) {
     const data = response.data
     // 从 localstorage 获取 token

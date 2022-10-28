@@ -44,7 +44,7 @@ const vueConfig = {
   // 打包app时放开该配置
   // publicPath: process.env.NODE_ENV === 'test' ? '/version2' : '/',
   configureWebpack: {
-    devtool: 'eval',
+    devtool: 'cheap-module-eval-souce-map',
     // webpack plugins
     plugins: [
       new HardSourceWebpackPlugin({
