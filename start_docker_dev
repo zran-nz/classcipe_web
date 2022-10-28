@@ -1,5 +1,5 @@
 sudo docker run -d -it --name dev.web --net=host -v $PWD:/git --restart=always node:14-alpine /git/start_dev
 sudo docker attach dev.web
 
-# sudo docker run --rm -it --net=host -v $PWD:/git node:lts-alpine /git/start_init
+# sudo docker run --rm -it --net=host -v $PWD:/git node:14-alpine /git/start_init
 # yarn vue-cli-service serve --host 0.0.0.0 --port 8007 --public dev.classcipe.com
