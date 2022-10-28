@@ -1129,7 +1129,7 @@ export default {
 
       if (this.thumbnailList.length === 0) {
         this.thumbnailList.push({
-          contentUrl: 'http://dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png'
+          contentUrl: '//dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png'
         })
       }
       this.$logger.info('initImgList', this.thumbnailList)
@@ -1158,7 +1158,7 @@ export default {
             })
           } else {
             this.thumbnailList.push({
-              contentUrl: 'http://dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png'
+              contentUrl: '//dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png'
             })
           }
         } else {
