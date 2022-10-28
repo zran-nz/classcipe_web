@@ -32,17 +32,16 @@
     </div>
     <div class='form-slide-content'>
       <div class='slide-wrapper'>
-        <slide-viewer
+        <SlideViewer
           v-show='displayMode === displayModeType.SlideDrift'
           :show-arrow='true'
           :show-nav='true'
           :show-notes='true'
           :slide-id='slideId'
           v-bind="$attrs" />
-        <slide-template
+        <SlideTemplate
           v-show='displayMode === displayModeType.SlideTemplate'
-          v-bind="$attrs"
-        />
+          v-bind="$attrs"/>
       </div>
     </div>
   </div>

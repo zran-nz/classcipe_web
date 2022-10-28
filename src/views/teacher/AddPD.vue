@@ -549,42 +549,51 @@ export default {
       this.loadThumbnail(false)
     },
 
-    loadThumbnail(needRefresh, hiddenMask = false) {
+    async loadThumbnail(needRefresh, hiddenMask = false) {
       this.$logger.info('loadThumbnail ' + this.form.presentationId)
       if (!this.thumbnailListLoading) {
         this.thumbnailListLoading = true
-        TemplatesGetPresentation({
-          taskId: this.pdId,
-          needRefresh: needRefresh
-        }).then(response => {
-          this.$logger.info('loadThumbnail response', response.result)
-          if (response.code === 0) {
-            // this.restorePdContent(this.form.id, false)
-            this.restorePdContent(false)
-            // 不加这段 thumbnailList无法设置，slides draft 就无法显示
-            const pageObjects = response.result.pageObjects
-            this.form.pageObjects = pageObjects
-            this.form.pageObjectIds = response.result.pageObjectIds.join(',')
-            this.$logger.info(`form.pageObjectIds ${this.form.pageObjectIds} form.pageObjects ${this.form.pageObjects}`)
-            this.thumbnailList = []
-            pageObjects.forEach(page => {
-              this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
-            })
-            if (!this.form.fileDeleted && response.result.fileDeleted) {
-              this.form.fileDeleted = true
-            }
-
-            if (hiddenMask) {
-              this.form.slideEditing = false
-            }
-          } else if (response.code === 403) {
-            this.$router.push({ path: '/teacher/main/created-by-me' })
-          } else if (response.code === this.ErrorCode.ppt_google_token_expires || response.code === this.ErrorCode.ppt_forbidden) {
-            this.$logger.info('等待授权事件通知')
-          }
-        }).finally(() => {
-          this.thumbnailListLoading = false
+        const query = { id: this.form.presentationId, task: this.pdId }
+        if (needRefresh) await App.service('slides').get('syncSlide', { query: { ...query, type: 9 }})
+        const slides = await App.service('slides').get('findBySlideId', { query })
+        this.thumbnailListLoading = false
+        this.thumbnailList = []
+        slides.pages.map(v => {
+          this.thumbnailList.push({ contentUrl: v.url, id: v._id })
         })
+        console.log('loadThumbnail', this.thumbnailList)
+        // TemplatesGetPresentation({
+        //   taskId: this.pdId,
+        //   needRefresh: needRefresh
+        // }).then(response => {
+        //   this.$logger.info('loadThumbnail response', response.result)
+        //   if (response.code === 0) {
+        //     // this.restorePdContent(this.form.id, false)
+        //     this.restorePdContent(false)
+        //     // 不加这段 thumbnailList无法设置，slides draft 就无法显示
+        //     const pageObjects = response.result.pageObjects
+        //     this.form.pageObjects = pageObjects
+        //     this.form.pageObjectIds = response.result.pageObjectIds.join(',')
+        //     this.$logger.info(`form.pageObjectIds ${this.form.pageObjectIds} form.pageObjects ${this.form.pageObjects}`)
+        //     this.thumbnailList = []
+        //     pageObjects.forEach(page => {
+        //       this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
+        //     })
+        //     if (!this.form.fileDeleted && response.result.fileDeleted) {
+        //       this.form.fileDeleted = true
+        //     }
+
+        //     if (hiddenMask) {
+        //       this.form.slideEditing = false
+        //     }
+        //   } else if (response.code === 403) {
+        //     this.$router.push({ path: '/teacher/main/created-by-me' })
+        //   } else if (response.code === this.ErrorCode.ppt_google_token_expires || response.code === this.ErrorCode.ppt_forbidden) {
+        //     this.$logger.info('等待授权事件通知')
+        //   }
+        // }).finally(() => {
+        //   this.thumbnailListLoading = false
+        // })
       }
     },
 

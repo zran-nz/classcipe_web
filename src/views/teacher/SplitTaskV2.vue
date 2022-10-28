@@ -174,74 +174,79 @@ export default {
   methods: {
     initData() {
       this.$logger.info('initData doing...')
-
       TaskQueryById({
         id: this.parentTaskId
       }).then(async response => {
-        if (response.code === 0) {
-          const taskData = response.result
-          if (!taskData.materialList) {
-            taskData.materialList = []
-          }
+        if (response.code !== 0) return
+        const taskData = response.result
+        this.loadThumbnail(taskData.presentationId, taskData.id)
+        if (!taskData.materialList) {
+          taskData.materialList = []
+        }
 
-          this.materialListFlag = taskData.materialList.length > 0
-          // 填充自定义字段
-          const customFieldData = taskData.customFieldData ? JSON.parse(taskData.customFieldData) : null
-          const displayCustomFieldData = {}
-          if (customFieldData) {
-            // 只显示配置中存在的字段,用id做key，改名后依旧可以使用老数据
-            this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
-              if (customFieldData.hasOwnProperty(customField.id)) {
-                displayCustomFieldData[customField.id] = customFieldData[customField.id]
-              } else {
-                displayCustomFieldData[customField.id] = ''
-              }
-            })
-          } else {
-            this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
+        this.materialListFlag = taskData.materialList.length > 0
+        // 填充自定义字段
+        const customFieldData = taskData.customFieldData ? JSON.parse(taskData.customFieldData) : null
+        const displayCustomFieldData = {}
+        if (customFieldData) {
+          // 只显示配置中存在的字段,用id做key，改名后依旧可以使用老数据
+          this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
+            if (customFieldData.hasOwnProperty(customField.id)) {
+              displayCustomFieldData[customField.id] = customFieldData[customField.id]
+            } else {
               displayCustomFieldData[customField.id] = ''
-            })
-          }
-          this.$logger.info('displayCustomFieldData', displayCustomFieldData)
-          taskData.customFieldData = displayCustomFieldData
-          this.allLearningObjectiveList = taskData.learnOuts.slice()
-          this.allTags = JSON.parse(JSON.stringify(taskData.customTags))
-          taskData.id = null
-          taskData.presentationId = null
-          this.form = taskData
-          this.form.name = ''
-          this.form.image = ''
-          this.contentLoading = false
-          this.$logger.info('restore split task', this.form)
-        }
-      })
-      this.loadThumbnail(false)
-    },
-    loadThumbnail(needRefresh) {
-      this.thumbnailListLoading = true
-      this.$logger.info('loadThumbnail ' + this.form.presentationId)
-      TemplatesGetPresentation({
-        taskId: this.parentTaskId,
-        needRefresh: needRefresh
-      }).then(response => {
-        this.$logger.info('loadThumbnail response', response.result)
-        if (response.code === 0) {
-          this.form.presentationId = response.result.presentationId
-          this.form.revisionId = response.result.revisionId
-          this.form.pageObjectIds = response.result.pageObjectIds.join(',')
-          const pageObjects = response.result.pageObjects
-          this.thumbnailList = []
-          pageObjects.forEach(page => {
-            this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
+            }
           })
-        } else if (response.code === 403) {
-          this.$router.push({ path: '/teacher/main/created-by-me' })
-        } else if (response.code === this.ErrorCode.ppt_google_token_expires || response.code === this.ErrorCode.ppt_forbidden) {
-          this.$logger.info('等待授权事件通知')
+        } else {
+          this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
+            displayCustomFieldData[customField.id] = ''
+          })
         }
-      }).finally(() => {
-        this.thumbnailListLoading = false
+        this.$logger.info('displayCustomFieldData', displayCustomFieldData)
+        taskData.customFieldData = displayCustomFieldData
+        this.allLearningObjectiveList = taskData.learnOuts.slice()
+        this.allTags = JSON.parse(JSON.stringify(taskData.customTags))
+        taskData.id = null
+        taskData.presentationId = null
+        this.form = taskData
+        this.form.name = ''
+        this.form.image = ''
+        this.contentLoading = false
+        this.$logger.info('restore split task', this.form)
       })
+    },
+    async loadThumbnail(slideId, task) {
+      this.$logger.info('loadThumbnail ' + slideId, task)
+      this.thumbnailListLoading = true
+      const slides = await App.service('slides').get('findBySlideId', { query: { id: slideId, task }})
+      this.thumbnailListLoading = false
+      this.thumbnailList = []
+      slides?.pages?.map(v => {
+        this.thumbnailList.push({ contentUrl: v.url, id: v._id })
+      })
+      console.log('loadThumbnail', this.thumbnailList)
+      // TemplatesGetPresentation({
+      //   taskId: this.parentTaskId,
+      //   needRefresh: needRefresh
+      // }).then(response => {
+      //   this.$logger.info('loadThumbnail response', response.result)
+      //   if (response.code === 0) {
+      //     this.form.presentationId = response.result.presentationId
+      //     this.form.revisionId = response.result.revisionId
+      //     this.form.pageObjectIds = response.result.pageObjectIds.join(',')
+      //     const pageObjects = response.result.pageObjects
+      //     this.thumbnailList = []
+      //     pageObjects.forEach(page => {
+      //       this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
+      //     })
+      //   } else if (response.code === 403) {
+      //     this.$router.push({ path: '/teacher/main/created-by-me' })
+      //   } else if (response.code === this.ErrorCode.ppt_google_token_expires || response.code === this.ErrorCode.ppt_forbidden) {
+      //     this.$logger.info('等待授权事件通知')
+      //   }
+      // }).finally(() => {
+      //   this.thumbnailListLoading = false
+      // })
     },
     goBack() {
       this.$router.replace({ path: '/teacher/sub-task/' + this.parentTaskId })

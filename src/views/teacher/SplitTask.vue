@@ -1028,28 +1028,35 @@ export default {
     loadThumbnail(needRefresh) {
       this.thumbnailListLoading = true
       this.$logger.info('loadThumbnail ' + this.form.presentationId)
-      TemplatesGetPresentation({
-        taskId: this.parentTaskId,
-        needRefresh: needRefresh
-      }).then(response => {
-        this.$logger.info('loadThumbnail response', response.result)
-        if (response.code === 0) {
-          this.form.presentationId = response.result.presentationId
-          this.form.revisionId = response.result.revisionId
-          this.form.pageObjectIds = response.result.pageObjectIds.join(',')
-          const pageObjects = response.result.pageObjects
-          this.thumbnailList = []
-          pageObjects.forEach(page => {
-            this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
-          })
-        } else if (response.code === 403) {
-          this.$router.push({ path: '/teacher/main/created-by-me' })
-        } else if (response.code === this.ErrorCode.ppt_google_token_expires || response.code === this.ErrorCode.ppt_forbidden) {
-          this.$logger.info('等待授权事件通知')
-        }
-      }).finally(() => {
-        this.thumbnailListLoading = false
+      const slides = await App.service('slides').get('findBySlideId', { query: { id: this.form.presentationId, task: this.parentTaskId }})
+      this.thumbnailListLoading = false
+      this.thumbnailList = []
+      slides.pages.map(v => {
+        this.thumbnailList.push({ contentUrl: v.url, id: v._id })
       })
+      console.log('loadThumbnail', this.thumbnailList)
+      // TemplatesGetPresentation({
+      //   taskId: this.parentTaskId,
+      //   needRefresh: needRefresh
+      // }).then(response => {
+      //   this.$logger.info('loadThumbnail response', response.result)
+      //   if (response.code === 0) {
+      //     this.form.presentationId = response.result.presentationId
+      //     this.form.revisionId = response.result.revisionId
+      //     this.form.pageObjectIds = response.result.pageObjectIds.join(',')
+      //     const pageObjects = response.result.pageObjects
+      //     this.thumbnailList = []
+      //     pageObjects.forEach(page => {
+      //       this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
+      //     })
+      //   } else if (response.code === 403) {
+      //     this.$router.push({ path: '/teacher/main/created-by-me' })
+      //   } else if (response.code === this.ErrorCode.ppt_google_token_expires || response.code === this.ErrorCode.ppt_forbidden) {
+      //     this.$logger.info('等待授权事件通知')
+      //   }
+      // }).finally(() => {
+      //   this.thumbnailListLoading = false
+      // })
     },
 
     getAssociate() {
