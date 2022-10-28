@@ -47,6 +47,9 @@ export function TaskCreateNewTaskPPT (parameter) {
  * @constructor
  */
 export function TaskAddOrUpdate (parameter) {
+  delete parameter.yearList
+  delete parameter.subjectList
+  delete parameter.curriculumId
   return request({
     url: taskAPIUrl.addOrUpdate,
     method: 'post',

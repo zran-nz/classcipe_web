@@ -1633,14 +1633,14 @@ export default {
       this.form.showSelected = checked
     },
 
-    handleUpdateLearningObjectives (data) {
-      this.$logger.info('handleUpdateLearningObjectives', data)
-      this.form.learnOuts = data.learnOuts
-      this.form.curriculumId = data.curriculumId
-      this.form.subjectList = data.selectedSubjectList
-      this.form.yearList = data.selectedYearList
-      this.form.languageList = data.selectedLanguageList
-    },
+    // handleUpdateLearningObjectives (data) {
+      // this.$logger.info('handleUpdateLearningObjectives', data)
+      // this.form.learnOuts = data.learnOuts
+      // this.form.curriculumId = data.curriculumId
+      // this.form.subjectList = data.selectedSubjectList
+      // this.form.yearList = data.selectedYearList
+      // this.form.languageList = data.selectedLanguageList
+    // },
 
     async handleUpdateBySubTaskSetting (data) {
       this.$logger.info('handleUpdateBySubTaskSetting', data)

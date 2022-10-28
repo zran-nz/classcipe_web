@@ -50,12 +50,18 @@ export function recommendTemplates (parameter) {
  * @returns {AxiosPromise}
  * @constructor
  */
-export function TemplatesGetPresentation (parameter) {
-  return request({
+export async function TemplatesGetPresentation (parameter) {
+  const rs = await request({
     url: templateUrl.getPresentation,
     method: 'get',
     params: parameter
   })
+  if (parameter.needRefresh) {
+    const { presentationId, revisionId } = rs?.result || {}
+    console.log('syncOldSlide', presentationId, revisionId)
+    if (presentationId) await App.service('slides').get('syncOldSlide', { query: { task: parameter.taskId, id: presentationId, rev: revisionId }})
+  }
+  return rs
 }
 
 /**
