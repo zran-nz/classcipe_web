@@ -112,7 +112,9 @@ export default {
     })
     var syncDom = document.createElement("iframe")
     document.body.appendChild(syncDom)
-    syncDom.src=`//${location.hostname === 'my.classcipe.com' ? 'www':'dev'}.classcipe.com/fio/authSync.html?jwt=` + await App.authentication.getAccessToken()
+    const host = `https://${location.hostname === 'my.classcipe.com' ? 'www':'dev'}.classcipe.com`
+    syncDom.src=`${host}/v2/authSync.html?jwt=${await App.authentication.getAccessToken()}`
+    // syncDom.contentWindow.postMessage({ jwt: await App.authentication.getAccessToken() }, host)
     await sleep(2000)
     syncDom.remove()
   },
