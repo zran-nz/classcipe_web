@@ -448,7 +448,7 @@ export default {
         coverVideo: null,
         image: null,
         goals: null,
-        maxParticipants: 1,
+        maxParticipants: 100,
         notifyStudents: [],
         paidType: Boolean(PAID_TYPE.FREE.value),
         notifyType: NOTIFY_TYPE.ALL.value,

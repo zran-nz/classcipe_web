@@ -235,7 +235,7 @@ export default {
       price: 100,
       endDate: null,
       startDate: null,
-      maxParticipants: 0,
+      maxParticipants: 100,
       registerBefore: null,
       discountList: [
         {
