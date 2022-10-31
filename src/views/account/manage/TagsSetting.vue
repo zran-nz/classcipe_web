@@ -63,7 +63,7 @@ export default {
     } else if (host.indexOf('my.classcipe.com') !== -1) {
       this.baseUrl = 'https://my.classcipe.com'
     } else {
-      this.$logger.warn('TagsSetting: unknown host', host)
+      this.baseUrl = 'https://classcipe.com'
     }
     this.loading = true
     setTimeout(() => {
