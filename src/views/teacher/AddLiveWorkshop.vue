@@ -304,6 +304,9 @@
       :okButtonProps="{
         props: {disabled: !form.registerBefore}
       }"
+      :cancelButtonProps="{
+        props: {disabled: confirmLoading}
+      }"
     >
       <a-space class='pay-title'>
         <div class='title'>
@@ -313,6 +316,7 @@
           <a-date-picker
             :getCalendarContainer='trigger => trigger.parentElement'
             :disabled-date="disabledDate"
+            :showToday="false"
             :show-time="{ format: 'HH:mm' }"
             @change="handleSelectDate">
           </a-date-picker>

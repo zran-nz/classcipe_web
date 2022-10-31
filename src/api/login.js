@@ -19,7 +19,7 @@ const userApi = {
   SendSms: '/account/sms',
   SendSmsErr: '/account/sms_err',
   UserMenu: '/user/nav',
-  getPlan: '/classcipe/plan/planInfo/queryMyPlan'
+  getPlan: '/classcipe/plan/planInfo/queryMyLastPlan'
 }
 
 /**

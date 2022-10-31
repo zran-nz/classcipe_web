@@ -233,7 +233,7 @@ export function delCookie(name) {
 }
 
 export function getToken() {
-  let token = storage.get(ACCESS_TOKEN)
+  const token = storage.get(ACCESS_TOKEN)
   // if (storage.get(NOT_REMEMBER_ME)) {
   //    token = window.sessionStorage.getItem(SESSION_ACTIVE_KEY)
   // }
@@ -245,7 +245,8 @@ export function getToken() {
  * @param {*} s
  */
 export function isEmail (s) {
-  return /^([a-zA-Z0-9._-])+@([a-zA-Z0-9_-])+((.[a-zA-Z0-9_-]{2,3}){1,2})$/.test(s)
+  // return /^([a-zA-Z0-9._-])+@([a-zA-Z0-9_-])+((.[a-zA-Z0-9_-]{2,3}){1,2})$/.test(s)
+  return /([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-]+)/.test(s)
 }
 
 /**
