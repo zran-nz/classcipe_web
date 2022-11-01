@@ -12,17 +12,20 @@ export const calendarScheduleApi = {
  * @constructor
  */
 export async function QueryForCalendar (parameter) {
+  const status = parameter.workshopStatus || ''
+  delete parameter.workshopStatus
+  delete parameter.workshopType
+  parameter.queryTypes = parameter.queryTypes.split(',').filter(v => v!=='1').join(',')
   const rs = await request({
     url: calendarScheduleApi.QueryForCalendar,
     method: 'get',
     params: parameter
   })
-  // Combine new register data
-  if (parameter?.workshopStatus?.includes('4')) { // load register data
-    // console.log(parameter, rs.result[0], 111111111)
+  if (status) { // load register data
     const start = new Date(new Date(parameter.startDate).getTime()+86400000).toISOString()
     const end = new Date(new Date(parameter.endDate).getTime()-86400000).toISOString()
-    const list = await App.service('session').get('dateList', { query: { zone: new Date().getTimezoneOffset(), start, end, school: parameter.schoolIds.split(',') }})
+    const query = { status, zone: new Date().getTimezoneOffset(), start, end, school: parameter.schoolIds.split(',') }
+    const list = await App.service('session').get('dateList', { query })
     for (const v of list) {
       v.sessionId = v.sid
       v.schoolId = v.school || '0'
