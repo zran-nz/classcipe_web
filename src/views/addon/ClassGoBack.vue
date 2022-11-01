@@ -19,13 +19,13 @@ export default {
   created () {
     const token = storage.get(ACCESS_TOKEN)
     if (!token) {
-      window.location.href = 'https://www.classcipe.com/'
+      window.location.href = 'https://classcipe.com/'
     }
     this.$store.dispatch('GetInfo').then((data) => {
       this.$router.push(this.$store.getters.defaultRouter)
     }).catch(err => {
       this.$logger.warn('AuthCheck token invalid, go to website', err)
-      window.location.href = 'https://www.classcipe.com/'
+      window.location.href = 'https://classcipe.com/'
     })
   },
   props: {},

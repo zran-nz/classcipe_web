@@ -14,9 +14,9 @@
       </div> -->
       <!-- <div class="footer">
         <div class="links">
-          <a href="https://www.classcipe.com" target="_blank">Help</a>
-          <a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a>
-          <a href="https://www.classcipe.com/term.html" target="_blank">Terms</a>
+          <a href="https://classcipe.com" target="_blank">Help</a>
+          <a href="https://classcipe.com/policy.html" target="_blank">Privacy Policy</a>
+          <a href="https://classcipe.com/term.html" target="_blank">Terms</a>
         </div>
         <div class="copyright">
           Copyright &copy; 2021 Classcipe. All rights reserved <a href="https://my.classcipe.com" target="_blank"></a>

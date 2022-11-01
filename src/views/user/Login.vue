@@ -81,9 +81,9 @@
 
           <!-- <div class="info">
             Sign in or sign up means you agree to Classcipe's
-            <span><a href="https://www.classcipe.com/term.html" target="_blank">Terms of service</a></span>
+            <span><a href="https://classcipe.com/term.html" target="_blank">Terms of service</a></span>
             and
-            <span><a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
+            <span><a href="https://classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
           </div> -->
         </div>
       </a-tab-pane>
@@ -159,9 +159,9 @@
           </div>
           <!-- <div class="info">
             Sign in or sign up means you agree to Classcipe's
-            <span><a href="https://www.classcipe.com/term.html" target="_blank">Terms of service</a></span>
+            <span><a href="https://classcipe.com/term.html" target="_blank">Terms of service</a></span>
             and
-            <span><a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
+            <span><a href="https://classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
           </div> -->
         </div>
       </a-tab-pane>

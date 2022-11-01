@@ -57,9 +57,9 @@
           <div class="info">
             <a-checkbox @change="handleChange">
               I agree to Classcipe's
-              <span><a href="https://www.classcipe.com/term.html" target="_blank">Terms of service</a></span>
+              <span><a href="https://classcipe.com/term.html" target="_blank">Terms of service</a></span>
               and
-              <span><a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
+              <span><a href="https://classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
             </a-checkbox>
           </div>
         </div>
@@ -198,9 +198,9 @@
           <div class="info">
             <a-checkbox @change="handleChange">
               I agree to Classcipe's
-              <span><a href="https://www.classcipe.com/term.html" target="_blank">Terms of service</a></span>
+              <span><a href="https://classcipe.com/term.html" target="_blank">Terms of service</a></span>
               and
-              <span><a href="https://www.classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
+              <span><a href="https://classcipe.com/policy.html" target="_blank">Privacy Policy</a></span>
             </a-checkbox>
           </div>
         </div>
