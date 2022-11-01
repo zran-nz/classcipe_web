@@ -222,7 +222,7 @@ export default {
         onOk: async() => {
           await this.$store.dispatch('Logout')
           await AppLogout('www', null)
-          location.href = '/v2/login'
+          location.href = '/v2/'
         },
         onCancel () {}
       })
