@@ -299,11 +299,8 @@
       :confirmLoading="confirmLoading"
       @ok="handleSubmit"
       @cancel="handleSkip"
-      cancelText="Skip"
+      cancelText="Cancel"
       :okText="'Save'"
-      :okButtonProps="{
-        props: {disabled: !form.registerBefore}
-      }"
       :cancelButtonProps="{
         props: {disabled: confirmLoading}
       }"
@@ -757,9 +754,11 @@ export default {
         callback(new Error('请输入正整数!'))
       }
     },
-    handleSkip() {
-      this.form.registerBefore = null
-      this.handleSubmit()
+    handleSkip(a) {
+      if (a.target._prevClass && a.target._prevClass !== 'ant-btn') return console.log('click cancel:', a.target._prevClass)
+      this.deadlineVis = false
+      // this.form.registerBefore = null
+      // this.handleSubmit()
     },
     handleSubmit() {
       if (this.userMode === USER_MODE.SCHOOL) {
