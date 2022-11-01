@@ -255,7 +255,7 @@
                   </div>
                 </template>
                 <div v-else-if="fieldItem.visible && fieldItem.fieldName === planField.LearnOuts" class='tag-content-block' style="height:100%;margin:0 -30px;" :key='fieldItem.fieldName'>
-                  <iframe style="width:100%;height:100%;" :src="`/v2/com/task/outline/${unitPlanId}?token=${token}`" frameborder="0"></iframe>
+                  <iframe style="width:100%;height:100%;" :src="`/v2/com/task/outline/${unitPlanId}?header=0&token=${token}`" frameborder="0"></iframe>
                   <!-- <collaborate-tooltip :form-id="unitPlanId" :fieldName=planField.Assessment style="left:100px" />
                   <custom-form-item :required='emptyRequiredFields.indexOf(planField.LearnOuts) !== -1' :required-field='requiredFields.indexOf(planField.LearnOuts) !== -1'>
                     <template slot='label'>

@@ -181,7 +181,7 @@
                   </custom-form-item>
                 </div>
                 <div v-else-if='fieldItem.fieldName === taskField.LearnOuts' class='tag-content-block' style="height:100%;margin:0 -30px;">
-                  <iframe style="width:100%;height:100%;" :src="`/v2/com/task/outline/${taskId}?token=${token}`" frameborder="0"></iframe>
+                  <iframe style="width:100%;height:100%;" :src="`/v2/com/task/outline/${taskId}?header=0&token=${token}`" frameborder="0"></iframe>
                   <!-- <div class='is-self-learning vertical-between'>
                     <div class='self-learning-label'>
                       Is this task suitable for self-learning?
