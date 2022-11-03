@@ -292,7 +292,7 @@ export default {
     }
   },
   created () {
-    logger.info('SplitTaskPreview', this.taskData)
+    console.info('SplitTaskPreview', this.taskData)
     this.data = this.taskData.subTask
     this.initData()
   },

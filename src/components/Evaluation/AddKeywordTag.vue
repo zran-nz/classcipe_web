@@ -94,21 +94,21 @@ export default {
       this.debouncedSearchKnowledge(this.inputValue)
     },
     searchTag (keyword) {
-      logger.info('searchTag ' + this.searchType + ', keyword ' + this.inputValue)
+      console.info('searchTag ' + this.searchType + ', keyword ' + this.inputValue)
       this.searchList = []
       if (typeof keyword === 'string' && keyword.trim().length >= 1) {
         if (this.searchType === 'skill') {
           SkillSearch({
             key: keyword
           }).then((response) => {
-            logger.info('skill searchKnowledge response', response)
+            console.info('skill searchKnowledge response', response)
             this.searchList = response.result
           })
         } else {
           KnowledgeSearch({
             key: keyword
           }).then((response) => {
-            logger.info('skill searchKnowledge response', response)
+            console.info('skill searchKnowledge response', response)
             this.searchList = response.result
           })
         }
@@ -116,7 +116,7 @@ export default {
       this.$logger.info('searchList', this.searchList)
     },
     handleAddTag () {
-      logger.info('handleAddTag ' + this.inputValue)
+      console.info('handleAddTag ' + this.inputValue)
       if (this.inputValue && this.inputValue.trim().length) {
         const tagName = this.inputValue.trim()
         if (this.tagList.indexOf(tagName) === -1) {
@@ -124,15 +124,15 @@ export default {
             tagName
           })
         } else {
-          logger.info('skip! input value ' + tagName + ' exist in', this.tagList)
+          console.info('skip! input value ' + tagName + ' exist in', this.tagList)
         }
       } else {
-        logger.info('skip! input value empty')
+        console.info('skip! input value empty')
       }
       this.inputValue = ''
     },
     handleCloseTag (tagName) {
-      logger.info('handleCloseTag ' + tagName)
+      console.info('handleCloseTag ' + tagName)
       this.$emit('remove-tag', {
         tagName
       })
@@ -144,7 +144,7 @@ export default {
     },
 
     handleSearchTag (tagName) {
-      logger.info('handleSearchTag ' + tagName)
+      console.info('handleSearchTag ' + tagName)
       if (this.currentTag.keywords.indexOf(tagName) === -1) {
         this.currentTag.keywords.push(tagName)
       }

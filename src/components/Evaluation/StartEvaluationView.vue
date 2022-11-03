@@ -294,7 +294,7 @@ export default {
     }
   },
   created () {
-    logger.info('AddEvaluation created ' + this.evaluationId)
+    console.info('AddEvaluation created ' + this.evaluationId)
     this.form.id = this.evaluationId
 
     // 初始化关联事件处理
@@ -306,7 +306,7 @@ export default {
   },
   methods: {
     initData () {
-      logger.info('initData doing...')
+      console.info('initData doing...')
       EvaluationQueryById({ id: this.evaluationId }).then(response => {
         this.$logger.info('EvaluationQueryById response', response.result)
         const evaluationData = response.result
@@ -376,7 +376,7 @@ export default {
     },
 
     handleSaveEvaluation () {
-      logger.info('handleSaveEvaluation', this.$refs.rubric.headers, this.$refs.rubric.list)
+      console.info('handleSaveEvaluation', this.$refs.rubric.headers, this.$refs.rubric.list)
 
       const headers = this.$refs.rubric.headers
       const dataList = this.$refs.rubric.list
@@ -409,9 +409,9 @@ export default {
         }
       })
 
-      logger.info('evaluationData add line list', evaluationData)
+      console.info('evaluationData add line list', evaluationData)
       EvaluationAddOrUpdate(evaluationData).then((response) => {
-        logger.info('EvaluationAddOrUpdate', response.result)
+        console.info('EvaluationAddOrUpdate', response.result)
         if (response.success) {
             this.$router.replace('/teacher/evaluation-redirect/' + response.result.id)
         } else {
@@ -420,7 +420,7 @@ export default {
       })
     },
     handlePublishEvaluation () {
-      logger.info('handlePublishEvaluation', {
+      console.info('handlePublishEvaluation', {
         id: this.evaluationId,
         status: 1
       })
@@ -620,14 +620,14 @@ export default {
     },
 
     handleUploadAudio (data) {
-      logger.info('handleUploadAudio', data)
+      console.info('handleUploadAudio', data)
       this.currentUploading = true
       const formData = new FormData()
       formData.append('file', data.file, data.file.name)
       this.uploading = true
       this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
         .then((response) => {
-          logger.info('handleUploadAudio upload response:', response)
+          console.info('handleUploadAudio upload response:', response)
           this.audioUrl = this.$store.getters.downloadUrl + response.result
         }).catch(err => {
         logger.error('handleUploadImage error', err)
@@ -650,15 +650,15 @@ export default {
     },
 
     handleAudioResult (data) {
-      logger.info('handleAudioResult', data)
+      console.info('handleAudioResult', data)
       this.currentUploading = true
       const formData = new FormData()
       formData.append('file', data, 'audio.wav')
       this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
         .then((response) => {
-          logger.info('handleAudioResult upload response:', response)
+          console.info('handleAudioResult upload response:', response)
           this.audioUrl = this.$store.getters.downloadUrl + response.result
-          logger.info('handleAudioResult audioUrl', this.audioUrl)
+          console.info('handleAudioResult audioUrl', this.audioUrl)
         }).catch(err => {
         logger.error('handleAudioResult error', err)
       }).finally(() => {

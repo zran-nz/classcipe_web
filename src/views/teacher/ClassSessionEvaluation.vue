@@ -1052,7 +1052,7 @@ export default {
       TaskQueryById({
         id: this.taskId
       }).then(response => {
-        logger.info('TaskQueryById ' + this.taskId, response.result)
+        console.info('TaskQueryById ' + this.taskId, response.result)
         if (response.success) {
           const taskData = response.result
           taskData.learnOuts.forEach(item => {

@@ -239,7 +239,7 @@ export default {
       }
     },
     triggerSearch () {
-      logger.info('teacher triggerSearch ' + this.searchText)
+      console.info('teacher triggerSearch ' + this.searchText)
       this.$emit('triggerSearch', 'teacher', this.searchText)
       this.$router.push({ path: '/teacher/main/created-by-me', query: { searchKey: this.searchText } })
     },
@@ -255,7 +255,7 @@ export default {
       this.showTaskMode = false
     },
     handleSwitchRole (role) {
-      logger.info('handleSwitchRole ' + role)
+      console.info('handleSwitchRole ' + role)
       this.$emit('switch-role', role)
     },
     handleToSettings () {

@@ -301,7 +301,7 @@ export default {
       if (this.justifyPromise(promise)) {
         this.loading = true
         promise.then(res => {
-          logger.info('loadReviewList', res)
+          console.info('loadReviewList', res)
           if (res.result && res.result.records && res.result.records.length) {
             this.reviewsList = res.result.records
             this.pagination.total = res.result.total
@@ -309,7 +309,7 @@ export default {
             this.reviewsList = []
             this.pagination.total = 0
           }
-          logger.info('reviewsList', this.reviewsList)
+          console.info('reviewsList', this.reviewsList)
         }).finally(() => {
           this.loading = false
         })

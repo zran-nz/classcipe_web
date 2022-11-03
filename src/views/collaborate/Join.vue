@@ -92,10 +92,10 @@ export default {
   },
   methods: {
     getCollaborateContent () {
-      logger.info('getCollaborateContent ', this.code)
+      console.info('getCollaborateContent ', this.code)
       this.loading = true
       CollaboratesQueryByLinkCode({ code: this.code }).then(response => {
-        logger.info('CollaboratesQueryByLinkCode ', response)
+        console.info('CollaboratesQueryByLinkCode ', response)
         if (response.success) {
           this.collaborate = response.result
           if (!this.collaborate.link) {
@@ -113,10 +113,10 @@ export default {
       })
     },
     handleApply (type) {
-      logger.info('handleApply ', this.collaborate)
+      console.info('handleApply ', this.collaborate)
       this.applyLoading = true
       CollaboratesApply({ id: this.collaborate.content.id, type: this.collaborate.content.type }).then(response => {
-        logger.info('handleApply ', response)
+        console.info('handleApply ', response)
         if (response.success) {
           this.$message.success(type + ' successfully ！')
           if (type === 'Join') {

@@ -70,7 +70,7 @@ export default {
     },
 
     handleSwitchRole (role) {
-      logger.info('handleSwitchRole ' + role)
+      console.info('handleSwitchRole ' + role)
       this.$emit('switch-role', role)
     }
   }

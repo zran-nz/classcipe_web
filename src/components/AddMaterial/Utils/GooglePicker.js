@@ -34,7 +34,7 @@ class LoadPicker {
   contentType = null
   contentId = null
   init(onLoadingCallBack, onSuccessCallback, classcipeUserId, filterType, contentType, contentId) {
-    logger.info('google drive init ' + classcipeUserId + ` filter type ${this.filterType} contentType: ${contentType} contentId: ${contentId}`)
+    console.info('google drive init ' + classcipeUserId + ` filter type ${this.filterType} contentType: ${contentType} contentId: ${contentId}`)
     this.loadPicker()
     this.classCallback = onSuccessCallback
     this.onloadingCallBack = onLoadingCallBack
@@ -125,7 +125,7 @@ class LoadPicker {
   }
 
   pickerCallback = (data) => {
-    logger.info('pickerCallback', data)
+    console.info('pickerCallback', data)
     if (data.action === window.google.picker.Action.PICKED) {
       const { id } = data.docs[0]
       this.getDownloadUrl(id)
@@ -144,7 +144,7 @@ class LoadPicker {
     xhr.onreadystatechange = () => {
       if (xhr.readyState === 4 && xhr.status === 200) {
         const data = JSON.parse(xhr.response)
-        logger.info('getDownloadUrl-----', data)
+        console.info('getDownloadUrl-----', data)
         const { downloadUrl, mimeType } = data
         this.downloadFile(downloadUrl, mimeType)
       }
@@ -156,12 +156,12 @@ class LoadPicker {
     const imageType = xhr.getResponseHeader('Content-Type')
     const blob = new Blob([xhr.response], { type: imageType })
     const imageUrl = (window.URL || window.webkitURL).createObjectURL(blob)
-    logger.info(imageUrl)
+    console.info(imageUrl)
     return blob
   }
 
   downloadFile(downloadUrl, mimeType) {
-    logger.info('downloadFile', downloadUrl, mimeType)
+    console.info('downloadFile', downloadUrl, mimeType)
     if (downloadUrl) {
       // var accessToken = gapi.auth.getToken().access_token;
       const xhr = new XMLHttpRequest()
@@ -181,7 +181,7 @@ class LoadPicker {
       }
       xhr.send()
     } else {
-      logger.info(null)
+      console.info(null)
     }
   }
 
@@ -192,9 +192,9 @@ class LoadPicker {
   }
 
   upDriveFire(file, mimeType) {
-    logger.info('upDriveFire', this.classcipeUserId, file, mimeType, 'contentType', this.contentType, 'contentId', this.contentId)
+    console.info('upDriveFire', this.classcipeUserId, file, mimeType, 'contentType', this.contentType, 'contentId', this.contentId)
     this.uploadDriveInstance = upAwsS3File(this.classcipeUserId, file, this.onloadingCallBack, result => {
-      logger.info(result, mimeType)
+      console.info(result, mimeType)
       this.classCallback('upload-ended', result, mimeType, file.name, file.size)
       this.uploadDriveInstance = null
     }, true,

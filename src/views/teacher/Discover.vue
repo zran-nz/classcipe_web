@@ -230,7 +230,7 @@
     },
     computed: {},
     created () {
-      logger.info('teacher my content')
+      console.info('teacher my content')
       this.loadMyContent()
     },
     methods: {
@@ -250,26 +250,26 @@
         })
       },
       toggleStatus (status, label) {
-        logger.info('toggleStatus ' + status + ' label ' + label)
+        console.info('toggleStatus ' + status + ' label ' + label)
         this.currentStatus = status
         this.currentStatusLabel = label
         this.loadMyContent()
       },
       toggleType (type, label) {
-        logger.info('toggleType ' + type + ' label ' + label)
+        console.info('toggleType ' + type + ' label ' + label)
         this.currentType = type
         this.currentTypeLabel = label
         this.loadMyContent()
       },
       toggleOwner (owner, label) {
-        logger.info('toggleOwner ' + owner + ' label ' + label)
+        console.info('toggleOwner ' + owner + ' label ' + label)
         this.currentOwner = owner
         this.currentOwnerLabel = label
         this.loadMyContent()
       },
 
       handleEditItem (item) {
-        logger.info('handleEditItem', item)
+        console.info('handleEditItem', item)
         if (item.type === typeMap['unit-plan']) {
           this.$router.push({
             path: '/teacher/unit-plan-redirect/' + item.id
@@ -285,22 +285,22 @@
         }
       },
       handleDeleteItem (item) {
-        logger.info('handleDeleteItem', item)
+        console.info('handleDeleteItem', item)
         DeleteCollaborate({ id: item.id }).then(res => {
-          logger.info('DeleteCollaborate', res)
+          console.info('DeleteCollaborate', res)
         }).then(() => {
           this.loadMyContent()
         })
       },
       handleViewDetail (item) {
-        logger.info('handleViewDetail', item)
+        console.info('handleViewDetail', item)
         this.previewCurrentId = item.id
         this.previewType = item.type
         this.previewVisible = true
       },
 
       handlePreviewClose () {
-        logger.info('handlePreviewClose')
+        console.info('handlePreviewClose')
         this.previewVisible = false
         this.$nextTick(() => {
           this.previewCurrentId = null
@@ -311,7 +311,7 @@
       handleCollaborate (item) {
         this.$logger.info('handleCollaborate', item)
         ReceiveCollaborate({ id: item.id }).then(res => {
-          logger.info('ReceiveCollaborate', res)
+          console.info('ReceiveCollaborate', res)
           this.$message.success('collaborate successfully')
         }).then(() => {
           this.loadMyContent()
@@ -321,7 +321,7 @@
       handleDeleteCollaborate (item) {
         this.$logger.info('handleDeleteCollaborate', item)
         DeleteCollaborate({ id: item.id }).then(res => {
-          logger.info('DeleteCollaborate', res)
+          console.info('DeleteCollaborate', res)
         }).then(() => {
           this.loadMyContent()
         })

@@ -19,7 +19,7 @@ export default class AbstractMessageHandler extends MessageHandler {
     }
 
     processMessage(proto) {
-        logger.info('AbstractMessageHandler messageId ' + proto.messageId + ' proto content ' + proto.content)
+        console.info('AbstractMessageHandler messageId ' + proto.messageId + ' proto content ' + proto.content)
         var promiseReslove = this.vueWebsocket.resolvePromiseMap.get(proto.messageId)
         if (promiseReslove) {
             clearTimeout(promiseReslove.timeoutId)

@@ -22,12 +22,12 @@ router.beforeEach((to, from, next) => {
   to.meta && (typeof to.meta.title !== 'undefined' && setDocumentTitle(`${i18nRender(to.meta.title)} - ${domTitle}`))
 
   /* has token */
-  logger.info('router', to)
+  console.info('router', to)
 
   const role = to.fullPath.indexOf('student') > -1 ? 'student' : 'teacher'
   if (allowList.includes(to.name) && to.name) {
     // 在免登录名单，直接进入
-    logger.info('allowList ', to.name)
+    console.info('allowList ', to.name)
     next()
   } else if (getToken()) {
     /*  set new Token By Url */
@@ -39,7 +39,7 @@ router.beforeEach((to, from, next) => {
       appLogin(token)
     }
     const accessToken = getToken()
-    logger.info('accessToken check', accessToken)
+    console.info('accessToken check', accessToken)
     if (accessToken) {
       if (to.path === loginRoutePath) {
         // const defaultRoutePath = storage.get(CURRENT_ROLE) === 'expert' ? defaultExpertRouter
@@ -48,7 +48,7 @@ router.beforeEach((to, from, next) => {
         NProgress.done()
       } else {
         // 检查是否已经获取了用户信息
-        logger.info('router check roles ', store.getters.roles)
+        console.info('router check roles ', store.getters.roles)
         if (store.getters.roles.length === 0 || store.getters.addRouters.length === 0) {
           // request login userInfo
           store
@@ -62,10 +62,10 @@ router.beforeEach((to, from, next) => {
                 router.addRoutes(store.getters.addRouters)
                 // 请求带有 redirect 重定向时，登录自动重定向到该地址
                 const redirect = decodeURIComponent(from.query.redirect || to.path)
-                logger.info('redirect ' + redirect)
+                console.info('redirect ' + redirect)
                 if (to.path === redirect) {
                   // set the replace: true so the navigation will not leave a history record
-                  logger.info('redirect to next ', { ...to, replace: true })
+                  console.info('redirect to next ', { ...to, replace: true })
                   next({ ...to, replace: true })
                 } else {
                   // 跳转到目的路由

@@ -378,7 +378,7 @@ export default {
 
       pagination: {
         onChange: page => {
-          logger.info('pagination onChange', page)
+          console.info('pagination onChange', page)
           this.pageNo = page
           this.loadMyContent()
         },
@@ -457,7 +457,7 @@ export default {
         pageSize: this.pagination.pageSize,
         currentId: this.currentId
       }).then(res => {
-        logger.info('getMyContent', res)
+        console.info('getMyContent', res)
         if (res.result && res.result.records && res.result.records.length) {
           res.result.records.forEach((record, index) => {
             record.key = index
@@ -468,7 +468,7 @@ export default {
           this.myContentList = []
           this.pagination.total = 0
         }
-        logger.info('myContentList', this.myContentList)
+        console.info('myContentList', this.myContentList)
       }).finally(() => {
         this.loading = false
         this.skeletonLoading = false
@@ -505,26 +505,26 @@ export default {
       })
     },
     toggleStatus (status, label) {
-      logger.info('toggleStatus ' + status + ' label ' + label)
+      console.info('toggleStatus ' + status + ' label ' + label)
       this.currentStatus = status
       this.currentStatusLabel = label
       this.loadMyContent()
     },
     toggleType (type, label) {
-      logger.info('toggleType ' + type + ' label ' + label)
+      console.info('toggleType ' + type + ' label ' + label)
       this.currentType = type
       this.currentTypeLabel = label
       this.loadMyContent()
     },
     toggleOwner (owner, label) {
-      logger.info('toggleOwner ' + owner + ' label ' + label)
+      console.info('toggleOwner ' + owner + ' label ' + label)
       this.currentOwner = owner
       this.currentOwnerLabel = label
       this.loadMyContent()
     },
 
     handleLinkItem (item, event) {
-      logger.info('handleLinkItem', item)
+      console.info('handleLinkItem', item)
       event.preventDefault()
       event.stopPropagation()
       const itemId = item.type + '-' + item.id
@@ -540,7 +540,7 @@ export default {
       }
     },
     handleViewDetail (item, event) {
-      logger.info('my content created by me handleViewDetail', item, event)
+      console.info('my content created by me handleViewDetail', item, event)
       event.preventDefault()
       event.stopPropagation()
       this.previewCurrentId = item.id
@@ -549,14 +549,14 @@ export default {
     },
 
     handlePreviewClose () {
-      logger.info('handlePreviewClose')
+      console.info('handlePreviewClose')
       this.previewCurrentId = ''
       this.previewType = ''
       this.previewVisible = false
     },
 
     handleReferItem (item, event) {
-      logger.info('handleReferItem', item)
+      console.info('handleReferItem', item)
       event.preventDefault()
       event.stopPropagation()
       MyContentEventBus.$emit(MyContentEvent.ReferContentItem, { item })
@@ -688,7 +688,7 @@ export default {
       this.$emit('ensure')
     },
     handleEditItem (item) {
-      logger.info('handleEditItem', item)
+      console.info('handleEditItem', item)
       if (item.type === typeMap['unit-plan']) {
         window.open('/teacher/unit-plan-redirect/' + item.id
           , '_blank')

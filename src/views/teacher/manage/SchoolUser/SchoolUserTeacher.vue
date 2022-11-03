@@ -441,7 +441,7 @@ export default {
       window.URL.revokeObjectURL(url) // 释放掉blob对象
     },
     handleMyImportExcel(data) {
-      logger.info('import excel', data)
+      console.info('import excel', data)
       const formData = new FormData()
       formData.append('file', data.file, data.file.name)
       this.importLoading = true
@@ -456,7 +456,7 @@ export default {
           }
         })
         .then(res => {
-          logger.info('import excel res:', res)
+          console.info('import excel res:', res)
           if (res.success) {
             const { result = {} } = res
             // eslint-disable-next-line no-unused-vars
@@ -506,7 +506,7 @@ export default {
           }
         })
         .catch(err => {
-          logger.info('import excel err:', err)
+          console.info('import excel err:', err)
           this.$error({
             title: 'Import failed',
             content: 'Import failed. Please upload again!'

@@ -388,7 +388,7 @@ export default {
     }
   },
   created () {
-    logger.info('student my content')
+    console.info('student my content')
     const currentClass = this.currentClassList.find(item => item.id === this.classId)
     if (!currentClass) {
       this.$router.push({ path: '/student/main/my-task' })

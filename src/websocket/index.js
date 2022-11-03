@@ -21,18 +21,18 @@ export default class VueWebSocket {
         // this.reconnectInterval = 30 * 1000
         // this.binaryType = 'blob'
         // this.url = process.env.VUE_APP_API_BASE_URL.replace('https://', 'wss://') + '/classcipe/websocket/' + userId
-        // logger.info('userId :', userId)
+        // console.info('userId :', userId)
         // this.initHandlerList()
         // this.connect(true)
     // }
 
     // connect(isReconncect) {
         // this.ws = new WebSocket(this.url)
-        // logger.info('current url ' + this.url + ' status ' + this.ws.readyState)
+        // console.info('current url ' + this.url + ' status ' + this.ws.readyState)
         // this.ws.binaryType = this.binaryType
         // var websocketObj = this
         // this.ws.onopen = function (event) {
-        //     logger.info('ws open')
+        //     console.info('ws open')
         //     websocketObj.isconnected = true
         //     websocketObj.lastInteractionTime(new Date().getTime())
         //     websocketObj.pingIntervalId = setInterval(() => {
@@ -43,22 +43,22 @@ export default class VueWebSocket {
         //      websocketObj.sendConnectMessage()
         // }
         // this.ws.onmessage = function(event) {
-        //     logger.info('ws onmessage[' + event.data + ']')
+        //     console.info('ws onmessage[' + event.data + ']')
         //     websocketObj.processMessage(event.data)
         //     websocketObj.lastInteractionTime(new Date().getTime())
         // }
         // this.ws.onclose = function(event) {
         //     websocketObj.isconnected = false
-        //     logger.info('ws onclose')
+        //     console.info('ws onclose')
         //     websocketObj.ws.close()
         //     clearInterval(websocketObj.pingIntervalId)
         //     if (!websocketObj.userDisconnect) {
-        //         logger.info('reconnect websocket')
+        //         console.info('reconnect websocket')
         //         websocketObj.reconnect(event)
         //     }
         // }
         // this.ws.onerror = function(event) {
-        //     logger.info('connect error')
+        //     console.info('connect error')
         // }
     // }
 
@@ -85,11 +85,11 @@ export default class VueWebSocket {
     // }
 
     // send(data) {
-    //     // logger.info('send message ' + data)
+    //     // console.info('send message ' + data)
     //     if (this.isconnected) {
     //         this.ws.send(data)
     //     } else {
-    //         logger.info('curent websocket is close')
+    //         console.info('curent websocket is close')
     //     }
     // }
 
@@ -124,14 +124,14 @@ export default class VueWebSocket {
      * 链接建立信息
      */
     // sendConnectMessage() {
-    //     logger.info('userToken ' + localStorage.getItem(ACCESS_TOKEN))
+    //     console.info('userToken ' + localStorage.getItem(ACCESS_TOKEN))
     //     var webMessage = new WebSocketMessage()
     //     webMessage.setCmd(CONNECT)
     //     var connectMessage = {
     //       userId: vuexStore.getters.userInfo.id
     //     }
     //     webMessage.content = connectMessage
-    //     logger.info(webMessage.toJson())
+    //     console.info(webMessage.toJson())
     //     this.send(webMessage.toJson())
     // }
 
@@ -142,7 +142,7 @@ export default class VueWebSocket {
     //         clearSession: 1
     //     }
     //     webMessage.content = disconnectMessage
-    //     logger.info(webMessage.toJson())
+    //     console.info(webMessage.toJson())
     //     this.send(webMessage.toJson())
     //     this.userDisconnect = true
     // }

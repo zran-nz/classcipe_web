@@ -86,7 +86,7 @@ export default {
   data () {
     // others validate rule
     const validateOthers = (rule, value, callback) => {
-      logger.info('validateOthers', value)
+      console.info('validateOthers', value)
         if (!value && this.currentArea && this.currentArea.name === 'Others') {
           callback(new Error('Please input'))
         } else {
@@ -142,7 +142,7 @@ export default {
   },
   watch: {
     'teacherForm.curriculumId' (val) {
-      logger.info('teacherForm.curriculumId change', val)
+      console.info('teacherForm.curriculumId change', val)
       this.loadSubjectByCurriculumId(val)
     }
   },
@@ -154,15 +154,15 @@ export default {
           this.areaOptions = response.result
         })
         // getAllAreas().then((response) => {
-        //   logger.info('getAllAreas', response)
+        //   console.info('getAllAreas', response)
         //   this.areaOptions = response.result
-        //   logger.info('areaOptions', this.areaOptions)
+        //   console.info('areaOptions', this.areaOptions)
         // })
       } else if (this.$store.getters.currentRole === 'teacher') {
         getAllCurriculums().then((response) => {
-          logger.info('getAllCurriculums', response)
+          console.info('getAllCurriculums', response)
           this.curriculumOptions = response.result
-          logger.info('getAllCurriculums', this.curriculumOptions)
+          console.info('getAllCurriculums', this.curriculumOptions)
         })
       }
     },
@@ -170,12 +170,12 @@ export default {
       this.$router.push({ path: selectRoleRouter })
     },
     handleSelectAreaOption (area) {
-      logger.info('handleSelectAreaOption', area)
+      console.info('handleSelectAreaOption', area)
       this.currentArea = area
     },
 
     handleSelectCurriculumOption (curriculum) {
-      logger.info('handleSelectCurriculumOption', curriculum)
+      console.info('handleSelectCurriculumOption', curriculum)
       if (this.currentCurriculum === null || this.currentCurriculum.id !== curriculum.id) {
         this.teacherForm.subjectIds = []
       }
@@ -187,21 +187,21 @@ export default {
       this.teacherForm.subjectIds = []
       this.teacherForm.gradeIds = []
       getAllSubjectsByCurriculumId({ curriculumId }).then(response => {
-        logger.info('subjectOptions', response.result)
+        console.info('subjectOptions', response.result)
         this.subjectOptions = response.result
       })
 
       GetGradesByCurriculumId({ curriculumId }).then((response) => {
-        logger.info('GetGradesByCurriculumId', response)
+        console.info('GetGradesByCurriculumId', response)
         this.gradeOptions = response.result
-        logger.info('gradeOptions', this.gradeOptions)
+        console.info('gradeOptions', this.gradeOptions)
       })
     },
     saveDetail () {
       if (this.$store.getters.currentRole === 'expert') {
         this.$refs.expertForm.validate(valid => {
           if (valid) {
-            logger.info('save expert', this.expertForm)
+            console.info('save expert', this.expertForm)
             const submitData = { areaIds: [this.expertForm.areaIds] }
             if (this.expertForm.others) {
               submitData.others = this.expertForm.others
@@ -220,7 +220,7 @@ export default {
       } else if (this.$store.getters.currentRole === 'teacher') {
         this.$refs.teacherForm.validate(valid => {
           if (valid) {
-            logger.info('save teacher', this.teacherForm)
+            console.info('save teacher', this.teacherForm)
             addPreference(this.teacherForm).then(response => {
               this.$store.dispatch('GetInfo').then(() => {
                 this.$router.push(defaultTeacherRouter)

@@ -89,12 +89,12 @@ export default {
     }
   },
   created () {
-    logger.info('TaskPreview taskId ' + this.taskId)
+    console.info('TaskPreview taskId ' + this.taskId)
     this.loadTaskData()
   },
   methods: {
     loadTaskData () {
-      logger.info('TaskPreview exist taskData ', this.taskData)
+      console.info('TaskPreview exist taskData ', this.taskData)
       this.rawSubTaskData = this.taskData
       this.task = this.taskData.subTask
       // 手动把selectPageImages中图片复制到thumbnailList中
@@ -124,7 +124,7 @@ export default {
           }
         }
       })
-      logger.info('getClassPptCustomTags ', blooms, dimensions)
+      console.info('getClassPptCustomTags ', blooms, dimensions)
       this.taskData.customTags = []
       if (blooms.length > 0) {
         blooms.forEach(tag => {

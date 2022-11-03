@@ -212,7 +212,7 @@ export default {
     },
 
     searchTag () {
-      logger.info('searchTag', this.inputTag)
+      console.info('searchTag', this.inputTag)
       const keyword = this.inputTag
       if (!keyword) {
         this.tagSearchList = []
@@ -223,7 +223,7 @@ export default {
           knowledgeId: this.knowledge.knowledgeId,
           key: keyword
         }).then((response) => {
-          logger.info('searchByDescription', response)
+          console.info('searchByDescription', response)
           this.tagSearchList = response.result.tags
         })
       } else {

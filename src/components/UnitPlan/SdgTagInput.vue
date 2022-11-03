@@ -104,7 +104,7 @@ export default {
   },
   methods: {
     handleAddTag () {
-      logger.info('handleAddTag ' + this.sdgKey + ' ' + this.inputValue)
+      console.info('handleAddTag ' + this.sdgKey + ' ' + this.inputValue)
       if (this.inputValue && this.inputValue.trim().length) {
         const tagName = this.inputValue.trim()
         if (this.selectedKeywords.indexOf(tagName) === -1) {
@@ -113,15 +113,15 @@ export default {
             tagName: tagName
           })
         } else {
-          logger.info('skip! input value ' + tagName + ' exist in', this.selectedKeywords)
+          console.info('skip! input value ' + tagName + ' exist in', this.selectedKeywords)
         }
       } else {
-        logger.info('skip! input value empty')
+        console.info('skip! input value empty')
       }
       this.inputValue = ''
     },
     searchTag () {
-      logger.info('tag searchTag', this.inputValue)
+      console.info('tag searchTag', this.inputValue)
       this.createTagName = this.inputValue
       const searchKey = this.inputValue
       this.tagSearchList = []
@@ -159,11 +159,11 @@ export default {
         })
         this.reset()
       } else {
-        logger.info('skip! input value ' + tag.name + ' exist in', this.selectedKeywords)
+        console.info('skip! input value ' + tag.name + ' exist in', this.selectedKeywords)
       }
     },
     handleCloseTag (tagName) {
-      logger.info('handleCloseTag ' + this.sdgKey + ' ' + tagName)
+      console.info('handleCloseTag ' + this.sdgKey + ' ' + tagName)
       this.$emit('remove-tag', {
         sdgKey: this.sdgKey,
         tagName

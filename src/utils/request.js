@@ -43,7 +43,7 @@ request.interceptors.request.use(config => {
   if (token && !config.headers['X-Access-Token']) {
     config.headers['X-Access-Token'] = token
   } else {
-    logger.info(ACCESS_TOKEN + ' no set')
+    console.info(ACCESS_TOKEN + ' no set')
   }
   // 支持传递数组
   if (config.method === 'get') {

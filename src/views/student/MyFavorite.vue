@@ -251,7 +251,7 @@ export default {
 
       pagination: {
         onChange: page => {
-          logger.info('pagination onChange', page)
+          console.info('pagination onChange', page)
           this.pageNo = page
           this.loadMyContent()
         },
@@ -279,7 +279,7 @@ export default {
   computed: {
   },
   created () {
-    logger.info('teacher my content')
+    console.info('teacher my content')
     this.loadMyContent()
     this.loadUserTags()
   },
@@ -296,7 +296,7 @@ export default {
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize
       }).then(res => {
-        logger.info('FavoritesGetMyFavorites', res)
+        console.info('FavoritesGetMyFavorites', res)
         if (res.result && res.result.records && res.result.records.length) {
           res.result.records.forEach((record, index) => {
             record.key = index
@@ -308,20 +308,20 @@ export default {
           this.myContentList = []
           this.pagination.total = 0
         }
-        logger.info('myContentList', this.myContentList)
+        console.info('myContentList', this.myContentList)
       }).finally(() => {
         this.loading = false
         this.skeletonLoading = false
       })
     },
     toggleStatus (status, label) {
-      logger.info('toggleStatus ' + status + ' label ' + label)
+      console.info('toggleStatus ' + status + ' label ' + label)
       this.currentStatus = status
       this.currentStatusLabel = label
       this.loadMyContent()
     },
     toggleType (type, label) {
-      logger.info('toggleType ' + type + ' label ' + label)
+      console.info('toggleType ' + type + ' label ' + label)
       this.currentType = type
       this.currentTypeLabel = label
       this.loadMyContent()
@@ -348,22 +348,22 @@ export default {
       })
     },
     handleDeleteItem (item) {
-      logger.info('handleDeleteItem', item)
+      console.info('handleDeleteItem', item)
       FavoritesDelete(item).then(res => {
-        logger.info('DeleteMyContentByType', res)
+        console.info('DeleteMyContentByType', res)
       }).then(() => {
         this.loadMyContent()
       })
     },
     handleViewDetail (item) {
-      logger.info('handleViewDetail', item)
+      console.info('handleViewDetail', item)
       this.previewCurrentId = item.id
       this.previewType = item.type
       this.previewVisible = true
     },
 
     handlePreviewClose () {
-      logger.info('handlePreviewClose')
+      console.info('handlePreviewClose')
       this.previewVisible = false
       this.$nextTick(() => {
         this.previewCurrentId = null

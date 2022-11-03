@@ -103,7 +103,7 @@ export const cancelUpVideo = () => {
 }
 
 export const saveRecordVideo = async(userId, onProgressUpLoad = () => null, options) => {
-  logger.info('saveRecordVideo', userId, 'options', options)
+  console.info('saveRecordVideo', userId, 'options', options)
   return new Promise((resolve, reject) => {
     try {
       closePictureInPicture()
@@ -118,7 +118,7 @@ export const saveRecordVideo = async(userId, onProgressUpLoad = () => null, opti
       domVideoElement.play()
       const now = Date.now()
       const file = new window.File([blobData], `${now.toString()}.webm`, { type: 'video/webm', lastModified: Date.now() })
-      logger.info('saveRecordVideo', file)
+      console.info('saveRecordVideo', file)
 
       upFileInstance = upAwsS3File(
         userId,

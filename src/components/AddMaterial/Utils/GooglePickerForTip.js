@@ -31,7 +31,7 @@ class LoadPicker {
   uploadDriveInstance = null
 
   init(onLoadingCallBack, onSuccessCallback, classcipeUserId, OriginUrl) {
-    logger.info('google drive init ' + classcipeUserId)
+    console.info('google drive init ' + classcipeUserId)
     this.loadPicker()
     this.classCallback = onSuccessCallback
     this.onloadingCallBack = onLoadingCallBack
@@ -117,7 +117,7 @@ class LoadPicker {
   }
 
   pickerCallback = data => {
-    logger.info(data)
+    console.info(data)
     if (data.action === window.google.picker.Action.PICKED) {
       const { id } = data.docs[0]
       this.getDownloadUrl(id)
@@ -134,7 +134,7 @@ class LoadPicker {
     xhr.onreadystatechange = () => {
       if (xhr.readyState === 4 && xhr.status === 200) {
         const data = JSON.parse(xhr.response)
-        logger.info('getDownloadUrl-----', data)
+        console.info('getDownloadUrl-----', data)
         this.onloadingCallBack(1)
         const { downloadUrl, mimeType } = data
         this.downloadFile(downloadUrl, mimeType)
@@ -147,7 +147,7 @@ class LoadPicker {
     const imageType = xhr.getResponseHeader('Content-Type')
     const blob = new Blob([xhr.response], { type: imageType })
     const imageUrl = (window.URL || window.webkitURL).createObjectURL(blob)
-    logger.info(imageUrl)
+    console.info(imageUrl)
     return blob
   }
 
@@ -168,7 +168,7 @@ class LoadPicker {
       }
       xhr.send()
     } else {
-      logger.info(null)
+      console.info(null)
     }
   }
 
@@ -179,13 +179,13 @@ class LoadPicker {
   }
 
   upDriveFire(file, mimeType) {
-    logger.info('upDriveFire', this.classcipeUserId, file, mimeType)
+    console.info('upDriveFire', this.classcipeUserId, file, mimeType)
     this.uploadDriveInstance = upAwsS3File(
       this.classcipeUserId,
       file,
       this.onloadingCallBack,
       result => {
-        logger.info(result, mimeType)
+        console.info(result, mimeType)
         this.classCallback('upload-ended', result, mimeType)
         this.uploadDriveInstance = null
       },

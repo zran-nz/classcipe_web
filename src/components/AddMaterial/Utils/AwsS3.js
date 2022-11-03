@@ -18,14 +18,14 @@ export const upAwsS3File = (userId, file, onProgress, onSuccess, isAutoAddFileUp
     Body: file,
     ACL: 'public-read'
   }
-  logger.info('starting uploader')
+  console.info('starting uploader')
   const uploader = s3.upload(params, {}, function(err, data) {
     if (err) {
-      logger.info('error: ' + err.message)
+      console.info('error: ' + err.message)
     } else {
-      logger.info('upload done , location is ' + data['Location'])
-      logger.info('File available at', data)
-      logger.info(Date.now() - now, '计时 上传成功')
+      console.info('upload done , location is ' + data['Location'])
+      console.info('File available at', data)
+      console.info(Date.now() - now, '计时 上传成功')
       onSuccess && onSuccess(data['Location'], file.name, file.size)
       onProgress && onProgress(100)
       if (isAutoAddFileUploadRecord) {
@@ -36,13 +36,13 @@ export const upAwsS3File = (userId, file, onProgress, onSuccess, isAutoAddFileUp
           contentType,
           contentId
         }).then(res => {
-          logger.info('addFileUploadRecord res', res)
+          console.info('addFileUploadRecord res', res)
         })
       }
     }
   })
   uploader.on('httpUploadProgress', function(evt) {
-    logger.info('uploaded ' + evt.loaded + '/' + evt.total)
+    console.info('uploaded ' + evt.loaded + '/' + evt.total)
     const progress = Math.floor((evt.loaded / evt.total) * 100)
     onProgress && onProgress(Math.min(progress, 99))
   })

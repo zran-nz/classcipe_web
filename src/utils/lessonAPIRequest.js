@@ -39,7 +39,7 @@ request.interceptors.request.use(config => {
       config.data['token'] = token
     }
   } else {
-    logger.info(ACCESS_TOKEN + ' no set')
+    console.info(ACCESS_TOKEN + ' no set')
   }
   return config
 }, errorHandler)

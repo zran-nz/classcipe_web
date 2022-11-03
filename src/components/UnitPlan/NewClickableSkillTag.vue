@@ -255,7 +255,7 @@ export default {
     }
   },
   mounted () {
-    logger.info('skill NewClickableSkillTag ' + this.questionIndex + ' selectedSkillTags', this.selectedSkillTags)
+    console.info('skill NewClickableSkillTag ' + this.questionIndex + ' selectedSkillTags', this.selectedSkillTags)
     SkillLibraryEventBus.$on(SkillLibraryEvent.SkillContentListSelectClick, this.handleSkillContentListSelectClick)
   },
   destroyed () {
@@ -381,13 +381,13 @@ export default {
       this.createTagName = this.inputTag
     },
     searchKnowledge (keyword) {
-      logger.info('skill searchKnowledge', keyword)
+      console.info('skill searchKnowledge', keyword)
       this.searchList = []
       if (typeof keyword === 'string' && keyword.trim().length >= 1) {
         SkillSearch({
           key: keyword
         }).then((response) => {
-          logger.info('skill searchKnowledge response', response)
+          console.info('skill searchKnowledge response', response)
           this.searchList = response.result
         })
       }
@@ -419,7 +419,7 @@ export default {
       this.skillDescriptionTagList = sortBy(this.skillDescriptionTagList, '_updateTimestamp', 'asc').reverse()
       this.$logger.info('skill update sort ', this.skillDescriptionTagList)
 
-      logger.info('skill dblclick desc searchKnowledge')
+      console.info('skill dblclick desc searchKnowledge')
       SkillQueryTagsBySkillId({
         skillId: this.activeDescriptionId
       }).then((response) => {
@@ -495,7 +495,7 @@ export default {
       SkillSearch({
         key: tag.name
       }).then((response) => {
-        logger.info('skill handleDbClickTagListTag searchKnowledge response', response)
+        console.info('skill handleDbClickTagListTag searchKnowledge response', response)
         this.skillTagNameSearchList = response.result.filter(item => item.curriculumId === this.$store.getters.bindCurriculum)
         this.$logger.info('skill after filter curriculumId skillTagNameSearchList', this.skillTagNameSearchList)
         this.skillTagNameSearchListSelected = []

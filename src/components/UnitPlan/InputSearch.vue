@@ -69,7 +69,7 @@ export default {
   },
   created () {
     this.value = this.defaultValue
-    logger.info('inputSearch value', this.value)
+    console.info('inputSearch value', this.value)
   },
   watch: {
     defaultValue (val) {
@@ -84,18 +84,18 @@ export default {
       }
     },
     handleSearch () {
-      logger.info('handleSearch' + this.value)
+      console.info('handleSearch' + this.value)
       this.$emit('search', this.keyIndex, this.value)
       this.$emit('change')
     },
     handleSelectItem (item) {
-      logger.info('handleSelectItem', item)
+      console.info('handleSelectItem', item)
       this.value = item[this.label]
       this.$emit('select-item', this.keyIndex, item)
       this.$emit('reset')
     },
     handleResetSearchList () {
-      logger.info('handleResetSearchList')
+      console.info('handleResetSearchList')
       this.$emit('reset')
     }
   }

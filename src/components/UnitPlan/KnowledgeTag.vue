@@ -201,7 +201,7 @@ export default {
   },
   methods: {
     handleSelectGrade (grade) {
-      logger.info('handleSelectGrade', grade)
+      console.info('handleSelectGrade', grade)
       this.gradeId = grade.id
     },
 
@@ -213,7 +213,7 @@ export default {
     },
 
     handleSelectMainSubject (mainSubject) {
-      logger.info('handleSelectMainSubject', mainSubject)
+      console.info('handleSelectMainSubject', mainSubject)
       if (!this.checkSelectGrade()) {
         return
       }
@@ -231,7 +231,7 @@ export default {
     },
 
     handleSelectSubSubject (subSubject) {
-      logger.info('handleSelectSubSubject', subSubject)
+      console.info('handleSelectSubSubject', subSubject)
       if (subSubject.id !== this.subSubjectId) {
         this.subSubjectId = subSubject.id
         this.resetKnowledge()
@@ -250,21 +250,21 @@ export default {
 
     getKnowledgeTree () {
       this.knowledgeLoading = true
-      logger.info('grade:' + this.gradeId + ', subjectId:' + this.subSubjectId)
+      console.info('grade:' + this.gradeId + ', subjectId:' + this.subSubjectId)
       KnowledgeGetTree({
         gradeId: this.gradeId,
         subjectId: this.subSubjectId
       }).then((response) => {
-        logger.info('KnowledgeGetTree response', response)
+        console.info('KnowledgeGetTree response', response)
         this.knowledgeTree = response.result
-        logger.info('knowledgeTree', this.knowledgeTree)
+        console.info('knowledgeTree', this.knowledgeTree)
       }).finally(() => {
         this.knowledgeLoading = false
       })
     },
 
     handleSelectMainKnowledgeItem (knowledgeItem) {
-      logger.info('handleSelectMainKnowledgeItem', knowledgeItem)
+      console.info('handleSelectMainKnowledgeItem', knowledgeItem)
       if (knowledgeItem.id !== this.mainKnowledgeId) {
         this.mainKnowledgeId = knowledgeItem.id
         this.resetSubKnowledgeTags()
@@ -278,7 +278,7 @@ export default {
     },
 
     handleSelectSubKnowledgeItem (subKnowledgeItem) {
-      logger.info('handleSelectSubKnowledgeItem', subKnowledgeItem)
+      console.info('handleSelectSubKnowledgeItem', subKnowledgeItem)
       if (subKnowledgeItem.id !== this.subKnowledgeId) {
         this.subKnowledgeId = subKnowledgeItem.id
         this.knowledgeTags = subKnowledgeItem.tags
@@ -288,7 +288,7 @@ export default {
     },
 
     handleSelectKnowledgeTag (knowledgeTag) {
-      logger.info('handleSelectKnowledgeTag', knowledgeTag)
+      console.info('handleSelectKnowledgeTag', knowledgeTag)
       if (this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id) === -1) {
         this.$set(this.tagObjData, knowledgeTag.id, Object.assign({}, this.currentSubKnowledge))
         this.selectedKnowledgeTagIdList.push(knowledgeTag.id)
@@ -298,27 +298,27 @@ export default {
           name: knowledgeTag.name,
           description: this.currentSubKnowledge.name
         })
-        logger.info('tagObjData', this.tagObjData)
+        console.info('tagObjData', this.tagObjData)
       } else {
-        logger.info('before remove knowledgeTags', this.selectedKnowledgeTagIdList, this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id))
+        console.info('before remove knowledgeTags', this.selectedKnowledgeTagIdList, this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id))
         this.selectedKnowledgeTagIdList.splice(this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id), 1)
         this.$delete(this.tagObjData, knowledgeTag.id)
         this.$emit('remove-knowledge-tag', {
           questionIndex: this.questionIndex,
           id: knowledgeTag.id
         })
-        logger.info('tagObjData', this.tagObjData)
-        logger.info('after delete knowledgeTags', this.selectedKnowledgeTagIdList)
+        console.info('tagObjData', this.tagObjData)
+        console.info('after delete knowledgeTags', this.selectedKnowledgeTagIdList)
       }
     },
 
     handleAddNewTag () {
-      logger.info('handleAddNewTag', this.newTag)
+      console.info('handleAddNewTag', this.newTag)
       KnowledgeAddOrUpdateTag({
         knowledgeId: this.subKnowledgeId,
         name: this.newTag
       }).then(response => {
-        logger.info('KnowledgeAddOrUpdateTag', response)
+        console.info('KnowledgeAddOrUpdateTag', response)
         this.newTag = ''
         this.refreshKnowledgeTags()
       })
@@ -326,11 +326,11 @@ export default {
 
     refreshKnowledgeTags () {
       this.loadingKnowledge = true
-      logger.info('refreshKnowledgeTags')
+      console.info('refreshKnowledgeTags')
       KnowledgeQueryTagsByKnowledgeId({
         knowledgeId: this.subKnowledgeId
       }).then(response => {
-        logger.info('KnowledgeQueryTagsByKnowledgeId', response)
+        console.info('KnowledgeQueryTagsByKnowledgeId', response)
         this.knowledgeTags = response.result
       }).finally(() => {
         this.loadingKnowledge = false
@@ -338,19 +338,19 @@ export default {
     },
 
     handleDeleteTag (knowledgeTag) {
-      logger.info('handleDeleteTag', knowledgeTag)
+      console.info('handleDeleteTag', knowledgeTag)
       if (this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id) !== -1) {
-        logger.info('before delete knowledgeTags', this.selectedKnowledgeTagIdList, this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id))
+        console.info('before delete knowledgeTags', this.selectedKnowledgeTagIdList, this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id))
         this.selectedKnowledgeTagIdList.splice(this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id), 1)
         this.$delete(this.tagObjData, knowledgeTag.id)
         this.$emit('remove-knowledge-tag', {
           questionIndex: this.questionIndex,
           id: knowledgeTag.id
         })
-        logger.info('tagObjData', this.tagObjData)
-        logger.info('after delete knowledgeTags', this.selectedKnowledgeTagIdList)
+        console.info('tagObjData', this.tagObjData)
+        console.info('after delete knowledgeTags', this.selectedKnowledgeTagIdList)
       } else {
-        logger.info('no found target delete knowledgeTag', knowledgeTag)
+        console.info('no found target delete knowledgeTag', knowledgeTag)
       }
     }
   }

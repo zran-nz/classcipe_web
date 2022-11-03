@@ -124,7 +124,7 @@ export default {
     return {
       pagination: {
         onChange: page => {
-          logger.info('pagination onChange', page)
+          console.info('pagination onChange', page)
           this.pageNo = page
           sessionStorage.setItem('NotificationPage', this.pageNo)
           this.loadMessageData()
@@ -159,7 +159,7 @@ export default {
         pageSize: this.pagination.pageSize,
         flag: this.selectTab === 'all' ? '' : this.selectTab
       }).then((res) => {
-        logger.info('ListByMessage ', res)
+        console.info('ListByMessage ', res)
         this.loading = false
         if (res.success) {
           if (res.result.records && res.result.records.length) {
@@ -183,7 +183,7 @@ export default {
     handleRefuseCollaborate (item) {
       this.$logger.info('handleRefuseCollaborate', item)
       DeleteCollaborate({ id: item.busId }).then(res => {
-        logger.info('handleRefuseCollaborate', res)
+        console.info('handleRefuseCollaborate', res)
       }).then(() => {
         EditCementSend({ anntId: item.id }).then(() => {
           this.$store.commit(RECEIVE_MSG, true)
@@ -198,7 +198,7 @@ export default {
       this.$logger.info('handleAcceptCollaborate', item)
       this.acceptLoading = true
       ReceiveCollaborate({ id: item.busId }).then(res => {
-        logger.info('ReceiveCollaborate', res)
+        console.info('ReceiveCollaborate', res)
         this.$message.success('collaborate successfully')
       }).then(() => {
         EditCementSend({ anntId: item.id }).then(() => {
@@ -210,7 +210,7 @@ export default {
       })
     },
     handleLinkItem (item, event) {
-      logger.info('handleLinkItem', item)
+      console.info('handleLinkItem', item)
       event.preventDefault()
       event.stopPropagation()
       const index = this.mySelectedList.indexOf(item.id)
@@ -223,7 +223,7 @@ export default {
     handleMarkRead () {
       // this.showSelect = !this.showSelect
       const ids = this.messageList.filter(item => item.readFlag === '0').map(item => { return item.id })
-      logger.info('handleMarkRead', ids)
+      console.info('handleMarkRead', ids)
       if (ids.length > 0) {
         EditCementSend({ anntId: ids.join(',') }).then(() => {
           this.$store.commit(RECEIVE_MSG, true)

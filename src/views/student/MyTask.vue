@@ -193,7 +193,7 @@ export default {
     }
   },
   created () {
-    logger.info('student my content')
+    console.info('student my content')
     this.initFilterOption()
   },
   methods: {

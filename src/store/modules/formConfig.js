@@ -24,7 +24,7 @@ const formConfig = {
   },
   mutations: {
     [FORM_CONFIG_PREVIEW_DATA]: (state, previewData) => {
-      logger.info('previewData', previewData)
+      console.info('previewData', previewData)
       const configData = {
         loaded: true,
         taskFieldMap: {},
@@ -91,7 +91,7 @@ const formConfig = {
       storage.set(FORM_CONFIG_PREVIEW_DATA, configData)
     },
     [FORM_CONFIG_DATA]: (state, formConfigData) => {
-      logger.info('formConfigData', formConfigData)
+      console.info('formConfigData', formConfigData)
       const configData = {
         loaded: true,
         taskFieldMap: {},
@@ -153,7 +153,7 @@ const formConfig = {
         })
       }
       state.formConfigData = configData
-      logger.info('format formConfigData', configData)
+      console.info('format formConfigData', configData)
       storage.set(FORM_CONFIG_DATA, configData)
     }
   },
@@ -161,7 +161,7 @@ const formConfig = {
     loadFormConfigData ({ commit }, token) {
       return new Promise((resolve, reject) => {
         FormConfigUser({ token: token }).then(response => {
-          logger.info('init formConfigData', response.result)
+          console.info('init formConfigData', response.result)
           commit(FORM_CONFIG_DATA, response.result)
           resolve(response.result)
         }).catch(err => {

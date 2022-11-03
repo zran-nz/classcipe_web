@@ -159,10 +159,10 @@ export default {
   },
   methods: {
     loadTeacherClasses (limit, slideId) {
-      logger.info('loadTeacherClasses ' + ' limit:' + limit + ' slideId:' + slideId)
+      console.info('loadTeacherClasses ' + ' limit:' + limit + ' slideId:' + slideId)
       this.loading = true
       FindMyClasses({ limit, slideId }).then(response => {
-        logger.info('FindMyClasses', response.result.data)
+        console.info('FindMyClasses', response.result.data)
         if (response.success) {
           response.result.forEach((item) => {
             item.date = item.date * 1000
@@ -174,7 +174,7 @@ export default {
           }
         }
         this.total = response.result.length
-        logger.info(' data', this.data)
+        console.info(' data', this.data)
         this.loading = false
       })
     },

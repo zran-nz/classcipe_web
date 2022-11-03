@@ -172,7 +172,7 @@ export default {
   computed: {
     lastChangeSavedTime () {
       if (this.data) {
-        logger.info('lastChangeSavedTime data', this.data)
+        console.info('lastChangeSavedTime data', this.data)
         const time = this.data.createTime || this.data.updateTime
         if (time) {
           return formatLocalUTC(time)
@@ -200,18 +200,18 @@ export default {
     }
   },
   created () {
-    logger.info('ReferPreview id ' + this.id + ' type ' + this.type)
+    console.info('ReferPreview id ' + this.id + ' type ' + this.type)
     this.loadData()
   },
   methods: {
     loadData () {
-      logger.info('reference preview loadData ' + this.id + ' type ' + this.type)
+      console.info('reference preview loadData ' + this.id + ' type ' + this.type)
       this.loading = true
       if (this.type === this.typeMap['unit-plan']) {
         UnitPlanQueryById({
           id: this.id
         }).then(response => {
-          logger.info('reference preview UnitPlanQueryById ' + this.id, response.result)
+          console.info('reference preview UnitPlanQueryById ' + this.id, response.result)
           this.data = response.result
         }).finally(() => {
           this.loading = false

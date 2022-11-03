@@ -177,7 +177,7 @@ export default {
   computed: {
     lastChangeSavedTime () {
       if (this.unitPlanData) {
-        logger.info('lastChangeSavedTime unitPlanData', this.unitPlanData)
+        console.info('lastChangeSavedTime unitPlanData', this.unitPlanData)
         const time = this.unitPlanData.createTime || this.unitPlanData.updateTime
         if (time) {
           return formatLocalUTC(time)
@@ -211,17 +211,17 @@ export default {
     }
   },
   created () {
-    logger.info('UnitPlanPreview unitPlanId ' + this.unitPlanId)
+    console.info('UnitPlanPreview unitPlanId ' + this.unitPlanId)
     this.loadUnitPlanData()
   },
   methods: {
     loadUnitPlanData () {
-      logger.info('loadUnitPlanData ' + this.unitPlanId)
+      console.info('loadUnitPlanData ' + this.unitPlanId)
       this.loading = true
       UnitPlanQueryById({
         id: this.unitPlanId
       }).then(response => {
-        logger.info('UnitPlanQueryById ' + this.unitPlanId, response.result)
+        console.info('UnitPlanQueryById ' + this.unitPlanId, response.result)
         this.unitPlanData = response.result
         if (this.unitPlanData && this.unitPlanData.image) {
           this.imgList = [this.unitPlanData.image]
@@ -232,12 +232,12 @@ export default {
     },
 
     handleSelectContentType (contentType) {
-      logger.info('handleSelectContentType ' + contentType)
+      console.info('handleSelectContentType ' + contentType)
       this.activeContentType = contentType
     },
 
     handleSubPreviewClose () {
-      logger.info('handleSubPreviewClose')
+      console.info('handleSubPreviewClose')
       this.subPreviewVisible = false
     },
 

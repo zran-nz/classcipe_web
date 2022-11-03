@@ -52,7 +52,7 @@ const app = {
   },
   mutations: {
     [HIDDEN_SIDEBAR]: (state, type) => {
-      logger.info(HIDDEN_SIDEBAR + ' ' + type)
+      console.info(HIDDEN_SIDEBAR + ' ' + type)
       state.sideCollapsed = type
       storage.set(HIDDEN_SIDEBAR, type)
     },
@@ -165,13 +165,13 @@ const app = {
       return new Promise((resolve, reject) => {
         getSysConfig().then(response => {
           const result = response.result
-          logger.info('getSysConfig', result)
+          console.info('getSysConfig', result)
           const config = {}
           result.forEach(item => {
             config[item.title] = item.value
           })
           commit(SYS_CONFIG, config)
-          logger.info('config detail', config)
+          console.info('config detail', config)
           if (config.downloadUrl) {
             commit(DOWNLOAD_URL, config.downloadUrl)
           }

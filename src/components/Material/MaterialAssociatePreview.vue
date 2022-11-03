@@ -137,69 +137,69 @@ export default {
     }
   },
   created () {
-    logger.info('Material Associate Preview materialId ' + this.materialId)
+    console.info('Material Associate Preview materialId ' + this.materialId)
     this.loadMaterialAssociateData()
   },
   methods: {
     loadMaterialAssociateData () {
-      logger.info('loadMaterialAssociateData ' + this.materialId)
+      console.info('loadMaterialAssociateData ' + this.materialId)
       this.loading = true
       GetAssociate({
         id: this.materialId,
         type: typeMap.material
       }).then((response) => {
-        logger.info('GetAssociate ', response)
+        console.info('GetAssociate ', response)
         this.associateData = response.result
         this.currentAssociateList = this.associateData[this.activeUserType]
       }).then(() => {
-        logger.info('get favorite ' + this.materialId)
+        console.info('get favorite ' + this.materialId)
       }).finally(() => {
         this.loading = false
       })
     },
 
     handleSelectContentType (contentType) {
-      logger.info('handleSelectContentType ' + contentType)
+      console.info('handleSelectContentType ' + contentType)
       this.activeContentType = contentType
     },
 
     handleSubPreviewClose () {
-      logger.info('handleSubPreviewClose')
+      console.info('handleSubPreviewClose')
       this.subPreviewVisible = false
       this.previewType = null
     },
 
     handleUserTypeChange (e) {
-      logger.info('handleUserTypeChange ' + this.activeUserType)
+      console.info('handleUserTypeChange ' + this.activeUserType)
       this.currentAssociateList = this.associateData[this.activeUserType]
-      logger.info('currentAssociateList', this.currentAssociateList)
+      console.info('currentAssociateList', this.currentAssociateList)
     },
 
     handleClickTitle (item) {
-      logger.info('handleClickTitle', item)
+      console.info('handleClickTitle', item)
       this.previewType = typeMap.material
       this.subPreviewVisible = true
     },
 
     handleSubPreview (type, item) {
-      logger.info('handleSubPreview', type, item)
+      console.info('handleSubPreview', type, item)
       this.previewType = typeMap.material
       this.subPreviewVisible = true
     },
 
     handleFavorite (item) {
-      logger.info('handleFavorite', item)
+      console.info('handleFavorite', item)
       FavoritesAdd({
         sourceId: item.id,
         sourceType: item.type
       }).then(response => {
-        logger.info('FavoritesAdd ', response)
+        console.info('FavoritesAdd ', response)
         item.isFavorite = !item.isFavorite
       })
     },
 
     handleEditItem (type, item) {
-      logger.info('handleEditItem', type, item)
+      console.info('handleEditItem', type, item)
       this.$message.success('Edit Item')
     }
   }

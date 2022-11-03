@@ -149,7 +149,7 @@ export default {
         })
       } catch (err) {
         this.stopTimer = true
-        logger.info('通知异常', err)
+        console.info('通知异常', err)
       }
     },
     fetchNotice () {

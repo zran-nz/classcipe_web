@@ -197,7 +197,7 @@ export default {
       },
 
       loadTeacherData: (pageParams) => {
-        logger.info('loadTeacherData.parameter', pageParams)
+        console.info('loadTeacherData.parameter', pageParams)
         let params = {
           ...this.queryTeacher,
           ...pageParams
@@ -208,7 +208,7 @@ export default {
         return SchoolTaskList(params)
       },
       loadStudentData: (pageParams) => {
-        logger.info('loadStudentData.parameter', pageParams)
+        console.info('loadStudentData.parameter', pageParams)
         let params = {
           ...this.queryStudent,
           ...pageParams

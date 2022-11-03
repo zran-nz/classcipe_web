@@ -389,7 +389,7 @@ export default {
     },
 
     searchTag (keyword) {
-      logger.info('tag searchTag', keyword)
+      console.info('tag searchTag', keyword)
       this.createTagName = this.inputTag
     },
     refreshTag () {

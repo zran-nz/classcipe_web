@@ -200,22 +200,22 @@ export default {
     }
   },
   created () {
-    logger.info('Associate Preview id ' + this.id)
+    console.info('Associate Preview id ' + this.id)
     this.loadAssociateData()
   },
   methods: {
     loadAssociateData () {
-      logger.info('loadAssociateData ' + this.id + ' ' + this.contentType)
+      console.info('loadAssociateData ' + this.id + ' ' + this.contentType)
       this.loading = true
       GetAssociate({
         id: this.id,
         type: this.contentType
       }).then((response) => {
-        logger.info('GetAssociate ', response)
+        console.info('GetAssociate ', response)
         this.associateData = response.result
         this.currentAssociateList = this.associateData[this.activeUserType]
       }).then(() => {
-        logger.info('get favorite ' + this.id)
+        console.info('get favorite ' + this.id)
       }).finally(() => {
         this.loading = false
       })
@@ -227,23 +227,23 @@ export default {
     },
 
     handleSelectContentType (contentType) {
-      logger.info('handleSelectContentType ' + contentType)
+      console.info('handleSelectContentType ' + contentType)
       this.activeContentType = contentType
     },
 
     handleSubPreviewClose () {
-      logger.info('handleSubPreviewClose')
+      console.info('handleSubPreviewClose')
       this.previewType = null
     },
 
     handleUserTypeChange (e) {
-      logger.info('handleUserTypeChange ' + this.activeUserType)
+      console.info('handleUserTypeChange ' + this.activeUserType)
       this.currentAssociateList = this.associateData[this.activeUserType]
-      logger.info('currentAssociateList', this.currentAssociateList)
+      console.info('currentAssociateList', this.currentAssociateList)
     },
 
     handleClickTitle (item) {
-      logger.info('handleClickTitle', item)
+      console.info('handleClickTitle', item)
       this.previewType = typeMap['unit-plan']
     },
 

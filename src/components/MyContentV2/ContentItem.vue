@@ -509,9 +509,9 @@ export default {
     },
 
     handlePermanentDeleteItem () {
-      logger.info('handlePermanentDeleteItem', this.content)
+      console.info('handlePermanentDeleteItem', this.content)
       PermanentDeleteMyContent({ sourceId: this.content.id, sourceType: this.content.type }).then(res => {
-        logger.info('handlePermanentDeleteItem', res)
+        console.info('handlePermanentDeleteItem', res)
       }).then(() => {
         this.$emit('delete', {
           content: this.content
@@ -520,7 +520,7 @@ export default {
     },
 
     handleRestoreItem () {
-      logger.info('handleRestoreItem', this.content)
+      console.info('handleRestoreItem', this.content)
       ContentRestore({ id: this.content.id, type: this.content.type }).then(response => {
         this.$logger.info('handleRestoreItem response', response)
       }).finally(() => {
@@ -531,9 +531,9 @@ export default {
     },
 
     handleCollaborateDeleteItem () {
-      logger.info('handleCollaborateDeleteItem', this.content)
+      console.info('handleCollaborateDeleteItem', this.content)
       CollaboratesDeleteByOthers({ id: this.content.id, type: this.content.type }).then(res => {
-        logger.info('handleCollaborateDeleteItem', res)
+        console.info('handleCollaborateDeleteItem', res)
       }).then(() => {
         this.$emit('update-list')
       })

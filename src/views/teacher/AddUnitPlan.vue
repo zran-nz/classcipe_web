@@ -1357,7 +1357,7 @@ export default {
     }
   },
   created() {
-    logger.info('unitPlanId ' + this.unitPlanId + ' ' + this.$route.path)
+    console.info('unitPlanId ' + this.unitPlanId + ' ' + this.$route.path)
     // 初始化关联事件处理
     MyContentEventBus.$on(MyContentEvent.ReferContentItem, this.handleReferItem)
     LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
@@ -1377,7 +1377,7 @@ export default {
   },
   methods: {
     initData() {
-      logger.info('initData doing...')
+      console.info('initData doing...')
       Promise.all([
         GetAllSdgs(),
         // GetTreeByKey({ key: 'Related Concepts MYP' }),
@@ -1385,34 +1385,34 @@ export default {
         SubjectTree({ curriculumId: this.$store.getters.bindCurriculum }),
         GetTreeByKey({ key: 'Real world connections' })
       ]).then((sdgListResponse) => {
-        logger.info('initData done', sdgListResponse)
+        console.info('initData done', sdgListResponse)
 
         // GetAllSdgs
-        logger.info('GetAllSdgs Response ', sdgListResponse[0])
+        console.info('GetAllSdgs Response ', sdgListResponse[0])
         if (!sdgListResponse[0].code) {
           this.sdgList = sdgListResponse[0].result
         }
 
         // GetMyGrades
         if (!sdgListResponse[1].code) {
-          logger.info('GetMyGrades', sdgListResponse[1].result)
+          console.info('GetMyGrades', sdgListResponse[1].result)
           this.gradeList = sdgListResponse[1].result
         }
 
         // SubjectTree
         if (!sdgListResponse[2].code) {
-          logger.info('SubjectTree', sdgListResponse[2].result)
+          console.info('SubjectTree', sdgListResponse[2].result)
           let subjectTree = sdgListResponse[2].result
           subjectTree = formatSubjectTree(subjectTree)
           this.subjectTree = subjectTree
-          logger.info('after format subjectTree', subjectTree)
+          console.info('after format subjectTree', subjectTree)
         }
         // rwc list
         if (!sdgListResponse[3].code) {
-          logger.info('rwc', sdgListResponse[3].result)
+          console.info('rwc', sdgListResponse[3].result)
           this.rwcList = sdgListResponse[3].result.children ? sdgListResponse[3].result.children : []
         }
-        logger.info('sdgList', this.sdgList)
+        console.info('sdgList', this.sdgList)
       }).then(() => {
         this.restoreUnitPlan(this.unitPlanId, true)
       }).catch((e) => {
@@ -1452,11 +1452,11 @@ export default {
       if (isFirstLoad) {
         this.contentLoading = true
       }
-      logger.info('restoreUnitPlan ' + unitPlanId)
+      console.info('restoreUnitPlan ' + unitPlanId)
       UnitPlanQueryById({
         id: unitPlanId
       }).then(response => {
-        logger.info('UnitPlanQueryById ' + unitPlanId, response.result)
+        console.info('UnitPlanQueryById ' + unitPlanId, response.result)
         const unitPlanData = response.result
         if (unitPlanData.scenarios.length === 0) {
           unitPlanData.scenarios.push({
@@ -1523,7 +1523,7 @@ export default {
     },
 
     handleUploadImage(data) {
-      logger.info('handleUploadImage', data)
+      console.info('handleUploadImage', data)
       const formData = new FormData()
       formData.append('file', data.file, data.file.name)
       this.uploading = true
@@ -1534,7 +1534,7 @@ export default {
         timeout: 60000
       })
         .then((response) => {
-          logger.info('handleUploadImage upload response:', response)
+          console.info('handleUploadImage upload response:', response)
           this.form.image = this.$store.getters.downloadUrl + response.result
         }).catch(err => {
         logger.error('handleUploadImage error', err)
@@ -1545,27 +1545,27 @@ export default {
     },
 
     handleDeleteImage(e) {
-      logger.info('handleDeleteImage ', e)
+      console.info('handleDeleteImage ', e)
       e.stopPropagation()
       e.preventDefault()
       this.form.image = null
     },
 
     handleDescriptionSearch(index, description) {
-      logger.info('handleDescriptionSearch:', index, description)
+      console.info('handleDescriptionSearch:', index, description)
       this.form.scenarios[index].description = description
       this.debouncedGetSdgByDescription(index, description)
     },
 
     searchScenario(index, description) {
-      logger.info('searchScenario', description)
+      console.info('searchScenario', description)
       this.currentIndex = index
       if (typeof description === 'string' && description.trim().length >= 3) {
         // this.$refs.descriptionInputSearch.fetching = true
         ScenarioSearch({
           searchKey: this.form.scenarios[index].description
         }).then((response) => {
-          logger.info('searchByDescription', response)
+          console.info('searchByDescription', response)
           this.descriptionSearchList = response.result
         })
       } else {
@@ -1581,7 +1581,7 @@ export default {
         this.form.scenarios[index].description = scenario.description
         if (scenario.sdgKeyWords.length) {
           const keyWords = scenario.sdgKeyWords
-          logger.info('scenario[' + index + '].sdgKeyWords', keyWords)
+          console.info('scenario[' + index + '].sdgKeyWords', keyWords)
           this.form.scenarios[index].sdgKeyWords = keyWords
         }
       }
@@ -1595,13 +1595,13 @@ export default {
       }
       this.form.scenarios.push(sdg)
       // this.$set(this.sdgDataObj, this.sdgPrefix + this.sdgMaxIndex, sdg)
-      // logger.info('after add scenarioObj: ', this.sdgDataObj, 'sdgMaxIndex ' + this.sdgMaxIndex, ' sdgTotal ' + this.sdgTotal)
+      // console.info('after add scenarioObj: ', this.sdgDataObj, 'sdgMaxIndex ' + this.sdgMaxIndex, ' sdgTotal ' + this.sdgTotal)
     },
 
     handleDeleteSdg(sdgIndex) {
       if (this.form.scenarios.length > 1) {
         this.form.scenarios.splice(sdgIndex, 1)
-        logger.info('scenarios ', this.form.scenarios, 'sdgTotal ' + this.form.scenarios.length)
+        console.info('scenarios ', this.form.scenarios, 'sdgTotal ' + this.form.scenarios.length)
       } else {
         this.$message.warn(this.$t('teacher.add-unit-plan.at-least-one-sdg'))
       }
@@ -1612,21 +1612,21 @@ export default {
         name: data.tagName
       }
       const sdgKey = data.sdgKey
-      logger.info('handleAddSdgTag ', tag.name, sdgKey)
+      console.info('handleAddSdgTag ', tag.name, sdgKey)
       this.form.scenarios[sdgKey].sdgKeyWords.push(tag)
-      logger.info('after handleAddSdgTag ', this.form.scenarios[sdgKey].sdgKeyWords)
+      console.info('after handleAddSdgTag ', this.form.scenarios[sdgKey].sdgKeyWords)
     },
 
     handleRemoveSdgTag(data) {
       const tagName = data.tagName
       const sdgKey = data.sdgKey
-      logger.info('handleRemoveSdgTag ', tagName, sdgKey)
+      console.info('handleRemoveSdgTag ', tagName, sdgKey)
       this.form.scenarios[sdgKey].sdgKeyWords.splice(this.form.scenarios[sdgKey].sdgKeyWords.indexOf(tagName), 1)
-      logger.info('after handleRemoveSdgTag ', this.form.scenarios[sdgKey].sdgKeyWords)
+      console.info('after handleRemoveSdgTag ', this.form.scenarios[sdgKey].sdgKeyWords)
     },
 
     handleSelectSubject(subjects) {
-      logger.info('handleSelectSubject', subjects)
+      console.info('handleSelectSubject', subjects)
       this.form.subjects = subjects
     },
 
@@ -1635,11 +1635,11 @@ export default {
         id: null,
         name: ''
       }
-      logger.info('handleAddMoreQuestion ', question)
+      console.info('handleAddMoreQuestion ', question)
       this.form.questions.push(question)
     },
     handleRemoveQuestion(index) {
-      logger.info('handleRemoveQuestion ', index)
+      console.info('handleRemoveQuestion ', index)
       if (this.form.questions.length === 1) {
         this.form.questions[index].name = ''
       } else {
@@ -1648,21 +1648,21 @@ export default {
     },
 
     handleRemoveSkillTag(data) {
-      logger.info('Unit Plan handleRemoveSkillTag', data)
-      logger.info('target question data', this.questionDataObj[data.questionIndex])
+      console.info('Unit Plan handleRemoveSkillTag', data)
+      console.info('target question data', this.questionDataObj[data.questionIndex])
       this.questionDataObj[data.questionIndex].skillTags = this.questionDataObj[data.questionIndex].skillTags.filter(item => item.id !== data.id)
-      logger.info('Unit Plan after handleRemoveSkillTag ', this.questionDataObj[data.questionIndex].skillTags)
+      console.info('Unit Plan after handleRemoveSkillTag ', this.questionDataObj[data.questionIndex].skillTags)
     },
 
     handleAddSkillTag(data) {
-      logger.info('Unit Plan handleAddSkillTag', data)
-      logger.info('target question data', this.questionDataObj[data.questionIndex])
+      console.info('Unit Plan handleAddSkillTag', data)
+      console.info('target question data', this.questionDataObj[data.questionIndex])
       this.questionDataObj[data.questionIndex].skillTags.push(Object.assign({}, data))
       this.$logger.info('after handleAddSkillTag questionDataObj ' + data.questionIndex, this.questionDataObj[data.questionIndex])
     },
 
     async handleSaveUnitPlan(isBack) {
-      logger.info('handleSaveUnitPlan', this.form, this.sdgDataObj, this.questionDataObj)
+      console.info('handleSaveUnitPlan', this.form, this.sdgDataObj, this.questionDataObj)
       this.cleaPageCache()
       const unitPlanData = Object.assign({}, this.form)
       if (this.rangeDate.length === 2) {
@@ -1681,9 +1681,9 @@ export default {
       if (unitPlanData.customFieldData) {
         unitPlanData.customFieldData = JSON.stringify(unitPlanData.customFieldData)
       }
-      logger.info('basic unitPlanData', unitPlanData)
+      console.info('basic unitPlanData', unitPlanData)
       const response = await UnitPlanAddOrUpdate(unitPlanData)
-      logger.info('UnitPlanAddOrUpdate', response.result)
+      console.info('UnitPlanAddOrUpdate', response.result)
       if (response.success) {
         // 为了保存提示去掉
         this.oldForm = JSON.parse(JSON.stringify(this.form))
@@ -1790,7 +1790,7 @@ export default {
     },
 
     handleAddUnitPlanMaterial() {
-      logger.info('handleAddUnitPlanMaterial ' + this.unitPlanId)
+      console.info('handleAddUnitPlanMaterial ' + this.unitPlanId)
       this.$router.push({
         path: '/teacher/unit-plan-material-redirect/' + this.unitPlanId + '/create'
       })
@@ -1832,7 +1832,7 @@ export default {
     },
 
     handleAddUnitPlanLesson() {
-      logger.info('handleAddUnitPlanLesson ' + this.unitPlanId)
+      console.info('handleAddUnitPlanLesson ' + this.unitPlanId)
       // 下创建一个空的lesson，然后关联，然后再跳转过去
       if (!this.addLoading) {
         this.addLoading = true
@@ -1867,7 +1867,7 @@ export default {
     },
 
     handleAddUnitPlanEvaluation() {
-      logger.info('handleAddUnitPlanEvaluation ' + this.unitPlanId)
+      console.info('handleAddUnitPlanEvaluation ' + this.unitPlanId)
       // 下创建一个空的evaluation，然后关联，然后再跳转过去
       if (!this.addLoading) {
         this.addLoading = true
@@ -1919,7 +1919,7 @@ export default {
       }
     },
     handleAudioResult(data) {
-      logger.info('handleAudioResult', data)
+      console.info('handleAudioResult', data)
       this.currentUploading = true
       const formData = new FormData()
       formData.append('file', data, 'audio.wav')
@@ -1930,9 +1930,9 @@ export default {
         timeout: 60000
       })
         .then((response) => {
-          logger.info('handleAudioResult upload response:', response)
+          console.info('handleAudioResult upload response:', response)
           this.audioUrl = this.$store.getters.downloadUrl + response.result
-          logger.info('handleAudioResult audioUrl', this.audioUrl)
+          console.info('handleAudioResult audioUrl', this.audioUrl)
         }).catch(err => {
         logger.error('handleAudioResult error', err)
       }).finally(() => {
@@ -1941,7 +1941,7 @@ export default {
     },
 
     handleUploadAudio(data) {
-      logger.info('handleUploadAudio', data)
+      console.info('handleUploadAudio', data)
       this.currentUploading = true
       const formData = new FormData()
       formData.append('file', data.file, data.file.name)
@@ -1953,7 +1953,7 @@ export default {
         timeout: 60000
       })
         .then((response) => {
-          logger.info('handleUploadAudio upload response:', response)
+          console.info('handleUploadAudio upload response:', response)
           this.audioUrl = this.$store.getters.downloadUrl + response.result
         }).catch(err => {
         logger.error('handleUploadImage error', err)
@@ -2064,7 +2064,7 @@ export default {
           questionId: null,
           visible: false
         }, data.data)
-        logger.info('handleReferBlock AddQuestion ', question)
+        console.info('handleReferBlock AddQuestion ', question)
         this.questionMaxIndex = this.questionMaxIndex + 1
         this.questionTotal = this.questionTotal + 1
         this.$set(this.questionDataObj, this.questionPrefix + this.questionMaxIndex, question)
@@ -2663,7 +2663,7 @@ export default {
         return
       }
       FindQuestionsByBigIdea({ bigIdea: bigIdea }).then(response => {
-        logger.info('FindQuestionsByBigIdea ', response)
+        console.info('FindQuestionsByBigIdea ', response)
         this.recommendQuestionList = []
         if (response.success) {
           const formQuestion = this.form.questions.map(item => {
@@ -2693,11 +2693,11 @@ export default {
       this.form.questions.push(question)
     },
     handleSelectQuestion(questions) {
-      logger.info('handleSelectQuestion ', questions)
+      console.info('handleSelectQuestion ', questions)
       this.selectedQuestionList = questions
     },
     handleEnsureSelectQuestionData() {
-      logger.info('handleEnsureSelectQuestionData ', this.selectedQuestionList)
+      console.info('handleEnsureSelectQuestionData ', this.selectedQuestionList)
       const formQuestion = this.form.questions.map(item => {
         return item.name
       })

@@ -534,7 +534,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
 
         pagination: {
           onChange: page => {
-            logger.info('pagination onChange', page)
+            console.info('pagination onChange', page)
             this.pageNo = page
             this.loadMyContent()
           },
@@ -583,7 +583,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
       }
     },
     created () {
-      logger.info('teacher my content')
+      console.info('teacher my content')
       this.loadMyContent()
       this.loadUserTags()
     },
@@ -604,7 +604,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
             pageSize: this.pagination.pageSize,
             searchKey: ''
           }).then(res => {
-            logger.info('CollaboratesQueryShared', res)
+            console.info('CollaboratesQueryShared', res)
             if (res.success) {
               res.result.records.forEach((record, index) => {
                 record.key = index
@@ -631,7 +631,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
             pageSize: this.pagination.pageSize,
             searchKey: ''
           }).then(res => {
-            logger.info('CollaboratesQueryShared', res)
+            console.info('CollaboratesQueryShared', res)
             if (res.success) {
               res.result.records.forEach((record, index) => {
                 record.key = index
@@ -654,25 +654,25 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
         }
       },
       toggleStatus (status) {
-        logger.info('toggleStatus ' + status)
+        console.info('toggleStatus ' + status)
         this.currentStatus = status
         this.loadMyContent()
       },
       toggleType (type, label) {
-        logger.info('toggleType ' + type + ' label ' + label)
+        console.info('toggleType ' + type + ' label ' + label)
         this.currentType = type
         this.currentTypeLabel = label
         this.loadMyContent()
       },
       toggleOwner (owner, label) {
-        logger.info('toggleOwner ' + owner + ' label ' + label)
+        console.info('toggleOwner ' + owner + ' label ' + label)
         this.currentOwner = owner
         this.currentOwnerLabel = label
         this.loadMyContent()
       },
 
       handleEditItem (item) {
-        logger.info('handleEditItem', item)
+        console.info('handleEditItem', item)
         if (item.type === typeMap['unit-plan']) {
           this.$router.push({
             path: '/teacher/unit-plan-redirect/' + item.id
@@ -688,30 +688,30 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
         }
       },
       handleDeleteItem (item) {
-        logger.info('handleDeleteItem', item)
+        console.info('handleDeleteItem', item)
         if (this.currentStatus === 0) {
           DeleteByMeCollaborate({ sourceId: item.sourceId, sourceType: item.sourceType }).then(res => {
-            logger.info('DeleteCollaborate', res)
+            console.info('DeleteCollaborate', res)
           }).then(() => {
             this.loadMyContent()
           })
         } else {
           DeleteCollaborate({ id: item.id }).then(res => {
-            logger.info('DeleteCollaborate', res)
+            console.info('DeleteCollaborate', res)
           }).then(() => {
             this.loadMyContent()
           })
         }
       },
       handleViewDetail (item) {
-        logger.info('handleViewDetail', item)
+        console.info('handleViewDetail', item)
         this.previewCurrentId = item.id
         this.previewType = item.type
         this.previewVisible = true
       },
 
       handlePreviewClose () {
-        logger.info('handlePreviewClose')
+        console.info('handlePreviewClose')
         this.previewVisible = false
         this.$nextTick(() => {
           this.previewCurrentId = null
@@ -887,7 +887,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
       handleCollaborate (item) {
         this.$logger.info('handleCollaborate', item)
         ReceiveCollaborate({ id: item.id }).then(res => {
-          logger.info('ReceiveCollaborate', res)
+          console.info('ReceiveCollaborate', res)
           this.$message.success('collaborate successfully')
         }).then(() => {
           this.loadMyContent()
@@ -897,7 +897,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
       handleDeleteCollaborate (item) {
         this.$logger.info('handleDeleteCollaborate', item)
         DeleteCollaborate({ id: item.id }).then(res => {
-          logger.info('DeleteCollaborate', res)
+          console.info('DeleteCollaborate', res)
         }).then(() => {
           this.loadMyContent()
         })
@@ -917,11 +917,11 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
         if (!item.presentationId) {
           this.$message.warn('This Task is not bound to PPT!')
         }
-        logger.info('loadTeacherClasses  slideId:' + item.presentationId)
+        console.info('loadTeacherClasses  slideId:' + item.presentationId)
         this.loading = true
         this.sessionList = []
         FindMyClasses({ slideId: item.presentationId, lastVersion: true }).then(response => {
-          logger.info('findMyClasses', response.result.data)
+          console.info('findMyClasses', response.result.data)
           if (response.success) {
             this.sessionList = response.result.classList
             this.lastedRevisionId = response.result.revisionId
@@ -940,7 +940,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
       handleAccept (item, flag) {
         this.$logger.info('handleAccept', item)
         CollaboratesAgree({ id: item.id, agreeFlag: flag }).then(res => {
-          logger.info('handleApply', res)
+          console.info('handleApply', res)
           if (flag === this.collaborateStatus.agree) {
             this.$message.success('Agree successfully')
           } else {
@@ -953,7 +953,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
       handleApply (item) {
         this.$logger.info('handleApply', item)
         CollaboratesAgree({ id: item.id, agreeFlag: this.collaborateStatus.apply }).then(res => {
-          logger.info('handleApply', res)
+          console.info('handleApply', res)
           this.$message.success('Apply successfully')
         }).then(() => {
           this.loadMyContent()

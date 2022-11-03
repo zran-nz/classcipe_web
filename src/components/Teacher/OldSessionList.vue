@@ -173,7 +173,7 @@ export default {
     this.sessionList.forEach(item => {
       item.startLoading = false
     })
-    logger.info('sessionList :', this.data)
+    console.info('sessionList :', this.data)
   },
   computed: {
     rowSelection () {

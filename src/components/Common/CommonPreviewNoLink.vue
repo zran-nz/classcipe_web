@@ -597,7 +597,7 @@ export default {
     }),
     lastChangeSavedTime () {
       if (this.data) {
-        logger.info('lastChangeSavedTime data', this.data)
+        console.info('lastChangeSavedTime data', this.data)
         const time = this.data.updateTime || this.data.createTime
         if (time) {
           return formatLocalUTC(time)
@@ -654,18 +654,18 @@ export default {
     }
   },
   created () {
-    logger.info('CommonPreview id ' + this.id + ' type ' + this.type)
+    console.info('CommonPreview id ' + this.id + ' type ' + this.type)
     this.loadData()
   },
   methods: {
     loadData () {
-      logger.info('loadData ' + this.id + ' type ' + this.type)
+      console.info('loadData ' + this.id + ' type ' + this.type)
       this.loading = true
       if (this.type === this.typeMap['unit-plan']) {
         UnitPlanQueryById({
           id: this.id
         }).then(response => {
-          logger.info('UnitPlanQueryById ' + this.id, response.result)
+          console.info('UnitPlanQueryById ' + this.id, response.result)
           this.data = response.result
           this.oldForm = this.data
           if (this.data && this.data.image) {
@@ -679,7 +679,7 @@ export default {
         TaskQueryById({
           id: this.id
         }).then(response => {
-          logger.info('TaskQueryById ' + this.id, response.result)
+          console.info('TaskQueryById ' + this.id, response.result)
           this.data = response.result
           this.loading = false
           this.oldForm = this.data
@@ -693,7 +693,7 @@ export default {
         EvaluationQueryById({
           id: this.id
         }).then(response => {
-          logger.info('EvaluationQueryById ' + this.id, response.result)
+          console.info('EvaluationQueryById ' + this.id, response.result)
           this.data = response.result
           this.oldForm = this.data
           if (this.data && this.data.image) {
@@ -706,7 +706,7 @@ export default {
       }
       GetDictItems(DICT_PROMPT_TYPE).then(response => {
         if (response.success) {
-          logger.info('DICT_PROMPT_TYPE', response.result)
+          console.info('DICT_PROMPT_TYPE', response.result)
           this.initPrompts = response.result
         }
       })
@@ -797,12 +797,12 @@ export default {
     },
 
     handleSelectContentType (contentType) {
-      logger.info('handleSelectContentType ' + contentType)
+      console.info('handleSelectContentType ' + contentType)
       this.activeContentType = contentType
     },
 
     handleSubPreviewClose () {
-      logger.info('handleSubPreviewClose')
+      console.info('handleSubPreviewClose')
       this.subPreviewVisible = false
     },
 
@@ -810,12 +810,12 @@ export default {
       this.$logger.info('handleViewModeChange ' + this.viewMode)
     },
     handleFavorite (item) {
-      logger.info('handleFavorite', item)
+      console.info('handleFavorite', item)
       FavoritesAdd({
         sourceId: item.id,
         sourceType: item.type
       }).then(response => {
-        logger.info('FavoritesAdd ', response)
+        console.info('FavoritesAdd ', response)
         item.isFavorite = !item.isFavorite
         this.data.isFavorite = item.isFavorite
         this.$emit('favoritiesAdd', { ...this.data })
@@ -828,7 +828,7 @@ export default {
     },
     handleEditItem (item) {
       item.type = this.type
-      logger.info('handleEditItem', item)
+      console.info('handleEditItem', item)
       if (item.type === typeMap['unit-plan']) {
         window.open('/teacher/unit-plan-redirect/' + item.id
           , '_blank')

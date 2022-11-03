@@ -187,7 +187,7 @@ export default {
           this.keywordLetterList.push(arr)
         }
       })
-      logger.info('keywordLetterList ', this.keywordLetterList)
+      console.info('keywordLetterList ', this.keywordLetterList)
     },
     QueryBigIdea () {
       this.bigLoading = true
@@ -237,7 +237,7 @@ export default {
       // this.handleUserTagsMap()
     },
     searchTag () {
-      logger.info('tag searchTag', this.inputTag)
+      console.info('tag searchTag', this.inputTag)
       // this.QuerySourceTagByCategory()
       this.QueryBigIdea()
     },

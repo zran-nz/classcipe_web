@@ -368,7 +368,7 @@
       }
     },
     mounted () {
-      logger.info('NewClickableKnowledgeTag ' + this.questionIndex + ' selectedKnowledgeTags')
+      console.info('NewClickableKnowledgeTag ' + this.questionIndex + ' selectedKnowledgeTags')
       LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleContentListSelectClick)
     },
     destroyed () {
@@ -548,7 +548,7 @@
         this.createTagName = this.inputTag
       },
       searchKnowledge (keyword) {
-        logger.info('searchKnowledge', keyword)
+        console.info('searchKnowledge', keyword)
         this.searchList = []
         // knowledge和skill统一数据接口
         if (typeof keyword === 'string' && keyword.trim().length >= 1) {
@@ -556,7 +556,7 @@
             key: keyword,
             tagType: this.currentMode === mode.knowledge ? TagType.knowledge : TagType.skill
           }).then((response) => {
-            logger.info('searchKnowledge response', response)
+            console.info('searchKnowledge response', response)
             this.searchList = response.result
           })
         }
@@ -595,7 +595,7 @@
         this.descriptionTagList = sortBy(this.descriptionTagList, '_updateTimestamp', 'asc').reverse()
         this.$logger.info('update sort ', this.descriptionTagList)
 
-        logger.info('dblclick desc searchKnowledge')
+        console.info('dblclick desc searchKnowledge')
         KnowledgeQueryTagsByKnowledgeId({
           knowledgeId: this.activeSubKnowledgeId
         }).then((response) => {
@@ -685,7 +685,7 @@
           gradeIds: this.gradeIds,
           subjectIds: this.subjectIds
         }).then((response) => {
-          logger.info('handleDbClickTagListTag searchKnowledge response', response)
+          console.info('handleDbClickTagListTag searchKnowledge response', response)
           this.tagNameSearchList = response.result.filter(item => item.curriculumId === this.$store.getters.bindCurriculum)
           this.$logger.info('after filter curriculumId tagNameSearchList', this.tagNameSearchList)
           this.tagNameSearchListSelected = []

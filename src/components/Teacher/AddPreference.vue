@@ -221,7 +221,7 @@ export default {
   },
   watch: {
     'teacherForm.curriculumId'(val) {
-      logger.info('teacherForm.curriculumId change', val)
+      console.info('teacherForm.curriculumId change', val)
       this.loadSubjectByCurriculumId(val)
     }
   },
@@ -249,9 +249,9 @@ export default {
         this.countries = res
       })
       getAllCurriculums().then(response => {
-        logger.info('getAllCurriculums', response)
+        console.info('getAllCurriculums', response)
         this.curriculumOptions = response.result
-        logger.info('getAllCurriculums', this.curriculumOptions)
+        console.info('getAllCurriculums', this.curriculumOptions)
       })
     },
     filterOptions(input, option) {
@@ -260,7 +260,7 @@ export default {
       )
     },
     handleSelectCurriculumOption(curriculum) {
-      logger.info('handleSelectCurriculumOption', curriculum)
+      console.info('handleSelectCurriculumOption', curriculum)
       if (this.currentCurriculum === null || this.currentCurriculum.id !== curriculum.id) {
         this.teacherForm.subjects = []
         this.teacherForm.school = null
@@ -270,21 +270,21 @@ export default {
     },
     handleSelectSchool(school) {
       this.currentSchool = school
-      logger.info('currentSchool', school)
+      console.info('currentSchool', school)
     },
     // 加载所有的subject 按照一级分类进行分组
     loadSubjectByCurriculumId(curriculumId) {
       this.teacherForm.subjects = []
       this.teacherForm.gradeIds = []
       getAllSubjectsByCurriculumId({ curriculumId }).then(response => {
-        logger.info('subjectOptions', response.result)
+        console.info('subjectOptions', response.result)
         this.subjectOptions = response.result
       })
 
       GetGradesByCurriculumId({ curriculumId }).then(response => {
-        logger.info('GetGradesByCurriculumId', response)
+        console.info('GetGradesByCurriculumId', response)
         this.gradeOptions = response.result
-        logger.info('gradeOptions', this.gradeOptions)
+        console.info('gradeOptions', this.gradeOptions)
       })
     },
     handleSearchSchool(value) {
@@ -304,7 +304,7 @@ export default {
         // curriculumId: this.currentCurriculum.id,
         name: value
       }).then(res => {
-        logger.info('schools', res)
+        console.info('schools', res)
         if (res.success) {
           this.schoolOptions = res.result || []
         } else {
@@ -325,7 +325,7 @@ export default {
     save() {
       this.$refs.teacherForm.validate(valid => {
         if (valid) {
-          logger.info('save teacher', this.teacherForm)
+          console.info('save teacher', this.teacherForm)
           const school = this.myCreateSchoolOptions.find(item => item.id === this.teacherForm.school)
           const createdSchool = this.schoolOptions.find(item => item.id === this.teacherForm.school)
           if (school || (createdSchool && createSchool.country !== this.teacherForm.country)) {

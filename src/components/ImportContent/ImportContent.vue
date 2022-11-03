@@ -112,7 +112,7 @@ export default {
       currentSchoolId: 0, // 0表示个人模式
       pagination: {
         onChange: page => {
-          logger.info('pagination onChange', page)
+          console.info('pagination onChange', page)
           this.pageNo = page
           this.handleSearchContent()
         },
@@ -166,7 +166,7 @@ export default {
         isImport: true
       }
       FindMyContent(params).then(res => {
-        logger.info('handleSearchContent', res)
+        console.info('handleSearchContent', res)
         if (res.success && res.code === 0) {
           this.myContentList = res.result.records
           this.pagination.total = res.result.total
@@ -179,7 +179,7 @@ export default {
           this.myContentList = []
           this.pagination.total = 0
         }
-        logger.info('myContentList', this.myContentList)
+        console.info('myContentList', this.myContentList)
       }).finally(() => {
         this.loading = false
       })

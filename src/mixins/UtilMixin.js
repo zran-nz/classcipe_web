@@ -60,7 +60,7 @@ export const UtilMixin = {
     },
     handleOpenItem (item) {
       item.type = this.type
-      logger.info('handleEditItem', item)
+      console.info('handleEditItem', item)
       if (item.type === typeMap['unit-plan']) {
         window.open('/teacher/unit-plan-redirect/' + item.id
           , '_blank')
@@ -76,7 +76,7 @@ export const UtilMixin = {
       }
     },
     handleLocationItem (item) {
-      logger.info('handleEditItem', item)
+      console.info('handleEditItem', item)
       if (item.type === typeMap['unit-plan']) {
         window.location.href = '/teacher/unit-plan-redirect/' + item.id
       } else if (item.type === typeMap.task) {

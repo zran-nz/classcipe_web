@@ -356,7 +356,7 @@ export default {
 
       GetDictItems(DICT_PROMPT_PURPOSE).then((response) => {
         if (response.success) {
-          logger.info('DICT_PROMPT_PURPOSE', response.result)
+          console.info('DICT_PROMPT_PURPOSE', response.result)
           this.initPrompts = response.result
         }
       })
@@ -378,12 +378,12 @@ export default {
         return list
       }
       const resultList = list.filter(item => item.name === category2)
-      logger.info('templateFilterCondition ', resultList)
+      console.info('templateFilterCondition ', resultList)
       return resultList.length > 0 ? resultList[0].children : []
     },
     onClickRadio(e, category, parent) {
-      logger.info('onChangeCheckBox ', e, category, parent)
-      logger.info('filterLearn ', this.filterLearn)
+      console.info('onChangeCheckBox ', e, category, parent)
+      console.info('filterLearn ', this.filterLearn)
       const id = e.target.value
       const isAdd = this.filterAssessments.indexOf(id) === -1
       // 单选，去除同parent其他值
@@ -398,8 +398,8 @@ export default {
       this.triggerSearch()
     },
     onChangeCheckBox(e, category, parent) {
-      logger.info('onChangeCheckBox ', e, category, parent)
-      logger.info('filterLearn ', this.filterLearn)
+      console.info('onChangeCheckBox ', e, category, parent)
+      console.info('filterLearn ', this.filterLearn)
       const id = e.target.value
       if (category === TemplateType.Learning) {
         if (this.filterLearn.indexOf(id) === -1) {
@@ -526,7 +526,7 @@ export default {
       this.triggerSearch()
     },
     getFilterParams(list) {
-      logger.info('getFilterParams ', list)
+      console.info('getFilterParams ', list)
       if (list.length === 0) {
         return []
       }

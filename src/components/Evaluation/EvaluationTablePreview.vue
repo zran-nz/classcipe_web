@@ -71,12 +71,12 @@ export default {
     }
   },
   created () {
-    logger.info('EvaluationTablePreview created ' + this.evaluationId)
+    console.info('EvaluationTablePreview created ' + this.evaluationId)
     this.initData()
   },
   methods: {
     initData () {
-      logger.info('initData doing...')
+      console.info('initData doing...')
       EvaluationQueryByIds({ ids: [this.evaluationId] }).then((response) => {
         this.$logger.info('handleToggleSelect EvaluationQueryByIds ' + this.evaluationId, response)
         const forms = []

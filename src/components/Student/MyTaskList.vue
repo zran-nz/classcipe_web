@@ -411,7 +411,7 @@ export default {
       myContentList: [],
       pagination: {
         onChange: page => {
-          logger.info('pagination onChange', page)
+          console.info('pagination onChange', page)
           this.pageNo = page
           this.loadMyContent()
         },
@@ -533,7 +533,7 @@ export default {
     }
   },
   created () {
-    logger.info('student my content')
+    console.info('student my content')
     this.loadMyContent()
   },
   computed: {
@@ -579,7 +579,7 @@ export default {
       }
 
       this.loadData(params).then(res => {
-        logger.info('SelfStudyTaskList', res)
+        console.info('SelfStudyTaskList', res)
         if (res.success) {
           this.myContentList = res.result.records.map(item => {
             // 学校模式和自学习模式数据结构不一样统一下
@@ -601,7 +601,7 @@ export default {
           this.pagination.total = 0
           this.pagination.current = 1
         }
-        logger.info('myContentList', this.myContentList)
+        console.info('myContentList', this.myContentList)
       }).finally(() => {
         this.loading = false
       })
@@ -611,7 +611,7 @@ export default {
       return item ? item.title : 'Undefined'
     },
     handleViewDetail (item) {
-      logger.info('handleViewDetail', item)
+      console.info('handleViewDetail', item)
       if (!item.task || this.currentStatus === 2) {
         return
       }
@@ -621,7 +621,7 @@ export default {
       this.previewVisible = true
     },
     handlePreviewClose () {
-      logger.info('handlePreviewClose')
+      console.info('handlePreviewClose')
       this.previewVisible = false
       this.$nextTick(() => {
         this.currentTaskId = null
@@ -656,15 +656,15 @@ export default {
       }
     },
     handleDeleteItem (item) {
-      logger.info('handleDeleteItem', item)
+      console.info('handleDeleteItem', item)
       SelfStudyAchive({ id: item.id }).then(res => {
-        logger.info('SelfStudyAchive', res)
+        console.info('SelfStudyAchive', res)
       }).then(() => {
         this.loadMyContent()
       })
     },
     handleRestoreItem (item) {
-      logger.info('handleRestoreItem', item)
+      console.info('handleRestoreItem', item)
       SelfStudyRestore({ id: item.id }).then(response => {
         this.$logger.info('handleRestoreItem response', response)
       }).finally(() => {

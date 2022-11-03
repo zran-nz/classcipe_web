@@ -155,7 +155,7 @@ export default {
   },
   created() {
     this.selectedKey = [this.$route.path]
-    logger.info('selectedKey ', this.selectedKey)
+    console.info('selectedKey ', this.selectedKey)
   },
   mounted() {},
   methods: {

@@ -193,10 +193,10 @@ export default {
   },
   methods: {
     loadTeacherClasses (limit, cursor, slideId) {
-      logger.info('loadTeacherClasses ' + ' limit:' + limit + 'cursor:' + cursor + ' slideId:' + slideId)
+      console.info('loadTeacherClasses ' + ' limit:' + limit + 'cursor:' + cursor + ' slideId:' + slideId)
       this.loading = true
       FindMyClasses({ limit, cursor, slideId }).then(response => {
-        logger.info('findMyClasses', response.result.data)
+        console.info('findMyClasses', response.result.data)
         if (response.success) {
           response.result.data.records.forEach((item) => {
             item.date = item.date * 1000
@@ -208,7 +208,7 @@ export default {
           }
         }
         this.total = response.result.data.total
-        logger.info('cursor ' + cursor + ' data', this.data)
+        console.info('cursor ' + cursor + ' data', this.data)
         this.loading = false
       }).finally(() => {
         this.skeletonLoading = false
@@ -222,26 +222,26 @@ export default {
       const clientHeight = document.documentElement.clientHeight
 
       if ((clientHeight) >= (scrollOffsetY + rectHeight) && !this.loading) {
-        logger.info('到达底部')
+        console.info('到达底部')
         if (this.data.length === this.total) {
-          logger.info('数据全部加载完')
+          console.info('数据全部加载完')
         } else {
           this.loadTeacherClasses(this.pageSize, this.data.length ? this.data[this.data.length - 1].id : undefined)
         }
       }
     },
     handleProject (record) {
-      logger.info('handleProject', record)
+      console.info('handleProject', record)
       window.open(record.class_link_for_teacher)
     },
 
     handleOpenDashboard (record) {
-      logger.info('handleOpenDashboard', record)
+      console.info('handleOpenDashboard', record)
       window.open(record.dashboard_link)
     },
 
     handleEndSession (record) {
-      logger.info('handleEndSession', record)
+      console.info('handleEndSession', record)
       endSession({ class_id: record.class_id }).then(response => {
         this.loadTeacherClasses(this.data.length)
       })
@@ -254,7 +254,7 @@ export default {
     },
 
     handleEnsureNameSession (record) {
-      logger.info('handleEnsureNameSession', record)
+      console.info('handleEnsureNameSession', record)
       nameSession({ class_id: record.class_id, class_name: this.nameSessionRecord.class_name }).then(response => {
         this.showNameSessionModal = false
         this.nameSessionRecord.class_name = ''
@@ -271,14 +271,14 @@ export default {
     },
 
     handleTurnOnStudentPaced (record) {
-      logger.info('handleTurnOnStudentPaced', record)
+      console.info('handleTurnOnStudentPaced', record)
       turnOnStudentPaced({ class_id: record.class_id }).then(response => {
         this.loadTeacherClasses(this.data.length)
       })
     },
 
     handleReopenSession (record) {
-      logger.info('handleReopenSession', record)
+      console.info('handleReopenSession', record)
       reopenSession({ class_id: record.class_id }).then(response => {
         this.loadTeacherClasses(this.data.length)
       })

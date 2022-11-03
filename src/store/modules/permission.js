@@ -65,11 +65,11 @@ const permission = {
   },
   actions: {
     GenerateRoutes ({ commit }, data) {
-      logger.info('permission.js GenerateRoutes', data)
+      console.info('permission.js GenerateRoutes', data)
       return new Promise(resolve => {
         const { roles } = data
         const accessedRouters = filterAsyncRouter(cloneDeep(asyncRouterMap), roles)
-        logger.info('GenerateRoutes', accessedRouters)
+        console.info('GenerateRoutes', accessedRouters)
         commit('SET_ROUTERS', accessedRouters)
         resolve()
       })

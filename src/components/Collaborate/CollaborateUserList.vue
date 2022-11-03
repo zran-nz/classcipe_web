@@ -351,7 +351,7 @@ export default {
       this.active = true
     },
     handleCloseTag (email) {
-      logger.info('handleCloseTag ' + email)
+      console.info('handleCloseTag ' + email)
       const list = []
       this.selectedUserList.forEach(user => {
         if (user.email !== email) {
@@ -516,7 +516,7 @@ export default {
       this.$logger.info('handleAccept', item)
       this.agreeLoading = true
       CollaboratesAgree({ id: item.id, agreeFlag: flag }).then(res => {
-        logger.info('handleApply', res)
+        console.info('handleApply', res)
         if (flag === this.collaborateStatus.agree) {
           this.$message.success('Agree successfully')
         } else {
@@ -532,7 +532,7 @@ export default {
       this.$set(this.collaborateUserList, index, user)
       this.$logger.info('handleChange', user)
       CollaboratesUpdate(user).then(res => {
-        logger.info('handleChange', res)
+        console.info('handleChange', res)
         this.$message.success('Update successfully')
       }).then(() => {
         // this.vueSocket.sendMessageToUsers(MSG, [user.userId],
@@ -573,7 +573,7 @@ export default {
             type: this.contentType,
             email: this.model.email
           }).then(res => {
-            logger.info('handleChange', res)
+            console.info('handleChange', res)
             this.$message.success('Send successfully')
           }).finally(() => {
             that.sendLoading = false

@@ -320,7 +320,7 @@ export default {
     }
   },
   created () {
-    logger.info('statistics my content')
+    console.info('statistics my content')
     this.init()
   },
   methods: {
@@ -333,14 +333,14 @@ export default {
       this.$refs[this.currentType + 'Table'] && this.$refs[this.currentType + 'Table'].refresh()
     },
     handleViewDetail (item) {
-      logger.info('handleViewDetail', item)
+      console.info('handleViewDetail', item)
       this.previewCurrentId = item.purchasesId
       this.previewType = item.purchasesType
       this.previewVisible = true
     },
 
     handlePreviewClose () {
-      logger.info('handlePreviewClose')
+      console.info('handlePreviewClose')
       this.previewVisible = false
       this.triggerSearch()
       this.$nextTick(() => {

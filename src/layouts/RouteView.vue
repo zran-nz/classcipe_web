@@ -13,7 +13,7 @@ export default {
     return {}
   },
   created () {
-    logger.info('RouteView created')
+    console.info('RouteView created')
   },
   render () {
     const { $route: { meta } } = this

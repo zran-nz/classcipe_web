@@ -20,7 +20,7 @@ export default class ReceiveEvaluationEventHandler extends AbstractMessageHandle
 
   processMessage(proto) {
     // 通知更新系统消息
-    logger.info('ReceiveEvaluationEventHandler: ', proto)
+    console.info('ReceiveEvaluationEventHandler: ', proto)
     switch (proto.cmd) {
       case EVALUATION_SET_CHANGE:
         EvaluationEventBus.$emit(EVALUATION_SET_CHANGE, proto)

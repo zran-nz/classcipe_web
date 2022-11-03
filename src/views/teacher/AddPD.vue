@@ -756,7 +756,7 @@ export default {
               contentType: this.$classcipe.typeMap.pd,
               contentId: this.pdId
             }).then(res => {
-              logger.info('addFileUploadRecord in pd res', res)
+              console.info('addFileUploadRecord in pd res', res)
             })
           } else {
             this.$logger.info('addVideoRecord exist record')

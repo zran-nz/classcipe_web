@@ -24,13 +24,13 @@ export const domTitle = config.title
 export function scrollIntoViewById (domId) {
   const element = document.getElementById(domId)
   if (element) {
-    logger.info('scrollIntoViewById ' + domId)
+    console.info('scrollIntoViewById ' + domId)
     element.scrollIntoView({
       block: 'center',
       inline: 'center',
       behavior: 'smooth'
     })
   } else {
-    logger.info('scrollIntoViewById not found dom with id ' + domId)
+    console.info('scrollIntoViewById not found dom with id ' + domId)
   }
 }

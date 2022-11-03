@@ -183,12 +183,12 @@ export default {
     }
   },
   created () {
-    logger.info('Associate Preview id ' + this.id)
+    console.info('Associate Preview id ' + this.id)
     this.loadAssociateData()
   },
   methods: {
     loadAssociateData () {
-      logger.info('loadAssociateData ' + this.id + ' ' + this.contentType)
+      console.info('loadAssociateData ' + this.id + ' ' + this.contentType)
       this.loading = true
       GetAssociate({
         id: this.id,
@@ -196,11 +196,11 @@ export default {
         published: this.isLibrary ? 1 : 0,
         preview: true // 只预览自己的内容
       }).then((response) => {
-        logger.info('GetAssociate ', response)
+        console.info('GetAssociate ', response)
         this.associateData = response.result
         this.handleUserTypeChange()
       }).then(() => {
-        logger.info('get favorite ' + this.id)
+        console.info('get favorite ' + this.id)
       }).finally(() => {
         this.loading = false
       })
@@ -212,17 +212,17 @@ export default {
     },
 
     handleSelectContentType (contentType) {
-      logger.info('handleSelectContentType ' + contentType)
+      console.info('handleSelectContentType ' + contentType)
       this.activeContentType = contentType
     },
 
     handleSubPreviewClose () {
-      logger.info('handleSubPreviewClose')
+      console.info('handleSubPreviewClose')
       this.previewType = null
     },
 
     handleUserTypeChange () {
-      logger.info('handleUserTypeChange ' + this.activeUserType)
+      console.info('handleUserTypeChange ' + this.activeUserType)
       const rawList = this.associateData[this.activeUserType]
       this.currentAssociateList = []
       rawList.forEach(item => {
@@ -232,32 +232,32 @@ export default {
           })
         }
       })
-      logger.info('currentAssociateList', this.currentAssociateList)
+      console.info('currentAssociateList', this.currentAssociateList)
     },
 
     handleClickTitle (item) {
-      logger.info('handleClickTitle', item)
+      console.info('handleClickTitle', item)
       this.previewType = typeMap['unit-plan']
     },
 
     handleSubPreview (type, item) {
-      logger.info('handleSubPreview', type, item)
+      console.info('handleSubPreview', type, item)
       this.previewType = typeMap['unit-plan']
     },
 
     handleFavorite (item) {
-      logger.info('handleFavorite', item)
+      console.info('handleFavorite', item)
       FavoritesAdd({
         sourceId: item.id,
         sourceType: item.type
       }).then(response => {
-        logger.info('FavoritesAdd ', response)
+        console.info('FavoritesAdd ', response)
         item.isFavorite = !item.isFavorite
       })
     },
 
     handleEditItem (type, item) {
-      logger.info('handleEditItem', type, item)
+      console.info('handleEditItem', type, item)
       if (item.type === typeMap['unit-plan']) {
         window.open('/teacher/unit-plan-redirect/' + item.id
           , '_blank')

@@ -9,7 +9,7 @@ import { addFileUploadRecord } from '@/api/material'
 export const uploadImageToAwsByUrl = async (userId, url, options) => {
   return new Promise((resolve, reject) => {
     downloadImageBlob(url).then(({ data }) => {
-      logger.info('downloadImageBlob', data, 'options', options)
+      console.info('downloadImageBlob', data, 'options', options)
       const {
         result,
         success
@@ -23,7 +23,7 @@ export const uploadImageToAwsByUrl = async (userId, url, options) => {
             contentType: options?.contentType,
             contentId: options?.contentId
           }).then(res => {
-            logger.info('addFileUploadRecord res', res)
+            console.info('addFileUploadRecord res', res)
           }).finally(() => {
             resolve(result)
           })
@@ -52,7 +52,7 @@ export const downloadImageBlob = async (imageUrl, contentType, contentId) => {
 }
 
 // const tryDownloadByClient = async (userId, url, resolve, reject, options) => {
-//   logger.info('tryDownloadByClient', userId, url)
+//   console.info('tryDownloadByClient', userId, url)
 //   if (url.indexOf('https') > -1) {
 //     // 本地下载 只处理https
 //     const image = new Image()
@@ -85,15 +85,15 @@ export const downloadImageBlob = async (imageUrl, contentType, contentId) => {
 //       )
 //     }
 //     xhr.onerror = () => {
-//       logger.info('下载图片失败')
+//       console.info('下载图片失败')
 //       reject()
 //     }
 //     xhr.ontimeout = () => {
-//       logger.info('下载图片超时')
+//       console.info('下载图片超时')
 //       reject()
 //     }
 //     xhr.onabort = () => {
-//       logger.info('下载图片取消')
+//       console.info('下载图片取消')
 //       reject()
 //     }
 //     xhr.send()

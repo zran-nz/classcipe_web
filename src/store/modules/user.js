@@ -117,7 +117,7 @@ const user = {
     // Google 登录
     LoginWithToken ({ commit }, accessToken) {
       return new Promise((resolve, reject) => {
-        logger.info('LoginWithToken', accessToken)
+        console.info('LoginWithToken', accessToken)
         if (accessToken && accessToken.toString().trim()) {
           storage.set(ACCESS_TOKEN, accessToken, 7 * 24 * 60 * 60 * 1000)
           commit('SET_TOKEN', accessToken)
@@ -135,7 +135,7 @@ const user = {
     Login ({ commit }, userInfo) {
       return new Promise((resolve, reject) => {
         login(userInfo).then(response => {
-          logger.info('Login', response)
+          console.info('Login', response)
           if (response.success) {
             const result = response.result
             storage.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
@@ -148,7 +148,7 @@ const user = {
             reject(response)
           }
         }).catch(error => {
-          logger.info('Login err')
+          console.info('Login err')
           reject(error)
         })
       })
@@ -158,7 +158,7 @@ const user = {
     SignUp ({ commit }, userInfo) {
       return new Promise((resolve, reject) => {
         signUp(userInfo).then(response => {
-          logger.info('SignUp', response)
+          console.info('SignUp', response)
           if (response.success) {
             const result = response.result
             storage.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
@@ -171,7 +171,7 @@ const user = {
             reject(response)
           }
         }).catch(error => {
-          logger.info('SignUp err')
+          console.info('SignUp err')
           reject(error)
         })
       })
@@ -182,7 +182,7 @@ const user = {
       return new Promise((resolve, reject) => {
         const token = storage.get(ACCESS_TOKEN)
         getInfo(token).then(response => {
-          logger.info('GetInfo result', response)
+          console.info('GetInfo result', response)
 
           if (response.success) {
             const result = response.result
@@ -231,10 +231,10 @@ const user = {
     },
 
     ChangeRole ({ commit }, roleInfo) {
-      logger.info('ChangeRole', roleInfo)
+      console.info('ChangeRole', roleInfo)
       return new Promise((resolve, reject) => {
         changeRole(roleInfo).then(response => {
-          logger.info('ChangeRole response', response)
+          console.info('ChangeRole response', response)
           const result = response.result.userInfo
           commit('SET_ROLES', result.currentRole ? [result.currentRole] : [])
           commit('SET_PERMISSIONS', result.currentRole ? [result.currentRole] : [])
@@ -333,7 +333,7 @@ const user = {
     },
 
     GetSubjectsByCurriculum({ commit }, curriculumId) {
-      logger.info('GetSubjectsByCurriculum curriculumId ' + curriculumId)
+      console.info('GetSubjectsByCurriculum curriculumId ' + curriculumId)
       if (curriculumId) {
         curriculumId = parseInt(curriculumId)
         if (curriculumId === 1) {

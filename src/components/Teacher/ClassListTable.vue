@@ -439,18 +439,18 @@ export default {
   },
   methods: {
     loadTeacherClasses () {
-      logger.info('loadTeacherClasses ' + ' limit:' + this.pageSize + ' slideId:' + this.slideId + ' searchKey:' + this.sessionName)
+      console.info('loadTeacherClasses ' + ' limit:' + this.pageSize + ' slideId:' + this.slideId + ' searchKey:' + this.sessionName)
       this.loading = true
       this.data = []
       FindMyClasses({ limit: this.pageSize, slideId: this.slideId, delFlag: this.active ? 0 : 1, searchKey: this.sessionName }).then(response => {
-        logger.info('FindMyClasses', response.result.data)
+        console.info('FindMyClasses', response.result.data)
         if (response.success) {
           if (this.pageSize) {
             this.data = response.result.classList.filter(item => item.date !== 0)
           }
         }
         this.total = response.result.classList.length
-        logger.info(' data', this.data)
+        console.info(' data', this.data)
         this.loading = false
       })
     },

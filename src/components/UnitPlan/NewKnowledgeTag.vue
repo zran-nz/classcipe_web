@@ -262,7 +262,7 @@ export default {
     }
   },
   mounted () {
-    logger.info('add mounted click handler')
+    console.info('add mounted click handler')
     this.globalClick(this.handleClick, this.$route.name, true)
   },
   beforeDestroy () {
@@ -312,13 +312,13 @@ export default {
   },
   watch: {
     inputTag () {
-      logger.info('watch inputTag mode ' + this.inputTag + ', current mode ' + this.mode)
+      console.info('watch inputTag mode ' + this.inputTag + ', current mode ' + this.mode)
       if (this.inputTag && this.inputTag.trim()) {
         this.mode = 'search'
       } else {
         this.mode = 'select'
       }
-      logger.info('toggle mode ' + this.mode)
+      console.info('toggle mode ' + this.mode)
     }
   },
   created () {
@@ -341,17 +341,17 @@ export default {
         return false
       })
       if (targetDom) {
-        logger.info('targetDom find ', targetDom)
+        console.info('targetDom find ', targetDom)
         this.visible = true
       } else {
-        logger.info('targetDom not find', targetDom)
+        console.info('targetDom not find', targetDom)
         this.visible = false
       }
-      logger.info('visible ' + this.visible + ' mode: ' + this.mode)
+      console.info('visible ' + this.visible + ' mode: ' + this.mode)
     },
 
     handleSelectGrade (grade) {
-      logger.info('handleSelectGrade', grade)
+      console.info('handleSelectGrade', grade)
       this.gradeId = grade.id
     },
 
@@ -363,7 +363,7 @@ export default {
     },
 
     handleSelectMainSubject (mainSubject) {
-      logger.info('handleSelectMainSubject', mainSubject)
+      console.info('handleSelectMainSubject', mainSubject)
       if (!this.checkSelectGrade()) {
         return
       }
@@ -381,7 +381,7 @@ export default {
     },
 
     handleSelectSubSubject (subSubject) {
-      logger.info('handleSelectSubSubject', subSubject)
+      console.info('handleSelectSubSubject', subSubject)
       if (subSubject.id !== this.subSubjectId) {
         this.subSubjectId = subSubject.id
         this.resetKnowledge()
@@ -400,21 +400,21 @@ export default {
 
     getKnowledgeTree () {
       this.knowledgeLoading = true
-      logger.info('grade:' + this.gradeId + ', subjectId:' + this.subSubjectId)
+      console.info('grade:' + this.gradeId + ', subjectId:' + this.subSubjectId)
       KnowledgeGetTree({
         gradeId: this.gradeId,
         subjectId: this.subSubjectId
       }).then((response) => {
-        logger.info('KnowledgeGetTree response', response)
+        console.info('KnowledgeGetTree response', response)
         this.knowledgeTree = response.result
-        logger.info('knowledgeTree', this.knowledgeTree)
+        console.info('knowledgeTree', this.knowledgeTree)
       }).finally(() => {
         this.knowledgeLoading = false
       })
     },
 
     handleSelectMainKnowledgeItem (knowledgeItem) {
-      logger.info('handleSelectMainKnowledgeItem', knowledgeItem)
+      console.info('handleSelectMainKnowledgeItem', knowledgeItem)
       if (knowledgeItem.id !== this.mainKnowledgeId) {
         this.mainKnowledgeId = knowledgeItem.id
         this.resetSubKnowledgeTags()
@@ -428,7 +428,7 @@ export default {
     },
 
     handleSelectSubKnowledgeItem (subKnowledgeItem) {
-      logger.info('handleSelectSubKnowledgeItem', subKnowledgeItem)
+      console.info('handleSelectSubKnowledgeItem', subKnowledgeItem)
       if (subKnowledgeItem.id !== this.subKnowledgeId) {
         this.subKnowledgeId = subKnowledgeItem.id
         this.knowledgeTags = subKnowledgeItem.tags
@@ -438,7 +438,7 @@ export default {
     },
 
     handleSelectKnowledgeTag (knowledgeTag) {
-      logger.info('handleSelectKnowledgeTag(' + (this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id)) + ')', knowledgeTag)
+      console.info('handleSelectKnowledgeTag(' + (this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id)) + ')', knowledgeTag)
       if (this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id) === -1) {
         this.$set(this.tagObjData, knowledgeTag.id, Object.assign({}, this.currentSubKnowledge))
         this.selectedKnowledgeTagIdList.push(knowledgeTag.id)
@@ -454,28 +454,28 @@ export default {
           subKnowledgeId: this.subKnowledgeId
         }
         this.$emit('add-knowledge-tag', tagData)
-        logger.info('add knowledge tag data ', tagData)
-        logger.info('tagObjData', this.tagObjData)
+        console.info('add knowledge tag data ', tagData)
+        console.info('tagObjData', this.tagObjData)
       } else {
-        logger.info('before remove knowledgeTags', this.selectedKnowledgeTagIdList, this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id))
+        console.info('before remove knowledgeTags', this.selectedKnowledgeTagIdList, this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id))
         this.selectedKnowledgeTagIdList.splice(this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id), 1)
         this.$delete(this.tagObjData, knowledgeTag.id)
         this.$emit('remove-knowledge-tag', {
           questionIndex: this.questionIndex,
           id: knowledgeTag.id
         })
-        logger.info('tagObjData', this.tagObjData)
-        logger.info('after delete knowledgeTags', this.selectedKnowledgeTagIdList)
+        console.info('tagObjData', this.tagObjData)
+        console.info('after delete knowledgeTags', this.selectedKnowledgeTagIdList)
       }
     },
 
     handleAddNewTag () {
-      logger.info('handleAddNewTag', this.newTag)
+      console.info('handleAddNewTag', this.newTag)
       KnowledgeAddOrUpdateTag({
         knowledgeId: this.subKnowledgeId,
         name: this.newTag
       }).then(response => {
-        logger.info('KnowledgeAddOrUpdateTag', response)
+        console.info('KnowledgeAddOrUpdateTag', response)
         this.newTag = ''
         this.refreshKnowledgeTags()
       })
@@ -483,14 +483,14 @@ export default {
 
     refreshKnowledgeTags (tagDomId) {
       this.loadingKnowledge = true
-      logger.info('refreshKnowledgeTags')
+      console.info('refreshKnowledgeTags')
       KnowledgeQueryTagsByKnowledgeId({
         knowledgeId: this.subKnowledgeId
       }).then(response => {
-        logger.info('KnowledgeQueryTagsByKnowledgeId', response)
+        console.info('KnowledgeQueryTagsByKnowledgeId', response)
         this.knowledgeTags = response.result
         const treeChildItem = this.knowledgeTreeChild.find(item => item.id === this.subKnowledgeId)
-        logger.info('refreshKnowledgeTags find tree child item ', treeChildItem)
+        console.info('refreshKnowledgeTags find tree child item ', treeChildItem)
         if (treeChildItem) {
           treeChildItem.tags = response.result
         }
@@ -498,7 +498,7 @@ export default {
         this.loadingKnowledge = false
         if (tagDomId) {
           this.$nextTick(() => {
-            logger.info('refreshKnowledgeTags tagDomId ' + tagDomId)
+            console.info('refreshKnowledgeTags tagDomId ' + tagDomId)
             scrollIntoViewById('knowledge-tag-id-' + tagDomId)
           })
         }
@@ -506,71 +506,71 @@ export default {
     },
 
     handleChangeTag (knowledgeTag) {
-      logger.info('handleChangeTag', knowledgeTag)
+      console.info('handleChangeTag', knowledgeTag)
       this.createdKnowledgeTag = knowledgeTag.name
       this.mode = this.modeType.associate
       this.handleActiveSelectedTag(knowledgeTag)
     },
 
     handleDeleteTag (knowledgeTag) {
-      logger.info('handleDeleteTag', knowledgeTag)
+      console.info('handleDeleteTag', knowledgeTag)
       if (this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id) !== -1) {
-        logger.info('before delete knowledgeTags', this.selectedKnowledgeTagIdList, this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id))
+        console.info('before delete knowledgeTags', this.selectedKnowledgeTagIdList, this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id))
         this.selectedKnowledgeTagIdList.splice(this.selectedKnowledgeTagIdList.indexOf(knowledgeTag.id), 1)
         this.$delete(this.tagObjData, knowledgeTag.id)
         this.$emit('remove-knowledge-tag', {
           questionIndex: this.questionIndex,
           id: knowledgeTag.id
         })
-        logger.info('tagObjData', this.tagObjData)
-        logger.info('after delete knowledgeTags', this.selectedKnowledgeTagIdList)
+        console.info('tagObjData', this.tagObjData)
+        console.info('after delete knowledgeTags', this.selectedKnowledgeTagIdList)
       } else {
-        logger.info('no found target delete knowledgeTag', knowledgeTag)
+        console.info('no found target delete knowledgeTag', knowledgeTag)
       }
     },
 
     handleSelectSearchItem (item) {
-      logger.info('handleSelectSearchItem item', item)
+      console.info('handleSelectSearchItem item', item)
       this.mode = this.modeType.select
       this.createdKnowledgeTag = item.name
       this.handleActiveSelectedTag(item)
     },
 
     handleKeyup () {
-      logger.info('handleKeyup ', this.inputTag)
+      console.info('handleKeyup ', this.inputTag)
       if (this.inputTag && this.inputTag.trim()) {
         this.mode = this.modeType.search
       } else {
         this.mode = this.modeType.select
       }
       this.debouncedSearchKnowledge(this.inputTag)
-      logger.info('handleKeyup toggle mode ' + this.mode)
-      logger.info('searchList ', this.searchList)
+      console.info('handleKeyup toggle mode ' + this.mode)
+      console.info('searchList ', this.searchList)
     },
 
     searchKnowledge (keyword) {
-      logger.info('searchKnowledge', keyword)
+      console.info('searchKnowledge', keyword)
       this.searchList = []
       if (typeof keyword === 'string' && keyword.trim().length >= 1) {
         KnowledgeSearch({
           key: keyword
         }).then((response) => {
-          logger.info('searchKnowledge response', response)
+          console.info('searchKnowledge response', response)
           this.searchList = response.result
         })
       }
     },
 
     handleCreateKnowledgeTag () {
-      logger.info('handleCreateKnowledgeTag ' + this.inputTag)
+      console.info('handleCreateKnowledgeTag ' + this.inputTag)
       this.createdKnowledgeTag = this.inputTag
       this.mode = this.modeType.associate
     },
 
     handleRemoveCreatedTag (tagName) {
-      logger.info('handleRemoveCreatedTag ' + tagName)
+      console.info('handleRemoveCreatedTag ' + tagName)
       this.createdKnowledgeTag = null
-      logger.info('after handleRemoveCreatedTag ', this.createdKnowledgeTag)
+      console.info('after handleRemoveCreatedTag ', this.createdKnowledgeTag)
     },
 
     handleClickCreatedTag (tagName) {
@@ -583,13 +583,13 @@ export default {
     },
 
     handleResetCreatedTag () {
-      logger.info('handleResetCreatedTag ', this.createdKnowledgeTag)
+      console.info('handleResetCreatedTag ', this.createdKnowledgeTag)
       this.createdKnowledgeTag = null
       this.mode = this.modeType.select
     },
 
     handleActiveSelectedTag (tagData) {
-      logger.info('handleActiveSelectedTag', tagData)
+      console.info('handleActiveSelectedTag', tagData)
       this.gradeId = tagData.gradeId
       if (this.mainSubjectId !== tagData.mainSubjectId) {
         this.mainSubjectId = tagData.mainSubjectId
@@ -598,7 +598,7 @@ export default {
 
       // select subject
       const mainSubject = this.subjectTree.find(item => item.id === tagData.mainSubjectId)
-      logger.info('mainSubject ', mainSubject)
+      console.info('mainSubject ', mainSubject)
       if (mainSubject) {
         this.subjectTreeChildren = mainSubject.children
       } else {
@@ -611,7 +611,7 @@ export default {
 
       // select knowledge
       const mainKnowledge = this.knowledgeTree.find(item => item.id === tagData.mainKnowledgeId)
-      logger.info('mainKnowledge ', mainKnowledge)
+      console.info('mainKnowledge ', mainKnowledge)
       if (mainKnowledge) {
         this.mainKnowledgeId = tagData.mainKnowledgeId
         this.knowledgeTreeChild = mainKnowledge.children
@@ -621,16 +621,16 @@ export default {
         this.knowledgeTags = subKnowledge.tags
       } else {
         // 重新加载knowledge tree
-        logger.info('get select Knowledge grade:' + this.gradeId + ', subjectId:' + this.subSubjectId)
+        console.info('get select Knowledge grade:' + this.gradeId + ', subjectId:' + this.subSubjectId)
         KnowledgeGetTree({
           gradeId: this.gradeId,
           subjectId: this.subSubjectId
         }).then((response) => {
-          logger.info('KnowledgeGetTree response', response)
+          console.info('KnowledgeGetTree response', response)
           this.knowledgeTree = response.result
-          logger.info('query api get knowledgeTree', this.knowledgeTree)
+          console.info('query api get knowledgeTree', this.knowledgeTree)
           const mainKnowledge = this.knowledgeTree.find(item => item.id === tagData.mainKnowledgeId)
-          logger.info('query api get mainKnowledge ', mainKnowledge)
+          console.info('query api get mainKnowledge ', mainKnowledge)
           if (mainKnowledge) {
             this.mainKnowledgeId = tagData.mainKnowledgeId
             this.knowledgeTreeChild = mainKnowledge.children
@@ -648,12 +648,12 @@ export default {
     },
 
     handleAssociate () {
-      logger.info('handleAssociate ', this.createdKnowledgeTag)
+      console.info('handleAssociate ', this.createdKnowledgeTag)
       KnowledgeAddOrUpdateTag({
         knowledgeId: this.subKnowledgeId,
         name: this.createdKnowledgeTag
       }).then(response => {
-        logger.info('handleAssociate KnowledgeAddOrUpdateTag', response)
+        console.info('handleAssociate KnowledgeAddOrUpdateTag', response)
         this.$message.success('add successfully')
         this.refreshKnowledgeTags(response.result.id)
         this.mode = this.modeType.select

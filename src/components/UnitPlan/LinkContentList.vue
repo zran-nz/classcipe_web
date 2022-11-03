@@ -90,7 +90,7 @@ export default {
       pageNo: 0,
       pagination: {
         onChange: page => {
-          logger.info('pagination onChange', page)
+          console.info('pagination onChange', page)
           this.pageNo = page
           this.loadContent()
         },
@@ -166,7 +166,7 @@ export default {
       data.types = this.filterTypes
 
       FindMyContent(data).then(res => {
-        logger.info('loadContent', res)
+        console.info('loadContent', res)
         if (res.success) {
           res.result.records.forEach((record, index) => {
             record.key = index
@@ -201,7 +201,7 @@ export default {
       })
     },
     handleViewDetail (item) {
-      logger.info('handleViewDetail', item)
+      console.info('handleViewDetail', item)
       this.previewCurrentId = item.id
       this.previewType = item.type
       this.previewVisible = true

@@ -292,7 +292,7 @@ export default {
       this.loadData()
       GetDictItems(DICT_KNOWLEDGE_PHASE).then((response) => {
         if (response.success) {
-          logger.info('DICT_KNOWLEDGE_PHASE', response.result)
+          console.info('DICT_KNOWLEDGE_PHASE', response.result)
           this.phaseAllList = response.result
         }
       })

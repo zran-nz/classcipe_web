@@ -407,7 +407,7 @@ export default {
     }
   },
   created () {
-    logger.info('add task created ' + this.taskId + ' ' + this.$route.path)
+    console.info('add task created ' + this.taskId + ' ' + this.$route.path)
     this.initForm()
     this.initData()
   },
@@ -429,7 +429,7 @@ export default {
       this.$logger.info('questionDataObj ', this.questionDataObj)
     },
     initData () {
-      logger.info('initData doing...')
+      console.info('initData doing...')
       GetMyGrades().then((response) => {
         this.$logger.info('add task initData done', response)
         this.$logger.info('GetMyGrades', response.result)
@@ -440,17 +440,17 @@ export default {
       })
 
        SubjectTree({ curriculumId: this.$store.getters.bindCurriculum }).then((response) => {
-         logger.info('SubjectTree', response.result)
+         console.info('SubjectTree', response.result)
          let subjectTree = response.result
          subjectTree = formatSubjectTree(subjectTree)
          this.subjectTree = subjectTree
-         logger.info('after format subjectTree', subjectTree)
+         console.info('after format subjectTree', subjectTree)
       })
     },
 
     // 此处只是添加到外层的数组中，并未保存。
     handleAddSubTask () {
-      logger.info('handleAddSubTask', this.form)
+      console.info('handleAddSubTask', this.form)
 
       if (this.form.selectPageObjectIds.length) {
         const taskData = JSON.parse(JSON.stringify(this.form))
@@ -459,7 +459,7 @@ export default {
           'taskId': this.taskId,
           'subTask': taskData
         }
-        logger.info('add-sub-task', taskData)
+        console.info('add-sub-task', taskData)
         this.$emit('add-sub-task', SubTaskData)
         const formData = JSON.parse(JSON.stringify(this.parentFormData))
         formData.id = null
@@ -652,13 +652,13 @@ export default {
     },
 
     handleUploadImage (data) {
-      logger.info('handleUploadImage', data)
+      console.info('handleUploadImage', data)
       const formData = new FormData()
       formData.append('file', data.file, data.file.name)
       this.uploading = true
       this.$http.post(commonAPIUrl.UploadFile, formData, { contentType: false, processData: false, headers: { 'Content-Type': 'multipart/form-data' }, timeout: 60000 })
         .then((response) => {
-          logger.info('handleUploadImage upload response:', response)
+          console.info('handleUploadImage upload response:', response)
           this.form.image = this.$store.getters.downloadUrl + response.result
         }).catch(err => {
         logger.error('handleUploadImage error', err)
@@ -669,7 +669,7 @@ export default {
     },
 
     handleDeleteImage (e) {
-      logger.info('handleDeleteImage ', e)
+      console.info('handleDeleteImage ', e)
       e.stopPropagation()
       e.preventDefault()
       this.form.image = null

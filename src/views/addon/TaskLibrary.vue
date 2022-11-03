@@ -121,11 +121,11 @@ export default {
   methods: {
 
     loadTaskData(taskId) {
-      logger.info('loadTaskData ' + taskId)
+      console.info('loadTaskData ' + taskId)
       TaskQueryById({
         id: taskId
       }).then(response => {
-        logger.info('TaskQueryById ' + taskId, response.result)
+        console.info('TaskQueryById ' + taskId, response.result)
         const taskData = response.result
         if (!taskData.materialList) {
           taskData.materialList = []
@@ -295,9 +295,9 @@ export default {
       if (taskData.customFieldData) {
         taskData.customFieldData = JSON.stringify(taskData.customFieldData)
       }
-      logger.info('basic taskData', taskData)
+      console.info('basic taskData', taskData)
       const response = await TaskAddOrUpdate(taskData)
-      logger.info('TaskAddOrUpdate', response.result)
+      console.info('TaskAddOrUpdate', response.result)
       if (response.success) {
         this.$message.success('add successfully')
       } else {

@@ -335,7 +335,7 @@ export default {
       this.confirmLoading = false
     },
     setAvatar(url) {
-      logger.info('setAvatar ' + url)
+      console.info('setAvatar ' + url)
       this.avatar = url
     },
     async getInviteUrl(needRefresh) {

@@ -230,7 +230,7 @@ export default {
       if (!this.choiceItem.data.data.isMulti) {
         this.rightAnswers = [this.rightAnswers[this.rightAnswers.length - 1]]
       }
-      logger.info('this.rightAnswers ', this.rightAnswers)
+      console.info('this.rightAnswers ', this.rightAnswers)
       this.sendMsgToParent(this.rightAnswers, 'changeAnswer')
     },
     choiceFileType(type) {

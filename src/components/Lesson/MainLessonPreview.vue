@@ -181,7 +181,7 @@ export default {
     }
   },
   created () {
-    logger.info('LessonPreview lessonId ' + this.lessonId)
+    console.info('LessonPreview lessonId ' + this.lessonId)
     this.loadLessonData()
   },
   methods: {
@@ -189,18 +189,18 @@ export default {
       this.loading = true
       this.slideLoading = true
       if (!this.lessonData && this.lessonId) {
-        logger.info('LessonPreview loadLessonData ' + this.lessonId)
+        console.info('LessonPreview loadLessonData ' + this.lessonId)
         LessonQueryById({
           id: this.lessonId
         }).then(response => {
-          logger.info('LessonQueryById ' + this.lessonId, response.result)
+          console.info('LessonQueryById ' + this.lessonId, response.result)
           this.lesson = response.result
           this.loading = false
         }).finally(() => {
           this.loadThumbnail()
         })
       } else if (this.lessonData) {
-        logger.info('LessonPreview lessonData ', this.lessonData)
+        console.info('LessonPreview lessonData ', this.lessonData)
         this.lesson = this.lessonData
         this.loadThumbnail()
       }
@@ -234,12 +234,12 @@ export default {
     },
 
     handleSelectContentType (contentType) {
-      logger.info('handleSelectContentType ' + contentType)
+      console.info('handleSelectContentType ' + contentType)
       this.activeContentType = contentType
     },
 
     handleSubPreviewClose () {
-      logger.info('handleSubPreviewClose')
+      console.info('handleSubPreviewClose')
       this.subPreviewVisible = false
     },
 

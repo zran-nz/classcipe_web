@@ -133,7 +133,7 @@ export default {
   computed: {
     lastChangeSavedTime () {
       if (this.materialData) {
-        logger.info('lastChangeSavedTime materialData', this.materialData)
+        console.info('lastChangeSavedTime materialData', this.materialData)
         const time = this.materialData.createTime || this.materialData.updateTime
         if (time) {
           return formatLocalUTC(time)
@@ -168,17 +168,17 @@ export default {
     }
   },
   created () {
-    logger.info('MaterialPreview materialId ' + this.materialId)
+    console.info('MaterialPreview materialId ' + this.materialId)
     this.loadMaterialData()
   },
   methods: {
     loadMaterialData () {
-      logger.info('loadMaterialData ' + this.materialId)
+      console.info('loadMaterialData ' + this.materialId)
       this.loading = true
       MaterialQueryById({
         id: this.materialId
       }).then(response => {
-        logger.info('MaterialQueryById ' + this.materialId, response.result)
+        console.info('MaterialQueryById ' + this.materialId, response.result)
         this.materialData = response.result
         if (this.materialData && this.materialData.files) {
           this.materialData.files.forEach(item => {
@@ -193,12 +193,12 @@ export default {
     },
 
     handleSelectContentType (contentType) {
-      logger.info('handleSelectContentType ' + contentType)
+      console.info('handleSelectContentType ' + contentType)
       this.activeContentType = contentType
     },
 
     handleSubPreviewClose () {
-      logger.info('handleSubPreviewClose')
+      console.info('handleSubPreviewClose')
       this.subPreviewVisible = false
     }
   }

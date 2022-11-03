@@ -127,7 +127,7 @@ export default {
         this.$logger.info('handleAcceptCollaborate', this.notificationData)
         this.acceptLoading = true
         CollaboratesAgree({ id: this.notificationData.busId, agreeFlag: CollaborateStatus.agree }).then(res => {
-          logger.info('handleApply', res)
+          console.info('handleApply', res)
           this.$message.success('collaborate successfully')
         }).then(() => {
           this.acceptLoading = false
@@ -136,7 +136,7 @@ export default {
         // this.$logger.info('handleAcceptCollaborate', this.notificationData)
         // this.acceptLoading = true
         // ReceiveCollaborate({ id: this.notificationData.busId }).then(res => {
-        //   logger.info('ReceiveCollaborate', res)
+        //   console.info('ReceiveCollaborate', res)
         //   this.$message.success('collaborate successfully')
         // }).then(() => {
         //   this.acceptLoading = false
@@ -150,7 +150,7 @@ export default {
         this.$logger.info('handleRefuseCollaborate', this.notificationData)
         this.refuseLoading = true
         DeleteCollaborate({ id: this.notificationData.busId }).then(res => {
-          logger.info('handleRefuseCollaborate', res)
+          console.info('handleRefuseCollaborate', res)
         }).then(() => {
           this.loadMessageData()
         }).finally(() => {
@@ -159,7 +159,7 @@ export default {
       },
 
       handleLinkItem (item, event) {
-        logger.info('handleLinkItem', item)
+        console.info('handleLinkItem', item)
         event.preventDefault()
         event.stopPropagation()
         const index = this.mySelectedList.indexOf(item.id)

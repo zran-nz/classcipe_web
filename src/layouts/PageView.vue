@@ -11,7 +11,7 @@ import * as logger from '@/utils/logger'
 export default {
   name: 'PageView',
   created () {
-    logger.info('PageView created')
+    console.info('PageView created')
   }
 }
 </script>

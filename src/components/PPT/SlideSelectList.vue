@@ -227,7 +227,7 @@ export default {
     },
 
     handlePreviewClose () {
-      logger.info('handlePreviewClose')
+      console.info('handlePreviewClose')
       this.previewCurrentId = ''
       this.previewType = ''
       this.previewVisible = false

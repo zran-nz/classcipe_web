@@ -509,7 +509,7 @@
     },
     created () {
       this.knowledgeList = this.learnOuts
-      logger.info('knowledgeList ', this.knowledgeList)
+      console.info('knowledgeList ', this.knowledgeList)
       this.initBloomOptions()
       this.get21century()
       this.initSelfOuts()
@@ -609,7 +609,7 @@
           this.knowledgeList[index].tagListVisible = false
         }
         this.$set(this.knowledgeList, index, this.knowledgeList[index])
-        logger.info('tagListVisible ', this.knowledgeList[index].tagListVisible)
+        console.info('tagListVisible ', this.knowledgeList[index].tagListVisible)
       },
       handleDeleteTag (k, tagName) {
         var kIndex = this.knowledgeList.findIndex(item => item.knowledgeId === k.knowledgeId)
@@ -624,7 +624,7 @@
         this.$emit('remove-learn-outs', data)
       },
       handleAddTag (knowLedge) {
-        logger.info('handleAddTag ', knowLedge)
+        console.info('handleAddTag ', knowLedge)
         if (knowLedge.tagType === TagType.knowledge) {
           this.knowledge = knowLedge
           this.addTagVisible = true
@@ -645,7 +645,7 @@
         this.knowledgeList[index].tagListVisible = true
       },
       handleEnsureCenturyTags () {
-        logger.info('handleEnsureCenturyTags ', this.centuryTagList)
+        console.info('handleEnsureCenturyTags ', this.centuryTagList)
         if (this.centuryTagList[0].length === 0) {
           this.$message.error('Please select tags')
           return
@@ -658,13 +658,13 @@
           if (this.knowledge.tags.indexOf(item[item.length - 1]) === -1) {
             this.knowledge.tags.push(item[item.length - 1])
           }
-          logger.info('this.knowledge.tags ', this.knowledge.tags)
+          console.info('this.knowledge.tags ', this.knowledge.tags)
         })
         this.centuryTagVisible = false
         this.knowledge.tagListVisible = true
       },
       handleRemoveCenturyTag (index) {
-        logger.info('handleRemoveCenturyTag ', index)
+        console.info('handleRemoveCenturyTag ', index)
         this.centuryTagList.splice(index, 1)
         this.handleUpdateCenturyTag()
       },

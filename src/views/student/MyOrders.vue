@@ -100,7 +100,7 @@ export default {
       },
       // 加载数据方法 必须为 Promise 对象
       loadData: parameter => {
-        logger.info('loadData.parameter', parameter)
+        console.info('loadData.parameter', parameter)
         return orderRecordList(Object.assign(parameter, this.queryParam))
           .then(res => {
             return res.result

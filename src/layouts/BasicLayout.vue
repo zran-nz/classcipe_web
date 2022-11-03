@@ -108,7 +108,7 @@ export default {
   watch: {
     '$route': {
       handler(to, from) {
-        logger.info('route change', to, from)
+        console.info('route change', to, from)
         if (to.meta && this.headerDom && this.headerDom.length) {
           if (to.meta.editPage) {
             this.showGlobalHeader(!to.meta.editPage)
@@ -130,7 +130,7 @@ export default {
         }, 100)
 
         if (to.path === '/') {
-          logger.info('go to defaultRouter ' + this.$store.getters.defaultRouter)
+          console.info('go to defaultRouter ' + this.$store.getters.defaultRouter)
           this.$router.replace(this.$store.getters.defaultRouter)
         }
       },
@@ -151,12 +151,12 @@ export default {
     }
   },
   created () {
-    logger.info('BasicLayout created, path ' + this.$route.path)
+    console.info('BasicLayout created, path ' + this.$route.path)
     const routes = this.mainMenu.find(item => item.path === '/')
     this.menus = (routes && routes.children) || []
     this.$logger.info('menus -> ', this.menus)
     if (this.$route.path === '/') {
-      logger.info('go to defaultRouter ' + this.$store.getters.defaultRouter)
+      console.info('go to defaultRouter ' + this.$store.getters.defaultRouter)
       this.$router.replace(this.$store.getters.defaultRouter)
     }
   },
@@ -175,7 +175,7 @@ export default {
   methods: {
     i18nRender,
     handleSwitchRole (role) {
-      logger.info('switch-role ' + role)
+      console.info('switch-role ' + role)
       this.$store.dispatch('ChangeRole', { role }).then(() => {
         window.location.href = '/'
       })
@@ -214,7 +214,7 @@ export default {
     },
 
     showGlobalHeader (visible) {
-      logger.info('showGlobalHeader ' + visible)
+      console.info('showGlobalHeader ' + visible)
       this.headerDom.forEach(domItem => {
         domItem.style.opacity = visible ? 1 : 0
         domItem.style['pointer-events'] = visible ? 'auto' : 'none'

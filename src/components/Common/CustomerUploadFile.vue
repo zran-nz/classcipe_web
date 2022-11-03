@@ -124,7 +124,7 @@ export default {
   },
   methods: {
     handleUploadImage(data) {
-      logger.info('handleUploadImage data', data)
+      console.info('handleUploadImage data', data)
       this.mediaType = data.file.type.indexOf('image') > -1 ? 'image' : (data.file.type.indexOf('video') > -1 ? 'video' : data.file.type)
       this.progressPercent = 0
       this.uploading = true

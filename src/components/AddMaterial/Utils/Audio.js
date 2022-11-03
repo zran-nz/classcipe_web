@@ -88,7 +88,7 @@ export const cancelUpAudio = () => {
 }
 
 export const saveRecordAudio = async (userId, onProgressUpLoad = () => null) => {
-  logger.info('saveRecordAudio', userId)
+  console.info('saveRecordAudio', userId)
   return new Promise((resolve) => {
     recorder.stopRecording(() => {
       const blobData = recorder.getBlob()

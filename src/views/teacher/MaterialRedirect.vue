@@ -32,7 +32,7 @@ export default {
       }
 
       MaterialAddOrUpdate(materialData).then((response) => {
-        logger.info('MaterialAddOrUpdate none unit plan response', response.result)
+        console.info('MaterialAddOrUpdate none unit plan response', response.result)
         if (response.success) {
           this.$router.replace({
             path: '/teacher/add-material/' + response.result.id
@@ -55,7 +55,7 @@ export default {
       }
 
       MaterialAddOrUpdate(materialData).then((response) => {
-        logger.info('MaterialAddOrUpdate response', response.result)
+        console.info('MaterialAddOrUpdate response', response.result)
         if (response.success) {
           this.$router.replace({
             path: '/teacher/unit-plan-material/' + this.unitPlanId + '/' + response.result.id

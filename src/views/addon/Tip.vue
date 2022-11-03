@@ -133,7 +133,7 @@ export default {
     }
   },
   created() {
-    logger.info('created ', this.pageId, this.slideId)
+    console.info('created ', this.pageId, this.slideId)
     this.param.slide_id = this.slideId
     this.param.page_id = this.pageId
     // addMaterial事件处理
@@ -204,10 +204,10 @@ export default {
       param.slideId = this.slideId
       queryElementById(param)
         .then(response => {
-          logger.info('queryElementById ', response.result)
+          console.info('queryElementById ', response.result)
           const eles = response.result
           for (let j = 0; j < eles.length; j++) {
-            logger.info('eles ', eles[j])
+            console.info('eles ', eles[j])
             if (eles[j].data.type === 'tip') {
               this.tip_id = eles[j].id
               this.tip_text = eles[j].data.tip
@@ -252,12 +252,12 @@ export default {
       if (this.tip_id > 0) {
         this.param.id = this.tip_id
         updateElement(this.param).then(response => {
-          logger.info('updateElement ', response)
+          console.info('updateElement ', response)
           this.closeAddonWindow()
         })
       } else {
         addElement(this.param).then(response => {
-          logger.info('addElement ', response)
+          console.info('addElement ', response)
           this.closeAddonWindow()
         })
       }

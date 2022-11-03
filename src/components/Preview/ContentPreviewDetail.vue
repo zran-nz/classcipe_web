@@ -904,7 +904,7 @@ export default {
     },
     lastChangeSavedTime () {
       if (this.content) {
-        logger.info('lastChangeSavedTime data', this.content)
+        console.info('lastChangeSavedTime data', this.content)
         const time = this.content.updateTime || this.content.createTime
         if (time) {
           return formatLocalUTC(time)

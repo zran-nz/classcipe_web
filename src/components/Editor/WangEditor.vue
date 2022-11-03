@@ -38,7 +38,7 @@ export default {
   },
   methods: {
     initEditor () {
-      logger.info('edit init content:' + this.value)
+      console.info('edit init content:' + this.value)
       this.editor = new WEditor(this.$refs.editor)
       // this.editor.onchangeTimeout = 200
       this.editor.customConfig.onchange = (html) => {

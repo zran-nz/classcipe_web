@@ -113,9 +113,9 @@ export default {
       })
 
       this.loading = true
-      logger.info('FindQuestionsByBigIdea sdgs ', this.selectedSdg)
+      console.info('FindQuestionsByBigIdea sdgs ', this.selectedSdg)
       FindQuestionsByBigIdea({ sdgs: this.selectedSdg }).then(response => {
-        logger.info('FindQuestionsByBigIdea ', response)
+        console.info('FindQuestionsByBigIdea ', response)
         this.AllQuestionList = []
         if (response.success) {
           response.result.forEach(item => {

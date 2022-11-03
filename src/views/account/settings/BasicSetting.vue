@@ -622,7 +622,7 @@ export default {
   },
   watch: {
     'userInfo.curriculumId' (val) {
-      logger.info('userInfo.curriculumId change', val)
+      console.info('userInfo.curriculumId change', val)
       this.loadSubjectByCurriculumId(val)
     }
   },
@@ -789,7 +789,7 @@ export default {
         ]).then(response => {
           this.$logger.info('init data', response)
           if (!response[0].code) {
-            logger.info('getAllCurriculums response', response[0])
+            console.info('getAllCurriculums response', response[0])
             this.curriculumOptions = response[0].result
 
             this.curriculumOptions.forEach(item => {
@@ -811,7 +811,7 @@ export default {
 
           if (!response[2].code) {
             this.userInfo.subjectNameList = []
-            logger.info('SubjectTree response', response[2])
+            console.info('SubjectTree response', response[2])
             this.subjectOptions = response[2].result
             // this.subjectOptions.forEach(option => {
             //   if (this.userInfo.subjectIds.indexOf(option.id) !== -1 && this.userInfo.subjectNameList.indexOf(option.name) === -1) {
@@ -823,7 +823,7 @@ export default {
           }
 
           if (!response[3].code) {
-            logger.info('getCustomizedTags response', response[3])
+            console.info('getCustomizedTags response', response[3])
             this.customizedTags = response[3].result
             this.customizedTags.forEach(item => {
               item.selectable = item.children.length === 0
@@ -843,7 +843,7 @@ export default {
         ]).then(response => {
           this.$logger.info('init data', response)
           if (!response[0].code) {
-            logger.info('getAllAreas response', response[0])
+            console.info('getAllAreas response', response[0])
             this.areaOptions = response[0].result
             this.areaOptions.forEach(item => {
               if (this.userInfo.areaIds.indexOf(item.id) !== -1) {
@@ -862,7 +862,7 @@ export default {
           }
 
           if (!response[1].code) {
-            logger.info('SubjectTree response', response[1])
+            console.info('SubjectTree response', response[1])
             this.subjectOptions = response[1].result
             // this.userInfo.subjectNameList = []
             // this.subjectOptions.forEach(option => {
@@ -906,7 +906,7 @@ export default {
     },
 
     handleSelectCurriculumOption (curriculum) {
-      logger.info('handleSelectCurriculumOption', curriculum)
+      console.info('handleSelectCurriculumOption', curriculum)
       if (this.currentCurriculum === null || this.currentCurriculum.id !== curriculum.id) {
         this.currentSubject = null
         this.userInfo.subjectIds = []
@@ -915,7 +915,7 @@ export default {
     },
 
     handleSelectAreaOption (area) {
-      logger.info('handleSelectAreaOption', area)
+      console.info('handleSelectAreaOption', area)
       this.currentArea = area
     },
 
@@ -924,19 +924,19 @@ export default {
       this.userInfo.subjectIds = []
       this.userInfo.gradeIds = []
       getAllSubjectsByCurriculumId({ curriculumId }).then(response => {
-        logger.info('subjectOptions', response.result)
+        console.info('subjectOptions', response.result)
         this.subjectOptions = response.result
       })
 
       GetGradesByCurriculumId({ curriculumId }).then((response) => {
-        logger.info('GetGradesByCurriculumId', response)
+        console.info('GetGradesByCurriculumId', response)
         this.gradeOptions = response.result
-        logger.info('gradeOptions', this.gradeOptions)
+        console.info('gradeOptions', this.gradeOptions)
       })
     },
 
     setAvatar (url) {
-      logger.info('setAvatar ' + url)
+      console.info('setAvatar ' + url)
       this.userInfo.avatar = url
       const userData = {
         avatar: this.userInfo.avatar,
@@ -1186,7 +1186,7 @@ export default {
         // curriculumId: this.userInfo.curriculumId,
         name: value
       }).then(res => {
-        logger.info('schools', res)
+        console.info('schools', res)
         if (res.success) {
           this.schoolOptions = res.result || []
         } else {

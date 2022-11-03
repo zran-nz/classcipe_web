@@ -29,7 +29,7 @@ export default {
       }
 
       UnitPlanAddOrUpdate(unitPlanData).then((response) => {
-        logger.info('creatingUnitPlan response', response.result)
+        console.info('creatingUnitPlan response', response.result)
         if (response.success) {
           this.$router.replace({
             path: '/teacher/unit-plan-v2/' + response.result.id

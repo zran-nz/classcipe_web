@@ -121,7 +121,7 @@ export default {
     }
   },
   created () {
-    logger.info('Collaborate contentId ' + this.contentId + ' type ' + this.contentType, this.mainContent)
+    console.info('Collaborate contentId ' + this.contentId + ' type ' + this.contentType, this.mainContent)
     this.loadAssociateContent()
     this.selectedContentIdList.push(this.contentId)
   },
@@ -136,7 +136,7 @@ export default {
         id: this.contentId,
         type: this.contentType
       }).then((response) => {
-        logger.info('loadAssociateContent GetAssociate ', response)
+        console.info('loadAssociateContent GetAssociate ', response)
         const collaborateContentList = [this.mainContent]
         const owner = response.result.owner
         if (owner) {
@@ -147,7 +147,7 @@ export default {
         this.collaborateContentList = collaborateContentList
         this.$logger.info('collaborateContentList', this.collaborateContentList)
       }).then(() => {
-        logger.info('get favorite ' + this.materialId)
+        console.info('get favorite ' + this.materialId)
       }).finally(() => {
         this.loading = false
         this.skeletonLoading = false
@@ -155,7 +155,7 @@ export default {
     },
 
     handleViewDetail (item, event) {
-      logger.info('handleViewDetail', item)
+      console.info('handleViewDetail', item)
       event.preventDefault()
       event.stopPropagation()
       this.previewCurrentId = item.id
@@ -169,7 +169,7 @@ export default {
     },
 
     handlePreviewClose () {
-      logger.info('handlePreviewClose')
+      console.info('handlePreviewClose')
       this.previewCurrentId = ''
       this.previewType = ''
       this.previewVisible = false

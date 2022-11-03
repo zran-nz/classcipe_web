@@ -163,7 +163,7 @@ export default {
   },
   methods: {
     handleSelectGrade (grade) {
-      logger.info('handleSelectGrade', grade)
+      console.info('handleSelectGrade', grade)
       this.gradeId = grade.id
       this.resetSkill()
       this.getSkillTree()
@@ -189,20 +189,20 @@ export default {
 
     getSkillTree () {
       this.skillLoading = true
-      logger.info('grade:' + this.gradeId)
+      console.info('grade:' + this.gradeId)
       SkillGetTreeByGradeId({
         gradeId: this.gradeId
       }).then((response) => {
-        logger.info('getSkillTree response', response)
+        console.info('getSkillTree response', response)
         this.skillTree = response.result
-        logger.info('skillTree', this.skillTree)
+        console.info('skillTree', this.skillTree)
       }).finally(() => {
         this.skillLoading = false
       })
     },
 
     handleSelectMainSkillItem (skillItem) {
-      logger.info('handleSelectMainSkillItem', skillItem)
+      console.info('handleSelectMainSkillItem', skillItem)
       if (skillItem.id !== this.mainSkillId) {
         this.resetSubSkillTags()
         this.mainSkillId = skillItem.id
@@ -220,7 +220,7 @@ export default {
     },
 
     handleSelectSubSkillItem (subSkillItem) {
-      logger.info('handleSelectSubSkillItem', subSkillItem)
+      console.info('handleSelectSubSkillItem', subSkillItem)
       if (subSkillItem.id !== this.subSkillId) {
         this.resetGrandSubSkillTags()
         this.subSkillId = subSkillItem.id
@@ -237,7 +237,7 @@ export default {
     },
 
     handleSelectGrandSubSkillItem (grandSubSkillItem) {
-      logger.info('handleSelectGrandSubSkillItem', grandSubSkillItem)
+      console.info('handleSelectGrandSubSkillItem', grandSubSkillItem)
       if (grandSubSkillItem.id !== this.mainSkillId) {
         this.resetSkillTags()
         this.grandSubSkillId = grandSubSkillItem.id
@@ -253,7 +253,7 @@ export default {
     },
 
     handleSelectSkillTag (skillTag) {
-      logger.info('handleSelectSkillTag', skillTag)
+      console.info('handleSelectSkillTag', skillTag)
       if (this.selectedSkillTagIdList.indexOf(skillTag.id) === -1) {
         this.$set(this.tagObjData, skillTag.id, Object.assign({}, this.currentGrandSubSkill))
         this.selectedSkillTagIdList.push(skillTag.id)
@@ -263,27 +263,27 @@ export default {
           name: skillTag.name,
           description: this.currentGrandSubSkill.name
         })
-        logger.info('tagObjData', this.tagObjData)
+        console.info('tagObjData', this.tagObjData)
       } else {
-        logger.info('before remove skillTags', this.selectedSkillTagIdList, this.selectedSkillTagIdList.indexOf(skillTag.id))
+        console.info('before remove skillTags', this.selectedSkillTagIdList, this.selectedSkillTagIdList.indexOf(skillTag.id))
         this.selectedSkillTagIdList.splice(this.selectedSkillTagIdList.indexOf(skillTag.id), 1)
         this.$delete(this.tagObjData, skillTag.id)
         this.$emit('remove-skill-tag', {
           questionIndex: this.questionIndex,
           id: skillTag.id
         })
-        logger.info('tagObjData', this.tagObjData)
-        logger.info('after delete skillTags', this.selectedSkillTagIdList)
+        console.info('tagObjData', this.tagObjData)
+        console.info('after delete skillTags', this.selectedSkillTagIdList)
       }
     },
 
     handleAddNewTag () {
-      logger.info('handleAddNewTag', this.newTag)
+      console.info('handleAddNewTag', this.newTag)
       SkillAddOrUpdateTag({
         skillId: this.currentGrandSubSkill.id,
         name: this.newTag
       }).then(response => {
-        logger.info('SkillAddOrUpdateTag', response)
+        console.info('SkillAddOrUpdateTag', response)
         this.newTag = ''
         this.refreshSkillTags()
       })
@@ -291,11 +291,11 @@ export default {
 
     refreshSkillTags () {
       this.loadingSkill = true
-      logger.info('refreshSkillTags')
+      console.info('refreshSkillTags')
       SkillQueryTagsBySkillId({
         skillId: this.currentGrandSubSkill.id
       }).then(response => {
-        logger.info('SkillQueryTagsBySkillId', response)
+        console.info('SkillQueryTagsBySkillId', response)
         this.skillTags = response.result
       }).finally(() => {
         this.loadingSkill = false
@@ -303,19 +303,19 @@ export default {
     },
 
     handleDeleteTag (skillTag) {
-      logger.info('handleDeleteTag', skillTag)
+      console.info('handleDeleteTag', skillTag)
       if (this.selectedSkillTagIdList.indexOf(skillTag.id) !== -1) {
-        logger.info('before delete skillTags', this.selectedSkillTagIdList, this.selectedSkillTagIdList.indexOf(skillTag.id))
+        console.info('before delete skillTags', this.selectedSkillTagIdList, this.selectedSkillTagIdList.indexOf(skillTag.id))
         this.selectedSkillTagIdList.splice(this.selectedSkillTagIdList.indexOf(skillTag.id), 1)
         this.$delete(this.tagObjData, skillTag.id)
         this.$emit('remove-skill-tag', {
           questionIndex: this.questionIndex,
           id: skillTag.id
         })
-        logger.info('tagObjData', this.tagObjData)
-        logger.info('after delete skillTags', this.selectedSkillTagIdList)
+        console.info('tagObjData', this.tagObjData)
+        console.info('after delete skillTags', this.selectedSkillTagIdList)
       } else {
-        logger.info('no found target delete skillTag', skillTag)
+        console.info('no found target delete skillTag', skillTag)
       }
     }
   }

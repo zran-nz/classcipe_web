@@ -132,7 +132,7 @@ export default {
 
       pagination: {
         onChange: page => {
-          logger.info('pagination onChange', page)
+          console.info('pagination onChange', page)
           this.pageNo = page
           this.loadMyContent()
         },
@@ -165,7 +165,7 @@ export default {
         pageSize: this.pagination.pageSize,
         currentId: this.currentId
       }).then(res => {
-        logger.info('loadMyContent', res)
+        console.info('loadMyContent', res)
         if (res.result && res.result.records && res.result.records.length) {
           res.result.records = res.result.records.filter(item => item.id !== this.hiddenEvaluationId)
           res.result.records.forEach((record, index) => {
@@ -182,7 +182,7 @@ export default {
           this.myContentList = []
           this.pagination.total = 0
         }
-        logger.info('myContentList', this.myContentList)
+        console.info('myContentList', this.myContentList)
       }).finally(() => {
         this.loading = false
         this.skeletonLoading = false
@@ -190,7 +190,7 @@ export default {
     },
 
     handleSelectItem (item, event) {
-      logger.info('handleSelectItem', item)
+      console.info('handleSelectItem', item)
       event.preventDefault()
       event.stopPropagation()
       const itemId = item.type + '-' + item.id
@@ -206,7 +206,7 @@ export default {
     },
 
     handleToggleSelect (item) {
-      logger.info('handleToggleSelect', item)
+      console.info('handleToggleSelect', item)
       if (item.expand) {
         EvaluationQueryByIds({ ids: [item.id] }).then((response) => {
           this.$logger.info('handleToggleSelect EvaluationQueryByIds ' + item.id, response)
@@ -254,7 +254,7 @@ export default {
     },
 
     handleAddFormItem (formItem) {
-      logger.info('handleAddFormItem', formItem)
+      console.info('handleAddFormItem', formItem)
       const index = this.selectedFormList.findIndex(item => item.formId === formItem.formId)
       if (index !== -1) {
         this.selectedFormList.splice(index, 1)

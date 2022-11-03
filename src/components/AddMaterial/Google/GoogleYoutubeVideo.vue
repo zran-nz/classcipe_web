@@ -109,7 +109,7 @@ export default {
         this.chooseVideoId = ''
         this.videos = []
         YoutubeQueryByKeywords({ keywords: this.keywords }).then(response => {
-          logger.info('YoutubeQueryByKeywords ', response)
+          console.info('YoutubeQueryByKeywords ', response)
           this.videos = response.result
           this.loading = false
         })
@@ -122,14 +122,14 @@ export default {
         this.$message.warn('Please select a video')
         return null
       }
-      logger.info('insert ')
+      console.info('insert ')
       addFileUploadRecord({
         fileLength: 0,
         fileName: this.choose.title,
         filePath: this.choose.link,
         uploadType: 2
       }).then(res => {
-        logger.info('addFileUploadRecord res', res)
+        console.info('addFileUploadRecord res', res)
       })
       this.nextYoutube(this.choose)
 
@@ -143,7 +143,7 @@ export default {
       this.$emit('cancel')
     },
     chooseVideo(item) {
-      logger.info('chooseVideo', item)
+      console.info('chooseVideo', item)
       this.chooseVideoId = item.videoId
       this.choose = item
     }

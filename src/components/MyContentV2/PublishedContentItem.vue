@@ -254,9 +254,9 @@ export default {
     },
 
     handleDeleteItem() {
-      logger.info('handleDeleteItem', this.content)
+      console.info('handleDeleteItem', this.content)
       DeleteMyContentByType(this.content).then(res => {
-        logger.info('DeleteMyContentByType', res)
+        console.info('DeleteMyContentByType', res)
         this.$emit('delete', {
           content: this.content
         })

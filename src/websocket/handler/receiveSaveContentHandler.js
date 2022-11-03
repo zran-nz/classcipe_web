@@ -9,7 +9,7 @@ export default class ReceiveSaveContentHandler extends AbstractMessageHandler {
 
     processMessage(proto) {
         // 通知更新系统消息
-        logger.info('ReceiveSaveContentHandler : ', proto.cmd)
+        console.info('ReceiveSaveContentHandler : ', proto.cmd)
         // this.vueWebsocket.sendAction('receiveSaveContentMsg', proto)
     }
 }

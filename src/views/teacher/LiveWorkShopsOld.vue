@@ -182,7 +182,7 @@ export default {
 
       pagination: {
         onChange: page => {
-          logger.info('pagination onChange', page)
+          console.info('pagination onChange', page)
           this.pageNo = page
           sessionStorage.setItem(SESSION_CURRENT_PAGE, page)
           this.loadMyContent()
@@ -347,7 +347,7 @@ export default {
         params.delFlag = 1
       }
       FindWorkShops(params).then(res => {
-        logger.info('getMyContent', res)
+        console.info('getMyContent', res)
         if (res.success && res.code === 0) {
           res.result.records.forEach((record, index) => {
             record.key = index
@@ -363,7 +363,7 @@ export default {
           this.myContentList = []
           this.pagination.total = 0
         }
-        logger.info('myContentList', this.myContentList)
+        console.info('myContentList', this.myContentList)
       }).finally(() => {
         this.loading = false
       })

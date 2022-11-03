@@ -25,7 +25,7 @@ export default {
       }
 
       VideoAddOrUpdate(videoData).then((response) => {
-        logger.info('VideoAddOrUpdate response', response.result)
+        console.info('VideoAddOrUpdate response', response.result)
         if (response.success) {
           this.$router.replace({
             path: '/teacher/video/' + response.result.id

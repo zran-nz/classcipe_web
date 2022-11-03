@@ -185,7 +185,7 @@ export default {
     }
   },
   created () {
-    logger.info('TaskPreview taskId ' + this.taskId)
+    console.info('TaskPreview taskId ' + this.taskId)
     ClasscipeEventBus.$on(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleAuthCallback)
     this.loadTaskData()
   },
@@ -197,18 +197,18 @@ export default {
       this.loading = true
       this.slideLoading = true
       if (!this.taskData && this.taskId) {
-        logger.info('TaskPreview loadTaskData ' + this.taskId)
+        console.info('TaskPreview loadTaskData ' + this.taskId)
         TaskQueryById({
           id: this.taskId
         }).then(response => {
-          logger.info('TaskQueryById ' + this.taskId, response.result)
+          console.info('TaskQueryById ' + this.taskId, response.result)
           this.task = response.result
           this.loading = false
         }).finally(() => {
           this.loadThumbnail()
         })
       } else if (this.taskData) {
-        logger.info('TaskPreview taskData ', this.taskData)
+        console.info('TaskPreview taskData ', this.taskData)
         this.task = this.taskData
         this.loadThumbnail()
       }
@@ -244,12 +244,12 @@ export default {
     },
 
     handleSelectContentType (contentType) {
-      logger.info('handleSelectContentType ' + contentType)
+      console.info('handleSelectContentType ' + contentType)
       this.activeContentType = contentType
     },
 
     handleSubPreviewClose () {
-      logger.info('handleSubPreviewClose')
+      console.info('handleSubPreviewClose')
       this.subPreviewVisible = false
     },
 

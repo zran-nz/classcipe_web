@@ -27,7 +27,7 @@ const classcipeConfig = {
   },
   mutations: {
     [SET_CURRICULUM_LIST]: (state, curriculumList) => {
-      logger.info('curriculumList', curriculumList)
+      console.info('curriculumList', curriculumList)
       state.curriculumList = curriculumList
       const curriculumMap = {}
       const curriculumId2NameMap = {}
@@ -68,7 +68,7 @@ const classcipeConfig = {
     initCurriculumData ({ commit }, token) {
       return new Promise((resolve, reject) => {
         getAllCurriculums().then(response => {
-          logger.info('init getAllCurriculums', response.result)
+          console.info('init getAllCurriculums', response.result)
           commit(SET_CURRICULUM_LIST, response.result)
           resolve(response.result)
         }).catch(err => {
@@ -82,9 +82,9 @@ const classcipeConfig = {
      const bindCurriculumId = data.bindCurriculumId
      const applyUserId = data.applyUserId
      const applyType = data.applyType
-     logger.info('initSubjectGradeData schoolId ' + schoolId + ' bindCurriculum ' + bindCurriculumId + ' applyType ' + applyType, data)
+     console.info('initSubjectGradeData schoolId ' + schoolId + ' bindCurriculum ' + bindCurriculumId + ' applyType ' + applyType, data)
       getSubjectBySchoolId({ schoolId }).then(response => {
-       logger.info('initSubjectGradeData getSubjectBySchoolId response', response.result)
+       console.info('initSubjectGradeData getSubjectBySchoolId response', response.result)
         // const schoolSubject = response.result.find(item => parseInt(item.curriculumId) === parseInt(bindCurriculumId))
         let subjects = []
         response.result.forEach(item => {
@@ -93,7 +93,7 @@ const classcipeConfig = {
         commit(SET_SCHOOL_SUBJECT, subjects)
       })
       getCurriculumBySchoolId({ schoolId }).then(response => {
-       logger.info('initSubjectGradeData getCurriculumBySchoolId', response.result)
+       console.info('initSubjectGradeData getCurriculumBySchoolId', response.result)
         // const schoolGrade = response.result.find(item => parseInt(item.curriculumId) === parseInt(bindCurriculumId))
         let grades = []
         const curriculumids = []
@@ -109,7 +109,7 @@ const classcipeConfig = {
             pageSize: 1000,
             queryType: 1
           }).then(response => {
-            logger.info('getAcademicSettingIbAuth response', response)
+            console.info('getAcademicSettingIbAuth response', response)
             const listAuths = response.result.records.filter(item => item.schoolId === schoolId)
             let ibAuth = false
             for (const curriculumId of curriculumids) {
@@ -134,11 +134,11 @@ const classcipeConfig = {
     },
 
     initTagData ({ commit }, token) {
-      logger.info('initTagData', token)
+      console.info('initTagData', token)
       return new Promise(async (resolve, reject) => {
         // eslint-disable-next-line no-undef
         const result = await AppLogin(token)
-        logger.info('initTagData AppLogin', result)
+        console.info('initTagData AppLogin', result)
 
         // eslint-disable-next-line no-undef
         const pubTagList = await App.service('tags').get('pubList')
@@ -158,7 +158,7 @@ const classcipeConfig = {
           const tags = item.tags.map(tag => { return { tag: tag, isPub: false, isPri: true } })
           item.tags = tags
         })
-        logger.info('initTagData', pubTagList, priTagList)
+        console.info('initTagData', pubTagList, priTagList)
 
         // 合并pri和pub重合set的数据
 
@@ -199,7 +199,7 @@ const classcipeConfig = {
           })
         })
         commit(SET_PD_TAG, newPdTagList)
-        logger.info('newPdTagList', newPdTagList)
+        console.info('newPdTagList', newPdTagList)
         resolve()
       })
     }

@@ -9,8 +9,8 @@ export default class ReceiveMsgHandler extends AbstractMessageHandler {
 
     processMessage(proto) {
         // 通知更新系统消息
-        logger.info('ReceiveMsgHandler : ', proto.cmd)
-        logger.info('content : ', proto)
+        console.info('ReceiveMsgHandler : ', proto.cmd)
+        console.info('content : ', proto)
         // this.vueWebsocket.sendAction('receiveMsg', true)
         if (proto.content.busType === NotificationTypeMap.collaborateAccepted ||
           proto.content.busType === NotificationTypeMap.collaborateRejected ||

@@ -334,13 +334,13 @@ export default {
       }
     },
     handleViewDetail (item) {
-      logger.info('handleViewDetail', item)
+      console.info('handleViewDetail', item)
       this.previewCurrentId = item.id
       this.previewType = item.type
       this.previewVisible = true
     },
     handleEditLinkItem (item) {
-      logger.info('handleEditLinkItem', item)
+      console.info('handleEditLinkItem', item)
       if (item.type === typeMap['unit-plan']) {
         window.open('/teacher/unit-plan-redirect/' + item.id, '_blank')
       } else if (item.type === typeMap.evaluation) {
@@ -361,7 +361,7 @@ export default {
       })
     },
     handleDragEnd () {
-      logger.info('handleDragEnd ', this.ownerLinkGroupList)
+      console.info('handleDragEnd ', this.ownerLinkGroupList)
       this.ownerLinkGroupList.forEach(linkGroup => {
         const ids = []
         linkGroup.contents.forEach(item => {
