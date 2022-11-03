@@ -969,14 +969,14 @@ export const constantRouterMap = [
            path: '/collaborate/:code',
            name: 'CollaborateJoin',
            props: true,
-           meta: { title: 'Collaborate invite', keepAlive: true, icon: bxAnaalyse, permission: ['teacher'] },
+           meta: { title: 'Collaborate invite', keepAlive: true, icon: bxAnaalyse },
            component: () => import(/* webpackChunkName: "fail" */ '@/views/collaborate/Join')
          },
          {
            path: '/linkValid',
            name: 'linkValid',
            props: true,
-           meta: { title: 'Collaborate invite', keepAlive: true, icon: bxAnaalyse, permission: ['teacher'] },
+           meta: { title: 'Collaborate invite', keepAlive: true, icon: bxAnaalyse },
            component: () => import(/* webpackChunkName: "fail" */ '@/views/collaborate/LinkValid')
          },
          // addon
@@ -1078,7 +1078,7 @@ export const constantRouterMap = [
              {
                path: '/empty',
                props: true,
-               component: () => import('@/views/empty'),
+               component: () => import('@/views/empty')
              }
            ]
          },
