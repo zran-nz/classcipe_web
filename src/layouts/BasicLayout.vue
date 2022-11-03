@@ -14,7 +14,7 @@
           我们推荐使用这种方式进行 LOGO 和 title 自定义
     -->
     <template v-slot:menuHeaderRender>
-      <div class="home-nav" @click="goHome">
+      <div class="home-nav" @click.prevent="goHome">
         <img src="~@/assets/logo/50.png" class='single-logo-img' alt='classcipe' />
         <div class='home-title'>
           <div class='classcipe-title'>Classcipe</div>
@@ -181,9 +181,7 @@ export default {
       })
     },
     goHome () {
-      console.log('123123')
-      location.href = '/teacher/main/created-by-me'
-      // this.$router.push('/teacher/main/created-by-me')
+      this.$router.push('/teacher/main/created-by-me')
     },
     onSearch () {
       this.$message.success('search something')
