@@ -122,7 +122,7 @@ export default {
           if (type === 'Join') {
               this.handleLocationItem(this.collaborate.content)
           } else {
-            this.$router.push({ path: '/teacher/main/created-by-me' })
+            this.$router.push({ path: '/teacher/main/created-by-me?shareType=2' })
           }
         } else {
           this.applyLoading = false
