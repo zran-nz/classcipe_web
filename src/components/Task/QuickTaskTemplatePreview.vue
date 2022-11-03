@@ -230,13 +230,13 @@ export default {
           taskId: this.templateData.id
         }).then(response => {
           if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
-            this.$logger.info('task loadThumbnail response', response.result)
+            console.info('task loadThumbnail response', response.result)
             const pageObjects = response.result.pageObjects
             this.templateData.pageObjectIds = []
             pageObjects.forEach(page => {
               this.templateData.pageObjectIds.push(page.id)
               this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
-              this.$logger.info('current thumbnailList ', this.thumbnailList)
+              console.info('current thumbnailList ', this.thumbnailList)
             })
           }
         }).finally(() => {
@@ -253,24 +253,24 @@ export default {
     },
 
     handleAuthCallback() {
-      this.$logger.info('handleAuthCallback')
+      console.info('handleAuthCallback')
       this.loadData()
     },
 
     handleAddAndGotoImgIndex (index) {
-      this.$logger.info('handleGotoImgIndex ' + index)
+      console.info('handleGotoImgIndex ' + index)
       const pageObjectId = this.templateData.pageObjectIds[index]
       if (this.selectPageObjectIds.indexOf(pageObjectId) === -1) {
         this.selectPageObjectIds.push(pageObjectId)
       } else {
         this.selectPageObjectIds.splice(this.selectPageObjectIds.indexOf(pageObjectId), 1)
       }
-      this.$logger.info('selectPageObjectIds ', this.selectPageObjectIds)
+      console.info('selectPageObjectIds ', this.selectPageObjectIds)
       this.currentImgIndex = index
       this.$refs.carousel.goTo(index)
     },
     handleSelectTemplate () {
-      this.$logger.info('handleSelectTemplate ' + this.templateData.name + ' ' + this.showReplaceTips)
+      console.info('handleSelectTemplate ' + this.templateData.name + ' ' + this.showReplaceTips)
       if (this.showReplaceTips && this.selectPageObjectIds.length > 0) {
         this.$confirm({
           title: 'Notice',

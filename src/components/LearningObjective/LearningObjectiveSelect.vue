@@ -254,7 +254,7 @@ export default {
     }
   },
   created() {
-    this.$logger.info('LearningObjectiveSelect', this.learningObjectives)
+    console.info('LearningObjectiveSelect', this.learningObjectives)
     if (this.learningObjectives.length > 0) {
       this.allLearningObjectiveList = this.learningObjectives
       this.selectedList = this.allLearningObjectiveList.slice()
@@ -270,12 +270,12 @@ export default {
     },
 
     updateSelectLearningObjective () {
-      this.$logger.info('change', this.selectedList)
+      console.info('change', this.selectedList)
       this.$emit('change', this.selectedList)
     },
 
     handleSelectGeneralCapability (item) {
-      this.$logger.info('handleSelectGeneralCapability', arguments[1])
+      console.info('handleSelectGeneralCapability', arguments[1])
       const generalCapabilityList = JSON.parse(JSON.stringify(arguments[1][0]))
       const lastIndex = generalCapabilityList.length - 1
       const generalCapability = {
@@ -284,7 +284,7 @@ export default {
         id: arguments[1][1][lastIndex].id
       }
       item.generalCapabilities.push(generalCapability)
-      this.$logger.info('current lo item', item)
+      console.info('current lo item', item)
     },
 
     initDict() {
@@ -332,7 +332,7 @@ export default {
     },
 
     handleSelectItem (item) {
-      this.$logger.info('handleSelectItem', item)
+      console.info('handleSelectItem', item)
       const index = this.selectedList.indexOf(item)
       if (index === -1) {
         this.selectedList.push(item)

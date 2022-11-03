@@ -155,7 +155,7 @@ export const PptPreviewMixin = {
       } else {
         QueryByClassInfoSlideId({ slideId: slideId, pageIds: pageIds }).then(response => {
           // QueryByClassInfoSlideId({ slideId: '1X9fE0m4j4Ey5BvSxof_a0bVxTDNaDfadJTlhkXmyikk' }).then(response => {
-          this.$logger.info('QueryByClassInfoSlideId ', response)
+          console.info('QueryByClassInfoSlideId ', response)
           if (response.success) {
             response.result.relements.forEach(e => {
               if (typeof e.data === 'string') {
@@ -211,7 +211,7 @@ export const PptPreviewMixin = {
     },
     showPluginMaterial (type) {
       const data = this.currentPageMaterial[type]
-      this.$logger.info('showPluginMaterial ', data)
+      console.info('showPluginMaterial ', data)
       if (type === 'text' || type === 'website' || type === 'pdf') {
         if (data.length > 1) {
           this.filterMaterialType = type

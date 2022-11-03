@@ -80,12 +80,12 @@ export default {
   },
   methods: {
     handleExpandMenuList () {
-      this.$logger.info('handleExpandMenuList')
+      console.info('handleExpandMenuList')
       this.$store.commit(HIDDEN_SIDEBAR, false)
       this.expand = !this.expand
     },
     handleClickMenu (item) {
-      this.$logger.info('handleClickMenu', item)
+      console.info('handleClickMenu', item)
       // this.onClick(this.label, this.path)
       this.$router.push({ path: '/teacher/class-session/' + item.id })
     }

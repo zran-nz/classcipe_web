@@ -125,7 +125,7 @@ export default {
       this.id = item.id
     },
     handlePreview(item) {
-      this.$logger.info('handlePreviewPlanningForm', item)
+      console.info('handlePreviewPlanningForm', item)
       if (this.activeKey === 'plan') {
         this.$store.commit(FORM_CONFIG_PREVIEW_DATA, {
           commonList: item.config.commonList,

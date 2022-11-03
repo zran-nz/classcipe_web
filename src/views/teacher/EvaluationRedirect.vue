@@ -17,7 +17,7 @@ export default {
     }
   },
   created () {
-    this.$logger.info('Evaluation Redirect ' + this.evaluationId)
+    console.info('Evaluation Redirect ' + this.evaluationId)
     if (this.evaluationId) {
       this.$router.replace('/teacher/add-evaluation/' + this.evaluationId)
     } else {
@@ -29,7 +29,7 @@ export default {
       }
 
      EvaluationAddOrUpdate(data).then((response) => {
-        this.$logger.info('EvaluationAddOrUpdate response', response.result)
+        console.info('EvaluationAddOrUpdate response', response.result)
         if (response.success) {
           this.$router.replace('/teacher/add-evaluation/' + response.result.id + '/edit')
         } else {

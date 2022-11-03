@@ -10,12 +10,12 @@
 export default {
   name: 'AuthCheck',
   created () {
-    this.$logger.info('AuthCheck loaded!')
+    console.info('AuthCheck loaded!')
     // 没有session 数据，尝试验证token，如果失效那么重新登录
     this.$store.dispatch('GetInfo').then((data) => {
-      this.$logger.info('AuthCheck token valid, go to path', data)
+      console.info('AuthCheck token valid, go to path', data)
       const redirect = decodeURIComponent(this.$route.query.redirect)
-      this.$logger.info('AuthCheck redirect path', redirect)
+      console.info('AuthCheck redirect path', redirect)
       this.$router.push({ path: redirect })
     }).catch(err => {
       this.$logger.warn('AuthCheck token invalid, try login', err)

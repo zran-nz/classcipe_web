@@ -76,7 +76,7 @@ export default {
   },
   methods: {
     handleDeleteVideo () {
-      this.$logger.info('handleDeleteVideo', this.videoItem)
+      console.info('handleDeleteVideo', this.videoItem)
       this.$EventBus.$emit(ClasscipeDriveEvent.DELETE_VIDEO, {
         field: this.field,
         data: this.videoItem

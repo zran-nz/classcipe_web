@@ -544,9 +544,9 @@ export default {
     this.getRecommended()
 
     getAllCurriculums().then((response) => {
-      this.$logger.info('getAllCurriculums', response)
+      console.info('getAllCurriculums', response)
       this.curriculumOptions = response.result
-      this.$logger.info('getAllCurriculums', this.curriculumOptions)
+      console.info('getAllCurriculums', this.curriculumOptions)
     }).finally(() => {
       this.getFilterOptions()
     })
@@ -556,7 +556,7 @@ export default {
   mounted () {
     this.blockWidth = document.getElementById('app').getBoundingClientRect().width * 0.15
     this.filterHeight = document.documentElement.clientHeight - 350
-    this.$logger.info('globalWidth ' + this.blockWidth)
+    console.info('globalWidth ' + this.blockWidth)
 
     window.onresize = debounce(() => {
       this.blockWidth = document.getElementById('app').getBoundingClientRect().width * 0.15
@@ -569,7 +569,7 @@ export default {
       this.dataListLoading = true
       this.showFilter = false
       QueryRecommendContents({ curriculumId: this.currentCurriculumId ? this.currentCurriculumId : this.$store.getters.bindCurriculum }).then(response => {
-        this.$logger.info('QueryRecommendContents response', response)
+        console.info('QueryRecommendContents response', response)
         this.dataList = response.result ? response.result : []
         this.dataRecommendList = this.dataList
       }).finally(() => {
@@ -578,7 +578,7 @@ export default {
       })
     },
     toggleBrowserType (browserTypeItem) {
-      this.$logger.info('toggleBrowserType ' + browserTypeItem.type + ' tagType:' + browserTypeItem.tagType)
+      console.info('toggleBrowserType ' + browserTypeItem.type + ' tagType:' + browserTypeItem.tagType)
       this.showRecommend = false
       this.searchType = SearchTypeMap.BrowserType
       this.searchRequestData = browserTypeItem
@@ -587,7 +587,7 @@ export default {
         this.currentBrowserType = browserTypeItem.type
         this.navPath = []
         this.navPath.push({ blockIndex: 1, path: browserTypeItem.label })
-        this.$logger.info('reset and add path ' + browserTypeItem.label)
+        console.info('reset and add path ' + browserTypeItem.label)
       }
       this.dataList = []
 
@@ -601,43 +601,43 @@ export default {
           postData.filter = this.filterContext.getFilterConfig()
         }
         QueryContents(postData).then(response => {
-          this.$logger.info('toggleBrowserType QueryContents response', response)
+          console.info('toggleBrowserType QueryContents response', response)
           this.dataList = response.result ? response.result : []
         }).finally(() => {
           this.dataListLoading = false
           this.previewVisible = false
         })
       } else {
-        this.$logger.info('toggleBrowserType skip handleClickBlock', postData)
+        console.info('toggleBrowserType skip handleClickBlock', postData)
         this.dataListLoading = false
         this.previewVisible = false
       }
     },
     handleBlockCollapse (data) {
-      this.$logger.info('handleBlockCollapse data.blockIndex(' + data.blockIndex + ') this.blockIndex(' + this.blockIndex + ')', data)
+      console.info('handleBlockCollapse data.blockIndex(' + data.blockIndex + ') this.blockIndex(' + this.blockIndex + ')', data)
       this.previewVisible = false
       if (this.blockIndex !== data.blockIndex) {
         if (data.blockIndex === 1) {
           this.blockIndex = data.blockIndex
           this.hasLeftBlock = false
           this.browserMarginLeft = (data.blockIndex - 1) * this.blockWidth
-          this.$logger.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
+          console.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
         } else {
           this.blockIndex = data.blockIndex
           this.hasLeftBlock = true
           this.browserMarginLeft = (data.blockIndex - 1) * this.blockWidth
-          this.$logger.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
+          console.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
         }
       } else {
-        this.$logger.info('same block collapse')
+        console.info('same block collapse')
       }
       this.navPath = this.navPath.filter((item) => item.blockIndex < data.blockIndex)
       this.navPath.push({ blockIndex: data.blockIndex, path: data.path })
-      this.$logger.info('add path ' + data.path)
+      console.info('add path ' + data.path)
     },
 
     handlePreviewDetail (data) {
-      this.$logger.info('handlePreviewDetail', data)
+      console.info('handlePreviewDetail', data)
       this.previewVisible = false
       this.$nextTick(() => {
         this.previewCurrentId = data.id
@@ -647,7 +647,7 @@ export default {
     },
 
     handlePreviewClose () {
-      this.$logger.info('handlePreviewClose')
+      console.info('handlePreviewClose')
       this.previewCurrentId = ''
       this.previewType = ''
       this.previewVisible = false
@@ -655,7 +655,7 @@ export default {
 
     handleViewLeft () {
       this.previewVisible = false
-      this.$logger.info('handleViewLeft ' + (this.blockIndex))
+      console.info('handleViewLeft ' + (this.blockIndex))
       if (this.blockIndex < 2) {
         this.hasLeftBlock = false
         this.blockIndex = 1
@@ -666,12 +666,12 @@ export default {
         this.browserMarginLeft = (this.blockIndex - 1) * this.blockWidth
       }
       const path = this.navPath.pop()
-      this.$logger.info('remove path ' + path)
-      this.$logger.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
+      console.info('remove path ' + path)
+      console.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
     },
 
     handleNavPathChange (data) {
-      this.$logger.info('handleNavPathChange data.blockIndex(' + data.blockIndex + ') this.blockIndex(' + this.blockIndex + ')', data)
+      console.info('handleNavPathChange data.blockIndex(' + data.blockIndex + ') this.blockIndex(' + this.blockIndex + ')', data)
       this.previewVisible = false
       const blockIndex = data.blockIndex
       if (blockIndex === this.blockIndex) {
@@ -687,11 +687,11 @@ export default {
         this.browserMarginLeft = (data.blockIndex - 1) * this.blockWidth
       }
       this.navPath = this.navPath.filter(item => item.blockIndex <= blockIndex)
-      this.$logger.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
+      console.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
     },
 
     handleCurriculumChange (value) {
-      this.$logger.info('handleCurriculumChange ' + value)
+      console.info('handleCurriculumChange ' + value)
       this.currentCurriculumId = value
       this.hasLeftBlock = false
       this.blockIndex = 0
@@ -724,7 +724,7 @@ export default {
     },
 
     handleSearchKey () {
-      this.$logger.info('handleSearchKey ' + this.searchKeyword)
+      console.info('handleSearchKey ' + this.searchKeyword)
       this.expandedListFlag = true
       this.showFilter = true
       if (this.searchKeyword && this.searchKeyword.trim().length > 0) {
@@ -736,13 +736,13 @@ export default {
     },
 
     searchByKeyword (value) {
-      this.$logger.info('searchByKeyword ' + value)
+      console.info('searchByKeyword ' + value)
       this.searching = true
       Search({
         curriculumId: this.currentCurriculumId,
         key: value
       }).then(response => {
-        this.$logger.info('searchByKeyword ' + value, response)
+        console.info('searchByKeyword ' + value, response)
         const list = []
         // 添加高亮标签
         response.result.forEach(item => {
@@ -765,7 +765,7 @@ export default {
           }
         })
         this.searchResultList = list
-        this.$logger.info('tag list item', this.searchResultList)
+        console.info('tag list item', this.searchResultList)
       }).finally(() => {
         this.searching = false
       })
@@ -773,7 +773,7 @@ export default {
 
     searchContentByKeyword (value) {
       if (value) {
-        this.$logger.info('searchContentByKeyword ' + value)
+        console.info('searchContentByKeyword ' + value)
         // 获取filter配置
         let filter = {
           searchKey: value
@@ -790,7 +790,7 @@ export default {
     },
 
     handleSearchKeyFocus () {
-      this.$logger.info('handleSearchKeyFocus')
+      console.info('handleSearchKeyFocus')
       this.currentFromItemName = null
       this.currentFromItemType = null
       this.searchResultVisible = true
@@ -805,14 +805,14 @@ export default {
     },
 
     handleClickSearchResultItem (item) {
-      this.$logger.info('handleClickSearchResultItem', item)
+      console.info('handleClickSearchResultItem', item)
       this.searchType = SearchTypeMap.Search
       this.handleActiveFilterItem(item)
       this.searchResultVisible = false
     },
 
     handleClickBlock (value) {
-      this.$logger.info('handleClickBlock', value)
+      console.info('handleClickBlock', value)
       const data = Object.assign({ filter: null }, value)
       this.showRecommend = false
       this.searchType = SearchTypeMap.CurriculumFilter
@@ -826,41 +826,41 @@ export default {
           data.filter = this.filterContext.getFilterConfig()
         }
         QueryContents(data).then(response => {
-          this.$logger.info('QueryContents response', response)
+          console.info('QueryContents response', response)
           this.dataList = response.result ? response.result : []
         }).finally(() => {
           this.dataListLoading = false
         })
       } else {
-        this.$logger.info('skip handleClickBlock', data)
+        console.info('skip handleClickBlock', data)
       }
     },
 
     handleUpdateDataList (data) {
-      this.$logger.info('handleUpdateDataList', data)
+      console.info('handleUpdateDataList', data)
       this.dataList = data
       this.dataListLoading = false
     },
 
     toggleType (type, label) {
-      this.$logger.info('toggleType ' + type + ' label ' + label)
+      console.info('toggleType ' + type + ' label ' + label)
       this.currentType = type
       this.currentTypeLabel = label
     },
 
     handleToggleDataListMode (mode) {
-      this.$logger.info('handleToggleDataListMode' + mode)
+      console.info('handleToggleDataListMode' + mode)
       this.dataListMode = mode
     },
 
     handleSelectDataItem (dataItem) {
-      this.$logger.info('handleSelectDataItem ', dataItem)
+      console.info('handleSelectDataItem ', dataItem)
       this.currentDataId = dataItem.id
       this.handlePreviewDetail(dataItem)
     },
 
     handleExpandDetail () {
-      this.$logger.info('handleExpandDetail ' + this.blockIndex + ' ' + this.expandedListFlag)
+      console.info('handleExpandDetail ' + this.blockIndex + ' ' + this.expandedListFlag)
       if (this.expandedListFlag) {
         this.expandedListFlag = false
       } else {
@@ -868,7 +868,7 @@ export default {
       }
 
       this.$nextTick(() => {
-        this.$logger.info('handleExpandDetail nextTick ' + this.blockIndex + ' ' + this.expandedListFlag + ' left block ' + (this.blockIndex - 1))
+        console.info('handleExpandDetail nextTick ' + this.blockIndex + ' ' + this.expandedListFlag + ' left block ' + (this.blockIndex - 1))
         if (this.blockIndex !== 0) {
           if (this.expandedListFlag) {
             this.browserMarginLeft = (this.blockIndex) * this.blockWidth
@@ -876,12 +876,12 @@ export default {
             this.browserMarginLeft = (this.blockIndex - 1) * this.blockWidth
           }
         }
-        this.$logger.info('this.browserMarginLeft', this.browserMarginLeft)
+        console.info('this.browserMarginLeft', this.browserMarginLeft)
       })
     },
 
     handleActiveFilterItem (item) {
-      this.$logger.info('handleActiveFilterItem ', item)
+      console.info('handleActiveFilterItem ', item)
       this.searching = true
       this.searchKeyword = item.name
       this.currentFromItemName = item.name
@@ -891,7 +891,7 @@ export default {
     },
 
     handleSearchByFromType (item) {
-      this.$logger.info('handleSearchByFromType ', item)
+      console.info('handleSearchByFromType ', item)
       this.searching = true
       this.showRecommend = false
       let filter = {
@@ -913,13 +913,13 @@ export default {
     },
 
     searchByFilter (filter) {
-      this.$logger.info('searchByFilter ', filter)
+      console.info('searchByFilter ', filter)
       const filterData = Object.assign({}, filter)
       delete filterData.curriculumId
       this.showRecommend = false
       this.searching = true
       QueryContentsFilter(filterData).then(response => {
-        this.$logger.info('QueryContentsFilter result : ', response)
+        console.info('QueryContentsFilter result : ', response)
 
         // 按搜索内容排序
         if (filter.keyContent && filter.keyContent.name) {
@@ -937,7 +937,7 @@ export default {
       })
     },
     handleUpdateFilterConfig (filter) {
-      this.$logger.info('handleUpdateFilterConfig', filter)
+      console.info('handleUpdateFilterConfig', filter)
       switch (this.searchType) {
         case SearchTypeMap.CurriculumFilter:
           this.handleClickBlock(this.searchRequestData)
@@ -957,26 +957,26 @@ export default {
     },
     handleUpdateFilterContext (filterContext) {
       // slot无法使用ref，故将filter的this传给当前组件
-      this.$logger.info('handleUpdateFilterContext', filterContext)
+      console.info('handleUpdateFilterContext', filterContext)
       this.filterContext = filterContext
     },
     getFilterOptions () {
       SubjectTree({ curriculumId: this.currentCurriculumId }).then(response => {
-        this.$logger.info('getSubjectTree response', response.result)
+        console.info('getSubjectTree response', response.result)
         this.filterSubjectOptions = []
         response.result.forEach(subject => {
           this.filterSubjectOptions.push({ label: subject.name, value: subject.name })
         })
       })
       GetGradesByCurriculumId({ curriculumId: this.currentCurriculumId }).then(response => {
-        this.$logger.info('GetGradesByCurriculumId', response.result)
+        console.info('GetGradesByCurriculumId', response.result)
         this.filterAgeOptions = [{ label: 'All' }]
         response.result.forEach(grade => {
           this.filterAgeOptions.push({ label: grade.age })
         })
       })
       FindCustomTags({}).then((response) => {
-        this.$logger.info('FindCustomTags response', response.result)
+        console.info('FindCustomTags response', response.result)
         if (response.success) {
           this.filterSaOptions = []
           this.filterFaOptions = []

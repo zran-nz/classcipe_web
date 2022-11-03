@@ -59,18 +59,18 @@ export const CollaborateCommentMixin = {
     //         const rootComment = this.rootCommentMap.get(item.commentToId)
     //         rootComment.subCommentList.push(item)
     //       } else {
-    //         this.$logger.info('no exit rootCommentId ' + item.rootCommentId, this.rootCommentMap)
+    //         console.info('no exit rootCommentId ' + item.rootCommentId, this.rootCommentMap)
     //       }
     //     }
     //   })
     //
     //   for (const [rootCommentId, rootComment] of this.rootCommentMap.entries()) {
-    //     this.$logger.info('rootCommentId ' + rootCommentId, rootComment)
+    //     console.info('rootCommentId ' + rootCommentId, rootComment)
     //     fcList.push(rootComment)
     //   }
     //   this.addRoot = fcList.length === 0
     //   this.formatCommentList = fcList
-    //   this.$logger.info('formatCommentList', this.formatCommentList)
+    //   console.info('formatCommentList', this.formatCommentList)
     // },
     formatNewReply() {
       // map转为数组
@@ -85,11 +85,11 @@ export const CollaborateCommentMixin = {
           sendLoading: false
         })
       })
-      this.$logger.info('newComments', this.newComments)
+      console.info('newComments', this.newComments)
     },
 
     handleCancel (comment) {
-      this.$logger.info('handleCancel', comment)
+      console.info('handleCancel', comment)
       comment.editing = false
       if (comment.commentToId) {
         const rootIndex = this.formatCommentList.findIndex(item => item.id === comment.commentToId)
@@ -109,7 +109,7 @@ export const CollaborateCommentMixin = {
       comment.sourceType = this.sourceType
       comment.content = inputValue
       this.newComment.sendLoading = true
-      this.$logger.info('handleComment', comment)
+      console.info('handleComment', comment)
       AddCollaborateComment(comment).then(response => {
         // 减少load时间
         // this.rawCommentList.push(response.result)
@@ -145,13 +145,13 @@ export const CollaborateCommentMixin = {
     },
 
     handleCancelDelete () {
-      this.$logger.info('handleCancelDelete')
+      console.info('handleCancelDelete')
       this.deleteCommentModalVisible = false
       this.currentDeleteComment = null
     },
 
     handleEnsureDelete () {
-      this.$logger.info('')
+      console.info('')
       this.deleteCommentModalVisible = false
       DeleteCollaborateCommentById(this.currentDeleteComment).then(response => {
         this.$emit('update-comment')
@@ -184,7 +184,7 @@ export const CollaborateCommentMixin = {
           this.$set(this.formatCommentList[rootIndex].subCommentList, index, comment)
         }
       }
-      this.$logger.info('handleSend', comment)
+      console.info('handleSend', comment)
       AddCollaborateComment(comment).then(response => {
         // 减少load时间
         if (isAdd) {
@@ -218,12 +218,12 @@ export const CollaborateCommentMixin = {
       this.$set(this.formatCommentList, rootIndex, comment)
     },
     handleDeleteCommentConfirm (comment, index, rootIndex, isDelete) {
-      this.$logger.info('handleDeleteCommentConfirm', comment)
+      console.info('handleDeleteCommentConfirm', comment)
       comment.delete = isDelete
       this.$set(this.formatCommentList[rootIndex].subCommentList, index, comment)
     },
     handleDeleteCommentRoot (comment, rootIndex) {
-      this.$logger.info('handleDeleteCommentRoot', comment, rootIndex)
+      console.info('handleDeleteCommentRoot', comment, rootIndex)
       DeleteCollaborateCommentById(comment).then(response => {
         this.formatCommentList.splice(rootIndex, 1)
       }).finally(() => {
@@ -232,7 +232,7 @@ export const CollaborateCommentMixin = {
     },
     // TODO 删除逻辑
     handleDeleteComment (comment, index, rootIndex) {
-      this.$logger.info('handleDeleteComment', comment, index, rootIndex)
+      console.info('handleDeleteComment', comment, index, rootIndex)
       DeleteCollaborateCommentById(comment).then(response => {
         this.formatCommentList[rootIndex].subCommentList.splice(index, 1)
       }).finally(() => {
@@ -245,29 +245,29 @@ export const CollaborateCommentMixin = {
       this.removeCommentContent(this.formatCommentList[index], true)
     },
     handleCancelNewComment (comment) {
-      this.$logger.info('handleFocusInput')
+      console.info('handleFocusInput')
       comment.editing = false
       if (comment.index && comment.index !== -1) {
         this.$set(this.newComments, comment.index, comment)
       }
     },
     handleEditComment (comment, index, rootIndex) {
-      this.$logger.info('handleEditComment', comment)
+      console.info('handleEditComment', comment)
       comment.editing = !comment.editing
       this.$set(this.formatCommentList[rootIndex].subCommentList, index, comment)
     },
     handleEditCommentRoot (comment, rootIndex) {
-      this.$logger.info('handleEditCommentRoot', comment)
+      console.info('handleEditCommentRoot', comment)
       comment.editing = !comment.editing
       this.$set(this.formatCommentList, rootIndex, comment)
     },
     handleFocusInput(comment) {
-      this.$logger.info('handleFocusInput')
+      console.info('handleFocusInput')
       comment.editing = true
       this.$set(this.newComments, comment.index, comment)
     },
     handleMarked(comment, rootIndex) {
-      this.$logger.info('handleMarked', comment)
+      console.info('handleMarked', comment)
       this.formatCommentList.splice(rootIndex, 1)
       MarkedCollaborateComment(comment).then(response => {
         this.$message.success('Marked successfully')

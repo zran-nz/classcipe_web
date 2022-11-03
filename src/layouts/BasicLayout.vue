@@ -154,7 +154,7 @@ export default {
     console.info('BasicLayout created, path ' + this.$route.path)
     const routes = this.mainMenu.find(item => item.path === '/')
     this.menus = (routes && routes.children) || []
-    this.$logger.info('menus -> ', this.menus)
+    console.info('menus -> ', this.menus)
     if (this.$route.path === '/') {
       console.info('go to defaultRouter ' + this.$store.getters.defaultRouter)
       this.$router.replace(this.$store.getters.defaultRouter)
@@ -181,7 +181,9 @@ export default {
       })
     },
     goHome () {
-      this.$router.push('/')
+      console.log('123123')
+      location.href = '/teacher/main/created-by-me'
+      // this.$router.push('/teacher/main/created-by-me')
     },
     onSearch () {
       this.$message.success('search something')
@@ -189,7 +191,7 @@ export default {
     handleMediaQuery (val) {
     },
     handleCollapse (val) {
-      this.$logger.info('handleCollapse ' + val)
+      console.info('handleCollapse ' + val)
       this.$store.commit(HIDDEN_SIDEBAR, val)
     },
     handleSettingChange ({ type, value }) {
@@ -222,7 +224,7 @@ export default {
     },
 
     handleMenuCollapse () {
-      this.$logger.info('handleMenuCollapse ' + this.collapsed)
+      console.info('handleMenuCollapse ' + this.collapsed)
       this.$store.commit(HIDDEN_SIDEBAR, !this.collapsed)
     }
   }

@@ -405,7 +405,7 @@ export default {
   },
   watch: {
     selectedType (value) {
-      this.$logger.info('watch select type ' + value)
+      console.info('watch select type ' + value)
       this.pageNo = 1
       this.myContentList = []
       this.pagination.total = 0
@@ -414,13 +414,13 @@ export default {
     }
   },
   created () {
-    this.$logger.info('NewMyContent filterTypeList', this.filterTypeList)
+    console.info('NewMyContent filterTypeList', this.filterTypeList)
     if (this.filterTypeList.length) {
       this.currentType = this.filterTypeList[0]
       this.currentTypeLabel = getLabelNameType(this.filterTypeList[0])
     }
-    this.$logger.info('currentTypeLabel ' + this.currentTypeLabel)
-    this.$logger.info('NewMyContent selectedList', this.selectedList)
+    console.info('currentTypeLabel ' + this.currentTypeLabel)
+    console.info('NewMyContent selectedList', this.selectedList)
     this.mySelectedList = this.selectedList.slice()
     this.loadMyContent()
   },
@@ -434,14 +434,14 @@ export default {
       } else if (this.createdType === 'Shared') {
         this.loading = false
         this.skeletonLoading = false
-        this.$logger.info('shared coming soon!')
+        console.info('shared coming soon!')
       } else {
         this.getMyContent()
       }
     },
 
     handleToggleDataListMode (mode) {
-      this.$logger.info('handleToggleDataListMode' + mode)
+      console.info('handleToggleDataListMode' + mode)
       this.dataListMode = mode
     },
 
@@ -481,13 +481,13 @@ export default {
     },
 
     getMyFavorites () {
-      this.$logger.info('getMyFavorites')
+      console.info('getMyFavorites')
       FavoritesGetMyFavorites({
         type: this.currentType,
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize
       }).then((res) => {
-        this.$logger.info('FavoritesGetMyFavorites response', res)
+        console.info('FavoritesGetMyFavorites response', res)
         if (res.result && res.result.records && res.result.records.length) {
           res.result.records.forEach((record, index) => {
             record.key = index
@@ -563,13 +563,13 @@ export default {
     },
 
     handleToggleType (type) {
-      this.$logger.info('handleToggleType ' + type)
+      console.info('handleToggleType ' + type)
       this.createdType = type
       this.loadMyContent()
     },
 
     handleToggleDisplayType (type) {
-      this.$logger.info('handleToggleDisplayType' + type)
+      console.info('handleToggleDisplayType' + type)
       if (this.currentType === type) {
         this.currentType = null
         this.currentTypeLabel = null
@@ -578,19 +578,19 @@ export default {
         this.currentTypeLabel = getLabelNameType(type)
       }
 
-      this.$logger.info('after handleToggleDisplayType' + this.currentType)
+      console.info('after handleToggleDisplayType' + this.currentType)
       this.loadMyContent()
     },
 
     handleEnsureCreate () {
-      this.$logger.info('handleEnsureCreate ' + this.currentType + ' ' + this.createNewName)
+      console.info('handleEnsureCreate ' + this.currentType + ' ' + this.createNewName)
       this.createLoading = true
       this.createNewName = ''
       if (this.currentType === this.typeMap.evaluation) {
         EvaluationAddOrUpdate({
           name: this.createNewName
         }).then((response) => {
-          this.$logger.info('EvaluationAddOrUpdate response', response)
+          console.info('EvaluationAddOrUpdate response', response)
           this.editId = response.result.id
           this.createNewNameMode = 'input'
           const itemId = this.typeMap.evaluation + '-' + this.editId
@@ -604,7 +604,7 @@ export default {
         TaskAddOrUpdate({
           name: this.createNewName
         }).then((response) => {
-          this.$logger.info('TaskAddOrUpdate response', response)
+          console.info('TaskAddOrUpdate response', response)
           this.editId = response.result.id
           this.createNewNameMode = 'input'
           const itemId = this.typeMap.task + '-' + this.editId
@@ -618,7 +618,7 @@ export default {
         UnitPlanAddOrUpdate({
           name: this.createNewName
         }).then((response) => {
-          this.$logger.info('UnitPlanAddOrUpdate response', response)
+          console.info('UnitPlanAddOrUpdate response', response)
           this.editId = response.result.id
           this.createNewNameMode = 'input'
           const itemId = this.typeMap['unit-plan'] + '-' + this.editId
@@ -636,7 +636,7 @@ export default {
     },
 
     async handleEnsure () {
-      this.$logger.info('handleEnsure add group associate', this.waitAddAssociateMap, this.waitCancelAssociateMap, this.defaultGroupName)
+      console.info('handleEnsure add group associate', this.waitAddAssociateMap, this.waitCancelAssociateMap, this.defaultGroupName)
       this.ensureLoading = true
       if (this.waitCancelAssociateMap.size || this.waitAddAssociateMap.size) {
         // 开始关联数据
@@ -654,7 +654,7 @@ export default {
               toType: item.type
             })
           } else {
-            this.$logger.info('handleEnsure waitAddAssociateMap item is selected skip ' + id, item, this.selectedList)
+            console.info('handleEnsure waitAddAssociateMap item is selected skip ' + id, item, this.selectedList)
           }
         }
 
@@ -671,15 +671,15 @@ export default {
               toType: item.type
             })
           } else {
-            this.$logger.info('handleEnsure waitCancelAssociateMap item is no selected skip ' + id, item, this.selectedList)
+            console.info('handleEnsure waitCancelAssociateMap item is no selected skip ' + id, item, this.selectedList)
           }
         }
         this.ensureLoading = true
-        this.$logger.info('associate data', associateData)
+        console.info('associate data', associateData)
         if (associateData.otherContents.length) {
           await Associate(associateData)
         }
-        this.$logger.info('cancelAssociateData data', cancelAssociateData)
+        console.info('cancelAssociateData data', cancelAssociateData)
         if (cancelAssociateData.others.length) {
           await AssociateCancel(cancelAssociateData)
         }
@@ -709,7 +709,7 @@ export default {
           type: item.type,
           name: this.createNewName
         }).then((response) => {
-          this.$logger.info('Rename response', response)
+          console.info('Rename response', response)
           if (!response.success) {
             this.$message.error(response.message)
           }

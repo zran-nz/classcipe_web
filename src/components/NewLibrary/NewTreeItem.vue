@@ -321,7 +321,7 @@ export default {
     },
 
     defaultCurriculumId (val) {
-      this.$logger.info('NewTreeItem defaultCurriculumId change currentCurriculumId ' + val)
+      console.info('NewTreeItem defaultCurriculumId change currentCurriculumId ' + val)
       this.currentCurriculumId = val
     },
 
@@ -417,7 +417,7 @@ export default {
 
     // 如果层级是grade，则需要自动选择上次选中的gradeId对应的年级
     if (this.currentItemType === 'grade' && this.myDefaultGradeId === this.treeItemData.id) {
-      this.$logger.info('find defaultGradeId', this.myDefaultGradeId, 'current grade id', this.treeItemData.id)
+      console.info('find defaultGradeId', this.myDefaultGradeId, 'current grade id', this.treeItemData.id)
       this.handleExpandTreeItem(this.treeItemData)
     }
     LibraryEventBus.$on(LibraryEvent.ContentListItemClick, this.handleContentListItemClick)
@@ -432,8 +432,8 @@ export default {
   methods: {
     // 点击左侧菜单栏，同步右侧的列表以及展开当前下一级菜单。
     handleExpandTreeItem(treeItemData) {
-      this.$logger.info('handleExpandTreeItem ' + (!this.subTreeExpandStatus))
-      this.$logger.info('handleExpandTreeItem deep: ' + this.defaultDeep + ' treeItemType: ' + this.treeItemType + ' currentItemType ' + this.currentItemType + ' treeItemData', treeItemData, ' parent ', this.treeCurrentParent)
+      console.info('handleExpandTreeItem ' + (!this.subTreeExpandStatus))
+      console.info('handleExpandTreeItem deep: ' + this.defaultDeep + ' treeItemType: ' + this.treeItemType + ' currentItemType ' + this.currentItemType + ' treeItemData', treeItemData, ' parent ', this.treeCurrentParent)
       if (this.treeItemType === NavigationType.learningOutcomes) {
         this.handleExpandCurriculumTreeItem(treeItemData)
       } else if (this.treeItemType === NavigationType.sync) {
@@ -465,7 +465,7 @@ export default {
     },
 
     handleExpandSyncDataList(data) {
-      this.$logger.info('handleExpandSyncDataList', data)
+      console.info('handleExpandSyncDataList', data)
       LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
         backgroundColor: this.defaultBackgroundColor,
         deep: 0,
@@ -479,12 +479,12 @@ export default {
     },
 
     handleCollapseTreeItem(treeItemData) {
-      this.$logger.info('handleExpandTreeItem ' + (!this.subTreeExpandStatus))
+      console.info('handleExpandTreeItem ' + (!this.subTreeExpandStatus))
       this.subTreeExpandStatus = false
     },
 
     handleExpandCurriculumTreeItem(treeItemData) {
-      this.$logger.info('handleExpandCurriculumTreeItem[' + this.currentItemType + '] data ', treeItemData, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
+      console.info('handleExpandCurriculumTreeItem[' + this.currentItemType + '] data ', treeItemData, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
 
       if (this.defaultDeep === 0) {
         this.subTreeExpandStatus = true
@@ -510,9 +510,9 @@ export default {
                 treeItemData.gradeList.push(Object.assign({}, item))
                 treeItemData.children.push(Object.assign({}, item))
               })
-              this.$logger.info('add gradeList ', treeItemData)
+              console.info('add gradeList ', treeItemData)
             } else {
-              this.$logger.info('use old gradeList ', treeItemData)
+              console.info('use old gradeList ', treeItemData)
             }
 
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
@@ -544,7 +544,7 @@ export default {
           }
           this.subTreeLoading = false
           this.subTreeExpandStatus = true
-          this.$logger.info('gradeList already add', treeItemData)
+          console.info('gradeList already add', treeItemData)
         }
 
         // 判断年级判断是否已经有知识点了
@@ -554,13 +554,13 @@ export default {
             this.subTreeLoading = true
             const gradeId = treeItemData.id
             const subjectId = this.treeCurrentParent.id
-            this.$logger.info('knowledgeTree gradeId ' + gradeId + ' subjectId ' + subjectId)
+            console.info('knowledgeTree gradeId ' + gradeId + ' subjectId ' + subjectId)
 
             KnowledgeGetTree({
               gradeId,
               subjectId
             }).then((response) => {
-              this.$logger.info('KnowledgeGetTree response', response)
+              console.info('KnowledgeGetTree response', response)
               response.result.forEach(rItem => {
                 rItem.gradeId = this.treeItemData.name
                 rItem.selectedGradeId = treeItemData.id
@@ -576,7 +576,7 @@ export default {
                 contentList: treeItemData.children,
                 questionIndex: this.questionIndex
               })
-              this.$logger.info('mainKnowledgeList', treeItemData.children)
+              console.info('mainKnowledgeList', treeItemData.children)
             }).finally(() => {
               this.subTreeLoading = false
               this.subTreeExpandStatus = true
@@ -600,14 +600,14 @@ export default {
 
         // 加载知识点关联数据
         if (this.currentItemType === 'knowledge') {
-          this.$logger.info('selectMode', this.selectMode)
+          console.info('selectMode', this.selectMode)
 
           // knowledge导航栏不展示description，右侧列表展示，故下下级为空到底
           if (treeItemData.children.length && treeItemData.children[0].children.length) {
-            this.$logger.info('select reach knowledge bottom')
+            console.info('select reach knowledge bottom')
             this.subTreeLoading = true
             KnowledgeQueryContentByDescriptionId({ descriptionId: this.treeItemData.id }).then(response => {
-              this.$logger.info('KnowledgeQueryContentByDescriptionId response', response.result)
+              console.info('KnowledgeQueryContentByDescriptionId response', response.result)
               response.result.forEach(rItem => {
                 rItem.selectedGradeId = treeItemData.selectedGradeId
                 rItem.selectedGradeName = treeItemData.selectedGradeName
@@ -653,12 +653,12 @@ export default {
           }
         }
       }
-      this.$logger.info('handleExpandCurriculumTreeItem handle finish!')
+      console.info('handleExpandCurriculumTreeItem handle finish!')
     },
 
     // Achievement objectives 是mainSubject-year-knowledge
     handleExpandSpecificSkillTreeItem(treeItemData) {
-      this.$logger.info('handleExpandSpecificSkillTreeItem data ', treeItemData, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
+      console.info('handleExpandSpecificSkillTreeItem data ', treeItemData, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
       if (this.defaultDeep === 0) {
         // 直接展开第一层mainSubject
         this.subTreeExpandStatus = true
@@ -686,9 +686,9 @@ export default {
               treeItemData.children.push(Object.assign({}, item))
               treeItemData.gradeList.push(Object.assign({}, item))
             })
-            this.$logger.info('add gradeList ', treeItemData)
+            console.info('add gradeList ', treeItemData)
           } else {
-            this.$logger.info('use old gradeList ', treeItemData)
+            console.info('use old gradeList ', treeItemData)
           }
           LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
             backgroundColor: this.defaultBackgroundColor,
@@ -712,12 +712,12 @@ export default {
             const gradeId = treeItemData.id
             const subjectId = this.treeCurrentParent.id
             console.log(treeItemData)
-            this.$logger.info('knowledgeTree gradeId ' + gradeId + ' subjectId ' + subjectId)
+            console.info('knowledgeTree gradeId ' + gradeId + ' subjectId ' + subjectId)
             KnowledgeGetTree({
               gradeId,
               subjectId
             }).then((response) => {
-              this.$logger.info('KnowledgeGetTree response', response)
+              console.info('KnowledgeGetTree response', response)
               treeItemData.children = response.result
               response.result.forEach(rItem => {
                 rItem.selectedGradeId = treeItemData.id
@@ -732,7 +732,7 @@ export default {
                 contentList: treeItemData.children,
                 questionIndex: this.questionIndex
               })
-              this.$logger.info('mainKnowledgeList', treeItemData.children)
+              console.info('mainKnowledgeList', treeItemData.children)
             }).finally(() => {
               this.subTreeLoading = false
               this.subTreeExpandStatus = true
@@ -757,14 +757,14 @@ export default {
 
         // 加载知识点关联数据
         if (this.currentItemType === 'knowledge') {
-          this.$logger.info('selectMode', this.selectMode)
+          console.info('selectMode', this.selectMode)
 
           // knowledge导航栏不展示description，右侧列表展示，故下下级为空到底
           if (treeItemData.children === undefined || !treeItemData.children.length) {
-            this.$logger.info('select reach knowledge bottom')
+            console.info('select reach knowledge bottom')
             this.subTreeLoading = true
             KnowledgeQueryContentByDescriptionId({ descriptionId: this.treeItemData.id }).then(response => {
-              this.$logger.info('KnowledgeQueryContentByDescriptionId response', response.result)
+              console.info('KnowledgeQueryContentByDescriptionId response', response.result)
               response.result.forEach(rItem => {
                 rItem.selectedGradeId = treeItemData.selectedGradeId
                 rItem.selectedGradeName = treeItemData.selectedGradeName
@@ -805,11 +805,11 @@ export default {
 
         this.subTreeLoading = false
       }
-      this.$logger.info('handleExpandCurriculumTreeItem handle finish!')
+      console.info('handleExpandCurriculumTreeItem handle finish!')
     },
     // Achievement objectives 是mainSubject-year-assessmentType-knowledge
     handleExpandAssessmentTypeTreeItem(treeItemData) {
-      this.$logger.info('handleExpandAssessmentTypeTreeItem data ', treeItemData, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
+      console.info('handleExpandAssessmentTypeTreeItem data ', treeItemData, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
       if (this.defaultDeep === 0) {
         // 直接展开第一层mainSubject
         this.subTreeExpandStatus = true
@@ -837,9 +837,9 @@ export default {
               treeItemData.children.push(Object.assign({}, item))
               treeItemData.gradeList.push(Object.assign({}, item))
             })
-            this.$logger.info('add gradeList ', treeItemData)
+            console.info('add gradeList ', treeItemData)
           } else {
-            this.$logger.info('use old gradeList ', treeItemData)
+            console.info('use old gradeList ', treeItemData)
           }
           LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
             backgroundColor: this.defaultBackgroundColor,
@@ -857,24 +857,24 @@ export default {
 
         // 判断年级判断是否已经有assessmentType了
         if (this.currentItemType === 'grade') {
-          this.$logger.info('assessmentType grade')
+          console.info('assessmentType grade')
           if (!treeItemData.children.length) {
             this.subTreeLoading = true
             const gradeId = treeItemData.id
             const subjectId = this.treeCurrentParent.id
-            this.$logger.info('assessmentType gradeId ' + gradeId + ' subjectId ' + subjectId)
+            console.info('assessmentType gradeId ' + gradeId + ' subjectId ' + subjectId)
             GetAssessmentTypeList({
               gradeId,
               subjectId
             }).then((response) => {
-              this.$logger.info('assessmentType response', response)
+              console.info('assessmentType response', response)
               response.result.forEach(item => {
                 item.children = []
                 item.isAssessmentType = true
                 item.selectedGradeId = treeItemData.selectedGradeId
                 item.selectedGradeName = treeItemData.selectedGradeName
               })
-              this.$logger.info('assessmentType response.result', response.result)
+              console.info('assessmentType response.result', response.result)
               treeItemData.children = response.result
               LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
                 backgroundColor: this.defaultBackgroundColor,
@@ -885,7 +885,7 @@ export default {
                 contentList: treeItemData.children,
                 questionIndex: this.questionIndex
               })
-              this.$logger.info('assessmentType children', treeItemData.children)
+              console.info('assessmentType children', treeItemData.children)
             }).finally(() => {
               this.subTreeLoading = false
               this.subTreeExpandStatus = true
@@ -909,17 +909,17 @@ export default {
 
         // 加载assessmentType的列表
         if (this.currentItemType === 'assessmentType') {
-          this.$logger.info('assessmentType QueryKnowledgesByAssessmentTypeId', this.selectMode)
+          console.info('assessmentType QueryKnowledgesByAssessmentTypeId', this.selectMode)
 
           if (treeItemData.children === undefined || !treeItemData.children.length) {
-            this.$logger.info('assessmentType knowledge bottom')
+            console.info('assessmentType knowledge bottom')
             this.subTreeLoading = true
             const gradeId = this.treeCurrentParent.id
             QueryKnowledgesByAssessmentTypeId({
               assessmentTypeId: this.treeItemData.id,
               gradeId: gradeId
             }).then(response => {
-              this.$logger.info('QueryKnowledgesByAssessmentTypeId response', response.result)
+              console.info('QueryKnowledgesByAssessmentTypeId response', response.result)
               response.result.forEach(item => {
                 item.children = []
                 item.isKnowledge = true
@@ -959,12 +959,12 @@ export default {
         }
 
         if (this.currentItemType === 'knowledge') {
-          this.$logger.info('assessmentType currentItemType knowledge', treeItemData)
+          console.info('assessmentType currentItemType knowledge', treeItemData)
         }
 
         this.subTreeLoading = false
       }
-      this.$logger.info('handleExpandCurriculumTreeItem handle finish!')
+      console.info('handleExpandCurriculumTreeItem handle finish!')
     },
 
     // All21Century直接遍历children
@@ -1012,7 +1012,7 @@ export default {
             contentList: treeItemData.children,
             questionIndex: this.questionIndex
           })
-          this.$logger.info('reach description', treeItemData)
+          console.info('reach description', treeItemData)
         }
         this.subTreeLoading = false
       }
@@ -1020,7 +1020,7 @@ export default {
 
     // All21Century直接遍历children
     handleExpandIduTypeTreeItem(treeItemData) {
-      this.$logger.info('handleExpandIduTypeTreeItem defaultDeep = ' + this.defaultDeep, treeItemData)
+      console.info('handleExpandIduTypeTreeItem defaultDeep = ' + this.defaultDeep, treeItemData)
       if (this.defaultDeep === 0) {
         // 直接展开第一层
         this.subTreeExpandStatus = true
@@ -1041,7 +1041,7 @@ export default {
         this.subTreeExpandStatus = true
 
         if (this.defaultDeep === 1 && treeItemData.isGrade) {
-          this.$logger.info('handleExpandIduTypeTreeItem defaultDeep = 1', treeItemData)
+          console.info('handleExpandIduTypeTreeItem defaultDeep = 1', treeItemData)
 
           treeItemData.children.forEach(item => {
             item.selectedGradeName = treeItemData.name
@@ -1079,7 +1079,7 @@ export default {
             GetIBIduList({
               gradeId
             }).then(response => {
-              this.$logger.info('GetIBIduList response', response)
+              console.info('GetIBIduList response', response)
               if (response.result) {
                 response.result.forEach(rItem => {
                   rItem.selectedGradeName = treeItemData.name
@@ -1095,7 +1095,7 @@ export default {
                   contentList: treeItemData.children,
                   questionIndex: this.questionIndex
                 })
-                this.$logger.info('GetIBIduList', treeItemData.children)
+                console.info('GetIBIduList', treeItemData.children)
                 this.subTreeExpandStatus = true
               } else {
                 this.subTreeExpandStatus = false
@@ -1113,7 +1113,7 @@ export default {
     // 21 century skills 是year-knowledge
     handleExpandCenturySkillTreeItem(treeItemData) {
       this.subItemType = 'knowledge'
-      this.$logger.info('handleExpandCenturySkillTreeItem data ', treeItemData, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
+      console.info('handleExpandCenturySkillTreeItem data ', treeItemData, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
       if (this.defaultDeep === 0) {
         // 直接展开第一层gradeList
         this.subTreeExpandStatus = true
@@ -1137,13 +1137,13 @@ export default {
             this.subTreeLoading = true
             const gradeId = treeItemData.id
             const subjectId = this.treeCurrentParent.id
-            this.$logger.info('knowledgeTree gradeId ' + gradeId + ' subjectId ' + subjectId)
+            console.info('knowledgeTree gradeId ' + gradeId + ' subjectId ' + subjectId)
 
             Get21Century({
               gradeId,
               curriculumId: this.currentCurriculumId
             }).then((response) => {
-              this.$logger.info('Get21Century response', response)
+              console.info('Get21Century response', response)
               if (response.result) {
                 response.result.forEach(rItem => {
                   rItem.selectedGradeId = treeItemData.id
@@ -1159,7 +1159,7 @@ export default {
                   contentList: treeItemData.children,
                   questionIndex: this.questionIndex
                 })
-                this.$logger.info('mainKnowledgeList', treeItemData.children)
+                console.info('mainKnowledgeList', treeItemData.children)
                 this.subTreeExpandStatus = true
               } else {
                 this.subTreeExpandStatus = false
@@ -1186,14 +1186,14 @@ export default {
 
         // 加载知识点关联数据
         if (this.currentItemType === 'knowledge') {
-          this.$logger.info('selectMode', this.selectMode)
+          console.info('selectMode', this.selectMode)
 
           // knowledge导航栏不展示description，右侧列表展示，故下下级为空到底
           if (treeItemData.children === undefined || !treeItemData.children.length) {
-            this.$logger.info('select reach knowledge bottom')
+            console.info('select reach knowledge bottom')
             this.subTreeLoading = true
             KnowledgeQueryContentByDescriptionId({ descriptionId: this.treeItemData.id }).then(response => {
-              this.$logger.info('KnowledgeQueryContentByDescriptionId response', response.result)
+              console.info('KnowledgeQueryContentByDescriptionId response', response.result)
               response.result.forEach(rItem => {
                 rItem.selectedGradeId = treeItemData.selectedGradeId
                 rItem.selectedGradeName = treeItemData.selectedGradeName
@@ -1234,11 +1234,11 @@ export default {
 
         this.subTreeLoading = false
       }
-      this.$logger.info('handleExpandCurriculumTreeItem handle finish!')
+      console.info('handleExpandCurriculumTreeItem handle finish!')
     },
 
     handleExpandSdgTreeItem(treeItemData) {
-      this.$logger.info('handleExpandSdgTreeItem data ', treeItemData, ' currentItemType ', this.currentItemType, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
+      console.info('handleExpandSdgTreeItem data ', treeItemData, ' currentItemType ', this.currentItemType, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
       if (this.defaultDeep === 0) {
         LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
           backgroundColor: this.defaultBackgroundColor,
@@ -1253,11 +1253,11 @@ export default {
       }
 
       if (this.currentItemType === 'sdgList') {
-        this.$logger.info('init sdg keywords big idea list', treeItemData)
+        console.info('init sdg keywords big idea list', treeItemData)
         if (!treeItemData.children.length) {
           this.subTreeLoading = true
           ScenarioGetKeywordScenarios({ sdgId: treeItemData.id }).then(response => {
-            this.$logger.info('init sdg keywords ScenarioGetKeywordScenarios response', response.result)
+            console.info('init sdg keywords ScenarioGetKeywordScenarios response', response.result)
             if (response.result) {
               const children = []
               response.result.sdgKeyWords.forEach(sdgKeyword => {
@@ -1268,7 +1268,7 @@ export default {
                 })
               })
               treeItemData.children = children
-              this.$logger.info('init sdg keywords list', treeItemData.children)
+              console.info('init sdg keywords list', treeItemData.children)
               LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
                 backgroundColor: this.defaultBackgroundColor,
                 deep: this.defaultDeep,
@@ -1301,13 +1301,13 @@ export default {
       }
 
       if (this.currentItemType === 'sdgKeyword') {
-        this.$logger.info('init sdg big idea treeItemData', treeItemData)
+        console.info('init sdg big idea treeItemData', treeItemData)
         if (!treeItemData.children.length) {
-          this.$logger.info('init sdg big idea list', treeItemData)
+          console.info('init sdg big idea list', treeItemData)
           this.subTreeLoading = true
           // sdg keyword name list
           QueryBigIdea({ keywords: treeItemData.name }).then(response => {
-            this.$logger.info('QueryBigIdea response', response.result)
+            console.info('QueryBigIdea response', response.result)
             const children = []
             response.result.forEach(bigIdea => {
               children.push({
@@ -1318,7 +1318,7 @@ export default {
               })
             })
             treeItemData.children = children
-            this.$logger.info('sdg bigIdea list', treeItemData.children)
+            console.info('sdg bigIdea list', treeItemData.children)
             LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
               backgroundColor: this.defaultBackgroundColor,
               deep: this.defaultDeep,
@@ -1335,7 +1335,7 @@ export default {
             this.subTreeExpandStatus = true
           })
         } else {
-          this.$logger.info('sdg children has data', treeItemData)
+          console.info('sdg children has data', treeItemData)
           LibraryEventBus.$emit(LibraryEvent.ContentListUpdate, {
             backgroundColor: this.defaultBackgroundColor,
             deep: this.defaultDeep,
@@ -1371,7 +1371,7 @@ export default {
         // 通过id和name无法唯一定位到指定的条目，因为多个subject下面的grade的id和name都相同，所以加一层父级的条目的名称一致性判断
         (!data.parent || (this.treeCurrentParent && this.treeCurrentParent.name === data.parent.name))) {
         // 同步导航栏和内容列表
-        this.$logger.info('handleContentListItemClick start ', data, this.treeItemData, this.treeCurrentParent)
+        console.info('handleContentListItemClick start ', data, this.treeItemData, this.treeCurrentParent)
         this.handleExpandTreeItem(this.treeItemData)
       }
     },
@@ -1385,11 +1385,11 @@ export default {
     },
 
     handle21CenturyClick(item) {
-      this.$logger.info('handle21CenturyClick start ', item)
+      console.info('handle21CenturyClick start ', item)
       if (this.selected21CenturyItem === item) {
         LibraryEventBus.$emit(LibraryEvent.CancelCenturySkillsSelect) // 再次点击取消选中
       } else {
-        this.$logger.info('emit ' + LibraryEvent.CenturySkillsSelect, {
+        console.info('emit ' + LibraryEvent.CenturySkillsSelect, {
           item: item,
           parent: this.treeCurrentParent
         })
@@ -1401,12 +1401,12 @@ export default {
     },
 
     handleCancel21CenturyClick() {
-      this.$logger.info('handleCancel21CenturyClick')
+      console.info('handleCancel21CenturyClick')
       LibraryEventBus.$emit(LibraryEvent.CancelCenturySkillsSelect)
     },
 
     handleClickTreeItem(expandStatus, treeItemData) {
-      this.$logger.info('handleClickTreeItem start ', expandStatus, treeItemData)
+      console.info('handleClickTreeItem start ', expandStatus, treeItemData)
       if (expandStatus === false) {
         this.handleExpandTreeItem(treeItemData)
       } else {

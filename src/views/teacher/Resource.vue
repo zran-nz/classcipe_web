@@ -69,7 +69,7 @@ export default {
   methods: {
 
     handleSchoolChange() {
-      this.$logger.info('handleSchoolChange called')
+      console.info('handleSchoolChange called')
       this.initData()
     },
 
@@ -80,7 +80,7 @@ export default {
     },
 
     async getLibraryRecommend() {
-      this.$logger.info('getLibraryRecommend schoolId', this.currentSchool?.id)
+      console.info('getLibraryRecommend schoolId', this.currentSchool?.id)
       const ret = await getLibraryRecommend({
         schoolId: this.currentSchool?.id
       })
@@ -89,7 +89,7 @@ export default {
     },
 
     async getLibraryResource () {
-      this.$logger.info('getLibraryResource schoolId', this.currentSchool?.id)
+      console.info('getLibraryResource schoolId', this.currentSchool?.id)
       const ret = await getLibraryResource({
         schoolId: this.currentSchool?.id
       })
@@ -101,7 +101,7 @@ export default {
     },
 
     handleSearch (data) {
-      this.$logger.info('handleSearch', data)
+      console.info('handleSearch', data)
       if (data && data.length >= 2) {
         this.$router.push({ path: '/teacher/resource/search/' + data })
       }

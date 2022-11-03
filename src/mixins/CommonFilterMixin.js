@@ -19,7 +19,7 @@ export const CommonFilterMixin = {
   },
   methods: {
     handleUpdateFilter(filter) {
-      this.$logger.info('handleUpdateFilter', filter)
+      console.info('handleUpdateFilter', filter)
       Object.keys(filter).forEach(key => {
         this.queryParams[key] = filter[key]
       })

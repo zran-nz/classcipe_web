@@ -78,7 +78,7 @@ export default {
     initData () {
       console.info('initData doing...')
       EvaluationQueryByIds({ ids: [this.evaluationId] }).then((response) => {
-        this.$logger.info('handleToggleSelect EvaluationQueryByIds ' + this.evaluationId, response)
+        console.info('handleToggleSelect EvaluationQueryByIds ' + this.evaluationId, response)
         const forms = []
         response.result.forEach(evaluationItem => {
           evaluationItem.forms.forEach(formItem => {

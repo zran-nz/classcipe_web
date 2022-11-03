@@ -111,7 +111,7 @@ export default {
         sourceId: this.id,
         sourceType: this.type
       }).then(response => {
-        this.$logger.info('FavoritesAdd ', response)
+        console.info('FavoritesAdd ', response)
         this.favoriteFlag = !this.favoriteFlag
       })
     }

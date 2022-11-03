@@ -37,7 +37,7 @@ export default {
     }
   },
   created() {
-    this.$logger.info('SharePasswordAuth created ' + this.title + ' ' + this.coverUrl)
+    console.info('SharePasswordAuth created ' + this.title + ' ' + this.coverUrl)
   },
   methods: {
     handleTryPassword (password) {

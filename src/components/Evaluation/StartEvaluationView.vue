@@ -308,7 +308,7 @@ export default {
     initData () {
       console.info('initData doing...')
       EvaluationQueryById({ id: this.evaluationId }).then(response => {
-        this.$logger.info('EvaluationQueryById response', response.result)
+        console.info('EvaluationQueryById response', response.result)
         const evaluationData = response.result
         this.form.name = evaluationData.name
         this.form.id = evaluationData.id
@@ -318,10 +318,10 @@ export default {
         this.audioUrl = evaluationData.audioUrl
         if (evaluationData.table.length) {
           const headers = evaluationData.table.splice(0, 1)[0]
-          this.$logger.info('headers ', headers)
+          console.info('headers ', headers)
           const formatHeaders = []
           headers.forEach(header => {
-            this.$logger.info('header ', header)
+            console.info('header ', header)
             if (!header.itemType.startsWith('user_ext')) {
               formatHeaders.push({
                 label: header.itemName,
@@ -340,14 +340,14 @@ export default {
               })
             }
           })
-          this.$logger.info('formatHeaders', formatHeaders)
+          console.info('formatHeaders', formatHeaders)
           if (formatHeaders.length) {
             this.initRawHeaders = formatHeaders
           }
 
           const bodyList = evaluationData.table
           const initRawData = []
-          this.$logger.info('bodyList ', bodyList)
+          console.info('bodyList ', bodyList)
           bodyList.forEach(lineData => {
             const line = {}
             lineData.forEach(lineItem => {
@@ -360,7 +360,7 @@ export default {
 
             initRawData.push(line)
           })
-          this.$logger.info('initRawData', initRawData)
+          console.info('initRawData', initRawData)
           this.initRawData = initRawData
         }
       }).finally(() => {
@@ -370,7 +370,7 @@ export default {
 
       // 获取班级学生
       GetStudents({ class_id: this.classId }).then(response => {
-        this.$logger.info(this.classId + ' GetStudents', response)
+        console.info(this.classId + ' GetStudents', response)
         this.studentList = response.data
       })
     },
@@ -394,7 +394,7 @@ export default {
         })
       })
       evaluationData.table.push(headerLine)
-      this.$logger.info('header line ', headerLine)
+      console.info('header line ', headerLine)
 
       dataList.forEach(lineItem => {
         if (lineItem['description']) {
@@ -431,7 +431,7 @@ export default {
           status: 1,
           type: this.contentType.evaluation
         }).then(response => {
-          this.$logger.info('UpdateContentStatus response', response)
+          console.info('UpdateContentStatus response', response)
           // this.$message.success('Publish success')
           this.form.status = 1
         })
@@ -439,7 +439,7 @@ export default {
     },
 
     handleSelectEvaluationType (type) {
-      this.$logger.info('handleSelectEvaluationType ' + type)
+      console.info('handleSelectEvaluationType ' + type)
       this.form.selfType = type
     },
 
@@ -457,12 +457,12 @@ export default {
     },
 
     handleToggleTemplateType (templateType) {
-      this.$logger.info('handleToggleTemplateType ' + templateType)
+      console.info('handleToggleTemplateType ' + templateType)
       this.templateLoading = true
       this.currentTemplateType = templateType
       this.selectedTemplateList = []
       TemplatesGetTemplates({ category: this.currentTemplateType }).then(response => {
-        this.$logger.info('handleToggleTemplateType ', response)
+        console.info('handleToggleTemplateType ', response)
         this.templateList = response.result
       }).finally(() => {
         this.templateLoading = false
@@ -477,7 +477,7 @@ export default {
     },
 
     handleSelectTemplate (template) {
-      this.$logger.info('handleSelectTemplate ', template)
+      console.info('handleSelectTemplate ', template)
       if (this.selectedTemplateList.length && this.selectedTemplateList[0].id === template.id) {
         this.selectedTemplateList = []
       } else {
@@ -486,12 +486,12 @@ export default {
     },
 
     handleOpenGoogleSlide (slideUrl) {
-      this.$logger.info('handleOpenGoogleSlide ' + slideUrl)
+      console.info('handleOpenGoogleSlide ' + slideUrl)
       window.open(slideUrl, '_blank')
     },
 
     handleViewDetail (item) {
-      this.$logger.info('handleViewDetail ', item)
+      console.info('handleViewDetail ', item)
       if (item.type === this.contentType['unit-plan']) {
         this.$router.push({
           path: '/teacher/unit-plan-redirect/' + item.id
@@ -500,7 +500,7 @@ export default {
     },
 
     handleUpdateSelected (data) {
-      this.$logger.info('handleUpdateSelected', data)
+      console.info('handleUpdateSelected', data)
       this.relevantSelectedQuestionList = data.questionList
     },
 
@@ -510,7 +510,7 @@ export default {
     },
 
     handleConfirmSelectedRelevant () {
-      this.$logger.info('handleConfirmSelectedRelevant', this.relevantSelectedQuestionList)
+      console.info('handleConfirmSelectedRelevant', this.relevantSelectedQuestionList)
       this.showRelevantQuestionVisible = false
       const knowledgeDescriptionMap = new Map()
       const skillDescriptionMap = new Map()
@@ -540,8 +540,8 @@ export default {
         })
       })
 
-      this.$logger.info('knowledgeDescriptionMap', knowledgeDescriptionMap)
-      this.$logger.info('skillDescriptionMap', skillDescriptionMap)
+      console.info('knowledgeDescriptionMap', knowledgeDescriptionMap)
+      console.info('skillDescriptionMap', skillDescriptionMap)
 
       for (const [description, tagList] of knowledgeDescriptionMap) {
         this.evaluationTableList.push({
@@ -558,16 +558,16 @@ export default {
           type: 'skill'
         })
       }
-      this.$logger.info('evaluation table list', this.evaluationTableList)
+      console.info('evaluation table list', this.evaluationTableList)
     },
 
     handleSelectRubric (tableMode) {
-      this.$logger.info('handleSelectRubric ' + tableMode)
+      console.info('handleSelectRubric ' + tableMode)
       this.form.tableMode = tableMode
     },
 
     handleEnsureSelectRubric () {
-      this.$logger.info('handleEnsureSelectRubric ' + this.form.tableMode)
+      console.info('handleEnsureSelectRubric ' + this.form.tableMode)
       if (this.form.tableMode !== 0) {
         this.selectRubricVisible = false
 
@@ -580,13 +580,13 @@ export default {
     },
 
     handleSearchStudent () {
-      this.$logger.info('searchStudentInput ' + this.searchStudentInput)
+      console.info('searchStudentInput ' + this.searchStudentInput)
     },
 
     handleClickStudent (student) {
-      this.$logger.info('handleClickStudent', student)
+      console.info('handleClickStudent', student)
       if (this.groupSelectMode) {
-        this.$logger.info('groupSelectMode')
+        console.info('groupSelectMode')
         const index = this.selectedStudentEmailList.indexOf(student.email)
         if (index === -1) {
           this.selectedStudentEmailList.push(student.email)
@@ -603,19 +603,19 @@ export default {
     },
 
     handleAddAudioOverview () {
-      this.$logger.info('handleAddAudioOverview')
+      console.info('handleAddAudioOverview')
       this.showAddAudioVisible = true
     },
 
     handleToggleSelectMode () {
-      this.$logger.info('handleToggleSelectMode', this.groupSelectMode)
+      console.info('handleToggleSelectMode', this.groupSelectMode)
       if (!this.groupSelectMode) {
         this.selectedStudentEmailList = []
       }
     },
 
     handleActiveEvaluationType (type) {
-      this.$logger.info('handleActiveEvaluationType', type)
+      console.info('handleActiveEvaluationType', type)
       this.activeEvaluationType = type
     },
 
@@ -667,26 +667,26 @@ export default {
     },
 
     handleAddEvidence (data) {
-      this.$logger.info('handleAddEvidence classId ' + this.classId, data)
+      console.info('handleAddEvidence classId ' + this.classId, data)
       this.currentClassId = this.classId
       this.currentFormRowData = data
       this.addEvaluationVisible = true
     },
 
     handleAddEvaluationClose () {
-      this.$logger.info('handleAddEvaluationClose')
+      console.info('handleAddEvaluationClose')
       this.addEvaluationVisible = false
     },
 
     handleEnsureEvidenceFinish (data) {
-      this.$logger.info('handleEnsureEvidenceFinish', data, this.currentFormRowData)
+      console.info('handleEnsureEvidenceFinish', data, this.currentFormRowData)
       this.addEvaluationVisible = false
-      this.$logger.info('data.data', data.data)
-      this.$logger.info('currentFormRowData.data', this.currentFormRowData.data)
+      console.info('data.data', data.data)
+      console.info('currentFormRowData.data', this.currentFormRowData.data)
       const newData = data.data
       const newRowData = Object.assign({}, this.currentFormRowData.data)
       newRowData.evidence = newData
-      this.$logger.info('newRowData ', newRowData)
+      console.info('newRowData ', newRowData)
       this.evaluationTableList.splice(this.currentFormRowData.index, 1, newRowData)
     }
   }

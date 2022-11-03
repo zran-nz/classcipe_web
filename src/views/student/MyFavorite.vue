@@ -285,7 +285,7 @@ export default {
   },
   methods: {
     toggleViewMode (viewMode) {
-      this.$logger.info('viewMode', viewMode)
+      console.info('viewMode', viewMode)
       storage.set(VIEW_MODE, viewMode)
       this.viewMode = viewMode
     },
@@ -328,7 +328,7 @@ export default {
     },
 
     handleStartItem (item) {
-      this.$logger.info('handleStartItem', item)
+      console.info('handleStartItem', item)
       this.$confirm({
         title: 'Confirm Start',
         content: 'Are you sure to Start ' + item.name + ' ?',
@@ -337,7 +337,7 @@ export default {
           this.loading = true
           SelfStudyTaskBye({ taskId: item.id }).then((response) => {
             if (response.success) {
-              this.$logger.info('SelfStudyTaskBye response', response)
+              console.info('SelfStudyTaskBye response', response)
               this.$message.success('Start successfully')
               this.$router.push({ path: '/student/main/my-task' })
             }
@@ -374,7 +374,7 @@ export default {
     loadUserTags () {
       // this.$refs.customTag.tagLoading = true
       FindCustomTags({}).then((response) => {
-        this.$logger.info('FindCustomTags response', response.result)
+        console.info('FindCustomTags response', response.result)
         if (response.success) {
           this.userTags = response.result
           // 默认展示的tag分类

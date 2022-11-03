@@ -164,9 +164,9 @@ export default {
       const params = JSON.parse(JSON.stringify(this.queryParams))
       params.pageSize = 15
       params.pageNo = this.pageNo
-      this.$logger.info('ResourceAll queryAllResource params', params)
+      console.info('ResourceAll queryAllResource params', params)
       queryAllResource(params).then(res => {
-        this.$logger.info('queryAllResource', res)
+        console.info('queryAllResource', res)
         if (res.result && res.result.records && res.result.records.length) {
           res.result.records.forEach((record, index) => {
             record.key = index
@@ -179,7 +179,7 @@ export default {
           this.myContentList = []
           this.pagination.total = 0
         }
-        this.$logger.info('LibraryAll myContentList', this.myContentList)
+        console.info('LibraryAll myContentList', this.myContentList)
       }).finally(() => {
         this.loading = false
       })

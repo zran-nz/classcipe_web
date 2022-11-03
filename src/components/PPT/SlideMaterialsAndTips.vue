@@ -115,7 +115,7 @@ export default {
     }
   },
   created() {
-    this.$logger.info('SlideMaterialsAndTips created ', this.currentPageMaterial)
+    console.info('SlideMaterialsAndTips created ', this.currentPageMaterial)
   },
   methods: {
     showMaterialSize (type) {
@@ -127,7 +127,7 @@ export default {
     },
     previewAddOnMaterial (type) {
       const data = this.currentPageMaterial[type]
-      this.$logger.info('previewAddOnMaterial ', data)
+      console.info('previewAddOnMaterial ', data)
       if (type === 'text' || type === 'website' || type === 'pdf') {
         if (data.length > 1) {
           this.filterMaterialType = type

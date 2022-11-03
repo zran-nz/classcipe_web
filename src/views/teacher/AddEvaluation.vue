@@ -299,8 +299,8 @@ export default {
     }
   },
   beforeRouteLeave(to, from, next) {
-    this.$logger.info('beforeRouteLeave', to, from, next)
-    this.$logger.info('forms', this.forms, 'oldFormsJson', this.oldFormsJson)
+    console.info('beforeRouteLeave', to, from, next)
+    console.info('forms', this.forms, 'oldFormsJson', this.oldFormsJson)
     if (this.initCompleted && JSON.stringify(this.forms) !== this.oldFormsJson) {
       this.$confirm({
         title: 'Alert',
@@ -357,18 +357,18 @@ export default {
     }
   },
   created () {
-    this.$logger.info('[' + this.formTableMode + '] created Evaluation evaluationId' + this.evaluationId)
+    console.info('[' + this.formTableMode + '] created Evaluation evaluationId' + this.evaluationId)
     this.formTableMode = EvaluationTableMode.Edit
     this.initData()
   },
   methods: {
     initData () {
-      this.$logger.info('initData')
+      console.info('initData')
       this.loading = true
       EvaluationQueryById({ id: this.evaluationId }).then(response => {
-        this.$logger.info('init data response', response)
+        console.info('init data response', response)
         // 加载班级信息数据
-        this.$logger.info('EvaluationQueryById response', response.result)
+        console.info('EvaluationQueryById response', response.result)
         const data = response.result
         this.form = data
         data.forms.forEach(formItem => {
@@ -385,7 +385,7 @@ export default {
             initRawData: JSON.parse(formItem.initRawData)
           })
         })
-        this.$logger.info('forms', this.forms)
+        console.info('forms', this.forms)
       }).finally(() => {
         this.loading = false
         if ((this.forms.length === 0) && this.mode === EvaluationTableMode.Edit) {
@@ -399,13 +399,13 @@ export default {
     },
 
     handleActiveForm (idx, formItem) {
-      this.$logger.info('handleActiveForm ' + idx, formItem)
+      console.info('handleActiveForm ' + idx, formItem)
       if (this.currentActiveFormId !== formItem.formId) {
         this.currentActiveFormId = formItem.formId
       }
     },
     handleClickMember (member) {
-      this.$logger.info('handleClickMember', member)
+      console.info('handleClickMember', member)
       const index = this.selectedMemberIdList.indexOf(member.userId)
       if (index === -1) {
         this.selectedMemberIdList.push(member.userId)
@@ -415,7 +415,7 @@ export default {
     },
 
     handleSelectGroup (group) {
-      this.$logger.info('handleSelectGroup', group)
+      console.info('handleSelectGroup', group)
       const index = this.selectedGroupIdList.indexOf(group.groupName)
       if (index === -1) {
         this.selectedGroupIdList.push(group.groupName)
@@ -427,12 +427,12 @@ export default {
     handleToggleGroupExpand (group, event) {
       event.stopPropagation()
       event.preventDefault()
-      this.$logger.info('handleToggleGroupExpand', group)
+      console.info('handleToggleGroupExpand', group)
       group.expand = !group.expand
     },
 
     handleAddFormTable () {
-      this.$logger.info('handleAddFormTable')
+      console.info('handleAddFormTable')
       const count = this.forms.length + 1
       this.newTableName = 'Rubric ' + count
       this.newFormType = EvaluationTableType.Rubric
@@ -440,12 +440,12 @@ export default {
     },
 
     handleCancelSelectRubric () {
-      this.$logger.info('handleCancelSelectRubric ' + this.newFormType)
+      console.info('handleCancelSelectRubric ' + this.newFormType)
       this.selectRubricVisible = false
     },
 
     handleEnsureSelectRubric () {
-      this.$logger.info('handleEnsureSelectRubric ' + this.newFormType)
+      console.info('handleEnsureSelectRubric ' + this.newFormType)
       if (this.newFormType) {
         this.selectRubricVisible = false
         const existFormTitleList = []
@@ -484,7 +484,7 @@ export default {
             initRawData: []
           }
         }
-        this.$logger.info('newFormTable', newFormTable)
+        console.info('newFormTable', newFormTable)
         this.forms.push(newFormTable)
         this.currentActiveFormId = newFormTable.formId
       } else {
@@ -493,7 +493,7 @@ export default {
     },
 
     handleEditFormTitle (formItem) {
-      this.$logger.info('handleEditFormTitle', formItem)
+      console.info('handleEditFormTitle', formItem)
       if (this.currentFormItem) {
         this.currentFormItem.titleEditing = false
         this.currentFormItem = null
@@ -504,19 +504,19 @@ export default {
     },
 
     handleEnsureUpdateFormTitle () {
-      this.$logger.info('handleEnsureUpdateFormTitle', this.currentEditingTitle)
+      console.info('handleEnsureUpdateFormTitle', this.currentEditingTitle)
       this.currentFormItem.title = this.currentEditingTitle
       this.currentFormItem.titleEditing = false
     },
 
     handleEnsureSelectEvaluation (data) {
-      this.$logger.info('handleEnsureSelectEvaluation', data)
+      console.info('handleEnsureSelectEvaluation', data)
       const evaluationIdList = data.evaluationIdList
       const refFormList = data.selectedFormList
 
       if (evaluationIdList && evaluationIdList.length) {
         EvaluationQueryByIds({ ids: evaluationIdList }).then((response) => {
-          this.$logger.info('EvaluationQueryByIds', response)
+          console.info('EvaluationQueryByIds', response)
           const evaluationList = response.result
           evaluationList.forEach(evaluationItem => {
             evaluationItem.forms.forEach(formItem => {
@@ -552,9 +552,9 @@ export default {
 
           refFormList.forEach(formItem => {
             this.forms.push(formItem)
-            this.$logger.info('forms add ' + formItem.formId, formItem)
+            console.info('forms add ' + formItem.formId, formItem)
           })
-          this.$logger.info('forms', this.forms)
+          console.info('forms', this.forms)
         })
       } else if (refFormList.length) {
         const existFormIdList = []
@@ -579,9 +579,9 @@ export default {
 
         refFormList.forEach(formItem => {
           this.forms.push(formItem)
-          this.$logger.info('forms add ' + formItem.formId, formItem)
+          console.info('forms add ' + formItem.formId, formItem)
         })
-        this.$logger.info('forms', this.forms)
+        console.info('forms', this.forms)
       }
       if (this.forms.length) {
         this.currentActiveFormId = this.forms[0].formId
@@ -602,7 +602,7 @@ export default {
       }, 500)
     },
     async handleSaveEvaluation (isBack) {
-      this.$logger.info('handleSaveEvaluation', this.form)
+      console.info('handleSaveEvaluation', this.form)
       if (this.$refs.commonFormHeader) {
         this.$refs.commonFormHeader.saving = true
       }
@@ -628,7 +628,7 @@ export default {
             }
           })
         })
-        this.$logger.info('formDataList', formDataList)
+        console.info('formDataList', formDataList)
         this.form.forms = formDataList
         if (formDataList.length === 0) {
           this.$message.error('Please add at least one form!')
@@ -638,7 +638,7 @@ export default {
           return false
         } else {
           const response = await EvaluationAddOrUpdate(this.form)
-          this.$logger.info('EvaluationAddOrUpdate', response)
+          console.info('EvaluationAddOrUpdate', response)
           if (this.$refs.commonFormHeader) {
             this.$refs.commonFormHeader.saving = false
           }
@@ -654,7 +654,7 @@ export default {
         }
       } else {
         const response = await EvaluationAddOrUpdate(this.form)
-        this.$logger.info('EvaluationAddOrUpdate', response)
+        console.info('EvaluationAddOrUpdate', response)
         if (this.$refs.commonFormHeader) {
           this.$refs.commonFormHeader.saving = false
         }
@@ -673,7 +673,7 @@ export default {
       }
     },
     handlePublishEvaluation (status) {
-      this.$logger.info('handleSaveEvaluation status ' + status, this.forms)
+      console.info('handleSaveEvaluation status ' + status, this.forms)
       if (this.$refs.commonFormHeader) {
         this.$refs.commonFormHeader.publishing = true
       }
@@ -698,7 +698,7 @@ export default {
           }
         })
       })
-      this.$logger.info('formDataList', formDataList)
+      console.info('formDataList', formDataList)
       this.form.forms = formDataList
       this.form.status = status
       if (formDataList.length === 0) {
@@ -709,7 +709,7 @@ export default {
         return false
       } else {
         EvaluationAddOrUpdate(this.form).then((response) => {
-          this.$logger.info('EvaluationAddOrUpdate', response)
+          console.info('EvaluationAddOrUpdate', response)
           if (status === 1) {
             this.$message.success(this.$t('teacher.add-unit-plan.publish-success'))
           } else {
@@ -724,11 +724,11 @@ export default {
 
     // 修改表头数据处理
     handleUpdateForm (data) {
-      this.$logger.info('handleUpdateForm', data)
+      console.info('handleUpdateForm', data)
       this.form.name = data.name
 
       EvaluationAddOrUpdate(this.form).then((response) => {
-        this.$logger.info('EvaluationAddOrUpdate', response)
+        console.info('EvaluationAddOrUpdate', response)
         if (this.$refs.commonFormHeader) {
           this.$refs.commonFormHeader.saving = false
         }
@@ -739,7 +739,7 @@ export default {
     },
 
     handleSelectRubric (newFormType) {
-      this.$logger.info('handleSelectRubric newFormType ' + newFormType)
+      console.info('handleSelectRubric newFormType ' + newFormType)
       this.newFormType = newFormType
       if (newFormType === EvaluationTableType.Rubric) {
         this.newTableName = 'Rubric one ' + (this.forms.length + 1)
@@ -751,7 +751,7 @@ export default {
     },
 
     handleDeleteForm (formItem) {
-      this.$logger.info('handleDeleteForm', formItem)
+      console.info('handleDeleteForm', formItem)
       const forms = []
       this.forms.forEach(form => {
         if (form.formId !== formItem.formId) {
@@ -766,7 +766,7 @@ export default {
     },
 
     handleToggleMenuVisible (formItem) {
-      this.$logger.info('handleToggleMenuVisible', formItem)
+      console.info('handleToggleMenuVisible', formItem)
       formItem.menuVisible = !formItem.menuVisible
     },
     handleToggleFormType (formType) {
@@ -778,10 +778,10 @@ export default {
       } else if (formType === EvaluationTableType.CenturySkills) {
         this.newTableName = '21st Century Skills ' + (this.forms.length + 1)
       }
-      this.$logger.info('newTableName', this.newTableName)
+      console.info('newTableName', this.newTableName)
     },
     handleUpdateHeader () {
-      this.$logger.info('AddEvaluation handleUpdateHeader')
+      console.info('AddEvaluation handleUpdateHeader')
       if (this.$refs.evaluationTable) {
         this.$refs.evaluationTable.forEach(tableItem => { tableItem.handleUpdateHeader() })
       }

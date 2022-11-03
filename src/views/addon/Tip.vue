@@ -232,7 +232,7 @@ export default {
       this.videoUrlList.splice(index, 1)
     },
     addMaterialList({ url, type }) {
-      this.$logger.info('addMaterialList', url, type)
+      console.info('addMaterialList', url, type)
       if (this.videoUrlList === null) {
         this.videoUrlList = []
       }

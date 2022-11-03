@@ -49,7 +49,7 @@ export default {
   },
   watch: {
     commentItem (val) {
-      this.$logger.info('commentItem ' + val)
+      console.info('commentItem ' + val)
       this.inputValue = val.content
       this.oldValue = val.content
       this.loading = val.sendLoading ? val.sendLoading : false

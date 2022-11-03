@@ -137,11 +137,11 @@ export default {
           this.selectedList.push(content.type + '-' + content.id)
         })
       })
-      this.$logger.info('ownerLinkGroupList', this.ownerLinkGroupList)
+      console.info('ownerLinkGroupList', this.ownerLinkGroupList)
       this.shareContent.associateVo.others.forEach(item => {
         this.othersLinkGroupList.unshift(...item.contents)
       })
-      this.$logger.info('othersLinkGroupList', this.othersLinkGroupList)
+      console.info('othersLinkGroupList', this.othersLinkGroupList)
       if (groupNameList.length) {
         this.groupNameList = groupNameList
       }

@@ -386,7 +386,7 @@ export default {
   },
   created () {
     // sdg数据结构：sdg列表-keywords-big idea
-    this.$logger.info('SdgBrowser blockWidth:' + this.blockWidth)
+    console.info('SdgBrowser blockWidth:' + this.blockWidth)
     this.getAllSdgs()
     this.getSubjectTree()
   },
@@ -394,7 +394,7 @@ export default {
     getAllSdgs () {
       this.sdgListLoading = true
       GetAllSdgs().then(response => {
-          this.$logger.info('GetAllSdgs response', response.result)
+          console.info('GetAllSdgs response', response.result)
           this.sdgList = response.result
           if (this.sdgList) {
             this.handleSelectSdgItem(this.sdgList[0])
@@ -405,7 +405,7 @@ export default {
     },
     getSubjectTree () {
       SubjectTree({ curriculumId: this.$store.getters.bindCurriculum }).then(response => {
-        this.$logger.info('getSubjectTree response', response.result)
+        console.info('getSubjectTree response', response.result)
         this.subjectTree = response.result
         this.subjectTree.forEach(item => {
           this.subjectList.push(item)
@@ -414,7 +414,7 @@ export default {
       })
     },
     handleSelectSdgItem (sdgItem) {
-      this.$logger.info('handleSelectSdgItem ', sdgItem, this.currentSdgId)
+      console.info('handleSelectSdgItem ', sdgItem, this.currentSdgId)
       if (sdgItem.id !== this.currentSdgId) {
         this.currentSdgId = sdgItem.id
         this.sdgKeywordNameList = []
@@ -428,7 +428,7 @@ export default {
     scenarioGetKeywordScenarios (sdgId) {
       this.sdgKeywordNameListLoading = true
       ScenarioGetKeywordScenarios({ sdgId }).then(response => {
-        this.$logger.info('ScenarioGetKeywordScenarios response', response.result)
+        console.info('ScenarioGetKeywordScenarios response', response.result)
         this.sdgKeywordNameList = response.result.sdgKeyWords
         this.sdgDescriptionsList = response.result.descriptions // Descriptions内容
         if (this.sdgKeywordNameList.length) {
@@ -443,13 +443,13 @@ export default {
     },
 
     queryBigIdeaDescription (descriptionItem) {
-      this.$logger.info('queryBigIdeaDescription', descriptionItem)
+      console.info('queryBigIdeaDescription', descriptionItem)
       this.dataListLoading = true
       this.handleClickBlock(2, descriptionItem.name)
       this.currentSdgKeywordScenarioId = descriptionItem.id
       this.currentSdgKeywordScenario = 'description'
       QueryBigIdea({ description: descriptionItem.name }).then(response => {
-        this.$logger.info('queryBigIdeaDescription response', response.result)
+        console.info('queryBigIdeaDescription response', response.result)
         const list = []
         response.result.forEach(bigIdea => {
           list.push({
@@ -465,9 +465,9 @@ export default {
 
     queryBigIdea () {
       this.bigIdeaLoading = true
-      this.$logger.info('queryBigIdeaKeyword')
+      console.info('queryBigIdeaKeyword')
       QueryBigIdea({ keywords: this.currentSdgKeywordName, 'sdgId': this.currentSdgId, 'subjectIds': this.selectedSubect }).then(response => {
-        this.$logger.info('queryBigIdeaKeyword response', response.result)
+        console.info('queryBigIdeaKeyword response', response.result)
         const list = []
         response.result.forEach(bigIdea => {
           list.push({
@@ -481,9 +481,9 @@ export default {
       })
     },
     queryTagsBySubjectIds () {
-      this.$logger.info('queryTagsBySubjectIds')
+      console.info('queryTagsBySubjectIds')
       QueryTagsBySubjectIds({ 'subjectIds': this.selectedSubect }).then(response => {
-        this.$logger.info('queryTagsBySubjectIds response', response.result)
+        console.info('queryTagsBySubjectIds response', response.result)
         if (response.success) {
           this.conceptList = response.result['Universal Concept']
           this.sdgKeywordNameList = response.result['Key words']
@@ -492,13 +492,13 @@ export default {
       })
     },
     queryBigIdeaKeywords (keywordsItem) {
-      this.$logger.info('queryBigIdeaKeyword', keywordsItem)
+      console.info('queryBigIdeaKeyword', keywordsItem)
       this.dataListLoading = true
       this.handleClickBlock(2, keywordsItem.name)
       this.currentSdgKeywordScenarioId = keywordsItem.id
       this.currentSdgKeywordScenario = 'keyword'
       QueryBigIdea({ keywords: keywordsItem.name }).then(response => {
-        this.$logger.info('queryBigIdeaKeyword response', response.result)
+        console.info('queryBigIdeaKeyword response', response.result)
         const list = []
         response.result.forEach(bigIdea => {
           list.push({
@@ -513,51 +513,51 @@ export default {
     },
 
     handleSelectBigIdeaItem (bigIdeaItem) {
-      this.$logger.info('handleSelectBigIdeaItem', bigIdeaItem)
+      console.info('handleSelectBigIdeaItem', bigIdeaItem)
       this.currentBigIdea = bigIdeaItem.name
       QueryContentByBigIdea({
         bigIdea: bigIdeaItem.name
       }).then((response) => {
-        this.$logger.info('QueryContentByBigIdea', response)
+        console.info('QueryContentByBigIdea', response)
         if (response.result) {
           this.dataList = response.result
         } else {
-          this.$logger.info('no big idea content')
+          console.info('no big idea content')
         }
       })
       this.handleClickBlock(2, bigIdeaItem.name)
     },
 
     handleSelectDataItem (dataItem) {
-      this.$logger.info('handleSelectDataItem ', dataItem)
+      console.info('handleSelectDataItem ', dataItem)
       this.currentDataId = dataItem.id
       this.$emit('previewDetail', dataItem)
     },
 
     handleClickBlock (blockIndex, path) {
-      this.$logger.info('handleClickBlock ' + blockIndex)
+      console.info('handleClickBlock ' + blockIndex)
       this.$emit('blockCollapse', { blockIndex, path })
     },
 
     handleToggleDataListMode (mode) {
-      this.$logger.info('handleToggleDataListMode' + mode)
+      console.info('handleToggleDataListMode' + mode)
       this.dataListMode = mode
     },
 
     toggleType (type, label) {
-      this.$logger.info('toggleType ' + type + ' label ' + label)
+      console.info('toggleType ' + type + ' label ' + label)
       this.currentType = type
       this.currentTypeLabel = label
     },
 
     toggleConceptType (label) {
-      this.$logger.info('toggleConceptType ', label)
+      console.info('toggleConceptType ', label)
       this.currentConceptType = label
       this.currentConceptTypeLabel = label
     },
 
     toggleSAType (type, label) {
-      this.$logger.info('toggleSAType ' + type + ' label ' + label)
+      console.info('toggleSAType ' + type + ' label ' + label)
       this.currentSaFaType = type
       this.currentSaFaLabel = label
     },

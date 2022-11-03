@@ -51,7 +51,7 @@ export default {
       console.log('Change:', value)
     },
     handleComment() {
-      this.$logger.info('trigger handleComment ' + this.inputValue)
+      console.info('trigger handleComment ' + this.inputValue)
       if (!this.inputValue) {
         return
       }

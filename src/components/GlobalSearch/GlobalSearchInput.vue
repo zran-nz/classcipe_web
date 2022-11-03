@@ -171,7 +171,7 @@ export default {
     },
 
     handleBack () {
-      this.$logger.info('handleBack')
+      console.info('handleBack')
       this.showSearchWrapper = false
     },
 
@@ -192,7 +192,7 @@ export default {
     },
 
     search(value) {
-      this.$logger.info('search', value)
+      console.info('search', value)
       this.searching = true
       this.recommendList = []
       this.pdList = []
@@ -203,7 +203,7 @@ export default {
         key: value,
         schoolId: this.schoolId // library resource内容不一样
       }).then(response => {
-        this.$logger.info('searchByKeyword ' + value, response)
+        console.info('searchByKeyword ' + value, response)
         const list = []
         // 添加高亮标签
         const similarList = response.result.similarList
@@ -247,18 +247,18 @@ export default {
     },
 
     emitSearchEvent (key) {
-      this.$logger.info('emitSearchEvent', key)
+      console.info('emitSearchEvent', key)
       this.$emit('search', key)
       this.handleBack()
     },
 
     viewItem(item) {
-      this.$logger.info('viewItem', item)
+      console.info('viewItem', item)
       const dataItem = {
         ...item,
         type: parseInt(item.fromType)
       }
-      this.$logger.info('dataItem', item)
+      console.info('dataItem', item)
       this.showSearchWrapper = false
       this.$router.push({
         path: `/teacher/${this.source}-view/${dataItem.type}/${dataItem.id}`

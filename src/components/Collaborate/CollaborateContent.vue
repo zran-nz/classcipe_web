@@ -52,11 +52,11 @@ export default {
     }
   },
   created () {
-    this.$logger.info('CollaborateContent')
+    console.info('CollaborateContent')
   },
   methods: {
     handleSelectedCollaborateContent (data) {
-      this.$logger.info('handleSelectedCollaborateContent ', data)
+      console.info('handleSelectedCollaborateContent ', data)
       this.selectedContentList = data.selectedContentList
       const postData = {
         contents: this.selectedContentList,
@@ -65,15 +65,15 @@ export default {
         message: data.message
       }
 
-      this.$logger.info('collaborate post data', postData)
+      console.info('collaborate post data', postData)
       InviteCollaborate(postData).then((response) => {
-        this.$logger.info('InviteCollaborate response', response)
+        console.info('InviteCollaborate response', response)
       }).finally(() => {
         this.$emit('finished')
       })
     },
     handleSelectedCollaborateUser (data) {
-      this.$logger.info('handleSelectedCollaborateUser', data)
+      console.info('handleSelectedCollaborateUser', data)
       this.selectedUserList = data.selectedUserList
       this.selectedViewerEmailList = data.selectedViewerEmailList
       this.selectedEditorEmailList = data.selectedEditorEmailList
@@ -82,12 +82,12 @@ export default {
     },
 
     handlePrevious () {
-      this.$logger.info('handlePrevious now')
+      console.info('handlePrevious now')
       this.userSelectVisible = true
       this.collaborateContentSelectVisible = false
     },
     handleCancel () {
-      this.$logger.info('handleCancel')
+      console.info('handleCancel')
       this.userSelectVisible = false
     }
   }

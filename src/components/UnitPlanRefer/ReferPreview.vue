@@ -221,7 +221,7 @@ export default {
 
     // 点击对应的区块时触发
     handleReferItem (blockType, data) {
-      this.$logger.info('handleReferItem ' + blockType, data)
+      console.info('handleReferItem ' + blockType, data)
       this.$emit('refer', {
         blockType,
         data
@@ -230,7 +230,7 @@ export default {
 
     // 鼠标悬浮到对应的区块时触发
     handleHoverBlock (blockType) {
-      this.$logger.info('handleHoverBlock ' + blockType)
+      console.info('handleHoverBlock ' + blockType)
       this.$emit('hover-refer-block', {
         blockType
       })
@@ -238,7 +238,7 @@ export default {
 
     // 关联refer
     handleReferAssociate (data) {
-      this.$logger.info('handleReferAssociate', data)
+      console.info('handleReferAssociate', data)
       this.$emit('refer-associate', data)
     }
   }

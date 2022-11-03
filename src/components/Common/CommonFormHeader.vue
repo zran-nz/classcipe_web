@@ -278,7 +278,7 @@ export default {
     }
   },
   created() {
-    this.$logger.info('form header name:' + this.form.name + ' lastChangeSavedTime:' + this.lastChangeSavedTime)
+    console.info('form header name:' + this.form.name + ' lastChangeSavedTime:' + this.lastChangeSavedTime)
     if (this.form && this.form.name) {
       this.formName = this.form.name
     }
@@ -302,7 +302,7 @@ export default {
       this.collaborateUserList = userList
     },
     handleBack() {
-      this.$logger.info('handleBack')
+      console.info('handleBack')
       if (this.isPreviewMode) {
         this.$emit('back')
       } else {
@@ -315,16 +315,16 @@ export default {
     },
     handleSave() {
       this.saving = true
-      this.$logger.info('handleSave')
+      console.info('handleSave')
       this.$emit('save')
     },
     handlePublish(status) {
       this.publishing = true
-      this.$logger.info('handlePublish')
+      console.info('handlePublish')
       this.$emit('publish', status)
     },
     handleStartCollaborate() {
-      this.$logger.info('handleStartCollaborate')
+      console.info('handleStartCollaborate')
       this.$emit('collaborate')
     },
 
@@ -332,31 +332,31 @@ export default {
       this.$emit('view-collaborate')
     },
     handleEnsureNewFormName() {
-      this.$logger.info('handleEnsureNewFormName ' + this.form.name)
+      console.info('handleEnsureNewFormName ' + this.form.name)
       this.editFormNameMode = false
       if (this.formName && this.formName !== this.form.name) {
         const data = Object.assign({}, this.form)
         data.name = this.formName
         this.$emit('update-form', data)
       }
-      this.$logger.info('editFormNameMode ' + this.editFormNameMode)
+      console.info('editFormNameMode ' + this.editFormNameMode)
     },
 
     handleSharing() {
       this.sharing = true
-      this.$logger.info('handleSharing')
+      console.info('handleSharing')
       this.$emit('share')
     },
     formatOnlineEmail(email) {
       return email === this.form.createBy ? 'Owner: ' + email : email
     },
     toggleHiddenHeader() {
-      this.$logger.info('toggleHiddenHeader')
+      console.info('toggleHiddenHeader')
       this.$store.commit(HIDDEN_HEADER, !this.$store.getters.hiddenHeader)
     },
 
     handleCancelBounce () {
-      this.$logger.info('handleCancelBounce')
+      console.info('handleCancelBounce')
       this.debounceHiddenHeader.cancel()
     }
   }

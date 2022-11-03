@@ -329,26 +329,26 @@ export default {
       window.URL.revokeObjectURL(url) // 释放掉blob对象
     },
     handleSelectBigIdeaData (data) {
-      this.$logger.info('NewBrowser handleSelectBigIdeaData', data)
+      console.info('NewBrowser handleSelectBigIdeaData', data)
       this.selectedBigIdeaList = data
       this.$emit('select-big-idea', data)
 
       this.updateSelectedGradeSet()
     },
     handleSelectListData (data) {
-      this.$logger.info('NewBrowser handleSelectListData', data)
+      console.info('NewBrowser handleSelectListData', data)
       this.selectedKnowledgeList = data
       this.$emit('select-sync', data)
     },
     handleSelectCurriculumListData (data) {
-      this.$logger.info('NewBrowser handleSelectCurriculumListData', data)
+      console.info('NewBrowser handleSelectCurriculumListData', data)
       this.selectedCurriculumList = data
       this.$emit('select-curriculum', data)
 
       this.updateSelectedGradeSet()
     },
     handleSelectSubjectSpecificSkillListData (data) {
-      this.$logger.info('NewBrowser handleSelectSubjectSpecificSkillListData', data)
+      console.info('NewBrowser handleSelectSubjectSpecificSkillListData', data)
       this.selectedSubjectSpecificSkillList = data
       this.$emit('select-subject-specific-skill', data)
 
@@ -357,7 +357,7 @@ export default {
 
     // century-skill
     handleSelect21CenturySkillListData (data) {
-      this.$logger.info('NewBrowser handleSelect21CenturySkillListData', data)
+      console.info('NewBrowser handleSelect21CenturySkillListData', data)
       this.selected21CenturySkillList = data
       this.$emit('select-century-skill', data)
 
@@ -365,7 +365,7 @@ export default {
     },
 
     handleSelectAll21CenturyListData (data) {
-      this.$logger.info('NewBrowser handleSelectAll21CenturyListData', data)
+      console.info('NewBrowser handleSelectAll21CenturyListData', data)
       this.selectedAll21CenturyList = data
       this.$emit('select-all-21-century', data)
 
@@ -373,7 +373,7 @@ export default {
     },
     // assessment type
     handleSelectAssessmentType (data) {
-      this.$logger.info('NewBrowser handleSelectAssessmentType', data)
+      console.info('NewBrowser handleSelectAssessmentType', data)
       this.selectedAssessmentList = data
       this.$emit('select-assessmentType', data)
 
@@ -381,7 +381,7 @@ export default {
     },
 
     handleSelectIdu (data) {
-      this.$logger.info('NewBrowser handleSelectIdu', data)
+      console.info('NewBrowser handleSelectIdu', data)
       this.selectedIduList = data
       this.$emit('select-idu', data)
 
@@ -389,7 +389,7 @@ export default {
     },
 
     handleUpdateSelectedList (data) {
-      this.$logger.info('NewBrowser handleUpdateSelectedList', data)
+      console.info('NewBrowser handleUpdateSelectedList', data)
       this.mySelectedList = data
 
       this.updateSelectedGradeSet()

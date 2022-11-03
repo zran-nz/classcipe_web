@@ -129,7 +129,7 @@ export default {
   },
   methods: {
     loadAssociateContent () {
-      this.$logger.info('loadAssociateContent' + this.contentId + ' type ' + this.contentType)
+      console.info('loadAssociateContent' + this.contentId + ' type ' + this.contentType)
       this.loading = true
       this.selectedContentIdList = []
       GetAssociate({
@@ -145,7 +145,7 @@ export default {
           })
         }
         this.collaborateContentList = collaborateContentList
-        this.$logger.info('collaborateContentList', this.collaborateContentList)
+        console.info('collaborateContentList', this.collaborateContentList)
       }).then(() => {
         console.info('get favorite ' + this.materialId)
       }).finally(() => {
@@ -164,7 +164,7 @@ export default {
     },
 
     handlePrevious () {
-      this.$logger.info('handlePrevious')
+      console.info('handlePrevious')
       this.$emit('go-previous')
     },
 
@@ -176,18 +176,18 @@ export default {
     },
 
     handleAddContent (id) {
-      this.$logger.info('handleAddToEditor ' + id)
+      console.info('handleAddToEditor ' + id)
       const index = this.selectedContentIdList.indexOf(id)
       if (index !== -1) {
         this.selectedContentIdList.splice(index, 1)
       } else {
         this.selectedContentIdList.push(id)
       }
-      this.$logger.info('selectedContentIdList ', this.selectedContentIdList)
+      console.info('selectedContentIdList ', this.selectedContentIdList)
     },
 
     handleEnsureSelect () {
-      this.$logger.info('handleEnsureSelect', this.selectedContentIdList)
+      console.info('handleEnsureSelect', this.selectedContentIdList)
       if (this.selectedContentIdList.length === 0) {
         this.$message.warn('please select content!')
       } else {
@@ -200,7 +200,7 @@ export default {
             type: item.type
           })
         })
-        this.$logger.info('event data', selectedContentList)
+        console.info('event data', selectedContentList)
         this.$emit('selected', {
           selectedContentList,
           message: this.inviteMessage

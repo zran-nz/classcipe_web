@@ -124,8 +124,8 @@ export default {
   },
   watch: {
     '$route.path' (to) {
-      logger.debug('nav watch route path change ' + to)
-      this.selectedKeys = [to]
+      console.debug('nav watch route path change ' + to)
+      // this.selectedKeys = [to]
     }
     // 'currentSchool.id' (newVal) {
     //   this.listClass()
@@ -191,7 +191,7 @@ export default {
     //     pageNo: 1,
     //     pageSize: 10000
     //   }).then(res => {
-    //     this.$logger.info('teacher nav listClass res records', res.result?.records)
+    //     console.info('teacher nav listClass res records', res.result?.records)
     //     this.classList = res.result?.records
     //   })
     // },
@@ -263,16 +263,16 @@ export default {
     },
 
     handleExpandMenu() {
-      this.$logger.info('handleExpandMenu', this.collapsed)
+      console.info('handleExpandMenu', this.collapsed)
       this.$store.commit(HIDDEN_SIDEBAR, !this.collapsed)
     },
 
     expandMenu() {
-      this.$logger.info('expandMenu')
+      console.info('expandMenu')
       this.$store.commit(HIDDEN_SIDEBAR, false)
     },
     hiddenMenu() {
-      this.$logger.info('hiddenMenu')
+      console.info('hiddenMenu')
       this.$store.commit(HIDDEN_SIDEBAR, true)
     },
 
@@ -285,7 +285,7 @@ export default {
     },
 
     resizeSidebar () {
-      this.$logger.info('resizeSidebar', window.innerWidth)
+      console.info('resizeSidebar', window.innerWidth)
       if (window.innerWidth <= 1000) {
         this.$store.commit(HIDDEN_SIDEBAR, true)
       } else {

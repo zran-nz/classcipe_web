@@ -134,12 +134,12 @@ export default {
       this.loadFormConfigData()
     },
     loadFormConfigData() {
-      this.$logger.info('loadFormConfigData')
+      console.info('loadFormConfigData')
       this.loading = true
       FormConfigData({
         schoolId: this.currentSchool.id
       }).then((response) => {
-        this.$logger.info('loadFormConfigData response', response)
+        console.info('loadFormConfigData response', response)
         this.planConfig = response.result.plan
         this.taskConfig = response.result.task
       }).finally(() => {
@@ -155,11 +155,11 @@ export default {
     },
 
     getPlanningConfig () {
-      this.$logger.info('getPlanningConfig task', this.$refs)
+      console.info('getPlanningConfig task', this.$refs)
       const taskConfig = this.$refs.task.getFormatConfig()
       const planConfig = this.$refs.plan.getFormatConfig()
 
-      this.$logger.info('getPlanningConfig', taskConfig, planConfig)
+      console.info('getPlanningConfig', taskConfig, planConfig)
       if (taskConfig && planConfig) {
         return {
           taskConfig,
@@ -170,7 +170,7 @@ export default {
     },
 
     handlePreviewPlanningForm () {
-      this.$logger.info('handlePreviewPlanningForm')
+      console.info('handlePreviewPlanningForm')
       if (this.activeKey === 'plan') {
         const planConfig = this.$refs.plan.getFormatConfig()
         if (planConfig) {
@@ -197,7 +197,7 @@ export default {
     },
 
     handleSavePlanningForm (showTips = true) {
-      this.$logger.info('handleSavePlanningForm', showTips)
+      console.info('handleSavePlanningForm', showTips)
       const config = this.getPlanningConfig()
       if (config) {
         if (this.activeKey === 'plan') {
@@ -251,9 +251,9 @@ export default {
     },
 
     GetTemplates() {
-      this.$logger.info('GetTemplates')
+      console.info('GetTemplates')
       GetTemplates().then((response) => {
-        this.$logger.info('GetTemplates response', response)
+        console.info('GetTemplates response', response)
         this.templateList = response.result
       }).finally(() => {
       })

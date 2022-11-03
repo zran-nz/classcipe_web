@@ -179,7 +179,7 @@ export default {
         params = { searchKey: this.keyword, schoolId: 0 }
       }
       QueryContentsFilter(params).then(res => {
-        this.$logger.info('QueryContentsFilter', res)
+        console.info('QueryContentsFilter', res)
         if (res.result) {
           res.result.forEach((record, index) => {
             record.key = index
@@ -193,7 +193,7 @@ export default {
           this.myContentList = []
           this.pagination.total = 0
         }
-        this.$logger.info('QueryContentsFilter myContentList', this.myContentList)
+        console.info('QueryContentsFilter myContentList', this.myContentList)
       }).finally(() => {
         this.loading = false
       })
@@ -206,7 +206,7 @@ export default {
     },
 
     handleSearch (data) {
-      this.$logger.info('handleSearch', data)
+      console.info('handleSearch', data)
       if (data) {
         // window.location.href = '/teacher/library/search/' + data
         this.$router.push({ path: '/teacher/library/search/' + data })

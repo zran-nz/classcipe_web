@@ -32,7 +32,7 @@ export default {
   },
   watch: {
     mediaUrl(value) {
-      this.$logger.info('mediaUrl changed ', value)
+      console.info('mediaUrl changed ', value)
     }
   },
   methods: {}

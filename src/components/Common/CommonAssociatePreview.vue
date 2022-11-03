@@ -207,7 +207,7 @@ export default {
     },
 
     handleToggleDataListMode (mode) {
-      this.$logger.info('handleToggleDataListMode' + mode)
+      console.info('handleToggleDataListMode' + mode)
       this.dataListMode = mode
     },
 

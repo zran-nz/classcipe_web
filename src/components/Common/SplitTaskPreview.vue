@@ -302,7 +302,7 @@ export default {
       this.slideLoading = false
     },
     handleGotoImgIndex (index) {
-      this.$logger.info('handleGotoImgIndex ' + index)
+      console.info('handleGotoImgIndex ' + index)
       this.currentImgIndex = index
       this.$refs.carousel.goTo(index)
     },

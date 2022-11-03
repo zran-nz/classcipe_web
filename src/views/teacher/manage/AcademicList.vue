@@ -127,7 +127,7 @@ export default {
       this.$refs.modalForm.disableSubmit = false
     },
     handleDelete(record, index) {
-      this.$logger.info('handleDelete ', record)
+      console.info('handleDelete ', record)
       this.$confirm({
         title: 'Confirm delete academic',
         content: 'Are you confirm delete academic ' + record.name + ' ?',

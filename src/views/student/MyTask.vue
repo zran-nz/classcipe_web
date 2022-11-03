@@ -211,14 +211,14 @@ export default {
     },
     initFilterOption() {
       SubjectTree({ curriculumId: CurriculumType.Cambridge }).then(response => {
-        this.$logger.info('getSubjectTree response', response.result)
+        console.info('getSubjectTree response', response.result)
         this.filterSubjectOptions = []
         response.result.forEach(subject => {
           this.filterSubjectOptions.push({ label: subject.name, value: subject.name })
         })
       })
       GetGradesByCurriculumId({ curriculumId: CurriculumType.Cambridge }).then(response => {
-        this.$logger.info('GetGradesByCurriculumId', response.result)
+        console.info('GetGradesByCurriculumId', response.result)
         this.filterAgeOptions = []
         response.result.forEach(grade => {
           this.filterAgeOptions.push({ label: grade.name, value: grade.name })
@@ -233,7 +233,7 @@ export default {
     loadUserTags () {
       // this.$refs.customTag.tagLoading = true
       FindCustomTags({}).then((response) => {
-        this.$logger.info('FindCustomTags response', response.result)
+        console.info('FindCustomTags response', response.result)
         if (response.success) {
           this.filterSaOptions = []
           this.filterFaOptions = []
@@ -277,7 +277,7 @@ export default {
     },
     handleUpdateFilterConfig (filter) {
       // TODO 根据配置更新请求参数
-      this.$logger.info('handleUpdateFilterConfig', filter)
+      console.info('handleUpdateFilterConfig', filter)
       this.filterParams = filter
       this.$refs.myTaskList.loadMyContent()
     },

@@ -473,7 +473,7 @@ export default {
     }
   },
   created () {
-    this.$logger.info('PptSlideView' + this.slideId + ' classId ' + this.classId, 'selectedIdList', this.selectedIdList, 'selectedIdStudentList', this.selectedIdStudentList, 'studentName', this.studentName)
+    console.info('PptSlideView' + this.slideId + ' classId ' + this.classId, 'selectedIdList', this.selectedIdList, 'selectedIdStudentList', this.selectedIdStudentList, 'studentName', this.studentName)
     this.selectedSlidePageIdList = this.selectedIdList
     this.selectedStudentSlidePageIdList = this.selectedIdStudentList
     this.loadData()
@@ -498,7 +498,7 @@ export default {
     loadData () {
       this.loading = true
       this.resetData()
-      this.$logger.info('加载PPT数据 ' + this.classId + ' slideId ' + this.slideId + ' formId' + this.formId + ' rowId ' + this.rowId)
+      console.info('加载PPT数据 ' + this.classId + ' slideId ' + this.slideId + ' formId' + this.formId + ' rowId ' + this.rowId)
       Promise.all([
         TemplatesGetPublishedPresentation({ taskId: this.formId }),
         QueryByClassInfoSlideId({ slideId: this.slideId }),
@@ -508,15 +508,15 @@ export default {
         }),
         QueryResponseByClassId({ classId: this.sessionId })
       ]).then(response => {
-        this.$logger.info('加载PPT数据 response', response)
+        console.info('加载PPT数据 response', response)
         if (response[2].result && response[2].result.result) {
-          this.$logger.info('使用历史评估数据', response[2].result.result)
+          console.info('使用历史评估数据', response[2].result.result)
           const data = JSON.parse(response[2].result.result)
-          this.$logger.info('解析历史数据', data)
+          console.info('解析历史数据', data)
           this.slideDataList = data.slideDataList
           this.elementsList = data.elementsList
           this.itemsList = data.itemsList
-          this.$logger.info('使用历史评估数据 this.slideDataList', this.slideDataList, ' this.elementsList', this.elementsList, ' this.itemsList', this.itemsList)
+          console.info('使用历史评估数据 this.slideDataList', this.slideDataList, ' this.elementsList', this.elementsList, ' this.itemsList', this.itemsList)
           this.loading = false
         } else {
           if (response[0].code !== this.ErrorCode.ppt_google_token_expires && response[0].code !== this.ErrorCode.ppt_forbidden) {
@@ -532,7 +532,7 @@ export default {
               this.loadStudentData()
             } else {
               this.loading = false
-              this.$logger.info('loaded data', this.imgList, this.commentData)
+              console.info('loaded data', this.imgList, this.commentData)
             }
           }
 
@@ -545,14 +545,14 @@ export default {
     },
 
     handleAuthCallback() {
-      this.$logger.info('handleAuthCallback')
+      console.info('handleAuthCallback')
       this.loadData()
     },
 
     loadStudentData () {
-      this.$logger.info('loadStudentData', this.rawSlideDataMap)
+      console.info('loadStudentData', this.rawSlideDataMap)
       GetStudentResponse({ class_id: this.sessionId }).then(response => {
-        this.$logger.info('GetStudentResponse response', response)
+        console.info('GetStudentResponse response', response)
         const rawCommentDataList = response.data.presentation_comments
         rawCommentDataList.forEach((item) => {
           const data = JSON.parse(item.data)
@@ -576,13 +576,13 @@ export default {
           const slideItem = this.rawSlideDataMap.get(pageId)
           if (slideItem && itemIdList.indexOf(itemData.item_id) === -1) {
             itemIdList.push(itemData.item_id)
-            this.$logger.info('find slideItem response ' + responseData.page_id, itemData)
+            console.info('find slideItem response ' + responseData.page_id, itemData)
             slideItem.responseList.push({ responseData, itemData, responseType, studentUserId })
             this.rawSlideDataMap.set(pageId, slideItem)
           } else {
           }
         })
-        this.$logger.info('after set rawSlideDataMap ', this.rawSlideDataMap)
+        console.info('after set rawSlideDataMap ', this.rawSlideDataMap)
 
         for (const [key, value] of this.rawSlideDataMap) {
           const material = {}
@@ -606,14 +606,14 @@ export default {
             teacherCommentList: []
           })
           if (value.commentList.length) {
-            this.$logger.info('commentList have data' + JSON.stringify(value))
+            console.info('commentList have data' + JSON.stringify(value))
           }
 
           if (value.responseList.length) {
-            this.$logger.info('responseList have data' + JSON.stringify(value))
+            console.info('responseList have data' + JSON.stringify(value))
           }
         }
-        this.$logger.info('slideDataList', this.slideDataList)
+        console.info('slideDataList', this.slideDataList)
       }).finally(() => {
         this.loading = false
       })
@@ -622,7 +622,7 @@ export default {
     showPluginMaterial (slideItem, type) {
       const data = slideItem.material[type]
       const pageId = slideItem.pageId
-      this.$logger.info('showPluginMaterial ', slideItem, type)
+      console.info('showPluginMaterial ', slideItem, type)
 
       const pageElementsList = []
       if (this.slideDataList.length !== 0) {
@@ -652,7 +652,7 @@ export default {
     },
 
     handleAddSlideItem (slideItem) {
-      this.$logger.info('handleAddSlideItem', slideItem)
+      console.info('handleAddSlideItem', slideItem)
       if (this.mode === EvaluationTableMode.TeacherEvaluate) {
         const index = this.selectedSlidePageIdList.indexOf(slideItem.pageId)
         if (index !== -1) {
@@ -671,19 +671,19 @@ export default {
     },
 
     handleClickImg (event) {
-      this.$logger.info('handleClickImg', event)
+      console.info('handleClickImg', event)
       event.target.src = event.target.src + '#' + (new Date().getTime())
     },
 
     handleEnsureEvidence () {
-      this.$logger.info('handleEnsureEvidence ' + this.mode, this.mode === EvaluationTableMode.TeacherEvaluate ? this.selectedSlidePageIdList : this.selectedStudentSlidePageIdList)
+      console.info('handleEnsureEvidence ' + this.mode, this.mode === EvaluationTableMode.TeacherEvaluate ? this.selectedSlidePageIdList : this.selectedStudentSlidePageIdList)
 
       const data = {
         slideDataList: this.slideDataList,
         elementsList: this.elementsList,
         itemsList: this.itemsList
       }
-      this.$logger.info('保存evaluation数据', data)
+      console.info('保存evaluation数据', data)
       SaveSessionEvidence({
         sessionId: this.sessionId,
         user: this.studentName,
@@ -705,7 +705,7 @@ export default {
     },
 
     handleAddComment (data) {
-      this.$logger.info('handleAddComment', data)
+      console.info('handleAddComment', data)
       data.extra.teacherCommentList.push({
         comment: data.inputValue,
         avatar: this.$store.getters.avatar,
@@ -715,7 +715,7 @@ export default {
     },
 
     handleViewExpand (slideItem) {
-      this.$logger.info('handleViewExpand', slideItem)
+      console.info('handleViewExpand', slideItem)
       this.currentViewSlideItem = slideItem
       this.viewSlideItemVisible = true
     },

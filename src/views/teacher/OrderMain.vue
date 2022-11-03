@@ -101,7 +101,7 @@ export default {
   },
   watch: {
     '$route.path'(to) {
-      logger.debug('My Content route.path change ' + to)
+      console.debug('My Content route.path change ' + to)
       this.selectedKey = [to]
     }
   },

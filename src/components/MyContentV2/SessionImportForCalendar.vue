@@ -542,9 +542,9 @@ export default {
     //   if (zoom) {
     //     const status = await this.checkZoomAuth()
     //     if (!status) {
-    //       this.$logger.info('reset item enableZoom', this.enableZoom)
+    //       console.info('reset item enableZoom', this.enableZoom)
     //     } else {
-    //       this.$logger.info('zoom auth success')
+    //       console.info('zoom auth success')
     //     }
     //   }
     //   this.scheduleReq.zoom = zoom ? 1 : 0
@@ -566,11 +566,11 @@ export default {
         this.$message.warn('Please select Schedule time!')
         return
       }
-      this.$logger.info('try createSession scheduleReq', this.scheduleReq)
+      console.info('try createSession scheduleReq', this.scheduleReq)
       this.importLoading = true
       try {
         const res = await AddSessionV2(this.scheduleReq)
-        this.$logger.info('save scheduleReq', res)
+        console.info('save scheduleReq', res)
         if (res.result && res.success && res.code === 0) {
           this.$message.success('Schedule session successfully')
           if (!retValue) {

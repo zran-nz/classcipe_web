@@ -83,11 +83,11 @@ export default {
     }
   },
   created() {
-    this.$logger.info('PreviewCarousel created pageObjectList', this.pageObjectList, 'videoList', this.videoList)
+    console.info('PreviewCarousel created pageObjectList', this.pageObjectList, 'videoList', this.videoList)
   },
   methods: {
     onChangePage (page) {
-      this.$logger.info('page', page, this.$refs.video)
+      console.info('page', page, this.$refs.video)
       this.currentImgIndex = page
       if (this.$refs.video) {
         this.$refs.video.forEach(item => item.pause())

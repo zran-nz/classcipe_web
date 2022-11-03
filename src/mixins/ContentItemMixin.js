@@ -47,7 +47,7 @@ export const ContentItemMixin = {
     //   if (!this.$store.getters.formConfigData.taskSteps || !this.$classcipe.taskRequiredFields) {
     //     this.$store.dispatch('loadFormConfigData', token).then(() => {
     //       this.formSteps = this.$store.getters.formConfigData.taskSteps || []
-    //       this.$logger.info('formSteps', this.formSteps)
+    //       console.info('formSteps', this.formSteps)
     //       this.requiredFields = this.$classcipe.taskRequiredFields
     //       // TODO 暂时，等下面的TODO完成去掉
     //       // this.calculateCanPublish()
@@ -105,7 +105,7 @@ export const ContentItemMixin = {
   },
   methods: {
     handlePreviewDetail (data, isOrigin = false) {
-      this.$logger.info('handlePreviewDetail', data, 'allowPreview', this.allowPreview)
+      console.info('handlePreviewDetail', data, 'allowPreview', this.allowPreview)
       if (this.allowPreview) {
         this.previewVisible = false
         this.$nextTick(() => {
@@ -123,7 +123,7 @@ export const ContentItemMixin = {
       }
     },
     handlePreviewDeleteDetail (session) {
-      this.$logger.info('handlePreviewDeleteDetail', session, 'allowPreview', this.allowPreview)
+      console.info('handlePreviewDeleteDetail', session, 'allowPreview', this.allowPreview)
       if (this.allowPreview) {
         this.previewVisible = false
         this.$nextTick(() => {
@@ -140,7 +140,7 @@ export const ContentItemMixin = {
       }
     },
     handlePreviewClose () {
-      this.$logger.info('handlePreviewClose')
+      console.info('handlePreviewClose')
       this.previewVisible = false
       this.previewCurrentId = null
       this.previewType = null
@@ -236,7 +236,7 @@ export const ContentItemMixin = {
         } else if (field === TaskField.Link || field === PlanField.Link) {
           // TODO
           // if (!this.associateUnitPlanIdList?.length && !this.associateTaskIdList?.length) {
-          //   this.$logger.info(`${field} is empty`, this.associateUnitPlanIdList, this.associateTaskIdList)
+          //   console.info(`${field} is empty`, this.associateUnitPlanIdList, this.associateTaskIdList)
           //   this.emptyRequiredFields.push(field)
           //   this.formSteps.forEach(step => {
           //     if (step.commonFields.indexOf(field) > -1) {
@@ -282,7 +282,7 @@ export const ContentItemMixin = {
           if (field === 'overview' || field === 'goals') {
 
           } else if (this.simpleIsEmpty(this.content[field])) {
-            this.$logger.info(`${field} is empty`, this.content[field])
+            console.info(`${field} is empty`, this.content[field])
             this.emptyRequiredFields.push(field)
             this.formSteps.forEach(step => {
               if (step.commonFields.indexOf(field) > -1) {

@@ -66,16 +66,16 @@ export default {
   },
   methods: {
     handleUploadVideo(data) {
-      this.$logger.info('handleUploadVideo data', data)
+      console.info('handleUploadVideo data', data)
       this.progressPercent = 0
       this.uploading = true
       this.uploader = upAwsS3File(this.$store.getters.userInfo.id, data.file,
         progressSize => {
-          this.$logger.info('progressSize', progressSize)
+          console.info('progressSize', progressSize)
           this.progressPercent = progressSize
         },
         (url, name, size) => {
-          this.$logger.info('handleUploadVideo result', url)
+          console.info('handleUploadVideo result', url)
           this.uploading = false
           this.url = url
           this.name = name
@@ -98,7 +98,7 @@ export default {
     },
 
     handleSelected () {
-      this.$logger.info('handle select', this.url, ` field ${this.field}`)
+      console.info('handle select', this.url, ` field ${this.field}`)
       if (this.url) {
         this.$EventBus.$emit(ClasscipeDriveEvent.INSERT_UPLOADED_VIDEO, {
           field: this.field,

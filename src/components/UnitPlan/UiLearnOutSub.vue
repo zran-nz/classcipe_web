@@ -373,7 +373,7 @@
       get21century () {
         getAll21Century({
         }).then((response) => {
-          this.$logger.info('getAll21Century response', response)
+          console.info('getAll21Century response', response)
           if (response.success) {
              this.centuryList = response.result
              this.treeForeach(this.centuryList, node => {

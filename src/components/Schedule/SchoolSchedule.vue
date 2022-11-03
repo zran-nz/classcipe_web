@@ -259,7 +259,7 @@ export default {
   methods: {
     initFilterOption() {
       getSubjectBySchoolId({ schoolId: this.currentSchool.id }).then(response => {
-        this.$logger.info('getSubjectBySchoolId response', response.result)
+        console.info('getSubjectBySchoolId response', response.result)
         this.filterSubjectOptions = []
         response.result.forEach(curiculum => {
           if (curiculum.subjectList) {
@@ -270,7 +270,7 @@ export default {
         })
       })
       getCurriculumBySchoolId({ schoolId: this.currentSchool.id }).then(response => {
-        this.$logger.info('getCurriculumBySchoolId', response.result)
+        console.info('getCurriculumBySchoolId', response.result)
         this.filterAgeOptions = []
         response.result.forEach(curiculum => {
           if (curiculum.gradeSettingInfo) {
@@ -300,17 +300,17 @@ export default {
       }
     },
     handleDateChange (date, dateString) {
-      this.$logger.info('handleDateChange', date, dateString)
+      console.info('handleDateChange', date, dateString)
       this.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
       this.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
-      this.$logger.info('handleDateChange', this.startDate, this.endData)
+      console.info('handleDateChange', this.startDate, this.endData)
       this.$emit('select-date', {
         startDate: this.startDate,
         endDate: this.endData
       })
     },
     async handleZoomStatusChange () {
-      this.$logger.info('handleZoomStatusChange', this.enableZoom)
+      console.info('handleZoomStatusChange', this.enableZoom)
       this.$emit('select-zoom-status', this.enableZoom)
     },
      handleSelectSchedule(date) {
@@ -320,7 +320,7 @@ export default {
         this.$emit('select-date', null)
         return
       }
-      this.$logger.info('handleSelectSchedule', date)
+      console.info('handleSelectSchedule', date)
       this.startDate = moment(date.startDate).utc().format('YYYY-MM-DD HH:mm:ss')
       this.endDate = moment(date.endDate).utc().format('YYYY-MM-DD HH:mm:ss')
       this.$emit('select-date', {
@@ -362,7 +362,7 @@ export default {
     },
 
     viewFilterTeacherList () {
-      this.$logger.info('viewFilterTeacherList')
+      console.info('viewFilterTeacherList')
     }
   }
 }

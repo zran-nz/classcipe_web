@@ -460,7 +460,7 @@ export default {
     }
   },
   created () {
-    this.$logger.info('PptSlideView' + this.slideId + ' classId ' + this.classId, 'selectedIdList', this.selectedIdList, 'selectedIdStudentList', this.selectedIdStudentList, 'studentName', this.studentName)
+    console.info('PptSlideView' + this.slideId + ' classId ' + this.classId, 'selectedIdList', this.selectedIdList, 'selectedIdStudentList', this.selectedIdStudentList, 'studentName', this.studentName)
     this.selectedSlidePageIdList = this.selectedIdList
     this.selectedStudentSlidePageIdList = this.selectedIdStudentList
     this.loadData()
@@ -488,7 +488,7 @@ export default {
     loadData () {
       this.loading = true
       this.resetData()
-      this.$logger.info('加载PPT数据 ' + this.classId + ' slideId ' + this.slideId + ' formId' + this.formId + ' rowId ' + this.rowId)
+      console.info('加载PPT数据 ' + this.classId + ' slideId ' + this.slideId + ' formId' + this.formId + ' rowId ' + this.rowId)
       // 学生和老师调用接口不一样
       let presentationPromise = TemplatesGetPublishedPresentation
       if (this.currentRole === 'student') {
@@ -503,9 +503,9 @@ export default {
         }),
         QueryResponseByClassId({ classId: this.classId })
       ]).then(response => {
-        this.$logger.info('加载PPT数据 response', response)
+        console.info('加载PPT数据 response', response)
         if (response[2].result && response[2].result.result) {
-          this.$logger.info('老师评估数据', response[2].result.result)
+          console.info('老师评估数据', response[2].result.result)
           const teacherData = JSON.parse(response[2].result.result)
           this.isSelfInputScore = teacherData.isSelfInputScore
           this.selfInputScore = teacherData.selfInputScore
@@ -540,7 +540,7 @@ export default {
           this.loadStudentData()
         } else {
           this.loading = false
-          this.$logger.info('loaded data', this.imgList, this.commentData)
+          console.info('loaded data', this.imgList, this.commentData)
         }
 
         if (response[1].success) {
@@ -553,9 +553,9 @@ export default {
     },
 
     loadStudentData () {
-      this.$logger.info('loadStudentData', this.rawSlideDataMap)
+      console.info('loadStudentData', this.rawSlideDataMap)
       GetStudentResponse({ class_id: this.sessionId }).then(response => {
-        this.$logger.info('GetStudentResponse response', response)
+        console.info('GetStudentResponse response', response)
         const rawCommentDataList = response.data.presentation_comments
         rawCommentDataList.forEach((item) => {
           const data = JSON.parse(item.data)
@@ -565,22 +565,22 @@ export default {
             slideItem.commentList.push({ ...data, user_id: item.user_id })
             this.rawSlideDataMap.set(pageId, slideItem)
           } else {
-            this.$logger.info('not found page item ' + pageId)
+            console.info('not found page item ' + pageId)
             this.rawSlideDataMap.set(pageId, slideItem)
           }
         })
-        this.$logger.info('rawCommentDataList', rawCommentDataList)
+        console.info('rawCommentDataList', rawCommentDataList)
         const rawResponseData = response.data.response
-        this.$logger.info('rawResponseData', rawResponseData)
+        console.info('rawResponseData', rawResponseData)
         rawResponseData.forEach((item) => {
-          this.$logger.info('handle slideItem raw', JSON.parse(JSON.stringify(item)))
+          console.info('handle slideItem raw', JSON.parse(JSON.stringify(item)))
           const responseData = JSON.parse(item.response_data)
           const itemData = JSON.parse(item.item_data)
           const responseType = item.response_type
           const studentUserId = item.student_user_id
           const pageId = responseData.page_id
           const slideItem = this.rawSlideDataMap.get(pageId)
-          this.$logger.info('handle slideItem', JSON.parse(JSON.stringify(slideItem.responseList)))
+          console.info('handle slideItem', JSON.parse(JSON.stringify(slideItem.responseList)))
           if (slideItem) {
             if (responseType === 'choice' && responseData.answer && itemData.data.options[responseData.answer]) {
               itemData.data.options[responseData.answer].isAnswer = true
@@ -588,10 +588,10 @@ export default {
             slideItem.responseList.push({ responseData, itemData, responseType, studentUserId })
             this.rawSlideDataMap.set(pageId, slideItem)
           } else {
-            this.$logger.info('not find slideItem response ' + pageId)
+            console.info('not find slideItem response ' + pageId)
           }
         })
-        this.$logger.info('after set rawSlideDataMap ', this.rawSlideDataMap)
+        console.info('after set rawSlideDataMap ', this.rawSlideDataMap)
 
         for (const [key, value] of this.rawSlideDataMap) {
           const material = {}
@@ -613,14 +613,14 @@ export default {
             material: material
           })
           if (value.commentList.length) {
-            this.$logger.info('commentList have data', value.commentList)
+            console.info('commentList have data', value.commentList)
           }
 
           if (value.responseList.length) {
-            this.$logger.info('responseList have data', value.responseList)
+            console.info('responseList have data', value.responseList)
           }
         }
-        this.$logger.info('slideDataList', this.slideDataList)
+        console.info('slideDataList', this.slideDataList)
       }).finally(() => {
         this.loading = false
       })
@@ -629,7 +629,7 @@ export default {
     showPluginMaterial (slideItem, type) {
       const data = slideItem.material[type]
       const pageId = slideItem.pageId
-      this.$logger.info('showPluginMaterial ', slideItem, type)
+      console.info('showPluginMaterial ', slideItem, type)
 
       const pageElementsList = []
       if (this.slideDataList.length !== 0) {
@@ -659,7 +659,7 @@ export default {
     },
 
     handleAddSlideItem (slideItem) {
-      this.$logger.info('handleAddSlideItem', slideItem)
+      console.info('handleAddSlideItem', slideItem)
       if (this.mode === EvaluationTableMode.TeacherEvaluate) {
         const index = this.selectedSlidePageIdList.indexOf(slideItem.pageId)
         if (index !== -1) {
@@ -678,12 +678,12 @@ export default {
     },
 
     handleClickImg (event) {
-      this.$logger.info('handleClickImg', event)
+      console.info('handleClickImg', event)
       event.target.src = event.target.src + '#' + (new Date().getTime())
     },
 
     handleEnsureTakeaway () {
-      this.$logger.info('handleEnsureTakeaway ' + this.mode, this.mode === EvaluationTableMode.TeacherEvaluate ? this.selectedSlidePageIdList : this.selectedStudentSlidePageIdList)
+      console.info('handleEnsureTakeaway ' + this.mode, this.mode === EvaluationTableMode.TeacherEvaluate ? this.selectedSlidePageIdList : this.selectedStudentSlidePageIdList)
 
       const takeawayData = {
         isSelfInputScore: this.isSelfInputScore,
@@ -691,7 +691,7 @@ export default {
         list: []
       }
       this.slideDataList.forEach(item => {
-        this.$logger.info('handleEnsureTakeaway item', item.score, item)
+        console.info('handleEnsureTakeaway item', item.score, item)
         if (item.teacherCommentList.length || item.score) {
           takeawayData.list.push({
             pageObjectId: item.pageObjectId,
@@ -700,7 +700,7 @@ export default {
           })
         }
       })
-      this.$logger.info('保存Takeaway数据', takeawayData)
+      console.info('保存Takeaway数据', takeawayData)
       SaveSessionTakeaway({
         sessionId: this.sessionId,
         user: this.studentName,
@@ -719,7 +719,7 @@ export default {
     },
 
     handleAddComment (data) {
-      this.$logger.info('handleAddComment', data)
+      console.info('handleAddComment', data)
       data.extra.teacherCommentList.push({
         comment: data.inputValue,
         avatar: this.$store.getters.avatar,
@@ -729,7 +729,7 @@ export default {
     },
 
     handleViewExpand (slideItem) {
-      this.$logger.info('handleViewExpand', slideItem)
+      console.info('handleViewExpand', slideItem)
       this.currentViewSlideItem = slideItem
       this.viewSlideItemVisible = true
     },
@@ -741,14 +741,14 @@ export default {
     },
 
     handleEditSelfInputScore () {
-      this.$logger.info('handleEditSelfInputScore')
+      console.info('handleEditSelfInputScore')
       if (!this.isSelfInputScore) {
         this.selfInputScore = this.studentScore
       }
       this.selfInputVisible = true
     },
     handleEnsureSelfInputScore () {
-      this.$logger.info('handleEnsureSelfInputScore', this.selfInputScore)
+      console.info('handleEnsureSelfInputScore', this.selfInputScore)
       this.isSelfInputScore = true
       this.selfInputVisible = false
     }

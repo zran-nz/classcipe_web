@@ -182,7 +182,7 @@ export default {
     }
   },
   created () {
-    this.$logger.info('SearchFilter created', this.filterConfig)
+    console.info('SearchFilter created', this.filterConfig)
     this.filterSaOptions.forEach((option, index) => {
       this.saTags.push([])
     })
@@ -223,7 +223,7 @@ export default {
     },
     updateFilterConfig () {
       this.formatFilterConfig()
-      this.$logger.info('updateFilterConfig', this.filter)
+      console.info('updateFilterConfig', this.filter)
       this.$emit('filter-config-update', this.filter)
     },
     getGroupOptions (parent) {

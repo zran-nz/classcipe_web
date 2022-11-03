@@ -290,7 +290,7 @@ export default {
     },
 
     handleAddCol () {
-      this.$logger.info('handleAddCol currentEditHeader', this.currentEditHeader, 'headerList', this.assessment.headerList)
+      console.info('handleAddCol currentEditHeader', this.currentEditHeader, 'headerList', this.assessment.headerList)
       if (this.mode === 'edit' && this.assessment && this.assessment.canAddCustomCol) {
         const index = this.assessment.headerList.findIndex(item => item.type === this.currentEditHeader.type)
         let idx = this.headerTypeList.length + 1
@@ -321,7 +321,7 @@ export default {
         key: Math.random()
       }
       this.assessment.headerList.forEach(item => {
-        this.$logger.info('add row with criteria', origin, criteriaDisplay)
+        console.info('add row with criteria', origin, criteriaDisplay)
         if (item.type === HeaderType.criteria) {
           row[item.type] = {
             display: criteriaDisplay || null,
@@ -340,7 +340,7 @@ export default {
 
       // 检查extraData
       if (extraData) {
-        this.$logger.info(extraData.type, 'extraData', extraData)
+        console.info(extraData.type, 'extraData', extraData)
         if (extraData.type === this.criteriaExtraDataType.learningObjective || extraData.type === this.criteriaExtraDataType.generalCapability) {
           if (extraData.path && extraData.path.length) {
             const criteriaCategoryName = extraData.path.slice(-1)[0]
@@ -368,10 +368,10 @@ export default {
     },
 
     handleSaveHeaderAsSet () {
-      this.$logger.info('handleSaveHeaderAsSet', this.assessment.headerList)
+      console.info('handleSaveHeaderAsSet', this.assessment.headerList)
       const headerNameList = this.assessment.headerList.filter(item => item.type !== HeaderType.criteria).map(item => item.title)
       if (headerNameList.length) {
-        this.$logger.info('save header str', headerNameList)
+        console.info('save header str', headerNameList)
         const headerStr = JSON.stringify(headerNameList)
         if (!this.optionStrSet.has(headerStr)) {
           AssessmentToolHeaderNamesSave({
@@ -386,13 +386,13 @@ export default {
           })
         }
       } else {
-        this.$logger.info('empty header')
+        console.info('empty header')
       }
     },
 
     selectHeaderSet (optionItem) {
       const options = optionItem.headerNameList
-      this.$logger.info('selectHeaderSet', options)
+      console.info('selectHeaderSet', options)
       this.$EventBus.$emit('assessment-update-header', {
         key: this.assessment.key,
         headerNameList: options
@@ -401,7 +401,7 @@ export default {
     },
 
     autoSaveAssessment() {
-      this.$logger.info('autoSaveAssessment ', this.assessment.key)
+      console.info('autoSaveAssessment ', this.assessment.key)
       this.$emit('update:saving', true)
       try {
         const data = JSON.parse(JSON.stringify(this.assessment))
@@ -417,7 +417,7 @@ export default {
           try {
             toPng(this.$refs.table).then(base64 => {
               data.assessmentToolPreviewImgBase64 = base64
-              this.$logger.info('autoSaveAssessment', data)
+              console.info('autoSaveAssessment', data)
               AssessmentToolInfoSave(data).then((res) => {
                 if (res.code === 0) {
                   this.$EventBus.$emit('assessment-saved', {
@@ -443,7 +443,7 @@ export default {
 
     handleInsertCriteria (data) {
       if (this.isActiveTable) {
-        this.$logger.info('handleInsertCriteria', this.assessment.title, data)
+        console.info('handleInsertCriteria', this.assessment.title, data)
         data.generalCapabilityList.forEach(item => {
           item.type = this.criteriaExtraDataType.generalCapability
           this.handleAddRow(item.name || item.desc, item, true)
@@ -481,13 +481,13 @@ export default {
     },
 
     handleEditRow (row) {
-      this.$logger.info('handleEditRow', row)
+      console.info('handleEditRow', row)
       this.currentEditRow = row
       this.editRowModalVisible = true
     },
 
     handleEditExtraRow (row) {
-      this.$logger.info('handleEditExtraRow', row)
+      console.info('handleEditExtraRow', row)
       this.currentEditExtraRow = row
       this.editExtraRowModalVisible = true
     },
@@ -507,7 +507,7 @@ export default {
     },
 
     handleDeleteHeader (option) {
-      this.$logger.info('handleDeleteHeader', option)
+      console.info('handleDeleteHeader', option)
       AssessmentToolHeaderNamesDelete({
         id: option.id
       }).then(res => {

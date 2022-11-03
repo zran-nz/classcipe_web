@@ -94,7 +94,7 @@ export default {
     }
   },
   created() {
-    this.$logger.info(`Youtube field ${this.field}`)
+    console.info(`Youtube field ${this.field}`)
   },
   methods: {
     searchVideo() {
@@ -103,7 +103,7 @@ export default {
         this.chooseVideoId = ''
         this.videos = []
         YoutubeQueryByKeywords({ keywords: this.keywords }).then(response => {
-          this.$logger.info('YoutubeQueryByKeywords ', response)
+          console.info('YoutubeQueryByKeywords ', response)
           this.videos = response.result
           this.loading = false
         })
@@ -124,7 +124,7 @@ export default {
       this.videos = []
     },
     chooseVideo(item) {
-      this.$logger.info('chooseVideo', item)
+      console.info('chooseVideo', item)
       this.chooseVideoId = item.videoId
       this.choose = item
     }

@@ -119,15 +119,15 @@ export default {
     }
   },
   created () {
-    this.$logger.info('review evaluation ' + this.evaluationId + ' class id ' + this.classId)
+    console.info('review evaluation ' + this.evaluationId + ' class id ' + this.classId)
   },
   methods: {
     toggleMode (mode) {
-      this.$logger.info('toggleMode ' + mode)
+      console.info('toggleMode ' + mode)
       this.currentMode = mode
     },
     searchUser () {
-      this.$logger.info('searchUser ' + this.userNameOrEmail)
+      console.info('searchUser ' + this.userNameOrEmail)
       if (this.userList.length) {
         const list = []
         this.userList.forEach(user => {
@@ -137,11 +137,11 @@ export default {
         })
         this.displayUserList = list
       }
-      this.$logger.info('displayUserList', this.displayUserList)
+      console.info('displayUserList', this.displayUserList)
     },
 
     handleBlockStudent () {
-      this.$logger.info('handleBlockStudent')
+      console.info('handleBlockStudent')
     }
   }
 }

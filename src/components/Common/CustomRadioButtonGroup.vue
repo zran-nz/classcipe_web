@@ -46,7 +46,7 @@ export default {
   },
   methods: {
     handleClick (item) {
-      this.$logger.info('handleClick', item)
+      console.info('handleClick', item)
       this.checkedItem = item
       this.$emit('change', item)
       this.$emit('update:value', item.value)

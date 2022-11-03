@@ -91,7 +91,7 @@ export default {
   created() {},
   watch: {},
   mounted() {
-    this.$logger.info(this.videoId, 'watch videoId')
+    console.info(this.videoId, 'watch videoId')
     this.getFileRecord()
   },
   methods: {
@@ -105,7 +105,7 @@ export default {
         param.keywords = keywords
       }
       FileRecord(param).then(response => {
-        this.$logger.info('FileRecord ', response.result)
+        console.info('FileRecord ', response.result)
         if (response.result && response.result.records) {
           this.fileList = response.result.records
           // this.fileList = this.fileList.filter(item => videoTypes.indexOf(item.suffix) > -1)
@@ -118,12 +118,12 @@ export default {
       })
     },
     choiceItem(item) {
-      this.$logger.info(item)
+      console.info(item)
       this.chooseVideoId = item.id
       this.chooseItem = item
     },
     confirm() {
-      this.$logger.info('confirm')
+      console.info('confirm')
       if (this.chooseItem != null) {
         this.insertClasscipeFile(this.chooseItem)
       }

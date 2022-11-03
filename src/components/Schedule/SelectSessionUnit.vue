@@ -86,12 +86,12 @@ export default {
       this.$emit('back')
     },
     handleSelect (content) {
-      this.$logger.info('handleSelect', content)
+      console.info('handleSelect', content)
       this.selected = content
       this.handlePreviewDetail(content)
     },
     handlePreviewDetail (data) {
-      this.$logger.info('handlePreviewDetail', data, 'allowPreview', this.allowPreview)
+      console.info('handlePreviewDetail', data, 'allowPreview', this.allowPreview)
       this.previewVisible = false
       this.$nextTick(() => {
         this.previewCurrentId = data.id
@@ -104,7 +104,7 @@ export default {
       })
     },
     handlePreviewClose () {
-      this.$logger.info('handlePreviewClose')
+      console.info('handlePreviewClose')
       this.previewVisible = false
       this.previewCurrentId = null
       this.previewType = null

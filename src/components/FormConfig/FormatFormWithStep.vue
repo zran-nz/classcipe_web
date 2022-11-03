@@ -304,7 +304,7 @@ export default {
   },
   created() {
     this.loading = true
-    this.$logger.info('FormatForm start', this.commonList, this.customList, this.stepList)
+    console.info('FormatForm start', this.commonList, this.customList, this.stepList)
     const myCommonList = JSON.parse(JSON.stringify(this.commonList))
     const myCustomList = JSON.parse(JSON.stringify(this.customList))
     const steps = JSON.parse(JSON.stringify(this.stepList))
@@ -355,29 +355,29 @@ export default {
     // myCustomList异常数据处理
 
     this.steps = steps
-    this.$logger.info('FormatForm created', this.myCommonList, this.myCustomList, this.steps)
+    console.info('FormatForm created', this.myCommonList, this.myCustomList, this.steps)
     this.checkIsShowFormatSectionWarning()
     this.checkIsShowFormatStepWarning()
   },
   mounted() {
     this.autoSaveFn = debounce(this.emitSave, 1000)
-    this.$logger.info('init autoSaveFn', this.autoSaveFn)
+    console.info('init autoSaveFn', this.autoSaveFn)
     this.loading = false
   },
   methods: {
     emitSave() {
-      this.$logger.info('emitSave allowAutoSave', this.allowAutoSave)
+      console.info('emitSave allowAutoSave', this.allowAutoSave)
       if (this.allowAutoSave) {
         this.$emit('save')
       }
     },
     disableCommonDrag () {
-      this.$logger.info('disableDrag')
+      console.info('disableDrag')
       this.allowDrag = false
       this.commonDrag = false
     },
     disableCustomDrag() {
-      this.$logger.info('disableDrag')
+      console.info('disableDrag')
       this.allowDrag = false
       this.customDrag = false
     },
@@ -392,7 +392,7 @@ export default {
       } else {
         this.showSectionWarning = true
       }
-      this.$logger.info(`checkIsShowFormatSectionWarning ${this.showSectionWarning}`)
+      console.info(`checkIsShowFormatSectionWarning ${this.showSectionWarning}`)
     },
     hiddenFormStepWarning () {
       storage.set(`hidden-format-step-warning-${this.$store.getters.userInfo.id}`, 'true')
@@ -405,10 +405,10 @@ export default {
       } else {
         this.showStepWarning = true
       }
-      this.$logger.info(`checkIsShowFormatStepWarning ${this.showStepWarning}`)
+      console.info(`checkIsShowFormatStepWarning ${this.showStepWarning}`)
     },
     handleAddStep() {
-      this.$logger.info('handleAddStep')
+      console.info('handleAddStep')
       const newStep = {
         id: null,
         key: Math.random(),
@@ -423,7 +423,7 @@ export default {
       this.steps.push(newStep)
     },
     handleAddCustomField (step) {
-      this.$logger.info('handleAddCustomField', step.customFieldItems)
+      console.info('handleAddCustomField', step.customFieldItems)
       let count = 1
       let customFieldName = `CustomField${count}`
       while (this.myCustomList.some(item => item.name === customFieldName)) {
@@ -441,17 +441,17 @@ export default {
       }
       this.myCustomList.push(JSON.parse(JSON.stringify(fieldItem)))
       step.customFieldItems.push(JSON.parse(JSON.stringify(fieldItem)))
-      this.$logger.info('handleAddCustomField finish', step.customFieldItems)
+      console.info('handleAddCustomField finish', step.customFieldItems)
     },
 
     handleCustomChange (data) {
-      this.$logger.info('handleCustomChange', this.myCustomList)
+      console.info('handleCustomChange', this.myCustomList)
       this.myCustomList.forEach((item, index) => {
         item.sortNo = index
       })
     },
     handleStepSetTag (step) {
-      this.$logger.info('handleSetTag', step)
+      console.info('handleSetTag', step)
       this.currentFieldId = step.id
       this.currentFieldName = step.name
       this.currentFieldTags = step.tags.slice()
@@ -460,7 +460,7 @@ export default {
     },
 
     handleSetTag (fieldItem, subFieldName) {
-      this.$logger.info('handleSetTag', fieldItem)
+      console.info('handleSetTag', fieldItem)
       this.currentFieldId = fieldItem.id
       this.currentFieldName = fieldItem.name
       this.currentSubFieldName = subFieldName
@@ -473,7 +473,7 @@ export default {
     },
 
     showSectionChangeTips () {
-      this.$logger.info('showSectionChangeTips')
+      console.info('showSectionChangeTips')
       if (this.showSectionWarning) {
         this.$confirm({
           title: 'Warning',
@@ -492,7 +492,7 @@ export default {
     },
 
     showStepChangeTips () {
-      this.$logger.info('showStepChangeTips')
+      console.info('showStepChangeTips')
       if (this.showStepWarning) {
         this.$confirm({
           title: 'Warning',
@@ -516,19 +516,19 @@ export default {
     },
 
     handleUpdateStepTags (data) {
-      this.$logger.info('handleUpdateStepTags', data)
+      console.info('handleUpdateStepTags', data)
       const index = this.steps.findIndex(item => item.id === this.currentFieldId)
       if (index > -1) {
         const step = this.steps[index]
         step.tags = data
         this.$set(this.steps, index, step)
-        this.$logger.info('update step tags', step)
+        console.info('update step tags', step)
       }
       this.setTagVisible = false
     },
 
     handleUpdateTags (data) {
-      this.$logger.info('handleUpdateTags', data)
+      console.info('handleUpdateTags', data)
       let fieldItem = this.myCommonList.find(item => item.id === this.currentFieldId && item.name === this.currentFieldName)
       if (!fieldItem) {
         fieldItem = this.myCustomList.find(item => item.id === this.currentFieldId && item.name === this.currentFieldName)
@@ -543,9 +543,9 @@ export default {
         } else {
           fieldItem.tags = data
         }
-        this.$logger.info('update field tags', fieldItem)
+        console.info('update field tags', fieldItem)
       } else {
-        this.$logger.info('no field found')
+        console.info('no field found')
       }
       this.setTagVisible = false
     },
@@ -558,20 +558,20 @@ export default {
     },
 
     handleDeleteCustomField (sIdx, fieldItem) {
-      this.$logger.info('handleDeleteCustomField', fieldItem)
+      console.info('handleDeleteCustomField', fieldItem)
       const index = this.steps[sIdx].customFieldItems.findIndex(item => item.id === fieldItem.id)
       this.steps[sIdx].customFieldItems.splice(index, 1)
       this.myCustomList = this.myCustomList.filter(item => item.id !== fieldItem.id)
     },
 
     handleChangeCustomField(sIdx, fieldItem) {
-      this.$logger.info('handleChangeCustomField', fieldItem)
+      console.info('handleChangeCustomField', fieldItem)
       const index = this.myCustomList.findIndex(item => item.id === fieldItem.id)
       this.myCustomList[index] = fieldItem
     },
 
     handleChangeCommonField(sIdx, fieldItem) {
-      this.$logger.info('handleChangeCommonField', fieldItem)
+      console.info('handleChangeCommonField', fieldItem)
       const index = this.myCommonList.findIndex(item => item.id === fieldItem.id)
       this.myCommonList[index] = fieldItem
     },
@@ -584,7 +584,7 @@ export default {
 
       if (filterCustomNameList.length !== customNameList.length) {
         this.$message.warn('[' + this.title + '] Custom field name cannot be repeated')
-        this.$logger.info('repeated', customNameList, filterCustomNameList)
+        console.info('repeated', customNameList, filterCustomNameList)
         return false
       }
 
@@ -601,7 +601,7 @@ export default {
           item.id = null
         }
       })
-      this.$logger.info('myCommonList', myCommonList, 'myCustomList', myCustomList)
+      console.info('myCommonList', myCommonList, 'myCustomList', myCustomList)
 
       const mySteps = JSON.parse(JSON.stringify(this.steps))
 
@@ -644,7 +644,7 @@ export default {
         delete step.commonFieldItems
         delete step.customFieldItems
       })
-      this.$logger.info('getFormatConfig ', myCommonList, myCustomList, mySteps)
+      console.info('getFormatConfig ', myCommonList, myCustomList, mySteps)
       return {
         commonList: myCommonList,
         customList: myCustomList,

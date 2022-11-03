@@ -112,10 +112,10 @@ export default {
   },
   created() {
     this.asyncUpdateFilterListFn = debounce(this.updateFilterList, 200)
-    this.$logger.info('QuestionInput list', this.questionList, 'selected', this.selected)
+    console.info('QuestionInput list', this.questionList, 'selected', this.selected)
     this.selectedList = this.selected.filter(item => !!item.name) || []
     this.$watch('keyword', (nv) => {
-      this.$logger.info('QuestionInput keyword changed ' + nv)
+      console.info('QuestionInput keyword changed ' + nv)
       this.updating = true
       this.asyncUpdateFilterListFn()
       this.updating = false
@@ -155,7 +155,7 @@ export default {
       }
     },
     handleSelectItem (item) {
-      this.$logger.info('QuestionInput handleSelectItem', item)
+      console.info('QuestionInput handleSelectItem', item)
       item.id = null
       if (this.selectedList.indexOf(item) === -1) {
         this.selectedList.unshift(item)
@@ -163,19 +163,19 @@ export default {
       this.keyword = ''
       this.updateFilterList()
       this.showFilterList = false
-      this.$logger.info('selectedList', this.selectedList)
+      console.info('selectedList', this.selectedList)
       this.$emit('update', this.selectedList)
     },
     updateFilterList () {
-      this.$logger.info('updateFilterList list init', this.questionList)
+      console.info('updateFilterList list init', this.questionList)
       if (this.questionList.length) {
         console.log('QuestionInput selectedIdList', this.selectedIdList, this.selectedList)
         let list = JSON.parse(JSON.stringify(this.questionList))
-        this.$logger.info('list', list)
+        console.info('list', list)
         if (this.keyword.trim()) {
           list = this.questionList.slice().filter(item => item.name.toLowerCase().indexOf(this.keyword.toLowerCase()) !== -1)
         }
-        this.$logger.info('list filter', list)
+        console.info('list filter', list)
         list.forEach(item => {
           // 高亮命中单词
           if (item.name && this.keyword.trim() && item.name.toLowerCase().includes(this.keyword.trim().toLowerCase())) {
@@ -200,7 +200,7 @@ export default {
       console.log('QuestionInput updateFilterList', this.filterList)
     },
     handleDelete (item) {
-      this.$logger.info('QuestionInput handleDelete', item)
+      console.info('QuestionInput handleDelete', item)
       if (this.selectedList.indexOf(item) !== -1) {
         this.selectedList.splice(this.selectedList.indexOf(item), 1)
       }

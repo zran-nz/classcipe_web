@@ -359,10 +359,10 @@ export default {
         }
       })
       this.selectedUserList = list
-      this.$logger.info('after handleCloseTag', this.selectedUserList)
+      console.info('after handleCloseTag', this.selectedUserList)
     },
     async handleEnsureSelect() {
-      this.$logger.info('handleEnsureSelect', this.selectedUserList)
+      console.info('handleEnsureSelect', this.selectedUserList)
       const inviteData = {
         id: this.contentId,
         type: this.contentType,
@@ -374,7 +374,7 @@ export default {
       const response = await CollaboratesInvite(inviteData)
       if (response.success) {
         if (response.code === 520 || response.code === 403) {
-          this.$logger.info('等待授权回调')
+          console.info('等待授权回调')
           this.$message.loading('Waiting for Google Slides auth...', 10)
           this.nextLoading = false
           return
@@ -391,7 +391,7 @@ export default {
       this.showUser = false
     },
     searchUser () {
-      this.$logger.info('searchUser ' + this.userNameOrEmail)
+      console.info('searchUser ' + this.userNameOrEmail)
       this.showUser = true
       if (!this.userNameOrEmail) {
         this.userList = this.collaborateHistoryUsers
@@ -403,9 +403,9 @@ export default {
           item.nickname.trim().toLowerCase().indexOf(this.userNameOrEmail.trim().toLowerCase()) !== -1)
         return
       }
-      this.$logger.info('CollaboratesSearchUser ' + this.userNameOrEmail)
+      console.info('CollaboratesSearchUser ' + this.userNameOrEmail)
       CollaboratesSearchUser({ name: this.userNameOrEmail.trim() }).then(response => {
-        this.$logger.info('SearchUser response', response)
+        console.info('SearchUser response', response)
         this.userList = response.result
       }).finally(() => {
         this.loading = false
@@ -413,7 +413,7 @@ export default {
     },
     findHistoryUsers () {
       CollaboratesSearchUser({ name: '' }).then(response => {
-        this.$logger.info('SearchUser response', response)
+        console.info('SearchUser response', response)
         this.collaborateHistoryUsers = response.result
         this.collaborateHistoryUserEmails = response.result.map(user => {
           return user.email
@@ -422,7 +422,7 @@ export default {
       })
     },
     handleAddToSelect (user) {
-      this.$logger.info('handleAddToSelect ' + user.email + ' permisson ' + this.permission)
+      console.info('handleAddToSelect ' + user.email + ' permisson ' + this.permission)
       const index = this.selectedUserList.findIndex(item => item.email === user.email)
       if (index !== -1) {
         this.selectedUserList.splice(index, 1)
@@ -432,20 +432,20 @@ export default {
       }
       this.active = false
       this.userNameOrEmail = ''
-      this.$logger.info('selectedUserList ', this.selectedUserList)
+      console.info('selectedUserList ', this.selectedUserList)
     },
 
     handleToggleType (currentType) {
-      this.$logger.info('handleToggleType ' + currentType)
+      console.info('handleToggleType ' + currentType)
       this.userSelectMode = currentType
     },
 
     handleCancel () {
-      this.$logger.info('handleCancel')
+      console.info('handleCancel')
       this.$emit('cancel')
     },
     handleCopy () {
-      this.$logger.info('handleCopy')
+      console.info('handleCopy')
       this.$copyText(this.linkUrl).then(() => {
         this.$message.success('Copy successfully')
       }).catch(() => {
@@ -453,13 +453,13 @@ export default {
       })
     },
     handleEmail() {
-      this.$logger.info('handleEmail')
+      console.info('handleEmail')
       this.sendEmailVisibility = true
     },
     resetLink () {
       this.collaborate.link.needUpdateCode = true
       CollaboratesUpdateLink(this.collaborate.link).then(response => {
-        this.$logger.info('CollaboratesUpdateLink response:', response)
+        console.info('CollaboratesUpdateLink response:', response)
         if (response.success) {
           this.collaborate.link = response.result
           this.$message.success('Reset link successfully')
@@ -475,7 +475,7 @@ export default {
         this.collaborate.link.needUpdateCode = true
       }
       CollaboratesUpdateLink(this.collaborate.link).then(response => {
-        this.$logger.info('CollaboratesUpdateLink response:', response)
+        console.info('CollaboratesUpdateLink response:', response)
         if (response.success) {
           this.collaborate.link = response.result
           this.$copyText(this.linkUrl).then(() => {
@@ -491,7 +491,7 @@ export default {
       this.collaborate = {}
       this.loading = true
       QueryContentCollaborates({ id: this.contentId, type: this.contentType }).then(response => {
-        this.$logger.info('QueryContentCollaborates response:', response)
+        console.info('QueryContentCollaborates response:', response)
         if (response.success) {
           this.collaborate = response.result
           this.collaborateUserList = this.collaborate.users
@@ -513,7 +513,7 @@ export default {
       this.userNameOrEmail = ''
     },
     handleAccept (item, flag) {
-      this.$logger.info('handleAccept', item)
+      console.info('handleAccept', item)
       this.agreeLoading = true
       CollaboratesAgree({ id: item.id, agreeFlag: flag }).then(res => {
         console.info('handleApply', res)
@@ -530,7 +530,7 @@ export default {
     handleChange (user, permissions, index) {
       user.permissions = permissions
       this.$set(this.collaborateUserList, index, user)
-      this.$logger.info('handleChange', user)
+      console.info('handleChange', user)
       CollaboratesUpdate(user).then(res => {
         console.info('handleChange', res)
         this.$message.success('Update successfully')
@@ -543,7 +543,7 @@ export default {
       })
     },
     handleRemove(user, index) {
-      this.$logger.info('handleRemove', user)
+      console.info('handleRemove', user)
       var that = this
       this.$confirm({
         title: 'Confirm remove user',
@@ -551,7 +551,7 @@ export default {
         centered: true,
         onOk: () => {
           CollaboratesRemove(user).then(response => {
-            this.$logger.info('handleRemove', response)
+            console.info('handleRemove', response)
             this.$message.success('Remove successfully')
           }).finally(() => {
             that.collaborateUserList.splice(index, 1)

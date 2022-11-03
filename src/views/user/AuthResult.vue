@@ -38,7 +38,7 @@ export default {
     const accessToken = paramSearch.get('accessToken')
     this.$store.dispatch('LoginWithToken', accessToken).then(() => {
       this.$store.dispatch('GetInfo').then(response => {
-        this.$logger.info('auth-result-redirect', this.$route)
+        console.info('auth-result-redirect', this.$route)
         const callbackUrl = window.sessionStorage.getItem(SESSION_CALLBACK_URL)
         // 如果有zoom授权token，且当前窗口有opener发送zoom 授权更新消息
         this.handleOpener()

@@ -65,14 +65,14 @@ export default {
   },
   mounted () {
     this.maxWidth = document.documentElement.clientWidth / 5
-    this.$logger.info('Navigation item maxWidth ' + this.maxWidth)
+    console.info('Navigation item maxWidth ' + this.maxWidth)
   },
   created () {
-    this.$logger.info('navigation path', this.path)
+    console.info('navigation path', this.path)
   },
   methods: {
     changePath (item) {
-      this.$logger.info('changePath', item)
+      console.info('changePath', item)
       this.$emit('pathChange', item)
     }
   }

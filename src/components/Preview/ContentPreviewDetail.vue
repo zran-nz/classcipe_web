@@ -1006,7 +1006,7 @@ export default {
 
     async loadStat() {
       const statRet = await getStatByContentId({ contentId: this.contentId })
-      this.$logger.info('statRet', statRet)
+      console.info('statRet', statRet)
       this.stat = statRet.result
     },
 
@@ -1132,7 +1132,7 @@ export default {
           contentUrl: '//dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png'
         })
       }
-      this.$logger.info('initImgList', this.thumbnailList)
+      console.info('initImgList', this.thumbnailList)
     },
 
     async loadSlideData () {
@@ -1276,7 +1276,7 @@ export default {
         sourceId: this.contentId,
         sourceType: this.contentType
       }).then(response => {
-        this.$logger.info('FavoritesAdd ', response)
+        console.info('FavoritesAdd ', response)
         this.favoriteFlag = !this.favoriteFlag
       }).finally(async () => {
         await this.loadStat()
@@ -1287,7 +1287,7 @@ export default {
         sourceId: this.contentId,
         sourceType: this.contentType
       }).then(response => {
-        this.$logger.info('handleRemoveFavorite ', response)
+        console.info('handleRemoveFavorite ', response)
         this.favoriteFlag = !this.favoriteFlag
       }).finally(async () => {
         await this.loadStat()
@@ -1295,7 +1295,7 @@ export default {
     },
 
     handleEdit () {
-      this.$logger.info('handleEdit', this.contentType)
+      console.info('handleEdit', this.contentType)
       if (this.content.type === this.typeMap['unit-plan']) {
         this.$router.push('/teacher/unit-plan-redirect/' + this.content.id)
         // window.open('/teacher/unit-plan-redirect/' + this.content.id, '_blank')
@@ -1312,7 +1312,7 @@ export default {
     },
 
     handleEditBuy () {
-      this.$logger.info('handleEdit', this.content.myContentId)
+      console.info('handleEdit', this.content.myContentId)
       if (this.content.type === this.typeMap['unit-plan']) {
         this.$router.push('/teacher/unit-plan-redirect/' + this.content.myContentId)
         // window.open('/teacher/unit-plan-redirect/' + this.content.myContentId, '_blank')
@@ -1329,7 +1329,7 @@ export default {
     },
 
     handleDuplicateItem () {
-      this.$logger.info('handleDuplicateItem', this.content)
+      console.info('handleDuplicateItem', this.content)
       // 其他人的资源走buy逻辑
       // if (this.content.createBy !== this.$store.getters.userInfo.email) {
       //   return this.handleBuyItem('Copy successfully')
@@ -1342,7 +1342,7 @@ export default {
           this.copyLoading = true
           Duplicate({ id: this.content.id, type: this.content.type }).then((response) => {
             if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
-              this.$logger.info('Duplicate response', response)
+              console.info('Duplicate response', response)
               this.$message.success('Copy successfully')
               this.$router.push({ path: '/teacher/main/created-by-me' })
             } else {
@@ -1356,10 +1356,10 @@ export default {
     },
 
     handleBuyItem (msg = '') {
-      this.$logger.info('handleBuyItem', this.content)
+      console.info('handleBuyItem', this.content)
       ContentBuy({ id: this.content.id, type: this.content.type }).then((response) => {
         if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
-          this.$logger.info('Duplicate response', response)
+          console.info('Duplicate response', response)
           if (msg) {
             this.$message.success(msg)
           } else {
@@ -1390,7 +1390,7 @@ export default {
     },
 
     toggleSelectContentTag(gradeValue) {
-      this.$logger.info('toggleSelectContentTag', gradeValue)
+      console.info('toggleSelectContentTag', gradeValue)
       const index = this.selectedGradeList.indexOf(gradeValue)
       if (index === -1) {
         this.selectedGradeList.push(gradeValue)
@@ -1445,7 +1445,7 @@ export default {
     },
 
     handlePreviewItem (item) {
-      this.$logger.info(`handlePreviewItem allowPreviewSubContent ${this.allowPreviewSubContent}`, item)
+      console.info(`handlePreviewItem allowPreviewSubContent ${this.allowPreviewSubContent}`, item)
       if (this.allowPreviewSubContent) {
         this.handlePreviewDetail(item)
       }

@@ -773,11 +773,11 @@ export default {
       if (this.gradeOptions && this.gradeOptions.length > 0 && this.userInfo.gradeIds && this.userInfo.gradeIds.length > 0) {
         this.userInfo.gradeNameList = this.gradeOptions.filter(item => this.userInfo.gradeIds.includes(item.id)).map(item => item.name)
       }
-      this.$logger.info('user info loaded', this.userInfo)
+      console.info('user info loaded', this.userInfo)
     },
 
     initData () {
-      this.$logger.info('init data')
+      console.info('init data')
       this.initBasic()
       this.loading = true
       if (this.$store.getters.currentRole === 'teacher') {
@@ -787,7 +787,7 @@ export default {
           getAllSubjectsByCurriculumId({ curriculumId: this.userInfo.curriculumId }),
           getCustomizedTags()
         ]).then(response => {
-          this.$logger.info('init data', response)
+          console.info('init data', response)
           if (!response[0].code) {
             console.info('getAllCurriculums response', response[0])
             this.curriculumOptions = response[0].result
@@ -817,7 +817,7 @@ export default {
             //   if (this.userInfo.subjectIds.indexOf(option.id) !== -1 && this.userInfo.subjectNameList.indexOf(option.name) === -1) {
             //     this.userInfo.subjectNameList.push(option.name)
             //   } else {
-            //     this.$logger.info('subject id ' + option.id + ' dont exist in ', this.userInfo.subjectIds)
+            //     console.info('subject id ' + option.id + ' dont exist in ', this.userInfo.subjectIds)
             //   }
             // })
           }
@@ -841,7 +841,7 @@ export default {
           getAllAreas(),
           SubjectStudentList()
         ]).then(response => {
-          this.$logger.info('init data', response)
+          console.info('init data', response)
           if (!response[0].code) {
             console.info('getAllAreas response', response[0])
             this.areaOptions = response[0].result
@@ -869,7 +869,7 @@ export default {
             //   if (this.userInfo.subjectIds.indexOf(option.id) !== -1) {
             //     this.userInfo.subjectNameList.push(option.name)
             //   } else {
-            //     this.$logger.info('subject id ' + option.id + ' dont exist in ', this.userInfo.subjectIds)
+            //     console.info('subject id ' + option.id + ' dont exist in ', this.userInfo.subjectIds)
             //   }
             // })
           }
@@ -920,7 +920,7 @@ export default {
     },
 
     loadSubjectByCurriculumId (curriculumId) {
-      this.$logger.info('loadSubjectByCurriculumId ' + curriculumId)
+      console.info('loadSubjectByCurriculumId ' + curriculumId)
       this.userInfo.subjectIds = []
       this.userInfo.gradeIds = []
       getAllSubjectsByCurriculumId({ curriculumId }).then(response => {
@@ -944,7 +944,7 @@ export default {
         id: this.$store.getters.userInfo.id
       }
       editUser(userData).then(response => {
-        this.$logger.info('update preference and edit user response', response)
+        console.info('update preference and edit user response', response)
       }).finally(() => {
         this.$store.dispatch('GetInfo').then(() => {
           this.initData()
@@ -961,7 +961,7 @@ export default {
         }
 
         if (postData.areaIds.indexOf(this.otherAreaId) !== -1) {
-          this.$logger.info('others ', this.userInfo.tempOthers)
+          console.info('others ', this.userInfo.tempOthers)
           if (this.userInfo.tempOthers && this.userInfo.tempOthers.length <= 80) {
             postData.others = [this.userInfo.tempOthers]
           } else {
@@ -983,7 +983,7 @@ export default {
           age: this.userInfo.age
         }
       }
-      this.$logger.info('tempNickname ', this.userInfo.tempNickname)
+      console.info('tempNickname ', this.userInfo.tempNickname)
       if (this.userInfo.tempNickname && this.userInfo.tempNickname.length < 80) {
         const userData = {
           avatar: this.userInfo.avatar,
@@ -992,14 +992,14 @@ export default {
           currentRole: this.userInfo.currentRole
         }
 
-        this.$logger.info('update preference and edit user post data', postData, userData)
+        console.info('update preference and edit user post data', postData, userData)
         const promises = [editUser(userData)]
         // 学校模式下不能修改
         if (this.canEdit) {
           promises.push(addPreference(postData))
         }
         Promise.all(promises).then(response => {
-          this.$logger.info('update preference and edit user response', response)
+          console.info('update preference and edit user response', response)
         }).finally(() => {
           this.$store.dispatch('GetInfo').then(() => {
             this.initData()
@@ -1040,7 +1040,7 @@ export default {
       UserSetting({
         disableQuestion: this.disableQuestion
       }).then((response) => {
-        this.$logger.info('UserSetting', response.result)
+        console.info('UserSetting', response.result)
         if (response.success) {
           this.$store.dispatch('GetInfo')
         } else {

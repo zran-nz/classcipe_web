@@ -101,7 +101,7 @@ export default {
     }
   },
   created() {
-    this.$logger.info('FormLinkedContent ' + this.fromId)
+    console.info('FormLinkedContent ' + this.fromId)
     this.getAssociate()
   },
   computed: {
@@ -122,18 +122,18 @@ export default {
     },
 
     handleConfirmAddCategory (selectedCategoryList) {
-      this.$logger.info('handleConfirmAddCategory', selectedCategoryList)
+      console.info('handleConfirmAddCategory', selectedCategoryList)
       this.addCategoryVisible = false
       const newGroupNameList = []
       selectedCategoryList.forEach(groupName => {
         this.ownerLinkGroupList.findIndex(group => group.group === groupName) === -1 && newGroupNameList.push(groupName)
       })
       this.handleAddTerm(newGroupNameList)
-      this.$logger.info('newGroupNameList', newGroupNameList)
+      console.info('newGroupNameList', newGroupNameList)
     },
 
     async getAssociate () {
-      this.$logger.info('GetAssociate id[' + this.fromId + '] [type:' + this.fromType + ']')
+      console.info('GetAssociate id[' + this.fromId + '] [type:' + this.fromType + ']')
       if (!this.fromId) {
         return
       }
@@ -149,7 +149,7 @@ export default {
         published: 0
       })
 
-      this.$logger.info('UnitLinkedContent getAssociate', response)
+      console.info('UnitLinkedContent getAssociate', response)
       response.result.owner.forEach(ownerItem => {
         const groupItem = response.result.groups.find(group => group.groupName === ownerItem.group || (group.groupName === 'Relevant Unit Plan(s)' && ownerItem.group === ''))
         const contentList = JSON.parse(JSON.stringify(ownerItem.contents))
@@ -158,7 +158,7 @@ export default {
           ownerItem.groupId = groupItem.id
           let contents = []
           if (this.filterTypes.length && contentList?.length) {
-            this.$logger.info('filterTypes', this.filterTypes)
+            console.info('filterTypes', this.filterTypes)
             contentList.forEach(item => {
               if (this.filterTypes.indexOf(item.type) !== -1) {
                 contents.push(item)
@@ -168,11 +168,11 @@ export default {
             contents = contentList
           }
           ownerItem.contents = contents
-          this.$logger.info('filterTypes contents', contents)
+          console.info('filterTypes contents', contents)
         } else {
           let contents = []
           if (this.filterTypes.length && contentList?.length) {
-            this.$logger.info('else filterTypes', this.filterTypes)
+            console.info('else filterTypes', this.filterTypes)
             contentList.forEach(item => {
               if (this.filterTypes.indexOf(item.type) !== -1) {
                 contents.push(item)
@@ -186,7 +186,7 @@ export default {
       })
       this.ownerLinkGroupList = response.result.owner
       this.groups = response.result.groups
-      this.$logger.info('ownerLinkGroupList', this.ownerLinkGroupList)
+      console.info('ownerLinkGroupList', this.ownerLinkGroupList)
 
       this.ownerLinkGroupList.forEach(group => {
         group.contents.forEach(content => {
@@ -210,11 +210,11 @@ export default {
 
     // 当拖入内容时，先隐藏dom，然后提取数据后删除组件插入的dom，随后手动处理数据，方便Vue监听
     async handleDragContent (event) {
-      this.$logger.info('UnitLinkedContent handleDropContent', event)
+      console.info('UnitLinkedContent handleDropContent', event)
       event.item.style.display = 'none'
       const itemData = JSON.parse(event.item.dataset.item)
       event.item.parentElement.removeChild(event.item)
-      this.$logger.info('item data', itemData)
+      console.info('item data', itemData)
 
       let groupName
       if (itemData.type === this.$classcipe.typeMap['unit-plan']) {
@@ -237,19 +237,19 @@ export default {
         ]
       }
 
-      this.$logger.info('associateData', associateData)
+      console.info('associateData', associateData)
       await Associate(associateData)
       await this.getAssociate()
     },
 
     async handleDeleteGroup (group) {
-      this.$logger.info('handleDeleteGroup', group)
+      console.info('handleDeleteGroup', group)
       const response = await DeleteGroup({
         fromId: this.fromId,
         fromType: this.fromType,
         id: group.id
       })
-      this.$logger.info('DeleteGroup', response)
+      console.info('DeleteGroup', response)
       await this.getAssociate()
       this.$nextTick(() => {
         this.$EventBus.$emit('refresh-link-content-list')
@@ -257,7 +257,7 @@ export default {
     },
 
     async handleAddTerm(newGroupNameList) {
-      this.$logger.info('handleAddTerm', this.groupNameList)
+      console.info('handleAddTerm', this.groupNameList)
       for (let i = 0; i < newGroupNameList.length; i++) {
         await AddOrSaveGroupName({
           fromId: this.fromId,
@@ -277,14 +277,14 @@ export default {
     },
 
     async handleDeleteLinkItem (item) {
-      this.$logger.info('handleDeleteLinkItem', item)
+      console.info('handleDeleteLinkItem', item)
       const response = await AssociateCancel({
         fromId: this.fromId,
         fromType: this.fromType,
         toId: item.id,
         toType: item.type
       })
-      this.$logger.info('handleDeleteLinkItem response ', response)
+      console.info('handleDeleteLinkItem response ', response)
       await this.getAssociate()
       this.$nextTick(() => {
         this.$EventBus.$emit('refresh-link-content-list')

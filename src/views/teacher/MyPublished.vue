@@ -114,7 +114,7 @@ export default {
       }
     },
     handleSearch (data) {
-      this.$logger.info('handleSearch', data)
+      console.info('handleSearch', data)
       this.searchText = data.searchKey
       this.filterParams = data
       this.pageNo = 1
@@ -161,7 +161,7 @@ export default {
     },
 
     handleDeleteItem (data) {
-      this.$logger.info('handleDeleteItem', data)
+      console.info('handleDeleteItem', data)
       const index = this.myContentList.findIndex(item => item.id === data.content.id)
       if (index !== -1) {
         this.myContentList.splice(index, 1)
@@ -171,7 +171,7 @@ export default {
     },
 
     handleShowContentPublish(data) {
-      this.$logger.info('handleShowContentPublish', data)
+      console.info('handleShowContentPublish', data)
       this.currentContent = data.content
       if (data.content.status === 1) {
         // 取消发布直接更新
@@ -183,7 +183,7 @@ export default {
     },
 
     handleUpdatePublish (data) {
-      this.$logger.info('handleUpdatePublish', data)
+      console.info('handleUpdatePublish', data)
       const index = this.myContentList.findIndex(item => item.id === data.content.id)
       if (index !== -1) {
         const targetStatus = data.content.status ? 0 : 1
@@ -192,7 +192,7 @@ export default {
           status: targetStatus,
           type: data.content.type
         }).then((res) => {
-          this.$logger.info('handlePublishStatus res', res)
+          console.info('handlePublishStatus res', res)
           this.myContentList[index].status = targetStatus
           if (targetStatus) {
             this.$message.success('Publish successfully!')
@@ -217,11 +217,11 @@ export default {
     },
 
     handleShowDiscountSetting () {
-      this.$logger.info('handleShowDiscountSetting', this.discountSettingVisible)
+      console.info('handleShowDiscountSetting', this.discountSettingVisible)
       this.discountSettingVisible = true
     },
     handleUpdateDiscountSetting(content) {
-      this.$logger.info('handleUpdateDiscountSetting', content)
+      console.info('handleUpdateDiscountSetting', content)
       this.currentContent = content
     }
   }

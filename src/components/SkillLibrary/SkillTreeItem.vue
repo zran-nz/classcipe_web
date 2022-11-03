@@ -130,18 +130,18 @@ export default {
   },
   methods: {
     handleExpandTreeItem (treeItemData) {
-      this.$logger.info('handleExpandTreeItem ' + (!this.subTreeExpandStatus))
-      this.$logger.info('handleExpandTreeItem deep: ' + this.defaultDeep + ' type: ' + this.treeItemType + ' treeItemData', treeItemData, ' parent ', this.treeCurrentParent)
+      console.info('handleExpandTreeItem ' + (!this.subTreeExpandStatus))
+      console.info('handleExpandTreeItem deep: ' + this.defaultDeep + ' type: ' + this.treeItemType + ' treeItemData', treeItemData, ' parent ', this.treeCurrentParent)
       this.handleExpandSkillTreeItem(treeItemData)
     },
 
     handleCollapseTreeItem (treeItemData) {
-      this.$logger.info('handleExpandTreeItem ' + (!this.subTreeExpandStatus))
+      console.info('handleExpandTreeItem ' + (!this.subTreeExpandStatus))
       this.subTreeExpandStatus = false
     },
 
     handleExpandSkillTreeItem (treeItemData) {
-      this.$logger.info('handleExpandSkillTreeItem data ', treeItemData, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
+      console.info('handleExpandSkillTreeItem data ', treeItemData, ' children ', treeItemData.children, ' deep ' + this.defaultDeep)
 
       if (this.defaultDeep === 0 || this.defaultDeep === 2 || this.defaultDeep === 3) {
         this.subTreeExpandStatus = true
@@ -155,12 +155,12 @@ export default {
       } else {
         // 加载等级对应的技能点关联数据
         if (this.defaultDeep === 1) {
-          this.$logger.info('try SkillGetTreeByGradeId ' + treeItemData.id + ' ' + treeItemData.name, treeItemData)
+          console.info('try SkillGetTreeByGradeId ' + treeItemData.id + ' ' + treeItemData.name, treeItemData)
           this.subTreeLoading = true
           SkillGetTreeByGradeId({
             gradeId: treeItemData.id
           }).then(response => {
-            this.$logger.info('SkillQueryTagsBySkillId response', response.result)
+            console.info('SkillQueryTagsBySkillId response', response.result)
             treeItemData.children = [...response.result]
             SkillLibraryEventBus.$emit(SkillLibraryEvent.SkillContentListUpdate, {
               currentTreeData: this.treeItemData,
@@ -176,12 +176,12 @@ export default {
 
         // 加载对应的技能点描述
         if (this.defaultDeep === 4) {
-          this.$logger.info('selectMode', this.selectMode)
+          console.info('selectMode', this.selectMode)
 
           if (this.selectMode !== SkillSelectModel.skillDescription) {
             this.subTreeLoading = true
             SkillQueryTagsBySkillId({ skillId: this.treeItemData.id }).then(response => {
-              this.$logger.info('SkillQueryTagsBySkillId response', response.result)
+              console.info('SkillQueryTagsBySkillId response', response.result)
               SkillLibraryEventBus.$emit(SkillLibraryEvent.SkillContentListUpdate, {
                 currentTreeData: this.treeItemData,
                 parentTreeData: this.treeCurrentParent,
@@ -193,12 +193,12 @@ export default {
               this.subTreeExpandStatus = true
             })
           } else {
-            this.$logger.info('select knowledge description treeItemData', this.treeItemData, this.treeCurrentParent)
+            console.info('select knowledge description treeItemData', this.treeItemData, this.treeCurrentParent)
             const gradeObj = this.treeCurrentParent.parent.parent
             const mainSkillObj = this.treeCurrentParent.parent
             const subSkillObj = this.treeCurrentParent
             const descriptionObj = this.treeItemData
-            this.$logger.info('mainSkillObj', mainSkillObj, 'subSkillObj', subSkillObj, 'descriptionObj', descriptionObj)
+            console.info('mainSkillObj', mainSkillObj, 'subSkillObj', subSkillObj, 'descriptionObj', descriptionObj)
             SkillLibraryEventBus.$emit(SkillLibraryEvent.SkillContentListSelectClick, {
               curriculumId: this.$store.getters.bindCurriculum,
               description: descriptionObj.name,
@@ -220,7 +220,7 @@ export default {
         data.item.id === this.treeItemData.id &&
         data.item.name === this.treeItemData.name &&
         (data.item.name)) {
-        this.$logger.info('handleSkillContentListItemClick start ', data, this.treeItemData, this.treeCurrentParent)
+        console.info('handleSkillContentListItemClick start ', data, this.treeItemData, this.treeCurrentParent)
         this.handleExpandTreeItem(this.treeItemData)
       }
     }

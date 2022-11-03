@@ -61,7 +61,7 @@ export default {
     }
   },
   created() {
-    this.$logger.info('ShareUnitPlan created', this.shareContent)
+    console.info('ShareUnitPlan created', this.shareContent)
     if (this.$store.getters.token) {
       this.queryContentCollaborates()
     }
@@ -69,7 +69,7 @@ export default {
   methods: {
     queryContentCollaborates() {
       QueryContentCollaborates({ id: this.shareContent.task.id, type: this.shareContent.task.type }).then(response => {
-        this.$logger.info('QueryContentCollaborates response:', response)
+        console.info('QueryContentCollaborates response:', response)
         if (response.success) {
           this.collaborateUserEmailList = response.result.users.map(user => user.email)
         }

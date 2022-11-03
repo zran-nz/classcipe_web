@@ -177,7 +177,7 @@ export default {
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_GOOGLE_IMAGE, this.handleSelectGoogleImage)
     this.$EventBus.$on(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, this.handleSelectGoogleDrive)
 
-    this.$logger.info('CustomImageUploader created imgUrl', this.imgUrl, 'contentId', this.contentId)
+    console.info('CustomImageUploader created imgUrl', this.imgUrl, 'contentId', this.contentId)
     if (this.imgUrl) {
       this.options.img = this.imgUrl
       this.previews.url = this.imgUrl
@@ -195,7 +195,7 @@ export default {
       this.previews.url = imgUrl
     },
     handleSelectDrive (eventData) {
-      this.$logger.info('case image handleSelectDriveItem', eventData)
+      console.info('case image handleSelectDriveItem', eventData)
       if (eventData?.field === this.field) {
         if (eventData.data.length) {
           this.$emit('update', {
@@ -209,7 +209,7 @@ export default {
     },
 
     handleSelectUpload (eventData) {
-      this.$logger.info('case image handleSelectUpload', eventData)
+      console.info('case image handleSelectUpload', eventData)
       if (!eventData) this.visible = false
       if (eventData?.field === this.field) {
         if (eventData.data.length) {
@@ -223,7 +223,7 @@ export default {
       }
     },
     handleSelectGoogleImage (eventData) {
-      this.$logger.info('handleSelectGoogleImage', eventData)
+      console.info('handleSelectGoogleImage', eventData)
       if (eventData?.field === this.field) {
         if (eventData.data.length) {
           this.$emit('update', {
@@ -236,7 +236,7 @@ export default {
       }
     },
     handleSelectGoogleDrive (eventData) {
-      this.$logger.info('handleSelectGoogleDrive', eventData)
+      console.info('handleSelectGoogleDrive', eventData)
       if (eventData?.field === this.field) {
         if (eventData.data) {
           this.$emit('update', {
@@ -297,7 +297,7 @@ export default {
         this.modelSrc = data
         const suffix = mime.split('/')[1]
         const file = new File([u8arr], `custom_image_${Date.now()}_${Math.random().toString(36).slice(2)}.${suffix}`, { type: mime })
-        this.$logger.info('upload file', file)
+        console.info('upload file', file)
         this.confirmLoading = true
         upAwsS3File(this.$store.getters.userInfo.id, file, this.getProgressUpLoad, result => {
           this.onSuccess(file, result)
@@ -306,11 +306,11 @@ export default {
     },
 
     getProgressUpLoad (progress) {
-      this.$logger.info('getProgressUpLoad', progress)
+      console.info('getProgressUpLoad', progress)
       this.confirmLoading = true
     },
     onSuccess (file, result) {
-      this.$logger.info('upload success', file, result)
+      console.info('upload success', file, result)
       this.$emit('update', {
         type: 'image',
         url: result
@@ -343,7 +343,7 @@ export default {
     },
 
     handleDeleteItem () {
-      this.$logger.info('handleDeleteItem item:', this.imgUrl)
+      console.info('handleDeleteItem item:', this.imgUrl)
       this.$emit('update', {
         type: 'image',
         url: ''

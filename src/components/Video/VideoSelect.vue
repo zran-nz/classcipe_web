@@ -91,12 +91,12 @@ export default {
       this.recording = status
     },
     handleDelete () {
-      this.$logger.info('CustomCoverMedia handleDelete', this.url)
+      console.info('CustomCoverMedia handleDelete', this.url)
       this.$emit('delete')
     },
 
     handleSelectUploadItem (eventData) {
-      this.$logger.info('CustomCoverMedia handleSelectUploadItem', eventData)
+      console.info('CustomCoverMedia handleSelectUploadItem', eventData)
       if (eventData && eventData.field === this.field) {
         this.currentMediaFileUrl = eventData.data
         this.afterSelectInsert()
@@ -104,21 +104,21 @@ export default {
     },
 
     handleSelectDriveItem (eventData) {
-      this.$logger.info('CustomCoverMedia handleSelectDriveItem', eventData)
+      console.info('CustomCoverMedia handleSelectDriveItem', eventData)
       if (eventData && eventData.field === this.field) {
         this.currentMediaFileUrl = eventData.data[0].filePath
         this.afterSelectInsert()
       }
     },
     handleSelectYoutube (eventData) {
-      this.$logger.info('CustomCoverMedia handleSelectYoutube', eventData)
+      console.info('CustomCoverMedia handleSelectYoutube', eventData)
       if (eventData && eventData.field === this.field) {
         this.currentMediaFileUrl = eventData.data.link
         this.afterSelectInsert()
       }
     },
     handleSelectGoogleDrive (eventData) {
-      this.$logger.info('CustomCoverMedia handleSelectGoogleDrive', eventData)
+      console.info('CustomCoverMedia handleSelectGoogleDrive', eventData)
       if (eventData && eventData.field === this.field) {
         this.currentMediaFileUrl = eventData.data
         this.afterSelectInsert()
@@ -126,7 +126,7 @@ export default {
     },
 
     handleAddScreenCapture (eventData) {
-      this.$logger.info('CustomCoverMedia handleAddScreenCapture', eventData)
+      console.info('CustomCoverMedia handleAddScreenCapture', eventData)
       if (eventData && eventData.field === this.field) {
         this.currentMediaFileUrl = eventData.data
         this.afterSelectInsert()
@@ -134,7 +134,7 @@ export default {
     },
 
     afterSelectInsert() {
-      this.$logger.info('CustomCoverMedia handleAddVideo done', this.currentMediaFileUrl)
+      console.info('CustomCoverMedia handleAddVideo done', this.currentMediaFileUrl)
       this.$refs.drive.hiddenClasscipeDrive()
       this.$emit('update', {
         url: this.currentMediaFileUrl,

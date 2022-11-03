@@ -29,7 +29,7 @@ export default {
     return {}
   },
   created() {
-    this.$logger.info('SlideTemplate created ', this.displaySelectedTemplateList)
+    console.info('SlideTemplate created ', this.displaySelectedTemplateList)
   },
   computed: {
     displaySelectedTemplateList () {

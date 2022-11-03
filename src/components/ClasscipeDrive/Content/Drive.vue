@@ -131,11 +131,11 @@ export default {
     })
   },
   mounted() {
-    this.$logger.info('Drive created ' + this.filterType + ' field ' + this.field + ' filterType ' + this.filterType)
+    console.info('Drive created ' + this.filterType + ' field ' + this.field + ' filterType ' + this.filterType)
     this.handleSearch()
   },
   beforeDestroy() {
-    this.$logger.info('Drive Destroy')
+    console.info('Drive Destroy')
   },
   methods: {
 
@@ -164,11 +164,11 @@ export default {
         pageNo: this.pageNo,
         pageSize: this.pageSize
       }).then(response => {
-        this.$logger.info('searchFileName FileRecord ', response.result.records)
+        console.info('searchFileName FileRecord ', response.result.records)
         if (response.result && response.result.records) {
           this.dataList = response.result.records
         }
-        this.$logger.info('data list', this.dataList)
+        console.info('data list', this.dataList)
       }).finally(() => {
         this.loading = false
       })
@@ -185,7 +185,7 @@ export default {
         schoolId: this.currentSchool?.id
       }
       FindMyContent(params).then(res => {
-        this.$logger.info('Drive getMyContent', res)
+        console.info('Drive getMyContent', res)
         if (res.success && res.code === 0) {
           this.contentList = res.result.records
         }
@@ -202,11 +202,11 @@ export default {
         pageNo: this.pageNo,
         pageSize: this.pageSize
       }).then(response => {
-        this.$logger.info('FileRecord ', response.result, response.result.records)
+        console.info('FileRecord ', response.result, response.result.records)
         if (response?.result.records.length) {
           this.contentSubList = response.result.records
         }
-        this.$logger.info('contentSubList', this.contentSubList)
+        console.info('contentSubList', this.contentSubList)
       }).finally(() => {
         this.loading = false
       })
@@ -215,12 +215,12 @@ export default {
     searchModeChange (e) {
       this.isSearchByContent = e.target.checked
       this.searchMode = this.isSearchByContent ? this.searchModeType.content : this.searchModeType.fileName
-      this.$logger.info('searchModeChange now', this.searchMode)
+      console.info('searchModeChange now', this.searchMode)
       this.handleSearch()
     },
 
     handleFileContentItemClick (item) {
-      this.$logger.info('handleFileContentItemClick', item)
+      console.info('handleFileContentItemClick', item)
       this.searchMode = this.searchModeType.contentSubFile
       this.currentContentItem = item
       this.searchFileByContentId(item)
@@ -244,7 +244,7 @@ export default {
     },
 
     handleInsertSelected () {
-      this.$logger.info('handleInsertSelected', this.selectedList)
+      console.info('handleInsertSelected', this.selectedList)
       this.$EventBus.$emit(ClasscipeDriveEvent.INSERT_DRIVE_ITEM, {
         field: this.field,
         data: this.selectedList

@@ -35,7 +35,7 @@ export default {
     })
   },
   created () {
-    this.$logger.info('pd redirecting ' + this.pdId)
+    console.info('pd redirecting ' + this.pdId)
     ClasscipeEventBus.$on(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handlePdRedirect)
     this.handlePdRedirect()
   },
@@ -44,7 +44,7 @@ export default {
   },
   methods: {
     handlePdRedirect() {
-      this.$logger.info('task redirecting ' + this.pdId)
+      console.info('task redirecting ' + this.pdId)
       if (this.pdId) {
         this.$router.replace('/teacher/pd-content/' + this.pdId)
       } else {
@@ -58,12 +58,12 @@ export default {
       }
 
       PDContentAddOrUpdate(data).then((response) => {
-        this.$logger.info('PDContentAddOrUpdate response', response.result)
+        console.info('PDContentAddOrUpdate response', response.result)
         if (response.success) {
           if (response.code !== 520 && response.code !== 403) {
             this.$router.replace('/teacher/pd-content/' + response.result.id)
           } else {
-            this.$logger.info('等待授权回调')
+            console.info('等待授权回调')
           }
         } else {
           this.$message.error(response.message)

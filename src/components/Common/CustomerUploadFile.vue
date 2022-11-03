@@ -130,11 +130,11 @@ export default {
       this.uploading = true
       this.uploader = upAwsS3File(this.$store.getters.userInfo.id, data.file,
         progressSize => {
-          this.$logger.info('progressSize', progressSize)
+          console.info('progressSize', progressSize)
           this.progressPercent = progressSize
       },
         result => {
-          this.$logger.info('handleUploadImage result', result)
+          console.info('handleUploadImage result', result)
           this.mediaUrl = result
           this.uploading = false
           this.$emit('update', {
@@ -153,11 +153,11 @@ export default {
     },
 
     handleEdit () {
-      this.$logger.info('handleEdit', this.videoItem)
+      console.info('handleEdit', this.videoItem)
     },
 
     handleDelete () {
-      this.$logger.info('handleDelete', this.videoItem)
+      console.info('handleDelete', this.videoItem)
       this.$emit('delete', this.videoItem)
       if (this.emitGlobalEvent) {
         this.$EventBus.$emit(CoverMediaEvent.COVER_MEDIA_DELETE, this.videoItem)

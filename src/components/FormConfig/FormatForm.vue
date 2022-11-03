@@ -269,7 +269,7 @@ export default {
   created() {
     this.myCommonList = this.commonList.slice()
     this.myCustomList = this.customList.slice()
-    this.$logger.info('FormatForm created', this.myCommonList, this.myCustomList)
+    console.info('FormatForm created', this.myCommonList, this.myCustomList)
   },
   methods: {
     handleAddCustomField () {
@@ -289,14 +289,14 @@ export default {
     },
 
     handleCustomChange (data) {
-      this.$logger.info('handleCustomChange', this.myCustomList)
+      console.info('handleCustomChange', this.myCustomList)
       this.myCustomList.forEach((item, index) => {
         item.sortNo = index
       })
     },
 
     handleSetTag (fieldItem, subFieldName) {
-      this.$logger.info('handleSetTag', fieldItem)
+      console.info('handleSetTag', fieldItem)
       this.currentFieldId = fieldItem.id
       this.currentFieldName = fieldItem.name
       this.currentSubFieldName = subFieldName
@@ -317,7 +317,7 @@ export default {
     },
 
     handleUpdateTags (data) {
-      this.$logger.info('handleUpdateTags', data)
+      console.info('handleUpdateTags', data)
       let fieldItem = this.myCommonList.find(item => item.id === this.currentFieldId && item.name === this.currentFieldName)
       if (!fieldItem) {
         fieldItem = this.myCustomList.find(item => item.id === this.currentFieldId && item.name === this.currentFieldName)
@@ -332,9 +332,9 @@ export default {
         } else {
           fieldItem.tags = data
         }
-        this.$logger.info('update field tags', fieldItem)
+        console.info('update field tags', fieldItem)
       } else {
-        this.$logger.info('no field found')
+        console.info('no field found')
       }
       this.setTagVisible = false
     },
@@ -347,7 +347,7 @@ export default {
     },
 
     handleDeleteCustomField (fieldItem) {
-      this.$logger.info('handleDeleteCustomField', fieldItem)
+      console.info('handleDeleteCustomField', fieldItem)
       this.myCustomList = this.myCustomList.filter(item => item.id !== fieldItem.id)
     },
 
@@ -359,7 +359,7 @@ export default {
 
       if (filterCustomNameList.length !== customNameList.length) {
         this.$message.warn('[' + this.title + '] Custom field name cannot be repeated')
-        this.$logger.info('repeated', customNameList, filterCustomNameList)
+        console.info('repeated', customNameList, filterCustomNameList)
         return false
       }
 
@@ -374,7 +374,7 @@ export default {
           item.id = null
         }
       })
-      this.$logger.info('getFormatConfig ' + this.title, myCommonList, myCustomList)
+      console.info('getFormatConfig ' + this.title, myCommonList, myCustomList)
       return {
         commonList: myCommonList,
         customList: myCustomList

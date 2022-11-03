@@ -117,16 +117,16 @@ export default {
     }
   },
   created() {
-    this.$logger.info(`ClasscipeDrive field ${this.field} filter type ${this.filterType} contentId ${this.contentId}`)
+    console.info(`ClasscipeDrive field ${this.field} filter type ${this.filterType} contentId ${this.contentId}`)
   },
   methods: {
     driveTypeChange() {
-      this.$logger.info('driveTypeChange', this.currentDriveType)
+      console.info('driveTypeChange', this.currentDriveType)
       this.handleShowGoogleDrive()
     },
 
     handleShowGoogleDrive() {
-      this.$logger.info(`handleShowGoogleDrive filterType ${this.filterType}`)
+      console.info(`handleShowGoogleDrive filterType ${this.filterType}`)
       if (this.currentDriveType === this.DriveType.GoogleDrive) {
         GooglePicker.init(
           (progress) => {
@@ -135,7 +135,7 @@ export default {
           (type, url, mediaType, name, size) => {
             console.log('GooglePicker success url', url)
             if (url) {
-              this.$logger.info('GooglePicker addDrive done', url, mediaType, ClasscipeDriveEvent)
+              console.info('GooglePicker addDrive done', url, mediaType, ClasscipeDriveEvent)
               this.$EventBus.$emit(ClasscipeDriveEvent.INSERT_GOOGLE_DRIVE, {
                 data: url,
                 mediaType,

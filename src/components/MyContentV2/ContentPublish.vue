@@ -97,7 +97,7 @@ export default {
     }
   },
   created() {
-    this.$logger.info('ContentPublish', this.content)
+    console.info('ContentPublish', this.content)
   },
   methods: {
     handleClose() {
@@ -105,7 +105,7 @@ export default {
     },
 
     handlePublish () {
-      this.$logger.info('handlePublish')
+      console.info('handlePublish')
       this.$emit('publish')
     },
 
@@ -116,7 +116,7 @@ export default {
       })
       const data = res.result
       if (data) {
-        this.$logger.info('discountSettingQuery', data)
+        console.info('discountSettingQuery', data)
         this.discount = data.discount
         this.price = data.price
         this.startDate = data.discountStartTime
@@ -135,7 +135,7 @@ export default {
       return current && current < moment().subtract(1, 'days').endOf('day')
     },
     handleDurationChange (date) {
-      this.$logger.info('handleDurationChange', date)
+      console.info('handleDurationChange', date)
       this.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD 00:00:00')
       this.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD 00:00:00')
     },
@@ -152,7 +152,7 @@ export default {
       }
     },
     async updatePrice () {
-      this.$logger.info('update price')
+      console.info('update price')
       this.confirmLoading = true
       const type = parseInt(this.content.type)
       await discountSettingSave({

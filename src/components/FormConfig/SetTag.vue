@@ -95,7 +95,7 @@ export default {
     }
   },
   created() {
-    this.$logger.info('SetTag created', this.selectedTags)
+    console.info('SetTag created', this.selectedTags)
     this.loadCustomTags()
   },
   methods: {
@@ -111,7 +111,7 @@ export default {
     },
 
     handleCheckedChange (tag) {
-      this.$logger.info('handleCheckedChange tag', tag)
+      console.info('handleCheckedChange tag', tag)
       const index = this.selectedSet.indexOf(tag.set)
       if (index === -1) {
         this.selectedSet.push(tag.set)
@@ -124,7 +124,7 @@ export default {
     },
 
     handleEnsureSelected () {
-      this.$logger.info('handleEnsureSelected tagList', this.selectedSet)
+      console.info('handleEnsureSelected tagList', this.selectedSet)
       this.$emit('update', this.selectedSet)
     },
 

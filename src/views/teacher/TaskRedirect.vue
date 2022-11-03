@@ -16,7 +16,7 @@ export default {
     }
   },
   created () {
-    this.$logger.info('task redirecting ' + this.taskId)
+    console.info('task redirecting ' + this.taskId)
     ClasscipeEventBus.$on(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleTaskRedirect)
     this.handleTaskRedirect()
   },
@@ -25,7 +25,7 @@ export default {
   },
   methods: {
     handleTaskRedirect() {
-      this.$logger.info('task redirecting ' + this.taskId)
+      console.info('task redirecting ' + this.taskId)
       if (this.taskId) {
         this.$router.replace('/teacher/add-task-v2/' + this.taskId)
       } else {
@@ -35,12 +35,12 @@ export default {
         }
 
         TaskAddOrUpdate(data).then((response) => {
-          this.$logger.info('TaskAddOrUpdate response', response.result)
+          console.info('TaskAddOrUpdate response', response.result)
           if (response.success) {
             if (response.code !== 520 && response.code !== 403) {
               this.$router.replace('/teacher/add-task-v2/' + response.result.id)
             } else {
-              this.$logger.info('等待授权回调')
+              console.info('等待授权回调')
             }
           } else {
             this.$message.error(response.message)

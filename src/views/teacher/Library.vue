@@ -96,7 +96,7 @@ export default {
   methods: {
 
     handleSchoolChange() {
-      this.$logger.info('handleSchoolChange called')
+      console.info('handleSchoolChange called')
       this.initData()
     },
 
@@ -129,7 +129,7 @@ export default {
     },
 
     handleSearch (data) {
-      this.$logger.info('handleSearch', data)
+      console.info('handleSearch', data)
       if (data && data.length >= 2) {
         this.$router.push({ path: '/teacher/library/search/' + data })
       }

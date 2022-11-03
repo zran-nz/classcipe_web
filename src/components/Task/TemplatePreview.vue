@@ -219,7 +219,7 @@ export default {
   },
   watch: {
     selectedTemplateIdList (value) {
-      this.$logger.info('selectedTemplateIdList ', value)
+      console.info('selectedTemplateIdList ', value)
       this.selectIds = value
     }
   },
@@ -245,21 +245,21 @@ export default {
   methods: {
     loadData() {
       this.templateData = this.template
-      this.$logger.info('selectedTemplateIdList ', this.selectedTemplateIdList)
+      console.info('selectedTemplateIdList ', this.selectedTemplateIdList)
       this.selectIds = this.selectedTemplateIdList
       if (this.templateData.type === typeMap.task) {
         this.loading = true
         TemplatesGetPublishedPresentation({
           taskId: this.templateData.id
         }).then(response => {
-          this.$logger.info('task loadThumbnail response', response.result)
+          console.info('task loadThumbnail response', response.result)
           if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
             const pageObjects = response.result.pageObjects
             this.templateData.pageObjectIds = []
             pageObjects.forEach(page => {
               this.templateData.pageObjectIds.push(page.id)
               this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
-              this.$logger.info('current thumbnailList ', this.thumbnailList)
+              console.info('current thumbnailList ', this.thumbnailList)
             })
           }
         }).finally(() => {
@@ -275,21 +275,21 @@ export default {
       }
     },
     handleAuthCallback() {
-      this.$logger.info('handleAuthCallback')
+      console.info('handleAuthCallback')
       this.loadData()
     },
     handleGotoImgIndex (index) {
-      this.$logger.info('handleGotoImgIndex ' + index)
+      console.info('handleGotoImgIndex ' + index)
       this.currentImgIndex = index
       this.$refs.carousel.goTo(index)
     },
     handleSelectTemplate ($event) {
-      this.$logger.info('handleSelectTemplate ' + this.templateData.name)
+      console.info('handleSelectTemplate ' + this.templateData.name)
       // this.$emit('handle-select')
       MyContentEventBus.$emit(MyContentEvent.ToggleSelectContentItem, this.templateData, $event)
     },
     handlePreviewMaterial (item) {
-      this.$logger.info('handlePreviewMaterial ' + item)
+      console.info('handlePreviewMaterial ' + item)
       if (item.type !== 'tip') {
         window.open(item.url, '_blank')
       }

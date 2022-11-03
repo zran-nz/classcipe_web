@@ -139,7 +139,7 @@ export default {
   },
   watch: {
     selectedList (val) {
-      this.$logger.info('NewContentList selectedList change', val)
+      console.info('NewContentList selectedList change', val)
       this.mySelectedList = val
       this.selectedIdList = []
       this.selectedMap.clear()
@@ -155,8 +155,8 @@ export default {
     LibraryEventBus.$on(LibraryEvent.ChangeCurriculum, this.handleChangeCurriculum)
     LibraryEventBus.$on(LibraryEvent.ResetContentList, this.handleResetContentList)
     this.nameWidth = document.getElementById('new-library').getBoundingClientRect().width - 505
-    this.$logger.info('nameWidth ' + this.nameWidth)
-    this.$logger.info('NewContentList selectedList', this.selectedList)
+    console.info('nameWidth ' + this.nameWidth)
+    console.info('NewContentList selectedList', this.selectedList)
     this.mySelectedList = this.selectedList
     this.assignSelectedList()
 
@@ -195,7 +195,7 @@ export default {
       }
     },
     handleChangeCurriculum () {
-      this.$logger.info('NewContentList handleChangeCurriculum')
+      console.info('NewContentList handleChangeCurriculum')
       this.contentDataList = []
       this.parent = null
       this.firstLoad = true
@@ -203,25 +203,25 @@ export default {
     },
 
     handleResetContentList () {
-      this.$logger.info('NewContentList handleResetContentList')
+      console.info('NewContentList handleResetContentList')
       this.contentDataList = []
       this.parent = null
       this.firstLoad = true
       this.currentDataType = null
     },
     assignSelectedList () {
-      this.$logger.info('assignSelectedList', this.selectedList)
+      console.info('assignSelectedList', this.selectedList)
       this.selectedIdList = []
       this.selectedMap.clear()
       this.selectedList.forEach(item => {
         this.selectedIdList.push(item.knowledgeId)
         this.selectedMap.set(item.knowledgeId, item)
       })
-      this.$logger.info('assignSelectedList selectedIdList', this.selectedIdList)
+      console.info('assignSelectedList selectedIdList', this.selectedIdList)
     },
 
     handleContentListUpdate (data) {
-      this.$logger.info('NewContentList handleContentListUpdate ', data)
+      console.info('NewContentList handleContentListUpdate ', data)
       this.backgroundColor = data.backgroundColor
       this.contentDataList = data.contentList
       this.parent = data.currentTreeData
@@ -230,7 +230,7 @@ export default {
     },
 
     handleContentSelectedListUpdate (data) {
-      this.$logger.info('handleContentSelectedListUpdate ', data)
+      console.info('handleContentSelectedListUpdate ', data)
       if (this.selectedCurriculumIdList.indexOf(data.id) === -1) {
         this.selectedCurriculumIdList.push(data.id)
         this.selectedCurriculumMap.set(data.id, data)
@@ -238,17 +238,17 @@ export default {
         this.selectedCurriculumIdList.splice(this.selectedCurriculumIdList.indexOf(data.id), 1)
         this.selectedCurriculumMap.delete(data.id)
       }
-      this.$logger.info('after handleContentSelectedListUpdate ', this.selectedCurriculumIdList, this.selectedCurriculumMap)
+      console.info('after handleContentSelectedListUpdate ', this.selectedCurriculumIdList, this.selectedCurriculumMap)
     },
     handleContentListItemClick (item) {
-      this.$logger.info(this.currentDataType + ': handleContentListItemClick current item: ', item, ' parent:', this.parent)
+      console.info(this.currentDataType + ': handleContentListItemClick current item: ', item, ' parent:', this.parent)
       item.originParent = this.parent
 
       const index = this.selectedIdList.indexOf(item.id)
       if (index !== -1) {
         this.selectedIdList.splice(index, 1)
         this.selectedMap.delete(item.id)
-        this.$logger.info('delete from selectedIdList', this.selectedIdList)
+        console.info('delete from selectedIdList', this.selectedIdList)
         const mIndex = this.mySelectedList.findIndex(data => data.knowledgeId === item.id)
         this.mySelectedList.splice(mIndex, 1)
         this.$emit('update-selected-list', this.mySelectedList)
@@ -265,7 +265,7 @@ export default {
             parent: this.parent,
             eventType: 'syncDir'
           })
-          this.$logger.info('$emit sync', item, this.currentDataType, this.parent)
+          console.info('$emit sync', item, this.currentDataType, this.parent)
         } else {
           // 有的时候grade下面没数据，需要排除一下grade
           if (!item.hasOwnProperty('isGrade')) {
@@ -290,10 +290,10 @@ export default {
               })
             })
             this.$emit('select-curriculum', selectedList)
-            this.$logger.info('selectedCurriculumMap', this.selectedCurriculumMap)
+            console.info('selectedCurriculumMap', this.selectedCurriculumMap)
 
             if (item.hasOwnProperty('selectedGradeId')) {
-              this.$logger.info('selectedGradeId', item.selectedGradeId)
+              console.info('selectedGradeId', item.selectedGradeId)
               LibraryEventBus.$emit(LibraryEvent.GradeUpdate, item.selectedGradeId)
             }
           } else {
@@ -305,7 +305,7 @@ export default {
               eventType: 'syncDir'
             }
             LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, eventData)
-            this.$logger.info('current is grade, skip empty children item!', eventData)
+            console.info('current is grade, skip empty children item!', eventData)
           }
         }
       } else if (this.currentDataType === NavigationType.specificSkills) {
@@ -318,7 +318,7 @@ export default {
             parent: this.parent,
             eventType: 'syncDir'
           })
-          this.$logger.info('$emit sync specificSkills', item, this.currentDataType, this.parent)
+          console.info('$emit sync specificSkills', item, this.currentDataType, this.parent)
         } else {
           // 有的时候grade下面没数据，需要排除一下grade
           if (!item.hasOwnProperty('isGrade')) {
@@ -343,10 +343,10 @@ export default {
               })
             })
             this.$emit('select-subject-specific-skill', selectedList)
-            this.$logger.info('selectedSubjectSpecificSkillIdMap', this.selectedSubjectSpecificSkillIdMap)
+            console.info('selectedSubjectSpecificSkillIdMap', this.selectedSubjectSpecificSkillIdMap)
 
             if (item.hasOwnProperty('selectedGradeId')) {
-              this.$logger.info('selectedGradeId', item.selectedGradeId)
+              console.info('selectedGradeId', item.selectedGradeId)
               LibraryEventBus.$emit(LibraryEvent.GradeUpdate, item.selectedGradeId)
             }
           } else {
@@ -358,7 +358,7 @@ export default {
               eventType: 'syncDir'
             }
             LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, eventData)
-            this.$logger.info('current is grade, skip empty children item!', eventData)
+            console.info('current is grade, skip empty children item!', eventData)
           }
         }
       } else if (this.currentDataType === NavigationType.centurySkills || this.currentDataType === NavigationType.AUGeneralCapabilities || this.currentDataType === NavigationType.NZKeyCompetencies) {
@@ -371,7 +371,7 @@ export default {
             parent: this.parent,
             eventType: 'syncDir'
           })
-          this.$logger.info('$emit sync')
+          console.info('$emit sync')
         } else {
           // 有的时候grade下面没数据，需要排除一下grade
           if (!item.hasOwnProperty('isGrade')) {
@@ -396,10 +396,10 @@ export default {
               })
             })
             this.$emit('select-century-skill', selectedList)
-            this.$logger.info('selected21CenturySkillIdMap', this.selected21CenturySkillIdMap)
+            console.info('selected21CenturySkillIdMap', this.selected21CenturySkillIdMap)
 
             if (item.hasOwnProperty('selectedGradeId')) {
-              this.$logger.info('selectedGradeId', item.selectedGradeId)
+              console.info('selectedGradeId', item.selectedGradeId)
               LibraryEventBus.$emit(LibraryEvent.GradeUpdate, item.selectedGradeId)
             }
           } else {
@@ -411,7 +411,7 @@ export default {
               eventType: 'syncDir'
             }
             LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, eventData)
-            this.$logger.info('current is grade, skip empty children item!', eventData)
+            console.info('current is grade, skip empty children item!', eventData)
           }
         }
       } else if (this.currentDataType === NavigationType.sdg) {
@@ -425,7 +425,7 @@ export default {
             eventType: 'syncDir'
           }
           LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, eventData)
-          this.$logger.info('BigIdea $emit sync eventData', eventData)
+          console.info('BigIdea $emit sync eventData', eventData)
         } else {
           const index = this.selectedBigIdeaList.indexOf(item.id)
           if (index !== -1) {
@@ -441,9 +441,9 @@ export default {
             })
           })
           this.$emit('select-big-idea', selectedList)
-          this.$logger.info('select-big-idea', this.selectedBigIdeaList)
+          console.info('select-big-idea', this.selectedBigIdeaList)
           if (item.hasOwnProperty('selectedGradeId')) {
-            this.$logger.info('selectedGradeId', item.selectedGradeId)
+            console.info('selectedGradeId', item.selectedGradeId)
             LibraryEventBus.$emit(LibraryEvent.GradeUpdate, item.selectedGradeId)
           }
         }
@@ -458,7 +458,7 @@ export default {
             parent: this.parent,
             eventType: 'syncDir'
           })
-          this.$logger.info('$emit sync')
+          console.info('$emit sync')
         } else {
           // 有的时候grade下面没数据，需要排除一下grade
           if (!item.hasOwnProperty('isGrade')) {
@@ -483,9 +483,9 @@ export default {
               })
             })
             this.$emit('select-assessmentType', selectedList)
-            this.$logger.info('selectedAssessmentMap', this.selectedAssessmentMap)
+            console.info('selectedAssessmentMap', this.selectedAssessmentMap)
             if (item.hasOwnProperty('selectedGradeId')) {
-              this.$logger.info('selectedGradeId', item.selectedGradeId)
+              console.info('selectedGradeId', item.selectedGradeId)
               LibraryEventBus.$emit(LibraryEvent.GradeUpdate, item.selectedGradeId)
             }
           } else {
@@ -497,7 +497,7 @@ export default {
               eventType: 'syncDir'
             }
             LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, eventData)
-            this.$logger.info('current is grade, skip empty children item!', eventData)
+            console.info('current is grade, skip empty children item!', eventData)
           }
         }
       } else if (this.currentDataType === NavigationType.all21Century) {
@@ -510,7 +510,7 @@ export default {
             parent: this.parent,
             eventType: 'syncDir'
           })
-          this.$logger.info('$emit sync')
+          console.info('$emit sync')
         } else {
           const index = this.selectedAll21CenturyIdList.indexOf(item.id)
           if (index !== -1) {
@@ -532,9 +532,9 @@ export default {
             })
           })
           this.$emit('select-all-21-century', selectedList)
-          this.$logger.info('select-all-21-century', selectedList)
+          console.info('select-all-21-century', selectedList)
           if (item.hasOwnProperty('selectedGradeId')) {
-            this.$logger.info('selectedGradeId', item.selectedGradeId)
+            console.info('selectedGradeId', item.selectedGradeId)
             LibraryEventBus.$emit(LibraryEvent.GradeUpdate, item.selectedGradeId)
           }
         }
@@ -560,9 +560,9 @@ export default {
             })
           })
           this.$emit('select-idu', selectedList)
-          this.$logger.info('selectedIDUMap', this.selectedIDUMap)
+          console.info('selectedIDUMap', this.selectedIDUMap)
           if (item.hasOwnProperty('selectedGradeId')) {
-            this.$logger.info('selectedGradeId', item.selectedGradeId)
+            console.info('selectedGradeId', item.selectedGradeId)
             LibraryEventBus.$emit(LibraryEvent.GradeUpdate, item.selectedGradeId)
           }
         } else {
@@ -574,24 +574,24 @@ export default {
             eventType: 'syncDir'
           }
           LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, eventData)
-          this.$logger.info('current is grade, skip empty children item!', eventData)
+          console.info('current is grade, skip empty children item!', eventData)
         }
       }
     },
     handlePreviewClose () {
-      this.$logger.info('handlePreviewClose')
+      console.info('handlePreviewClose')
       this.previewCurrentId = ''
       this.previewType = ''
       this.previewVisible = false
     },
     handlePreviewDetail (data) {
-      this.$logger.info('handlePreviewDetail', data)
+      console.info('handlePreviewDetail', data)
       this.previewCurrentId = data.id
       this.previewType = data.type
       this.previewVisible = true
     },
     handleRemoveSelected (item) {
-      this.$logger.info('Content List handleRemoveSelected ' + item.dataType, item)
+      console.info('Content List handleRemoveSelected ' + item.dataType, item)
 
       if (item.dataType === NavigationType.sync) {
         const index = this.selectedKnowledgeIdList.indexOf(item.knowledgeId)
@@ -716,17 +716,17 @@ export default {
           })
         })
         this.$emit('select-idu', selectedList)
-        this.$logger.info('selectedIDUMap', this.selectedIDUMap)
+        console.info('selectedIDUMap', this.selectedIDUMap)
       }
     }
   },
   destroyed () {
     LibraryEventBus.$off(LibraryEvent.ContentListUpdate, this.handleContentListUpdate)
-    this.$logger.info('off NewContentList ContentListUpdate handler')
+    console.info('off NewContentList ContentListUpdate handler')
     LibraryEventBus.$off(LibraryEvent.ContentListSelectedListUpdate, this.handleContentSelectedListUpdate)
     LibraryEventBus.$off(LibraryEvent.ChangeCurriculum, this.handleChangeCurriculum)
     LibraryEventBus.$off(LibraryEvent.ResetContentList, this.handleResetContentList)
-    this.$logger.info('off NewContentList ContentListSelectedListUpdate handler')
+    console.info('off NewContentList ContentListSelectedListUpdate handler')
   }
 }
 </script>

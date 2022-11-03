@@ -160,7 +160,7 @@ export default {
       TaskQueryById({
         id: this.taskId
       }).then(res => {
-        this.$logger.info('sub task', res.result)
+        console.info('sub task', res.result)
         if (res.code === 0) {
           this.parentTask = res.result
         }
@@ -176,7 +176,7 @@ export default {
         parentTaskId: this.taskId,
         delFlag: this.statusType
       }).then(res => {
-        this.$logger.info('QuerySubTask', res.result)
+        console.info('QuerySubTask', res.result)
         if (res.code === 0) {
           this.subTaskList = res.result
           if (this.parentTask.createBy !== this.$store.getters.userInfo.email) {
@@ -199,7 +199,7 @@ export default {
       })
     },
     handleShowContentPublish(data) {
-      this.$logger.info('handleShowContentPublish', data)
+      console.info('handleShowContentPublish', data)
       this.currentContent = data.content
       if ((this.currentContent.type === this.contentType.task ||
         this.currentContent.type === this.contentType.pd)) {
@@ -232,7 +232,7 @@ export default {
 
     doUpdatePublish (data) {
       data = data || this.currentContent
-      this.$logger.info('handleUpdatePublish', data)
+      console.info('handleUpdatePublish', data)
       const index = this.subTaskList.findIndex(item => item.id === data.id)
       if (index !== -1) {
         const targetStatus = data.status ? 0 : 1
@@ -258,7 +258,7 @@ export default {
         status: targetStatus,
         type: data.type
       }).then((res) => {
-        this.$logger.info('handlePublishStatus res', res, 'currentContent', this.currentContent)
+        console.info('handlePublishStatus res', res, 'currentContent', this.currentContent)
         if (res.code === 0) {
           this.subTaskList[index].status = targetStatus
           if (targetStatus === 1) {
@@ -267,7 +267,7 @@ export default {
             this.$message.success('Unpublish successfully!')
           }
         } else if (res.code === 520 || res.code === 403) {
-          this.$logger.info('等待授权回调')
+          console.info('等待授权回调')
           this.$message.loading('Waiting for Google Slides auth...', 10)
         } else {
           this.$message.error(res.message, 5)

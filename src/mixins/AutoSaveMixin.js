@@ -47,7 +47,7 @@ export const AutoSaveMixin = {
   },
   methods: {
     async autoSaveData () {
-      this.$logger.info('AutoSaveMixin: autoSaveData', this.form)
+      console.info('AutoSaveMixin: autoSaveData', this.form)
       if (this.save) {
         this.calculateCanPublish()
         await this.save()

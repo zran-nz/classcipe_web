@@ -166,7 +166,7 @@ export default {
   },
   methods: {
     handleSchoolChange() {
-      this.$logger.info('handleSchoolChange called')
+      console.info('handleSchoolChange called')
       this.pageNo = 1
       this.loadMyContent()
     },
@@ -178,7 +178,7 @@ export default {
       // }
     },
     handleSearch (data) {
-      this.$logger.info('handleSearch', data)
+      console.info('handleSearch', data)
       if (typeof data === 'string') {
         this.searchText = data
       } else {
@@ -188,7 +188,7 @@ export default {
       this.loadMyContent()
     },
     loadMyContent () {
-      this.$logger.info('loadMyContent filterParams', this.filterParams)
+      console.info('loadMyContent filterParams', this.filterParams)
       this.loading = true
       const shareType = sessionStorage.getItem(SESSION_SHARE_TYPE) ? parseInt(sessionStorage.getItem(SESSION_SHARE_TYPE)) : SourceType.CreatedByMe
       this.shareType = shareType
@@ -228,7 +228,7 @@ export default {
     },
 
     handleDeleteItem (data) {
-      this.$logger.info('handleDeleteItem', data)
+      console.info('handleDeleteItem', data)
       const index = this.myContentList.findIndex(item => item.id === data.content.id)
       if (index !== -1) {
         this.myContentList.splice(index, 1)
@@ -241,7 +241,7 @@ export default {
       this.loadMyContent()
     },
     handleShowContentPublish(data) {
-      this.$logger.info('handleShowContentPublish', data)
+      console.info('handleShowContentPublish', data)
       this.currentContent = data.content
       if ((this.currentContent.type === this.contentType.task ||
         this.currentContent.type === this.contentType.pd)) {
@@ -282,7 +282,7 @@ export default {
 
     doUpdatePublish () {
       const data = this.currentContent
-      this.$logger.info('handleUpdatePublish', data)
+      console.info('handleUpdatePublish', data)
       const index = this.myContentList.findIndex(item => item.id === data.id)
       if (index !== -1) {
         const targetStatus = data.status ? 0 : 1
@@ -292,7 +292,7 @@ export default {
           status: targetStatus,
           type: data.type
         }).then((res) => {
-          this.$logger.info('handlePublishStatus res', res)
+          console.info('handlePublishStatus res', res)
           if (res.code === 0) {
             this.myContentList[index].status = targetStatus
             if (targetStatus) {
@@ -304,7 +304,7 @@ export default {
               this.$message.success('Unpublish successfully!')
             }
           } else if (res.code === 520 || res.code === 403) {
-            this.$logger.info('等待授权回调')
+            console.info('等待授权回调')
             this.$message.loading('Waiting for Google Slides auth...', 10)
           } else {
             this.$message.error(res.message, 5)
@@ -333,7 +333,7 @@ export default {
     },
 
     handleUpdateFilterType (filterType) {
-      this.$logger.info('handleUpdateFilterType', filterType)
+      console.info('handleUpdateFilterType', filterType)
       this.filterType = filterType
       this.pageNo = 1
       this.loadMyContent()

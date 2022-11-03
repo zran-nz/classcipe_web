@@ -66,11 +66,11 @@ export default {
     }
   },
   created () {
-    this.$logger.info('ShareDetail created ' + this.code)
+    console.info('ShareDetail created ' + this.code)
     // check password
     if (this.code.indexOf('Password') !== -1) {
       const urlPassword = this.code.slice(this.code.indexOf(':') + 1, this.code.indexOf(':') + 5) // 提取密码
-      this.$logger.info('url contain password ' + urlPassword)
+      console.info('url contain password ' + urlPassword)
       if (urlPassword) {
         this.localPassword = urlPassword
       }
@@ -79,17 +79,17 @@ export default {
       this.shareCode = this.code
       this.localPassword = sessionStorage.getItem('share-password-' + this.shareCode)
     }
-    this.$logger.info('local password ' + this.localPassword)
+    console.info('local password ' + this.localPassword)
     this.loadShareInfo()
   },
   methods: {
     loadShareInfo () {
-      this.$logger.info('loadShareInfo ' + this.shareCode)
+      console.info('loadShareInfo ' + this.shareCode)
       this.shareInfoLoaded = false
       GetShareInfo({
         code: this.shareCode
       }).then((response) => {
-        this.$logger.info('loadShareInfo response' + this.shareCode, response)
+        console.info('loadShareInfo response' + this.shareCode, response)
         if (typeof response.result !== 'string') {
           this.title = response.result.title
           this.coverUrl = response.result.cover
@@ -102,7 +102,7 @@ export default {
             AnonGetShareContentDetails({
               code: this.shareCode
             }).then(response => {
-              this.$logger.info('ShareRedirect AnonGetShareContentDetails ' + this.shareCode, response)
+              console.info('ShareRedirect AnonGetShareContentDetails ' + this.shareCode, response)
               if (typeof response.result !== 'string') {
                 this.shareContent = response.result
               } else {
@@ -122,12 +122,12 @@ export default {
     },
 
     handleTryPassword (password) {
-      this.$logger.info('ShareRedirect handleTryPassword ' + this.shareCode, password, this.$refs)
+      console.info('ShareRedirect handleTryPassword ' + this.shareCode, password, this.$refs)
       AnonGetShareContentDetails({
         code: this.shareCode,
         password: password
       }).then(response => {
-        this.$logger.info('AnonGetShareContentDetails ' + this.shareCode, response)
+        console.info('AnonGetShareContentDetails ' + this.shareCode, response)
         if (typeof response.result !== 'string') {
           this.shareContent = response.result
           this.passwordDialogVisible = false

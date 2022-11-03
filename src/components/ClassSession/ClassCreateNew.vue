@@ -37,7 +37,7 @@ export default {
   },
   methods: {
     handleImport (type) {
-      this.$logger.info('handleImport', type)
+      console.info('handleImport', type)
       this.$emit('create', type)
     }
   }

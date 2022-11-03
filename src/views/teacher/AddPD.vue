@@ -431,12 +431,12 @@ export default {
     },
 
     restorePdContent(needLoadThumbnail = true) {
-      this.$logger.info('restorePdContent ' + this.pdId)
+      console.info('restorePdContent ' + this.pdId)
       this.saving = true
       PDContentQueryById({
         id: this.pdId
       }).then(response => {
-        this.$logger.info('PDContentQueryById ' + this.pdId, response)
+        console.info('PDContentQueryById ' + this.pdId, response)
         if (response.code === 0 && response.success) {
           const data = response.result
           this.form = data
@@ -455,13 +455,13 @@ export default {
 
     async save() {
       this.saving = true
-      this.$logger.info('add PDContentAddOrUpdate', this.form)
+      console.info('add PDContentAddOrUpdate', this.form)
       if (this.pdId) {
         this.form.id = this.pdId
       }
       const response = await PDContentAddOrUpdate(this.form)
       this.saving = false
-      this.$logger.info('PDContentAddOrUpdate', response.result)
+      console.info('PDContentAddOrUpdate', response.result)
       return response
     },
 
@@ -519,7 +519,7 @@ export default {
     },
 
     handleStepChange(data) {
-      this.$logger.info('pd handleStepChange ', data)
+      console.info('pd handleStepChange ', data)
       this.currentStep = data.step
       this.currentActiveStepIndex = data.index
       this.handleDisplayRightModule()
@@ -545,19 +545,19 @@ export default {
     },
 
     handleAuthCallback() {
-      this.$logger.info('handleAuthCallback')
+      console.info('handleAuthCallback')
       this.loadThumbnail(false)
     },
 
     loadThumbnail(needRefresh, hiddenMask = false) {
-      this.$logger.info('loadThumbnail ' + this.form.presentationId)
+      console.info('loadThumbnail ' + this.form.presentationId)
       if (!this.thumbnailListLoading) {
         this.thumbnailListLoading = true
         TemplatesGetPresentation({
           taskId: this.pdId,
           needRefresh: needRefresh
         }).then(response => {
-          this.$logger.info('loadThumbnail response', response.result)
+          console.info('loadThumbnail response', response.result)
           if (response.code === 0) {
             // this.restorePdContent(this.form.id, false)
             this.restorePdContent(false)
@@ -565,7 +565,7 @@ export default {
             const pageObjects = response.result.pageObjects
             this.form.pageObjects = pageObjects
             this.form.pageObjectIds = response.result.pageObjectIds.join(',')
-            this.$logger.info(`form.pageObjectIds ${this.form.pageObjectIds} form.pageObjects ${this.form.pageObjects}`)
+            console.info(`form.pageObjectIds ${this.form.pageObjectIds} form.pageObjects ${this.form.pageObjects}`)
             this.thumbnailList = []
             pageObjects.forEach(page => {
               this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
@@ -580,7 +580,7 @@ export default {
           } else if (response.code === 403) {
             this.$router.push({ path: '/teacher/main/created-by-me' })
           } else if (response.code === this.ErrorCode.ppt_google_token_expires || response.code === this.ErrorCode.ppt_forbidden) {
-            this.$logger.info('等待授权事件通知')
+            console.info('等待授权事件通知')
           }
         }).finally(() => {
           this.thumbnailListLoading = false
@@ -596,7 +596,7 @@ export default {
       } else {
         this.currentRightModule = RightModule.customTag
       }
-      this.$logger.info('handleDisplayRightModule', this.currentRightModule)
+      console.info('handleDisplayRightModule', this.currentRightModule)
     },
 
     handleNextStep () {
@@ -610,7 +610,7 @@ export default {
     },
 
     handleUpdateCover (coverData) {
-      this.$logger.info('handleUpdateCover', coverData)
+      console.info('handleUpdateCover', coverData)
       if (coverData.type === 'video') {
         this.form.coverVideo = coverData.url
       } else {
@@ -623,20 +623,20 @@ export default {
     },
 
     async handleEditGoogleSlide() {
-      this.$logger.info('handleEditGoogleSlide pd star')
+      console.info('handleEditGoogleSlide pd star')
       this.$store.commit(SET_GLOBAL_LOADING, true)
       this.form.slideEditing = true
       this.$nextTick(async () => {
         try {
           this.editGoogleSlideLoading = true
-          this.$logger.info('handleEditGoogleSlide', this.form.presentationId)
+          console.info('handleEditGoogleSlide', this.form.presentationId)
           if (this.form.presentationId && !this.form.presentationId.startsWith('fake_buy_')) {
             await this.save()
             const res = await this.updateSlideEditing()
             if (res.code === 0) {
               top.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit'
             } else if (res.code === 520 || res.code === 403) {
-              this.$logger.info('等待授权回调')
+              console.info('等待授权回调')
               this.$message.loading('Waiting for Google Slides auth...', 10)
               this.creating = false
               this.saving = false
@@ -657,12 +657,12 @@ export default {
     },
 
     updateAssociatedIdList (idList) {
-      this.$logger.info('updateAssociatedIdList', idList)
+      console.info('updateAssociatedIdList', idList)
       this.associateIdList = idList
     },
 
     async handleCreatePPT() {
-      this.$logger.info('handleCreatePPT')
+      console.info('handleCreatePPT')
       const hideLoading = this.$message.loading('Creating ppt in Google Slides...', 0)
       if (!this.creating) {
         this.creating = true
@@ -674,7 +674,7 @@ export default {
 
         if (response.success) {
           if (response.code === 520 || response.code === 403) {
-            this.$logger.info('等待授权回调')
+            console.info('等待授权回调')
             hideLoading()
             this.$message.loading('Waiting for Google Slides auth...', 10)
             this.creating = false
@@ -686,7 +686,7 @@ export default {
           this.$message.error(response.message)
         }
 
-        this.$logger.info('handleCreateTask', response.result)
+        console.info('handleCreateTask', response.result)
         try {
           this.saving = true
           this.form.id = response.result.id
@@ -705,7 +705,7 @@ export default {
     },
 
     handleAddVideo (videoItem) {
-      this.$logger.info('handleAddVideo', videoItem)
+      console.info('handleAddVideo', videoItem)
       if (videoItem.classcipeRecordFiles && videoItem.classcipeRecordFiles.length > 0) {
         videoItem.classcipeRecordFiles.forEach(v => {
           this.form.videoList.push(v)
@@ -715,11 +715,11 @@ export default {
         this.form.videoList.push(videoItem)
         this.addVideoRecord(videoItem)
       }
-      this.$logger.info('videoList', this.form.videoList)
+      console.info('videoList', this.form.videoList)
     },
 
     addVideoRecord (video) {
-      this.$logger.info('addVideoRecord', video)
+      console.info('addVideoRecord', video)
       const data = {
         fileLength: '',
         fileName: '',
@@ -736,12 +736,12 @@ export default {
         data.filePath = video.classcipeRecordFiles[0].filePath
         this.tryAddVideoRecord(data)
       } else {
-        this.$logger.info('addVideoRecord no data found in ', video)
+        console.info('addVideoRecord no data found in ', video)
       }
     },
 
     tryAddVideoRecord(data) {
-      this.$logger.info('addVideoRecord tryAddVideoRecord data', data)
+      console.info('addVideoRecord tryAddVideoRecord data', data)
       FileRecord({
         contentId: this.pdId,
         contentType: this.$classcipe.typeMap.pd
@@ -759,23 +759,23 @@ export default {
               console.info('addFileUploadRecord in pd res', res)
             })
           } else {
-            this.$logger.info('addVideoRecord exist record')
+            console.info('addVideoRecord exist record')
           }
         }
       })
     },
 
     handleDeleteVideo(videoItem) {
-      this.$logger.info('pd handleDeleteVideo', videoItem.data)
+      console.info('pd handleDeleteVideo', videoItem.data)
       const index = this.form.videoList.findIndex(item => item.filePath === videoItem.data.filePath)
-      this.$logger.info('pd handleDeleteVideo index =', index, this.form.videoList)
+      console.info('pd handleDeleteVideo index =', index, this.form.videoList)
       if (index > -1) {
         this.form.videoList.splice(index, 1)
       }
     },
 
     handlePublish (status) {
-      this.$logger.info('handlePublish', status, this.requiredFields, this.form)
+      console.info('handlePublish', status, this.requiredFields, this.form)
       this.checkRequiredFields()
 
       if (this.form.slideEditing) {
@@ -829,7 +829,7 @@ export default {
     },
 
     handleSelectTemplate (template) {
-      this.$logger.info('handleSelectTemplate', template)
+      console.info('handleSelectTemplate', template)
       const index = this.form.selectedTemplateList.findIndex(item => item.presentationId === template.presentationId)
       if (index === -1) {
         this.form.selectedTemplateList.push(template)
@@ -837,7 +837,7 @@ export default {
     },
 
     handleRemoveTemplate(template) {
-      this.$logger.info('handleRemoveTemplate ', template)
+      console.info('handleRemoveTemplate ', template)
       const index = this.form.selectedTemplateList.findIndex(item => item.presentationId === template.presentationId)
       if (index !== -1) {
         this.form.selectedTemplateList.splice(index, 1)
@@ -845,7 +845,7 @@ export default {
     },
 
     handleScheduleWorkShop () {
-      this.$logger.info('handleScheduleWorkShop')
+      console.info('handleScheduleWorkShop')
       // if (this.form.presentationId) {
       //   this.$refs.schedule.visible = true
       // } else {
@@ -855,7 +855,7 @@ export default {
     },
 
     handleSharePd() {
-      this.$logger.info('handleSharePd')
+      console.info('handleSharePd')
       this.shareVisible = true
     },
     async saveChanges () {
@@ -869,17 +869,17 @@ export default {
         slideEditing: true,
         type: this.$classcipe.typeMap.pd
       }
-      this.$logger.info('updateSlideEditing', updateData)
+      console.info('updateSlideEditing', updateData)
       this.saving = true
       const response = await UpdateSlideEditing(updateData)
       this.saving = false
-      this.$logger.info('updateSlideEditing', response.result)
+      console.info('updateSlideEditing', response.result)
       return response
     },
     // 每次点击都重新加载一下最新数据
     handleViewCollaborate() {
       this.showHistoryLoading = true
-      this.$logger.info('handleViewCollaborate')
+      console.info('handleViewCollaborate')
       if (this.currentRightModule === this.rightModule.collaborate) {
         this.handleDisplayRightModule()
       } else {
@@ -889,16 +889,16 @@ export default {
       this.loadCollaborateData(this.form.type, this.form.id)
     },
     handleUpdateCommentList() {
-      this.$logger.info('handleUpdateCommentList')
+      console.info('handleUpdateCommentList')
       this.GetCollaborateComment(this.form.type, this.form.id)
     },
     handleRestoreField(data) {
-      this.$logger.info('handleRestoreField', data, this.form)
+      console.info('handleRestoreField', data, this.form)
       if (data) {
         this.form = data
         this.$message.success('restore successfully!')
       }
-      this.$logger.info('after handleRestoreField', this.form)
+      console.info('after handleRestoreField', this.form)
     }
   }
 }

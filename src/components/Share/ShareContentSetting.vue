@@ -119,7 +119,7 @@ export default {
     }
   },
   created() {
-    this.$logger.info('ShareContentSetting created ' + this.sourceId + ' ' + this.sourceType)
+    console.info('ShareContentSetting created ' + this.sourceId + ' ' + this.sourceType)
     this.loadingShareContent()
   },
   methods: {
@@ -129,7 +129,7 @@ export default {
         sourceId: this.sourceId,
         sourceType: this.sourceType
       }).then(response => {
-        this.$logger.info('QueryContentShare response', response)
+        console.info('QueryContentShare response', response)
         if (response.result) {
           this.shareContent = response.result
           this.loading = false
@@ -140,7 +140,7 @@ export default {
             sourceType: this.sourceType,
             status: 0
           }).then((response) => {
-            this.$logger.info('ShareStatus response', response)
+            console.info('ShareStatus response', response)
             this.shareContent = response.result
             this.loading = false
           })
@@ -148,7 +148,7 @@ export default {
       })
     },
     async changeNeedPassword() {
-      this.$logger.info('changeNeedPassword ' + !this.shareContent.needPassword)
+      console.info('changeNeedPassword ' + !this.shareContent.needPassword)
       this.shareContent.needPassword = !this.shareContent.needPassword
       if (!this.shareContent.password) {
         await this.refreshPassword()
@@ -163,7 +163,7 @@ export default {
         sourceType: this.sourceType
       })
 
-      this.$logger.info('ResetPassword response', response)
+      console.info('ResetPassword response', response)
       this.shareContent.password = response.result.password
       this.refreshing = false
     },
@@ -186,7 +186,7 @@ export default {
         sourceType: this.sourceType,
         status: this.shareContent.status ? 0 : 1
       }).then(response => {
-        this.$logger.info('switchShareStatus response', response)
+        console.info('switchShareStatus response', response)
         this.shareContent = response.result
         this.$message.success('Set successfully')
         this.$emit('update-share-status', this.shareContent.status)
@@ -194,9 +194,9 @@ export default {
     },
 
     async updateContentShare() {
-      this.$logger.info('updateContentShare', this.shareContent)
+      console.info('updateContentShare', this.shareContent)
       const response = await ShareAddOrUpdate(this.shareContent)
-      this.$logger.info('ShareAddOrUpdate response', response)
+      console.info('ShareAddOrUpdate response', response)
       this.$message.success('Set successfully')
     }
   }

@@ -49,7 +49,7 @@ export default {
     }
   },
   mounted() {
-    this.$logger.info('BaseNav mounted', this.$store.getters)
+    console.info('BaseNav mounted', this.$store.getters)
     if (this.$store.getters.token) {
       this.isLogin = true
     } else {

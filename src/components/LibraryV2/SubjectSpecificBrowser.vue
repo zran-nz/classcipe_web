@@ -266,12 +266,12 @@ export default {
   },
   watch: {
     curriculumId (value) {
-      this.$logger.info('curriculumId change ' + value)
+      console.info('curriculumId change ' + value)
       this.refreshSubjectTree()
       // this.getGradesByCurriculumId(value)
     },
     blockIndex (value) {
-      this.$logger.info('block index change ' + value)
+      console.info('block index change ' + value)
     }
   },
   data () {
@@ -299,7 +299,7 @@ export default {
     }
   },
   created () {
-    this.$logger.info('CurriculumBrowser blockWidth:' + this.blockWidth)
+    console.info('CurriculumBrowser blockWidth:' + this.blockWidth)
     this.getSubjectTree()
     // this.getGradesByCurriculumId(this.curriculumId)
   },
@@ -307,7 +307,7 @@ export default {
 
     getGradesByCurriculumId (curriculumId) {
       GetGradesByCurriculumId({ curriculumId: curriculumId }).then(response => {
-        this.$logger.info('GetGradesByCurriculumId', response.result)
+        console.info('GetGradesByCurriculumId', response.result)
         this.gradeList = response.result
       })
     },
@@ -315,7 +315,7 @@ export default {
       this.gradeListLoading = true
       this.gradeList = []
       GetLibraryGrades({ curriculumId: curriculumId, subjectId: subjectId, type: type }).then(response => {
-        this.$logger.info('GetLibraryGrades', response.result)
+        console.info('GetLibraryGrades', response.result)
         this.gradeList = response.result
       }).finally(() => {
         this.gradeListLoading = false
@@ -331,7 +331,7 @@ export default {
     getSubjectTree () {
       this.mainSubjectListLoading = true
       SubjectTree({ curriculumId: this.curriculumId }).then(response => {
-        this.$logger.info('getSubjectTree response', response.result)
+        console.info('getSubjectTree response', response.result)
         this.mainSubjectList = response.result.filter(item => item.subjectType === SubjectType.Skill || item.subjectType === SubjectType.LearnAndSkill)
       }).finally(() => {
         this.mainSubjectListLoading = false
@@ -340,7 +340,7 @@ export default {
     handleSelectMainSubjectItem (mainSubjectItem) {
       this.hasChildSubject = true
       this.subjectDeep = 2
-      this.$logger.info('handleSelectMainSubjectItem ', mainSubjectItem, this.currentMainSubjectId)
+      console.info('handleSelectMainSubjectItem ', mainSubjectItem, this.currentMainSubjectId)
       if (mainSubjectItem.id !== this.currentMainSubjectId) {
         this.currentMainSubjectId = mainSubjectItem.id
         this.knowledges = []
@@ -352,7 +352,7 @@ export default {
     },
 
     handleSelectGradeItem (gradeItem) {
-      this.$logger.info('handleSelectGradeItem ', gradeItem)
+      console.info('handleSelectGradeItem ', gradeItem)
       if (gradeItem.id !== this.currentGradeId) {
         this.currentGradeId = gradeItem.id
         this.getKnowledgeTree()
@@ -379,20 +379,20 @@ export default {
         currentKnowledgeId: null
       }
       this.knowledges.push(knowledgeItem)
-      this.$logger.info('grade:' + this.currentGradeId + ', currentMainSubjectId:' + this.currentMainSubjectId)
+      console.info('grade:' + this.currentGradeId + ', currentMainSubjectId:' + this.currentMainSubjectId)
       KnowledgeGetTree({
         gradeId: this.currentGradeId,
         subjectId: this.currentMainSubjectId,
         tagType: TagType.skill
       }).then((response) => {
-        this.$logger.info('KnowledgeGetTree response', response)
+        console.info('KnowledgeGetTree response', response)
         this.mainKnowledgeList = response.result
         this.knowledgeDeep = 1
         if (this.mainKnowledgeList.length > 0) {
           this.knowledges[0].knowledgeList = this.mainKnowledgeList
-          this.$logger.info('knowledges', this.knowledges)
+          console.info('knowledges', this.knowledges)
         }
-        this.$logger.info('mainKnowledgeList', this.knowledgeTree)
+        console.info('mainKnowledgeList', this.knowledgeTree)
       }).finally(() => {
           if (this.knowledges.length > 0) {
             this.knowledges[0].knowledgeListLoading = false
@@ -401,10 +401,10 @@ export default {
     },
 
     handleSelectKnowledgeItem (knowledgeItem, deepIndex) {
-      this.$logger.info('handleSelectKnowledgeItem', knowledgeItem)
+      console.info('handleSelectKnowledgeItem', knowledgeItem)
       this.knowledgeDeep = this.getKnowledgeDeep(knowledgeItem, deepIndex + 1)
       if (deepIndex + 1 === this.knowledgeDeep) {
-        this.$logger.info('knowledgeQueryContentByDescriptionId', knowledgeItem)
+        console.info('knowledgeQueryContentByDescriptionId', knowledgeItem)
         if (knowledgeItem.id !== this.knowledges[deepIndex].currentKnowledgeId) {
           this.knowledges[deepIndex].currentKnowledgeId = knowledgeItem.id
           this.dataList = []
@@ -433,12 +433,12 @@ export default {
       this.knowledges[nextIndex].knowledgeList = knowledgeItem.children
       this.knowledges[nextIndex].knowledgeListLoading = false
 
-      this.$logger.info('knowledges', this.knowledges)
+      console.info('knowledges', this.knowledges)
       this.handleClickBlock(this.subjectDeep + 2 + deepIndex, knowledgeItem.name)
     },
 
     handleSelectSubKnowledgeItem (subKnowledgeItem) {
-      this.$logger.info('handleSelectSubKnowledgeItem', subKnowledgeItem)
+      console.info('handleSelectSubKnowledgeItem', subKnowledgeItem)
       if (subKnowledgeItem.id !== this.currentSubKnowledgeId) {
         this.currentSubKnowledgeId = subKnowledgeItem.id
         this.dataList = []
@@ -449,9 +449,9 @@ export default {
 
     knowledgeQueryContentByDescriptionId (descriptionId) {
       this.dataListLoading = true
-      this.$logger.info('knowledgeQueryContentByDescriptionId ' + descriptionId)
+      console.info('knowledgeQueryContentByDescriptionId ' + descriptionId)
       KnowledgeQueryContentByDescriptionId({ descriptionId }).then(response => {
-        this.$logger.info('KnowledgeQueryContentByDescriptionId response', response.result)
+        console.info('KnowledgeQueryContentByDescriptionId response', response.result)
         this.dataList = response.result
       }).finally(() => {
         this.dataListLoading = false
@@ -459,13 +459,13 @@ export default {
     },
 
     handleSelectDataItem (dataItem) {
-      this.$logger.info('handleSelectDataItem ', dataItem)
+      console.info('handleSelectDataItem ', dataItem)
       this.currentDataId = dataItem.id
       this.$emit('previewDetail', dataItem)
     },
 
     handleClickBlock (blockIndex, path) {
-      this.$logger.info('handleClickBlock ' + blockIndex)
+      console.info('handleClickBlock ' + blockIndex)
       this.$emit('clickBlock', {
         curriculumId: this.curriculumId,
         gradeId: this.currentGradeId,
@@ -477,12 +477,12 @@ export default {
     },
 
     handleToggleDataListMode (mode) {
-      this.$logger.info('handleToggleDataListMode' + mode)
+      console.info('handleToggleDataListMode' + mode)
       this.dataListMode = mode
     },
 
     toggleType (type, label) {
-      this.$logger.info('toggleType ' + type + ' label ' + label)
+      console.info('toggleType ' + type + ' label ' + label)
       this.currentType = type
       this.currentTypeLabel = label
     }

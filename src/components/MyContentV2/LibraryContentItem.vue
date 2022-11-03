@@ -259,10 +259,10 @@ export default {
   },
   methods: {
     handleBuyItem (msg) {
-      this.$logger.info('handleBuyItem', this.content)
+      console.info('handleBuyItem', this.content)
       ContentBuy({ id: this.content.id, type: this.content.type }).then((response) => {
         if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
-          this.$logger.info('Duplicate response', response)
+          console.info('Duplicate response', response)
           if (msg) {
             this.$message.success(msg)
           } else {
@@ -319,7 +319,7 @@ export default {
       this.$router.push({ path: '/teacher/main/created-by-me' })
     },
     toggleSelectContentTag(grade) {
-      this.$logger.info('toggleSelectContentTag', grade)
+      console.info('toggleSelectContentTag', grade)
       const index = this.selectedGradeList.indexOf(grade)
       if (index === -1) {
         this.selectedGradeList.push(grade)
@@ -328,7 +328,7 @@ export default {
       }
     },
     handleEditBuy () {
-      this.$logger.info('handleEdit', this.content.myContentId)
+      console.info('handleEdit', this.content.myContentId)
       if (this.content.type === this.typeMap['unit-plan']) {
         window.open('/teacher/unit-plan-redirect/' + this.content.myContentId, '_blank')
       } else if (this.content.type === this.typeMap.task) {

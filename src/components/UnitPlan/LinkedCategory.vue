@@ -106,32 +106,32 @@ export default {
     }
   },
   created() {
-    this.$logger.info('LinkedCategory', this.selected)
+    console.info('LinkedCategory', this.selected)
     this.loadLinkCategoryData()
   },
   methods: {
     async loadLinkCategoryData () {
-      this.$logger.info('loadLinkCategoryData')
+      console.info('loadLinkCategoryData')
       this.loading = true
       try {
         // eslint-disable-next-line no-undef
         console.log('ACCESS_TOKEN', storage.get(ACCESS_TOKEN))
         // eslint-disable-next-line no-undef
         const result = await AppLogin(storage.get(ACCESS_TOKEN))
-        this.$logger.info('loadLinkCategoryData initTagData AppLogin', result)
+        console.info('loadLinkCategoryData initTagData AppLogin', result)
         // eslint-disable-next-line no-undef
         const publistTag = await App.service('tags').get('pubList', { query: { set: ['Task types', 'Inquiry stages'] } })
-        this.$logger.info('publistTag', publistTag)
+        console.info('publistTag', publistTag)
         this.categoryList = publistTag
         // eslint-disable-next-line no-undef
         const unitSet = await App.service('conf-user').get('UnitSet')
-        this.$logger.info('unitSet', unitSet)
+        console.info('unitSet', unitSet)
         this.unitSetId = unitSet._id
         this.selfCategory = unitSet.val
         // eslint-disable-next-line no-undef
         const unitSetLast = await App.service('conf-user').get('UnitSetLast')
         this.lastUnitSetId = unitSetLast._id
-        this.$logger.info('unitSetLast', unitSetLast)
+        console.info('unitSetLast', unitSetLast)
         this.selectedList = (unitSetLast.val || []).filter(item => this.selfCategory.indexOf(item) !== -1)
       } catch (e) {
         console.log(e)
@@ -141,11 +141,11 @@ export default {
       }
     },
     handleClose() {
-      this.$logger.info('close', this.selectedList)
+      console.info('close', this.selectedList)
       this.$emit('close')
     },
     async handleConfirm() {
-      this.$logger.info('selectedList', this.selectedList)
+      console.info('selectedList', this.selectedList)
       // eslint-disable-next-line no-undef
       await App.service('conf-user').patch(this.lastUnitSetId, { val: this.selectedList })
       this.$emit('confirm', this.selectedList)
@@ -159,12 +159,12 @@ export default {
     },
 
     cancelInputCategory() {
-      this.$logger.info('cancelInputCategory')
+      console.info('cancelInputCategory')
       this.showNewCategory = false
       this.newCategory = ''
     },
     async handleAddNewSelfCategory () {
-      this.$logger.info('handleAddNewSelfCategory', this.newCategory)
+      console.info('handleAddNewSelfCategory', this.newCategory)
       if (this.newCategory) {
         let isDuplicated = false
         for (let i = 0; i < this.selfCategory.length; i++) {
@@ -199,7 +199,7 @@ export default {
     // category下单选,先找出对于的分组，然后把当前分组下的所有数据都删除了，再添加或删除。
     handleAddItem (item) {
       const index = this.selectedList.indexOf(item)
-      this.$logger.info('handleAddItem', item, index)
+      console.info('handleAddItem', item, index)
       if (index === -1) {
         this.selectedList.push(item)
       } else {
@@ -208,7 +208,7 @@ export default {
     },
 
     async handleDeleteSelfItem (item) {
-      this.$logger.info('handleDeleteSelfItem', item)
+      console.info('handleDeleteSelfItem', item)
       // eslint-disable-next-line no-undef
       await App.service('conf-user').patch(this.unitSetId, { $pull: { val: item } })
       this.selfCategory.splice(this.selfCategory.indexOf(item), 1)

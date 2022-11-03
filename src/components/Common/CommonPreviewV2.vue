@@ -694,7 +694,7 @@ export default {
           }
         })
 
-        this.$logger.info('loadRecommendThumbnail')
+        console.info('loadRecommendThumbnail')
         recommendTemplates({ taskId: this.id }).then(response => {
           console.info('loadRecommendThumbnail res:', response.result)
           if (response.success) {
@@ -728,7 +728,7 @@ export default {
     },
 
     handleAuthCallback () {
-      this.$logger.info('Preview handleAuthCallback')
+      console.info('Preview handleAuthCallback')
       if (this.currentMethodName === 'loadThumbnail') {
         this.loadThumbnail()
       } else if (this.currentMethodName === 'handleDuplicateItem') {
@@ -737,7 +737,7 @@ export default {
     },
 
     loadThumbnail () {
-      this.$logger.info('Preview loadThumbnail ', this.data)
+      console.info('Preview loadThumbnail ', this.data)
       if (this.data.presentationId) {
         if (this.isLibrary) {
           TemplatesGetPublishedPresentation({
@@ -751,14 +751,14 @@ export default {
                   this.imgList.push(page.contentUrl)
                   this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
                   this.slideLoading = false
-                  this.$logger.info('current imgList ', this.imgList)
+                  console.info('current imgList ', this.imgList)
                 })
               } else {
                 this.imgList = []
                 this.slideLoading = false
               }
             } else {
-              this.$logger.info('等待授权事件通知')
+              console.info('等待授权事件通知')
               this.currentMethodName = 'loadThumbnail'
             }
           })
@@ -774,14 +774,14 @@ export default {
                   this.imgList.push(page.contentUrl)
                   this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
                   this.slideLoading = false
-                  this.$logger.info('current imgList ', this.imgList)
+                  console.info('current imgList ', this.imgList)
                 })
               } else {
                 this.imgList = []
                 this.slideLoading = false
               }
             } else {
-              this.$logger.info('等待授权事件通知')
+              console.info('等待授权事件通知')
               this.currentMethodName = 'loadThumbnail'
             }
           })
@@ -819,7 +819,7 @@ export default {
     },
 
     handleViewModeChange () {
-      this.$logger.info('handleViewModeChange ' + this.viewMode)
+      console.info('handleViewModeChange ' + this.viewMode)
     },
     handleFavorite (item) {
       console.info('handleFavorite', item)
@@ -834,7 +834,7 @@ export default {
       })
     },
     handleGotoImgIndex (index) {
-      this.$logger.info('handleGotoImgIndex ' + index)
+      console.info('handleGotoImgIndex ' + index)
       this.currentImgIndex = index
       this.$refs.carousel.goTo(index)
     },
@@ -853,7 +853,7 @@ export default {
       }
     },
     handleDuplicateItem () {
-      this.$logger.info('handleDuplicateItem', this.data)
+      console.info('handleDuplicateItem', this.data)
       this.$confirm({
         title: 'Confirm to copy',
         content: 'Are you sure to copy ' + this.data.name + ' ?',
@@ -862,7 +862,7 @@ export default {
           this.copyLoading = true
             Duplicate({ id: this.data.id, type: this.data.type }).then((response) => {
               if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
-                this.$logger.info('Duplicate response', response)
+                console.info('Duplicate response', response)
                 this.$message.success('Copy successfully')
                 this.$router.push({ path: '/teacher/main/created-by-me' })
               } else {
@@ -888,7 +888,7 @@ export default {
           } else {
             SelfStudyTaskBye({ taskId: this.data.id }).then((response) => {
               if (response.success) {
-                // this.$logger.info('SelfStudyTaskBye response', response)
+                // console.info('SelfStudyTaskBye response', response)
                 // this.$message.success('Start successfully')
                 // this.$router.push({ path: '/student/main/my-task' })
                 this.handleStartSession(this.data.id)
@@ -907,11 +907,11 @@ export default {
     handleStartSession(taskId) {
       this.copyLoading = true
       SelfStudyTaskStart({ taskId: taskId }).then(res => {
-        this.$logger.info('StartOpenSession res', res)
+        console.info('StartOpenSession res', res)
         if (res.success) {
           this.copyLoading = false
           const targetUrl = lessonHost + 's/' + res.result.classId + '?token=' + storage.get(ACCESS_TOKEN)
-          this.$logger.info('try open ' + targetUrl)
+          console.info('try open ' + targetUrl)
           // window.open(targetUrl, '_blank')
           window.location.href = targetUrl
         } else {

@@ -181,7 +181,7 @@ export default {
 
     // TODO 处理按钮逻辑
     handleRefuseCollaborate (item) {
-      this.$logger.info('handleRefuseCollaborate', item)
+      console.info('handleRefuseCollaborate', item)
       DeleteCollaborate({ id: item.busId }).then(res => {
         console.info('handleRefuseCollaborate', res)
       }).then(() => {
@@ -195,7 +195,7 @@ export default {
 
     // TODO 处理拒绝按钮逻辑
     handleAcceptCollaborate (item) {
-      this.$logger.info('handleAcceptCollaborate', item)
+      console.info('handleAcceptCollaborate', item)
       this.acceptLoading = true
       ReceiveCollaborate({ id: item.busId }).then(res => {
         console.info('ReceiveCollaborate', res)

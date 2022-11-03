@@ -390,7 +390,7 @@ export default {
   },
   watch: {
     selectIds (value) {
-      this.$logger.info('selectPageObjectIds update', value)
+      console.info('selectPageObjectIds update', value)
       this.form.selectPageObjectIds = value
     },
     'parentFormData.image': {
@@ -422,17 +422,17 @@ export default {
       formData.learnOuts = []
       formData.__taskId = '__taskId_' + this.taskPrefix
       formData.name = 'subTask' + this.subTaskNum + ' of ' + (formData.name ? formData.name : '')
-      this.$logger.info('TaskForm parentFormData', formData)
-      this.$logger.info('TaskForm selectedPageItemData', this.selectedPageItemData)
+      console.info('TaskForm parentFormData', formData)
+      console.info('TaskForm selectedPageItemData', this.selectedPageItemData)
       this.form = formData
-      this.$logger.info('questionPrefix ' + this.questionPrefix)
-      this.$logger.info('questionDataObj ', this.questionDataObj)
+      console.info('questionPrefix ' + this.questionPrefix)
+      console.info('questionDataObj ', this.questionDataObj)
     },
     initData () {
       console.info('initData doing...')
       GetMyGrades().then((response) => {
-        this.$logger.info('add task initData done', response)
-        this.$logger.info('GetMyGrades', response.result)
+        console.info('add task initData done', response)
+        console.info('GetMyGrades', response.result)
         this.gradeList = response.result
       }).catch((e) => {
         this.$logger.error(e)
@@ -477,33 +477,33 @@ export default {
     },
 
     handleSelectTaskType (type) {
-      this.$logger.info('handleSelectTaskType ' + type)
+      console.info('handleSelectTaskType ' + type)
       this.form.taskType = type
       this.$emit('select-task-type', type)
     },
 
     handleSelectListData (data) {
-      this.$logger.info('handleSelectListData', data)
+      console.info('handleSelectListData', data)
       this.selectedSyncList = data
     },
 
     handleSelectCurriculum (data) {
-      this.$logger.info('handleSelectCurriculum', data)
+      console.info('handleSelectCurriculum', data)
       this.selectedCurriculumList = data
     },
 
     handleSelectSubjectSpecificSkillListData (data) {
       this.selectedSpecificSkillList = data
-      this.$logger.info('handleSelectSubjectSpecificSkillListData', data)
+      console.info('handleSelectSubjectSpecificSkillListData', data)
     },
 
     handleSelect21CenturySkillListData (data) {
-      this.$logger.info('handleSelect21CenturySkillListData', data)
+      console.info('handleSelect21CenturySkillListData', data)
       this.selectedCenturySkillList = data
     },
 
     handleSelectRecommendData (data) {
-      this.$logger.info('handleSelectRecommendData')
+      console.info('handleSelectRecommendData')
       this.selectedRecommendList = data
     },
 
@@ -518,15 +518,15 @@ export default {
     },
 
     handleEnsureSelectData () {
-      this.$logger.info('handleEnsureSelectData',
+      console.info('handleEnsureSelectData',
         this.selectedCurriculumList,
         this.selectedSpecificSkillList,
         this.selectedCenturySkillList,
         this.selectedIduList,
         this.selectedRecommendList,
         this.selectedSyncList)
-      this.$logger.info('mySelectedList', this.$refs.newBrowser.mySelectedList)
-      this.$logger.info('learnOuts', this.form.learnOuts)
+      console.info('mySelectedList', this.$refs.newBrowser.mySelectedList)
+      console.info('learnOuts', this.form.learnOuts)
       this.form.learnOuts = this.$refs.newBrowser.mySelectedList
       this.$refs.newBrowser.selectedRecommendList.forEach(item => {
         const index = this.form.learnOuts.findIndex(dataItem => dataItem.knowledgeId === item.knowledgeId)
@@ -534,7 +534,7 @@ export default {
           this.form.learnOuts.push(item)
         }
       })
-      this.$logger.info('learnOuts after selectedRecommendList', this.form.learnOuts)
+      console.info('learnOuts after selectedRecommendList', this.form.learnOuts)
       this.selectedSyncList.forEach(data => {
         const filterLearnOuts = this.form.learnOuts.filter(item => item.knowledgeId === data.knowledgeId)
         if (filterLearnOuts.length > 0) {
@@ -584,12 +584,12 @@ export default {
         }
       })
 
-      this.$logger.info('this.form.learnOuts', this.form.learnOuts)
+      console.info('this.form.learnOuts', this.form.learnOuts)
       this.selectSyncDataVisible = false
       this.handleCancelSelectData()
     },
     handleRemoveLearnOuts (data) {
-      this.$logger.info('handleRemoveLearnOuts', data)
+      console.info('handleRemoveLearnOuts', data)
       var index = this.form.learnOuts.findIndex(item => (item.knowledgeId === data.knowledgeId))
       if (index > -1) {
         this.form.learnOuts.splice(index, 1)
@@ -608,22 +608,22 @@ export default {
         fromTypeName: this.type2Name[this.contentType.task],
         list: learnOutsListData
       }]
-      this.$logger.info('parentData.learnOuts', this.parentData.learnOuts)
+      console.info('parentData.learnOuts', this.parentData.learnOuts)
       this.form.learnOuts.forEach(item => {
         if (item.knowledgeId) {
           this.selectedIdList.push(item.knowledgeId)
         } else {
-          this.$logger.info('parentData selected id not exist ', item)
+          console.info('parentData selected id not exist ', item)
         }
       })
-      this.$logger.info('selectedPageItemData', this.selectedPageItemData)
+      console.info('selectedPageItemData', this.selectedPageItemData)
       if (this.selectedPageItemData.length) {
-        this.$logger.info('selectedPageItemData exist ', this.selectedPageItemData)
+        console.info('selectedPageItemData exist ', this.selectedPageItemData)
         const pageItemLearnOuts = []
         this.selectedPageItemData.forEach(item => {
             item.data.learnOuts.forEach(data => {
               const exist = pageItemLearnOuts.find(item => data.knowledgeId === item.knowledgeId)
-              this.$logger.info('add pageItemLearnOuts', data, 'existed ', !!exist)
+              console.info('add pageItemLearnOuts', data, 'existed ', !!exist)
               if (data.knowledgeId && !exist) {
                 if (data && data.path) {
                   data.newPath = data.path.split('>')
@@ -632,9 +632,9 @@ export default {
                 pageItemLearnOuts.push(data)
               } else {
                 if (exist) {
-                  this.$logger.info('selected id existed ', data)
+                  console.info('selected id existed ', data)
                 } else {
-                  this.$logger.info('selected id not exist ', data)
+                  console.info('selected id not exist ', data)
                 }
               }
             })
@@ -645,9 +645,9 @@ export default {
           list: pageItemLearnOuts
         })
       } else {
-        this.$logger.info('selectedPageItemData empty!', this.selectedPageItemData)
+        console.info('selectedPageItemData empty!', this.selectedPageItemData)
       }
-      this.$logger.info('handleSelectDescription recommendData', this.recommendData)
+      console.info('handleSelectDescription recommendData', this.recommendData)
       this.selectSyncDataVisible = true
     },
 
@@ -676,7 +676,7 @@ export default {
     },
 
     handleMaterialListFlagChange(checked) {
-      this.$logger.info('handleMaterialListFlagChange ', checked)
+      console.info('handleMaterialListFlagChange ', checked)
       if (checked) {
         if (this.form.materialList.length === 0) {
           this.handleAddMaterial()
@@ -692,12 +692,12 @@ export default {
         name: null,
         link: null
       })
-      this.$logger.info('handleAddMaterial', this.form.materialList)
+      console.info('handleAddMaterial', this.form.materialList)
     },
 
     handleRemoveMaterialItem(item, index) {
       this.form.materialList = this.form.materialList.filter((it, idx) => idx !== index)
-      this.$logger.info('handleRemoveMaterialItem ', this.form.materialList)
+      console.info('handleRemoveMaterialItem ', this.form.materialList)
     }
   }
 }

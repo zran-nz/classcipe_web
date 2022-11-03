@@ -162,7 +162,7 @@ GoIcon
     }
   },
   created () {
-    this.$logger.info('associateTaskList ', this.associateTaskList)
+    console.info('associateTaskList ', this.associateTaskList)
   },
   computed: {
     formatMonth () {
@@ -203,7 +203,7 @@ GoIcon
       this.tab = tab
     },
     showTaskLearnOut (task) {
-      this.$logger.info('showTaskLearnOut ', task)
+      console.info('showTaskLearnOut ', task)
       const index = this.associateTaskList.findIndex(item => item.id === task.id)
       task.showLearnOut = !task.showLearnOut
       this.$set(this.associateTaskList, index, task)

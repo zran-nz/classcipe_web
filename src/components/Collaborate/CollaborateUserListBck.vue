@@ -172,7 +172,7 @@ export default {
   },
   methods: {
     handleEnsureSelect () {
-      this.$logger.info('handleEnsureSelect', this.selectedUserInfoMap, this.selectedEmailList)
+      console.info('handleEnsureSelect', this.selectedUserInfoMap, this.selectedEmailList)
       this.$emit('selected', {
         selectedUserList: this.selectedUserList,
         selectedViewerEmailList: this.selectedViewerEmailList,
@@ -184,7 +184,7 @@ export default {
         return
       }
       SearchUser({ name: this.userNameOrEmail }).then(response => {
-        this.$logger.info('SearchUser response', response)
+        console.info('SearchUser response', response)
         this.userList = response.result
         this.selectedEditorEmailList = []
         this.selectedViewerEmailList = []
@@ -195,29 +195,29 @@ export default {
     },
 
     handleAddToEditor (id) {
-      this.$logger.info('handleAddToEditor ' + id)
+      console.info('handleAddToEditor ' + id)
       const index = this.selectedEditorEmailList.indexOf(id)
       if (index !== -1) {
         this.selectedEditorEmailList.splice(index, 1)
       } else {
         this.selectedEditorEmailList.push(id)
       }
-      this.$logger.info('selectedEditorEmailList ', this.selectedEditorEmailList)
+      console.info('selectedEditorEmailList ', this.selectedEditorEmailList)
     },
 
     handleAddToViewer (id) {
-      this.$logger.info('handleAddToViewer ' + id)
+      console.info('handleAddToViewer ' + id)
       const index = this.selectedViewerEmailList.indexOf(id)
       if (index !== -1) {
         this.selectedViewerEmailList.splice(index, 1)
       } else {
         this.selectedViewerEmailList.push(id)
       }
-      this.$logger.info('selectedViewerEmailList ', this.selectedViewerEmailList)
+      console.info('selectedViewerEmailList ', this.selectedViewerEmailList)
     },
 
     handleAddToSelect (userInfo) {
-      this.$logger.info('handleAddToSelect ' + userInfo.email)
+      console.info('handleAddToSelect ' + userInfo.email)
       const index = this.selectedEmailList.indexOf(userInfo.email)
       if (index !== -1) {
         this.selectedEmailList.splice(index, 1)
@@ -228,19 +228,19 @@ export default {
       }
       this.selectedUserList = []
       for (const [email, userInfo] of this.selectedUserInfoMap.entries()) {
-        this.$logger.info('user ' + email, userInfo)
+        console.info('user ' + email, userInfo)
         this.selectedUserList.push(userInfo)
       }
-      this.$logger.info('selectedEmailList ', this.selectedEmailList)
+      console.info('selectedEmailList ', this.selectedEmailList)
     },
 
     handleToggleType (currentType) {
-      this.$logger.info('handleToggleType ' + currentType)
+      console.info('handleToggleType ' + currentType)
       this.userSelectMode = currentType
     },
 
     handleCancel () {
-      this.$logger.info('handleCancel')
+      console.info('handleCancel')
       this.$emit('cancel')
     }
 

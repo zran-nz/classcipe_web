@@ -52,7 +52,7 @@ export default {
   methods: {
     handleSendEvent () {
       // 触发事件是把extra数据带回，方便外部区分处理逻辑。
-      this.$logger.info('trigger send ' + this.value)
+      console.info('trigger send ' + this.value)
       if (!this.value) {
         return
       }

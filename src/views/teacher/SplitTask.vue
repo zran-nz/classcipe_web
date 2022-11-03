@@ -649,7 +649,7 @@ export default {
   watch: {
     currentStep: {
       handler(val) {
-        this.$logger.info('currentStep change', val)
+        console.info('currentStep change', val)
         this.handleDisplayRightModule()
       },
       deep: true,
@@ -657,7 +657,7 @@ export default {
     }
   },
   async created() {
-    this.$logger.info('split task created ' + this.parentTaskId + ' ' + this.$route.path)
+    console.info('split task created ' + this.parentTaskId + ' ' + this.$route.path)
 
     let token = this.$route.query.token
     if (!token) {
@@ -675,7 +675,7 @@ export default {
         fieldName: SplitTaskField.SelectSlides
       })
       this.taskCommonList = taskCommonList
-      this.$logger.info('taskCommonList', this.taskCommonList.map(item => item.showName + ' ' + item.fieldName))
+      console.info('taskCommonList', this.taskCommonList.map(item => item.showName + ' ' + item.fieldName))
 
       // 从task的step中拷贝一份，去掉最后一步slide，添加第一步选择slide图片形成split task的步骤配置
       const taskFormSteps = JSON.parse(JSON.stringify(this.$store.getters.formConfigData.taskSteps || []))
@@ -697,9 +697,9 @@ export default {
         showRequiredTips: false,
         showSatisfiedTips: false
       })
-      this.$logger.info('taskFormSteps', taskFormSteps)
+      console.info('taskFormSteps', taskFormSteps)
       this.formSteps = taskFormSteps
-      this.$logger.info('formSteps', this.formSteps)
+      console.info('formSteps', this.formSteps)
       this.requiredFields = [
         SplitTaskField.Name,
         SplitTaskField.Image,
@@ -716,7 +716,7 @@ export default {
       this.handleDisplayRightModule()
       this.checkIsFullBodyStep()
     })
-    this.$logger.info('恢复step', this.currentActiveStepIndex, this.currentStep)
+    console.info('恢复step', this.currentActiveStepIndex, this.currentStep)
     this.initData()
 
     this.$EventBus.$on('assessment-saved', this.autoSaveMixinUpdateSaveTime)
@@ -726,9 +726,9 @@ export default {
   },
   methods: {
     initData() {
-      this.$logger.info('initData doing...')
+      console.info('initData doing...')
       GetMyGrades().then((response) => {
-        this.$logger.info('add task initData done', response)
+        console.info('add task initData done', response)
         this.gradeList = response.result
       }).then(() => {
         this.contentLoading = false
@@ -764,7 +764,7 @@ export default {
               displayCustomFieldData[customField.id] = ''
             })
           }
-          this.$logger.info('displayCustomFieldData', displayCustomFieldData)
+          console.info('displayCustomFieldData', displayCustomFieldData)
           taskData.customFieldData = displayCustomFieldData
           this.allLearningObjectiveList = taskData.learnOuts.slice()
           this.allTags = JSON.parse(JSON.stringify(taskData.customTags))
@@ -775,20 +775,20 @@ export default {
           await this.save()
           this.saving = false
           this.loadAssessment()
-          this.$logger.info('restore split task', this.form)
+          console.info('restore split task', this.form)
         }
       })
       this.loadThumbnail(false)
     },
 
     loadAssessment () {
-      this.$logger.info('loadAssessment', this.taskId, this.form.id)
+      console.info('loadAssessment', this.taskId, this.form.id)
       AssessmentToolInfoList({
         taskId: this.parentTaskId,
         pageNo: 1,
         pageSize: 100
       }).then(res => {
-        this.$logger.info('parentTaskId getAssessmentList res', res)
+        console.info('parentTaskId getAssessmentList res', res)
         if (res.code === 0) {
           const assessmentList = []
           const assessmentKeySet = new Set()
@@ -810,10 +810,10 @@ export default {
             }
           })
 
-          this.$logger.info('copy assessmentList', assessmentList)
+          console.info('copy assessmentList', assessmentList)
           // 批量转存task 评估表
           AssessmentToolInfoSaveBatch(assessmentList).then(res => {
-            this.$logger.info('AssessmentToolInfoSaveBatch res', res)
+            console.info('AssessmentToolInfoSaveBatch res', res)
             if (res.code === 0) {
               this.showSubAssessment = true
             } else {
@@ -827,7 +827,7 @@ export default {
     },
 
     handleUpdateCover (coverData) {
-      this.$logger.info('handleUpdateCover', coverData)
+      console.info('handleUpdateCover', coverData)
       if (coverData.type === 'video') {
         this.form.coverVideo = coverData.url
       } else {
@@ -847,11 +847,11 @@ export default {
       } else {
         this.currentRightModule = RightModule.customTag
       }
-      this.$logger.info('handleDisplayRightModule', this.currentRightModule)
+      console.info('handleDisplayRightModule', this.currentRightModule)
     },
 
     handleAuthCallback() {
-      this.$logger.info('handleAuthCallback')
+      console.info('handleAuthCallback')
       this.loadThumbnail(false)
     },
 
@@ -870,7 +870,7 @@ export default {
 
             if (response.success) {
               if (response.code === 520 || response.code === 403) {
-                this.$logger.info('等待授权回调')
+                console.info('等待授权回调')
                 this.$message.loading('Waiting for Google Slides auth...', 10)
                 this.nextLoading = false
                 return
@@ -878,7 +878,7 @@ export default {
 
               if (response.result && response.result?.presentationId && response.code === 0) {
                 this.form.presentationId = response.result.presentationId
-                this.$logger.info('update ppt id', this.form.presentationId)
+                console.info('update ppt id', this.form.presentationId)
                 await this.save()
               }
             } else {
@@ -926,7 +926,7 @@ export default {
             displayCustomFieldData[customField.id] = ''
           })
         }
-        this.$logger.info('displayCustomFieldData', displayCustomFieldData)
+        console.info('displayCustomFieldData', displayCustomFieldData)
         taskData.customFieldData = displayCustomFieldData
         this.form = taskData
       } else {
@@ -937,7 +937,7 @@ export default {
     handlePublishTask(status) {
       this.checkRequiredFields()
       if (this.emptyRequiredFields.length === 0) {
-        this.$logger.info('handlePublishSplitTask', {
+        console.info('handlePublishSplitTask', {
           id: this.taskId,
           status: status
         })
@@ -958,7 +958,7 @@ export default {
     },
 
     handleSelectTaskType(type) {
-      this.$logger.info('handleSelectTaskType ' + type)
+      console.info('handleSelectTaskType ' + type)
       this.form.taskType = type
     },
 
@@ -967,17 +967,17 @@ export default {
     },
 
     handleChooseAntherPrompt () {
-      this.$logger.info('handleChooseAntherPrompt')
+      console.info('handleChooseAntherPrompt')
       this.chooseAnotherVisible = true
     },
 
     handleCloseQuickSession () {
-      this.$logger.info('handleCloseQuickSession')
+      console.info('handleCloseQuickSession')
       this.chooseAnotherVisible = false
     },
 
     handleEnsureChooseAnother (data) {
-      this.$logger.info('handleEnsureChooseAnother', data)
+      console.info('handleEnsureChooseAnother', data)
       chooseAnother({
         presentationId: data.presentationId,
         selectPageObjectIds: data.selectPageObjectIds,
@@ -1001,7 +1001,7 @@ export default {
                 startDate: null,
                 endDate: null
               })
-              this.$logger.info('handleEnsureChooseAnother update form.taskClassList', this.form.taskClassList)
+              console.info('handleEnsureChooseAnother update form.taskClassList', this.form.taskClassList)
             })
           }
           this.loadThumbnail(false)
@@ -1012,7 +1012,7 @@ export default {
     },
 
     handleViewDetail(item) {
-      this.$logger.info('handleViewDetail ', item)
+      console.info('handleViewDetail ', item)
       if (item.type === this.contentType['unit-plan']) {
         this.$router.push({
           path: '/teacher/unit-plan-redirect/' + item.id
@@ -1021,13 +1021,13 @@ export default {
     },
 
     handleUpdateSelected(data) {
-      this.$logger.info('handleUpdateSelected', data)
+      console.info('handleUpdateSelected', data)
       this.relevantSelectedQuestionList = data.questionList
     },
 
     loadThumbnail(needRefresh) {
       this.thumbnailListLoading = true
-      this.$logger.info('loadThumbnail ' + this.form.presentationId)
+      console.info('loadThumbnail ' + this.form.presentationId)
       const slides = await App.service('slides').get('findBySlideId', { query: { id: this.form.presentationId, task: this.parentTaskId }})
       this.thumbnailListLoading = false
       this.thumbnailList = []
@@ -1039,7 +1039,7 @@ export default {
       //   taskId: this.parentTaskId,
       //   needRefresh: needRefresh
       // }).then(response => {
-      //   this.$logger.info('loadThumbnail response', response.result)
+      //   console.info('loadThumbnail response', response.result)
       //   if (response.code === 0) {
       //     this.form.presentationId = response.result.presentationId
       //     this.form.revisionId = response.result.revisionId
@@ -1052,7 +1052,7 @@ export default {
       //   } else if (response.code === 403) {
       //     this.$router.push({ path: '/teacher/main/created-by-me' })
       //   } else if (response.code === this.ErrorCode.ppt_google_token_expires || response.code === this.ErrorCode.ppt_forbidden) {
-      //     this.$logger.info('等待授权事件通知')
+      //     console.info('等待授权事件通知')
       //   }
       // }).finally(() => {
       //   this.thumbnailListLoading = false
@@ -1060,7 +1060,7 @@ export default {
     },
 
     getAssociate() {
-      this.$logger.info('AddTask GetAssociate id[' + this.taskId + '] fromType[' + this.contentType.task + ']')
+      console.info('AddTask GetAssociate id[' + this.taskId + '] fromType[' + this.contentType.task + ']')
       this.associateUnitPlanIdList = []
       this.associateTaskIdList = []
       if (this.taskId) {
@@ -1068,7 +1068,7 @@ export default {
           id: this.taskId,
           type: this.contentType.task
         }).then(response => {
-          this.$logger.info('AddTask GetAssociate response', response)
+          console.info('AddTask GetAssociate response', response)
           this.groupNameList = []
           this.groupNameListOther = []
           response.result.owner.forEach(item => {
@@ -1118,13 +1118,13 @@ export default {
               }
             })
           })
-          this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
-          this.$logger.info('*******************associateUnitPlanIdList', this.associateUnitPlanIdList)
-          this.$logger.info('associateTaskIdList', this.associateTaskIdList)
+          console.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
+          console.info('*******************associateUnitPlanIdList', this.associateUnitPlanIdList)
+          console.info('associateTaskIdList', this.associateTaskIdList)
         }).finally(() => {
           this.linkGroupLoading = false
 
-          this.$logger.info('AddTask GetAssociate associateUnitPlanIdList', this.associateUnitPlanIdList)
+          console.info('AddTask GetAssociate associateUnitPlanIdList', this.associateUnitPlanIdList)
           if (this.associateUnitPlanIdList.length > 0) {
             this.loadRefLearnOuts()
             this.handleSelfOutsData()
@@ -1141,7 +1141,7 @@ export default {
         type: this.contentType['unit-plan'],
         ids: this.associateUnitPlanIdList
       })
-      this.$logger.info('FindSourceOutcomes response', response)
+      console.info('FindSourceOutcomes response', response)
       if (response.success) {
         const recommendMap = new Map()
         response.result.forEach(item => {
@@ -1160,17 +1160,17 @@ export default {
             list: value
           })
         }
-        this.$logger.info('loadRefLearnOuts update RecommendData ', this.recommendData)
+        console.info('loadRefLearnOuts update RecommendData ', this.recommendData)
       }
     },
 
     async handleSelfOutsData() {
-      this.$logger.info(' handleSelfOutsData')
+      console.info(' handleSelfOutsData')
       const response = await GetReferOutcomes({
         id: this.taskId,
         type: this.contentType.task
       })
-      this.$logger.info('getReferOutcomes response', response)
+      console.info('getReferOutcomes response', response)
       if (response.success && response.result.length) {
         const list = response.result
         list.forEach(item => {
@@ -1181,16 +1181,16 @@ export default {
 
             const targetItem = this.recommendData.find(rItem => rItem.fromId === item.fromId)
             if (targetItem) {
-              this.$logger.info('targetItem ' + targetItem.fromName + ' add SelfCustom SelfOut ' + item.name, item)
+              console.info('targetItem ' + targetItem.fromName + ' add SelfCustom SelfOut ' + item.name, item)
               targetItem.list.push(item)
             }
           }
         })
-        this.$logger.info('handleSelfOutsData update RecommendData ', this.recommendData)
+        console.info('handleSelfOutsData update RecommendData ', this.recommendData)
       }
     },
     handleStepChange(data) {
-      this.$logger.info('task handleStepChange ', data)
+      console.info('task handleStepChange ', data)
       this.currentStep = data.step
       this.currentActiveStepIndex = data.index
       this.resetRightModuleVisible()
@@ -1216,7 +1216,7 @@ export default {
     },
     // 切换当前的字段的点评数据，从总的collaborateCommentList筛选初当前字段相关的点评数据
     handleSwitchComment(data) {
-      this.$logger.info('handleSwitchComment', data)
+      console.info('handleSwitchComment', data)
       if (!data.activeStatus) {
         this.currentFieldName = ''
         this.handleDisplayRightModule()
@@ -1232,13 +1232,13 @@ export default {
         }
       })
       this.currentCollaborateCommentList = list
-      this.$logger.info('currentCollaborateCommentList', list)
+      console.info('currentCollaborateCommentList', list)
     },
 
     // 每次点击都重新加载一下最新数据
     handleViewCollaborate() {
       this.showHistoryLoading = true
-      this.$logger.info('handleViewCollaborate')
+      console.info('handleViewCollaborate')
       if (this.showModuleList.indexOf(this.rightModule.collaborate) !== -1) {
         this.resetRightModuleVisible()
       } else {
@@ -1250,17 +1250,17 @@ export default {
     },
 
     handleUpdateCommentList() {
-      this.$logger.info('handleUpdateCommentList')
+      console.info('handleUpdateCommentList')
       this.GetCollaborateComment(this.form.type, this.form.id)
     },
 
     handleRestoreField(data) {
-      this.$logger.info('handleRestoreField', data, this.form)
+      console.info('handleRestoreField', data, this.form)
       if (data) {
         this.form = data
         this.$message.success('restore successfully!')
       }
-      this.$logger.info('after handleRestoreField', this.form)
+      console.info('after handleRestoreField', this.form)
     },
 
     getSessionStep() {
@@ -1280,7 +1280,7 @@ export default {
       if (taskData.customFieldData) {
         taskData.customFieldData = JSON.stringify(taskData.customFieldData)
       }
-      this.$logger.info('basic sub split taskData', taskData)
+      console.info('basic sub split taskData', taskData)
       this.saving = true
       const response = await SplitTask({
         subTasks: [taskData],
@@ -1289,10 +1289,10 @@ export default {
 
       if (response.code === 0 && !this.form.id) {
         this.form.id = response.result.ids[0]
-        this.$logger.info('update sub task id')
+        console.info('update sub task id')
       }
       this.saving = false
-      this.$logger.info('Split task response', response.result)
+      console.info('Split task response', response.result)
       return response
     },
 
@@ -1302,16 +1302,16 @@ export default {
         link: null,
         error: null
       })
-      this.$logger.info('handleAddMaterial', this.form.materialList)
+      console.info('handleAddMaterial', this.form.materialList)
     },
 
     handleRemoveMaterialItem(item, index) {
       this.form.materialList = this.form.materialList.filter((it, idx) => idx !== index)
-      this.$logger.info('handleRemoveMaterialItem ', this.form.materialList)
+      console.info('handleRemoveMaterialItem ', this.form.materialList)
     },
 
     handleMaterialListFlagChange(checked) {
-      this.$logger.info('handleMaterialListFlagChange ', checked)
+      console.info('handleMaterialListFlagChange ', checked)
       if (checked) {
         if (this.form.materialList.length === 0) {
           this.handleAddMaterial()
@@ -1323,7 +1323,7 @@ export default {
     },
 
     handleShareTask() {
-      this.$logger.info('handleShareTask')
+      console.info('handleShareTask')
       this.shareVisible = true
     },
 
@@ -1332,7 +1332,7 @@ export default {
         sourceId: this.form.id,
         sourceType: this.form.type
       }).then(response => {
-        this.$logger.info('form QueryContentShare response', response)
+        console.info('form QueryContentShare response', response)
         if (response.result) {
           this.shareStatus = response.result.status
         } else {
@@ -1352,7 +1352,7 @@ export default {
     },
 
     handleChangeClassSessionTime (classItem) {
-      this.$logger.info('handleChangeClassSessionTime', classItem)
+      console.info('handleChangeClassSessionTime', classItem)
       if (!classItem.checked) {
         classItem.momentRangeDate = []
         classItem.startDate = null
@@ -1394,15 +1394,15 @@ export default {
     },
 
     handleUpdateLearningObjectives (learnOuts) {
-      this.$logger.info('handleUpdateLearningObjectives', learnOuts)
+      console.info('handleUpdateLearningObjectives', learnOuts)
       this.form.learnOuts = learnOuts
-      this.$logger.info('form.learnOuts ', this.form.learnOuts)
+      console.info('form.learnOuts ', this.form.learnOuts)
       this.checkRequiredFields(false)
     },
     async handleDiscountSettingSave(discountItem) {
-      this.$logger.info('DiscountSettingSave', discountItem)
+      console.info('DiscountSettingSave', discountItem)
       const response = await discountSettingSave(discountItem)
-      this.$logger.info('TaskAddOrUpdate', response.result)
+      console.info('TaskAddOrUpdate', response.result)
     },
     async handlePublishFormItem (status) {
       const data = {
@@ -1413,7 +1413,7 @@ export default {
       await UpdateContentStatus(data)
     },
     async handleUpdateBySubTaskSetting (data) {
-      this.$logger.info('handleUpdateBySubTaskSetting', data)
+      console.info('handleUpdateBySubTaskSetting', data)
       this.saving = true
       this.form.price = data.price
       this.showSplitTask = false

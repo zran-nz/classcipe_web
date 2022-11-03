@@ -158,7 +158,7 @@ export default {
     })
   },
   created() {
-    this.$logger.info(`ScheduleSession created with id: ${this.id} type ${this.type}`)
+    console.info(`ScheduleSession created with id: ${this.id} type ${this.type}`)
     this.scheduleReq.planId = this.$route.query.planId
     if (!this.scheduleReq.planId) {
       this.handleAssociate()
@@ -176,7 +176,7 @@ export default {
   methods: {
 
     async handleAssociate() {
-      this.$logger.info('ScheduleSession associateUnitList start', this.associateUnitList)
+      console.info('ScheduleSession associateUnitList start', this.associateUnitList)
       const associateData = await this.getAssociate(this.id, this.type)
       associateData.ownerLinkList.forEach(groupItem => {
         groupItem.contents.forEach(item => {
@@ -185,7 +185,7 @@ export default {
           }
         })
       })
-      this.$logger.info('ScheduleSession associateUnitList', this.associateUnitList)
+      console.info('ScheduleSession associateUnitList', this.associateUnitList)
       if (this.associateUnitList.length === 1) {
         this.scheduleReq.planId = this.associateUnitList[0].id
       } else if (this.associateUnitList.length > 1) {
@@ -197,7 +197,7 @@ export default {
 
     getClassList() {
       SchoolClassGetMyClasses().then(res => {
-        this.$logger.info('ScheduleSession getClassList ', res)
+        console.info('ScheduleSession getClassList ', res)
         if (res.result) {
           this.classList = res.result
         }
@@ -216,7 +216,7 @@ export default {
     },
 
     handleSelectUnit(data) {
-      this.$logger.info('ScheduleSession handleSelectUnit ', data)
+      console.info('ScheduleSession handleSelectUnit ', data)
       this.scheduleReq.planId = data.id
       this.selectSessionUnitVisible = false
     },
@@ -243,10 +243,10 @@ export default {
     },
 
     handleSelectClassStudent (cls) {
-      this.$logger.info('handleSelectClassStudent cls', cls)
+      console.info('handleSelectClassStudent cls', cls)
       this.scheduleReq.openSession = false
       this.scheduleReq.workshopType = 0
-      this.$logger.info('handleSelectClassStudent scheduleReq', this.scheduleReq)
+      console.info('handleSelectClassStudent scheduleReq', this.scheduleReq)
     },
 
     handleSelectWorkshopType (data) {
@@ -259,7 +259,7 @@ export default {
       this.calendarSearchFilters = [1, 2, 3, 4]
       this.calendarSearchType = CALENDAR_QUERY_TYPE.WORKSHOP.value
       this.$refs['steps-nav'].nextStep()
-      this.$logger.info('handleSelectWorkshopType', this.scheduleReq)
+      console.info('handleSelectWorkshopType', this.scheduleReq)
     },
 
     handleSelectDate (data) {
@@ -268,10 +268,10 @@ export default {
         this.scheduleReq.endDate = null
         return
       }
-      this.$logger.info('ScheduleSession handleSelectDate ', data)
+      console.info('ScheduleSession handleSelectDate ', data)
       this.scheduleReq.startDate = data.startDate
       this.scheduleReq.endDate = data.endDate
-      this.$logger.info('ScheduleSession handleSelectDate ', this.scheduleReq)
+      console.info('ScheduleSession handleSelectDate ', this.scheduleReq)
     },
 
     handleSelectPassword (val) {
@@ -290,9 +290,9 @@ export default {
         const status = await this.checkZoomAuth()
         if (!status) {
           zoom = false
-          this.$logger.info('reset item enableZoom', this.enableZoom)
+          console.info('reset item enableZoom', this.enableZoom)
         } else {
-          this.$logger.info('zoom auth success')
+          console.info('zoom auth success')
         }
       }
       this.scheduleReq.zoom = zoom ? 1 : 0
@@ -330,11 +330,11 @@ export default {
         this.$message.warn('Please select Schedule time!')
         return
       }
-      this.$logger.info('try createSession scheduleReq', this.scheduleReq)
+      console.info('try createSession scheduleReq', this.scheduleReq)
       this.creating = true
       try {
         const res = await AddSessionV2(this.scheduleReq)
-        this.$logger.info('save scheduleReq', res, 'retValue', retValue)
+        console.info('save scheduleReq', res, 'retValue', retValue)
         if (res.result && res.success && res.code === 0) {
           this.$message.success('Schedule session successfully')
           if (retValue) {

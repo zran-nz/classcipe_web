@@ -590,7 +590,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
     methods: {
       ...mapActions(['refreshCollaborateAction', 'changeCollaborateAction', 'removedCollaborateAction']),
       toggleViewMode (viewMode) {
-        this.$logger.info('viewMode', viewMode)
+        console.info('viewMode', viewMode)
         storage.set(SHARED_VIEW_MODE, viewMode)
         this.viewMode = viewMode
       },
@@ -720,7 +720,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
       },
 
       handleDuplicateItem (item) {
-        this.$logger.info('handleDuplicateItem', item)
+        console.info('handleDuplicateItem', item)
         this.$confirm({
           title: 'Confirm duplicate',
           content: 'Are you sure to duplicate ' + item.name + ' ?',
@@ -729,7 +729,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
             this.loading = true
             Duplicate({ id: item.sourceId, type: item.sourceType }).then((response) => {
               if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
-                this.$logger.info('Duplicate response', response)
+                console.info('Duplicate response', response)
                 this.loading = false
               } else {
                 this.currentMethodName = 'handleDuplicateItem'
@@ -743,7 +743,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
       },
 
       handleAuthCallback () {
-        this.$logger.info('Shared handleAuthCallback')
+        console.info('Shared handleAuthCallback')
         if (this.currentMethodName === 'handleDuplicateItem') {
           this.handleDuplicateItem(this.currentMethodParam)
         }
@@ -756,14 +756,14 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
       },
 
       handleStartSession () {
-        // this.$logger.info('selected sessionTags', this.sessionTags)
+        // console.info('selected sessionTags', this.sessionTags)
         // if (this.sessionTags.length === 0) {
         //   this.$message.warn('Please add session tags')
         //   return
         // }
         this.startLoading = true
         const item = this.sessionItem
-        this.$logger.info('handleStartSession', item)
+        console.info('handleStartSession', item)
         if (item.presentationId) {
           const requestData = {
             author: this.$store.getters.email,
@@ -774,14 +774,14 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
             redirect_url: null
           }
 
-          this.$logger.info('handleStartSession', requestData)
+          console.info('handleStartSession', requestData)
           StartLesson(requestData).then(res => {
-            this.$logger.info('StartLesson res', res)
+            console.info('StartLesson res', res)
             if (res.code === 'ok') {
               this.startLoading = false
               this.lessonSelectTagVisible = false
               const targetUrl = lessonHost + 'd/' + res.data.class_id + '?token=' + storage.get('feathers-jwt')
-              this.$logger.info('try open ' + targetUrl)
+              console.info('try open ' + targetUrl)
               // window.open(targetUrl, '_blank')
               // 课堂那边需要点击返回回到表单，改成location.href跳转
               const url = lessonHost + 't/' + res.data.class_id + '?token=' + storage.get('feathers-jwt')
@@ -814,7 +814,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
       },
 
       handleDashboard (item) {
-        this.$logger.info('handleDashboard', item)
+        console.info('handleDashboard', item)
         if (item.presentationId) {
           const requestData = {
             author: this.$store.getters.email,
@@ -824,13 +824,13 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
             redirect_url: null
           }
 
-          this.$logger.info('handleDashboard', requestData)
+          console.info('handleDashboard', requestData)
           StartLesson(requestData).then(res => {
-            this.$logger.info('StartLesson res', res)
+            console.info('StartLesson res', res)
             if (res.code === 'ok') {
               // const targetUrl = lessonHost + 'slide_id=' + item.presentationId + '&class_id=' + res.data.class_id + '&direct=true&currentPage=0&type=dashboard'
               const targetUrl = lessonHost + 'd/' + res.data.class_id
-              this.$logger.info('try open ' + targetUrl)
+              console.info('try open ' + targetUrl)
               // window.open(targetUrl, '_blank')
               // 课堂那边需要点击返回回到表单，改成location.href跳转
               window.location.href = targetUrl
@@ -844,13 +844,13 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
       },
 
       handleViewPreviewSession (item) {
-        this.$logger.info('handleViewPreviewSession', item)
+        console.info('handleViewPreviewSession', item)
         this.currentPreviewLesson = item
         this.viewPreviewSessionVisible = true
       },
       handleSelectedSessionTags (tags) {
         this.sessionTags = tags
-        this.$logger.info('handleSelectedSessionTags', tags)
+        console.info('handleSelectedSessionTags', tags)
       },
       handleStartSessionTags (item) {
         this.sessionItem = item
@@ -859,12 +859,12 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
       },
 
       handleEvaluateItem (item) {
-        this.$logger.info('handleEvaluateItem', item)
+        console.info('handleEvaluateItem', item)
       },
       loadUserTags () {
         // this.$refs.customTag.tagLoading = true
         FindCustomTags({}).then((response) => {
-          this.$logger.info('FindCustomTags response', response.result)
+          console.info('FindCustomTags response', response.result)
           if (response.success) {
             this.userTags = response.result
             // 默认展示的tag分类
@@ -885,7 +885,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
       },
 
       handleCollaborate (item) {
-        this.$logger.info('handleCollaborate', item)
+        console.info('handleCollaborate', item)
         ReceiveCollaborate({ id: item.id }).then(res => {
           console.info('ReceiveCollaborate', res)
           this.$message.success('collaborate successfully')
@@ -895,7 +895,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
       },
 
       handleDeleteCollaborate (item) {
-        this.$logger.info('handleDeleteCollaborate', item)
+        console.info('handleDeleteCollaborate', item)
         DeleteCollaborate({ id: item.id }).then(res => {
           console.info('DeleteCollaborate', res)
         }).then(() => {
@@ -938,7 +938,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
         this.sessionTags = []
       },
       handleAccept (item, flag) {
-        this.$logger.info('handleAccept', item)
+        console.info('handleAccept', item)
         CollaboratesAgree({ id: item.id, agreeFlag: flag }).then(res => {
           console.info('handleApply', res)
           if (flag === this.collaborateStatus.agree) {
@@ -951,7 +951,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
         })
       },
       handleApply (item) {
-        this.$logger.info('handleApply', item)
+        console.info('handleApply', item)
         CollaboratesAgree({ id: item.id, agreeFlag: this.collaborateStatus.apply }).then(res => {
           console.info('handleApply', res)
           this.$message.success('Apply successfully')
@@ -960,7 +960,7 @@ export const SHARED_VIEW_MODE = 'view_mode_shared'
         })
       },
       triggerSearch() {
-        this.$logger.info('triggerSearch', this.searchText)
+        console.info('triggerSearch', this.searchText)
         this.loadMyContent()
       }
     }

@@ -530,7 +530,7 @@ export default {
     // },
     initFilterOption() {
       getSubjectBySchoolId({ schoolId: this.currentSchool.id }).then(response => {
-        this.$logger.info('getSubjectBySchoolId response', response.result)
+        console.info('getSubjectBySchoolId response', response.result)
         this.filterSubjectOptions = []
         response.result.forEach(curiculum => {
           if (curiculum.subjectList) {
@@ -541,7 +541,7 @@ export default {
         })
       })
       getCurriculumBySchoolId({ schoolId: this.currentSchool.id }).then(response => {
-        this.$logger.info('getCurriculumBySchoolId', response.result)
+        console.info('getCurriculumBySchoolId', response.result)
         this.filterAgeOptions = []
         response.result.forEach(curiculum => {
           if (curiculum.gradeSettingInfo) {
@@ -650,9 +650,9 @@ export default {
         const status = await this.checkZoomAuth()
         if (!status) {
           this.enableZoom = false
-          this.$logger.info('reset item enableZoom', this.enableZoom)
+          console.info('reset item enableZoom', this.enableZoom)
         } else {
-          this.$logger.info('zoom auth success')
+          console.info('zoom auth success')
         }
       }
     },
@@ -666,7 +666,7 @@ export default {
           }
         })
       })
-      this.$logger.info('ScheduleSession associateUnitList', this.associateUnitList)
+      console.info('ScheduleSession associateUnitList', this.associateUnitList)
       if (this.associateUnitList.length === 1) {
         this.planId = this.associateUnitList[0].id
       } else if (this.associateUnitList.length > 1) {
@@ -702,7 +702,7 @@ export default {
     },
 
     handleStepChange(data) {
-      this.$logger.info('pd handleStepChange ', data)
+      console.info('pd handleStepChange ', data)
       this.currentStep = data.step
       this.currentActiveStepIndex = data.index
       this.handleDisplayRightModule()
@@ -715,7 +715,7 @@ export default {
     },
 
     handleDisplayRightModule () {
-      this.$logger.info('handleDisplayRightModule', this.currentStep)
+      console.info('handleDisplayRightModule', this.currentStep)
     },
 
     handleNextStep () {
@@ -832,13 +832,13 @@ export default {
     },
 
     handleSelectUnit(data) {
-      this.$logger.info('ScheduleSession handleSelectUnit ', data)
+      console.info('ScheduleSession handleSelectUnit ', data)
       this.planId = data.id
       this.selectSessionUnitVisible = false
     },
 
     handleUpdateCover (coverData) {
-      this.$logger.info('handleUpdateCover', coverData)
+      console.info('handleUpdateCover', coverData)
       if (coverData.type === 'video') {
         this.form.coverVideo = coverData.url
       } else {

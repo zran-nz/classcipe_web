@@ -62,7 +62,7 @@ export default {
 
     handleSelectCaptureFeedback () {
       this.feedbackTypeVisible = false
-      this.$logger.info('handleSelectCaptureFeedback')
+      console.info('handleSelectCaptureFeedback')
       if (!this.feedbackModalVisible) {
         this.captureCreating = true
         this.feedbackModalVisible = true
@@ -86,7 +86,7 @@ export default {
       }
     },
     handleCancelFeedback () {
-      this.$logger.info('handleCancelFeedback', this.feedbackModalVisible)
+      console.info('handleCancelFeedback', this.feedbackModalVisible)
       this.feedbackModalVisible = false
       this.feedbackImgData = null
     },
@@ -96,9 +96,9 @@ export default {
       document.getElementById('feed-back').style.display = 'none'
     },
     handleSubmitFeedback (data) {
-      this.$logger.info('handleSubmitFeedback', data)
+      console.info('handleSubmitFeedback', data)
       FeedbackSave(data).then((response) => {
-        this.$logger.info('submit-feedback', response)
+        console.info('submit-feedback', response)
         this.$message.success('Thank you for your feedback, we will get back to you as soon as possible.')
         this.feedbackModalVisible = false
       })

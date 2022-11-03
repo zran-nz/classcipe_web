@@ -7,14 +7,14 @@ import { Associate, AssociateCancel, GetAssociate } from '@/api/teacher'
 export const AssociateMixin = {
   methods: {
     async getAssociate (fromId, fromType, published) {
-      this.$logger.info(`GetAssociate fromId: ${fromId}, fromType: ${fromType}, published: ${published}`)
+      console.info(`GetAssociate fromId: ${fromId}, fromType: ${fromType}, published: ${published}`)
       const response = await GetAssociate({
         id: fromId,
         type: fromType,
         published: published
       })
 
-      this.$logger.info('getAssociate response', response)
+      console.info('getAssociate response', response)
       response.result.owner.forEach(ownerItem => {
         const groupItem = response.result.groups.find(group => group.groupName === ownerItem.group)
         if (groupItem) {
@@ -38,7 +38,7 @@ export const AssociateMixin = {
         toId: toId,
         toType: toType
       })
-      this.$logger.info('cancelAssociate response', response)
+      console.info('cancelAssociate response', response)
       return response
     },
 
@@ -49,7 +49,7 @@ export const AssociateMixin = {
         others
       }
       const response = await Associate(associateData)
-      this.$logger.info('associate response', response)
+      console.info('associate response', response)
     }
   }
 }

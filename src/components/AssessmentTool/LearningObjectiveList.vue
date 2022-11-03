@@ -220,7 +220,7 @@ export default {
     },
 
     initTagData (tagList) {
-      this.$logger.info('lo initTagData', tagList, JSON.stringify(tagList))
+      console.info('lo initTagData', tagList, JSON.stringify(tagList))
       const dataList = JSON.parse(JSON.stringify(tagList))
       if (Array.isArray(dataList) && dataList.length > 0) {
         const tagSet = new Set()
@@ -234,7 +234,7 @@ export default {
     },
 
     handleAddLearningObjective (dataItem) {
-      this.$logger.info('handleAddLearningObjective', dataItem)
+      console.info('handleAddLearningObjective', dataItem)
       const index = this.selectedLearningObjective.findIndex(item => item === dataItem)
       if (index === -1) {
         this.selectedLearningObjective.push(dataItem)
@@ -244,18 +244,18 @@ export default {
     },
 
     handleAddGeneralCapability (dataItem) {
-      this.$logger.info('handleAddGeneralCapability', dataItem)
+      console.info('handleAddGeneralCapability', dataItem)
       const index = this.selectedGeneralCapabilities.findIndex(item => item === dataItem)
       if (index === -1) {
         this.selectedGeneralCapabilities.push(dataItem)
       } else {
         this.selectedGeneralCapabilities.splice(index, 1)
       }
-      this.$logger.info('handleAddGeneralCapability selectedGeneralCapabilities', this.selectedGeneralCapabilities)
+      console.info('handleAddGeneralCapability selectedGeneralCapabilities', this.selectedGeneralCapabilities)
     },
 
     handleAddPerformance (dataItem) {
-      this.$logger.info('handleAddPerformance', dataItem)
+      console.info('handleAddPerformance', dataItem)
       const index = this.selectedPerformance.findIndex(item => item === dataItem)
       if (index === -1) {
         this.selectedPerformance.push(dataItem)

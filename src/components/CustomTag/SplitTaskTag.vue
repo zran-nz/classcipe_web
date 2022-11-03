@@ -140,7 +140,7 @@ export default {
   watch: {
     customTags() {
       this.selectedTagList = JSON.parse(JSON.stringify(this.customTags))
-      this.$logger.info('update selectedTagList', this.selectedTagList)
+      console.info('update selectedTagList', this.selectedTagList)
     }
   },
   created() {
@@ -151,33 +151,33 @@ export default {
   methods: {
 
     closeTag (closeTagItem) {
-      this.$logger.info('close tag', closeTagItem, this.selectedTagList)
+      console.info('close tag', closeTagItem, this.selectedTagList)
       const index = this.selectedTagList.findIndex(customTagItem => customTagItem.name === closeTagItem.name && customTagItem.category === closeTagItem.category)
       if (index > -1) {
-        this.$logger.info('delete', this.selectedTagList[index])
+        console.info('delete', this.selectedTagList[index])
         this.selectedTagList.splice(index, 1)
       }
       this.$emit('update:customTags', this.selectedTagList)
-      this.$logger.info('after delete', this.selectedTagList)
+      console.info('after delete', this.selectedTagList)
     },
 
     async createTag () {
-      this.$logger.info('create tag', this.inputTag, this.currentActiveTagCategory)
+      console.info('create tag', this.inputTag, this.currentActiveTagCategory)
       if (this.inputTag.trim() && this.currentActiveTagCategory) {
         // eslint-disable-next-line no-undef
         const ret = await App.service('tags').patch(this.currentActiveTagCategory._id, { $addToSet: { tags: [this.inputTag.trim()] } })
-        this.$logger.info('create tag ret', ret)
+        console.info('create tag ret', ret)
         this.initTagData()
         this.inputTag = ''
       }
     },
 
     async deleteTag (deleteTagItem) {
-      this.$logger.info('delete tag', deleteTagItem)
+      console.info('delete tag', deleteTagItem)
       if (deleteTagItem && deleteTagItem.isPri && this.currentActiveTagCategory) {
         // eslint-disable-next-line no-undef
         const ret = await App.service('tags').patch(this.currentActiveTagCategory._id, { $pull: { tags: [deleteTagItem.tag] } })
-        this.$logger.info('deleteTag tag ret', ret)
+        console.info('deleteTag tag ret', ret)
         const index = this.currentActiveTagCategory.tags.findIndex(tagItem => tagItem.tag === deleteTagItem.tag)
         if (index > -1) {
           this.currentActiveTagCategory.tags.splice(index, 1)
@@ -186,7 +186,7 @@ export default {
     },
 
     selectTag (category, selectTagItem) {
-      this.$logger.info('select tag', category, selectTagItem)
+      console.info('select tag', category, selectTagItem)
       const index = this.selectedTagList.findIndex(customTagItem => customTagItem.name === selectTagItem.tag && customTagItem.category === selectTagItem.set)
       if (index === -1) {
         this.selectedTagList.push({
@@ -196,7 +196,7 @@ export default {
         })
       }
       this.$emit('update:customTags', this.selectedTagList)
-      this.$logger.info('after selectTag customTags', this.selectedTagList)
+      console.info('after selectTag customTags', this.selectedTagList)
 
       // 新增不存在的分类描述
       const list = JSON.parse(JSON.stringify(this.tagCategoryDesc))
@@ -211,7 +211,7 @@ export default {
     },
 
     toggleSelectItem (tagItem) {
-      this.$logger.info('toggleSelectItem', tagItem)
+      console.info('toggleSelectItem', tagItem)
       const index = this.selectedTagList.findIndex(item => item.name === tagItem.name && item.category === tagItem.category)
       if (index === -1) {
         this.selectedTagList.push(tagItem)

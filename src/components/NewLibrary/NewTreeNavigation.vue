@@ -105,7 +105,7 @@ export default {
   },
   watch: {
     defaultCurriculumId (val) {
-      this.$logger.info('defaultCurriculumId change ' + val)
+      console.info('defaultCurriculumId change ' + val)
       this.loaded = false
       this.treeDataList = []
       this.sdgList = []
@@ -135,7 +135,7 @@ export default {
     }
   },
   created () {
-    this.$logger.info('NewTreeNavigation selectMode', this.selectMode)
+    console.info('NewTreeNavigation selectMode', this.selectMode)
     this.initData()
     this.debounceResetData = debounce(this.resetData, 1000)
     LibraryEventBus.$on(LibraryEvent.GradeUpdate, this.handleGradeUpdate)
@@ -157,8 +157,8 @@ export default {
     },
     initData () {
       const skillCategory = this.$store.getters.skillCategory
-      this.$logger.info('NewTreeNavigation skillCategory ', skillCategory)
-      this.$logger.info('NewTreeNavigation defaultActiveMenu ' + this.defaultActiveMenu)
+      console.info('NewTreeNavigation skillCategory ', skillCategory)
+      console.info('NewTreeNavigation defaultActiveMenu ' + this.defaultActiveMenu)
       const curriculumData = {
         id: '1',
         expandStatus: false,
@@ -202,10 +202,10 @@ export default {
         GetAllSdgs(),
         getAll21Century()
       ].concat(schoolPromises)).then((initDataResponse) => {
-        this.$logger.info('initData done', initDataResponse)
+        console.info('initData done', initDataResponse)
 
         // GetMyGrades
-        this.$logger.info('GetMyGrades Response ', initDataResponse[1])
+        console.info('GetMyGrades Response ', initDataResponse[1])
         if (!initDataResponse[1].code) {
           this.gradeList = initDataResponse[1].result
           // 获取学校自定义的名称
@@ -229,7 +229,7 @@ export default {
         }
 
         // SubjectTree
-        this.$logger.info('SubjectTree Response ', initDataResponse[0])
+        console.info('SubjectTree Response ', initDataResponse[0])
         if (!initDataResponse[0].code) {
           this.subjectTree = initDataResponse[0].result
           let onlyShowSubjects = []
@@ -261,7 +261,7 @@ export default {
         }
 
         // GetAllSdgs
-        this.$logger.info('GetAllSdgs Response ', initDataResponse[2])
+        console.info('GetAllSdgs Response ', initDataResponse[2])
         if (!initDataResponse[2].code) {
           this.sdgList = initDataResponse[2].result
           this.sdgList.forEach(item => {
@@ -271,12 +271,12 @@ export default {
         }
 
         // getAll21Century
-        this.$logger.info('getAll21Century Response ', initDataResponse[3])
+        console.info('getAll21Century Response ', initDataResponse[3])
         if (!initDataResponse[3].code) {
           const list = initDataResponse[3].result
           this.addParentObjListProperty(list, null)
           all21CenturyData.children = list
-          this.$logger.info('all21CenturyData addParentObjListProperty', all21CenturyData)
+          console.info('all21CenturyData addParentObjListProperty', all21CenturyData)
         }
       }).finally(() => {
         this.treeDataList = []
@@ -410,11 +410,11 @@ export default {
           // evaluation 表格选择用
           this.treeDataList.push(all21CenturyData)
 
-          this.$logger.info('after handle treeDataList', this.treeDataList)
+          console.info('after handle treeDataList', this.treeDataList)
         }
 
         this.treeDataList = this.treeDataList.sort((a, b) => a.sort - b.sort)
-        this.$logger.info('sort treeDataList', this.treeDataList)
+        console.info('sort treeDataList', this.treeDataList)
         this.loaded = true
         this.$emit('finishInit')
       })
@@ -448,11 +448,11 @@ export default {
     },
 
     handleGradeUpdate (data) {
-      this.$logger.info('handleGradeUpdate start ', data)
+      console.info('handleGradeUpdate start ', data)
       this.defaultGradeId = data
     },
     handleChangeCurriculum () {
-      this.$logger.info('handleChangeCurriculum')
+      console.info('handleChangeCurriculum')
       this.defaultGradeId = null
     }
   },

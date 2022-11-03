@@ -263,10 +263,10 @@ export default {
   },
   methods: {
     handleDateChange (date, dateString) {
-      this.$logger.info('handleDateChange', date, dateString)
+      console.info('handleDateChange', date, dateString)
       this.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
       this.endDate = moment(date[1].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
-      this.$logger.info('handleDateChange', this.startDate, this.endDate)
+      console.info('handleDateChange', this.startDate, this.endDate)
       if (this.registerBefore && moment(this.startDate).isBefore(moment(this.registerBefore))) {
         this.$refs.registerBefore.$el.querySelector('input').click()
       }
@@ -277,20 +277,20 @@ export default {
     },
 
     handleSelectDate (date, dateString) {
-      this.$logger.info('handleSelectDate', moment(date.toDate()).utc().format('YYYY-MM-DD HH:mm:ss'))
+      console.info('handleSelectDate', moment(date.toDate()).utc().format('YYYY-MM-DD HH:mm:ss'))
       this.registerBefore = moment(date.toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
     },
 
     async handleZoomStatusChange () {
-      this.$logger.info('handleZoomStatusChange', this.enableZoom)
+      console.info('handleZoomStatusChange', this.enableZoom)
       this.$emit('select-zoom-status', this.enableZoom)
       // if (this.enableZoom) {
       //   const status = await this.checkZoomAuth()
       //   if (!status) {
       //     this.enableZoom = false
-      //     this.$logger.info('reset item enableZoom', this.enableZoom)
+      //     console.info('reset item enableZoom', this.enableZoom)
       //   } else {
-      //     this.$logger.info('zoom auth success')
+      //     console.info('zoom auth success')
       //   }
       // }
     },

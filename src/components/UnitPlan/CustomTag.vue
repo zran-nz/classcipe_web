@@ -206,7 +206,7 @@ export default {
     }
   },
   created () {
-    this.$logger.info('customTags', this.customTags)
+    console.info('customTags', this.customTags)
   },
   computed: {
     showTagList: function () {
@@ -223,8 +223,8 @@ export default {
 
     mergeTagList: function () {
       const list = []
-      this.$logger.info('customTags', this.customTags)
-      this.$logger.info('scopeTagsList', this.scopeTagsList)
+      console.info('customTags', this.customTags)
+      console.info('scopeTagsList', this.scopeTagsList)
       const userGlobalTags = this.customTags.userGlobalTags
       this.scopeTagsList.forEach(scope => {
        const scopeIndex = this.customTags.recommends.findIndex(item => item.name === scope)
@@ -268,7 +268,7 @@ export default {
         }
       })
 
-      this.$logger.info('mergeTagList', list)
+      console.info('mergeTagList', list)
       return list
     },
     filterKeywordListInput() {
@@ -299,7 +299,7 @@ export default {
   },
   watch: {
     selectedTagsList () {
-      this.$logger.info('selectedTagsList change', this.selectedTagsList)
+      console.info('selectedTagsList change', this.selectedTagsList)
        this.tagList = this.selectedTagsList
     }
   },
@@ -323,7 +323,7 @@ export default {
       this.$emit('change-user-tags', this.tagList)
     },
     selectChooseTag (parent, tag, superParent) {
-      this.$logger.info('choose tag ', parent, tag, superParent)
+      console.info('choose tag ', parent, tag, superParent)
         this.tagList.unshift({
           'parentName': superParent ? (superParent.name + '-' + parent.name) : parent.name,
           'name': tag,
@@ -352,7 +352,7 @@ export default {
       console.log(item)
     },
     handleCreateTagByInput (parent, superParent) {
-      this.$logger.info('skill handleCreateTagByInput ' + this.createTagName, 'parent', parent)
+      console.info('skill handleCreateTagByInput ' + this.createTagName, 'parent', parent)
       const existTag = this.tagList.find(item => item.name.toLowerCase() === this.createTagName.toLowerCase())
       if (existTag) {
         this.$message.warn('already exist same name tag')
@@ -365,7 +365,7 @@ export default {
         }
         this.tagLoading = true
         AddUserTagNew(item).then((response) => {
-          this.$logger.info('add AddUserTagNew ', response.result)
+          console.info('add AddUserTagNew ', response.result)
           if (response.success) {
             item.id = response.result.id
             this.createTagName = ''
@@ -383,7 +383,7 @@ export default {
     },
 
     handleKeyEnter (parent) {
-      this.$logger.info('tag handleKeyEnter ', this.inputTag, parent)
+      console.info('tag handleKeyEnter ', this.inputTag, parent)
       this.createTagName = this.inputTag
       this.handleCreateTagByInput(parent)
     },

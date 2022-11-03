@@ -94,14 +94,14 @@ export default {
     }
   },
     created () {
-      this.$logger.info('loadMessageData ' + this.id)
+      console.info('loadMessageData ' + this.id)
       this.loadMessageData()
     },
     methods: {
       loadMessageData () {
         // TODO 查询消息详情
         NoticeQueryById({ id: this.id }).then((res) => {
-          this.$logger.info('loadMessageData ', res)
+          console.info('loadMessageData ', res)
           this.loading = false
           if (res.success) {
             this.notificationData = res.result
@@ -124,7 +124,7 @@ export default {
 
       // TODO 处理拒绝按钮逻辑
       handleAcceptCollaborate () {
-        this.$logger.info('handleAcceptCollaborate', this.notificationData)
+        console.info('handleAcceptCollaborate', this.notificationData)
         this.acceptLoading = true
         CollaboratesAgree({ id: this.notificationData.busId, agreeFlag: CollaborateStatus.agree }).then(res => {
           console.info('handleApply', res)
@@ -133,7 +133,7 @@ export default {
           this.acceptLoading = false
           this.loadMessageData()
         })
-        // this.$logger.info('handleAcceptCollaborate', this.notificationData)
+        // console.info('handleAcceptCollaborate', this.notificationData)
         // this.acceptLoading = true
         // ReceiveCollaborate({ id: this.notificationData.busId }).then(res => {
         //   console.info('ReceiveCollaborate', res)
@@ -147,7 +147,7 @@ export default {
 
       // TODO 处理按钮逻辑
       handleRefuseCollaborate () {
-        this.$logger.info('handleRefuseCollaborate', this.notificationData)
+        console.info('handleRefuseCollaborate', this.notificationData)
         this.refuseLoading = true
         DeleteCollaborate({ id: this.notificationData.busId }).then(res => {
           console.info('handleRefuseCollaborate', res)

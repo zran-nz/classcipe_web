@@ -65,27 +65,27 @@ export default {
     SkillLibraryEventBus.$on(SkillLibraryEvent.SkillContentListUpdate, this.handleSkillContentListUpdate)
     SkillLibraryEventBus.$on(SkillLibraryEvent.SkillContentListSelectedListUpdate, this.handleSkillContentSelectedListUpdate)
     this.nameWidth = document.getElementById('new-library').getBoundingClientRect().width - 400
-    this.$logger.info('nameWidth ' + this.nameWidth)
+    console.info('nameWidth ' + this.nameWidth)
   },
   methods: {
     handleSkillContentListUpdate (data) {
-      this.$logger.info('handleSkillContentListUpdate ', data)
+      console.info('handleSkillContentListUpdate ', data)
       this.contentDataList = data.contentList
       this.parent = data.currentTreeData
       this.firstLoad = false
     },
 
     handleSkillContentSelectedListUpdate (data) {
-      this.$logger.info('handleSkillContentSelectedListUpdate ', data)
+      console.info('handleSkillContentSelectedListUpdate ', data)
       if (this.selectedIdList.indexOf(data.id) === -1) {
         this.selectedIdList.push(data.id)
       } else {
         this.selectedIdList.splice(this.selectedIdList.indexOf(data.id), 1)
       }
-      this.$logger.info('after handleSkillContentSelectedListUpdate ', this.selectedIdList)
+      console.info('after handleSkillContentSelectedListUpdate ', this.selectedIdList)
     },
     handleSkillContentListItemClick (item) {
-      this.$logger.info('handleSkillContentListItemClick ', item)
+      console.info('handleSkillContentListItemClick ', item)
       SkillLibraryEventBus.$emit(SkillLibraryEvent.SkillContentListItemClick, {
         item,
         parent: this.parent
@@ -94,9 +94,9 @@ export default {
   },
   destroyed () {
     SkillLibraryEventBus.$off(SkillLibraryEvent.SkillContentListUpdate, this.handleSkillContentListUpdate)
-    this.$logger.info('off NewContentList ContentListUpdate handler')
+    console.info('off NewContentList ContentListUpdate handler')
     SkillLibraryEventBus.$off(SkillLibraryEvent.SkillContentListSelectedListUpdate, this.handleSkillContentSelectedListUpdate)
-    this.$logger.info('off NewContentList ContentListSelectedListUpdate handler')
+    console.info('off NewContentList ContentListSelectedListUpdate handler')
   }
 }
 </script>

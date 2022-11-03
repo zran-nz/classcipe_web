@@ -151,13 +151,13 @@ export default {
   },
   methods: {
     handleConfirmAndSplitTask (data) {
-      this.$logger.info('handleConfirmAndSplitTask')
+      console.info('handleConfirmAndSplitTask')
       this.$emit('confirm-and-split', {
         price: this.enablePrice ? +this.myPrice : 0
       })
     },
     async handleConfirm (data) {
-      this.$logger.info('handleConfirm')
+      console.info('handleConfirm')
       this.saveLoading = true
       await discountSettingSave({
         contentId: this.contentId,
@@ -182,10 +182,10 @@ export default {
       this.saveLoading = false
     },
     handleDateChange (date, dateString) {
-      this.$logger.info('handleDateChange', date, dateString)
+      console.info('handleDateChange', date, dateString)
       this.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD 00:00:00')
       this.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD 00:00:00')
-      this.$logger.info('handleDateChange', this.startDate, this.endData)
+      console.info('handleDateChange', this.startDate, this.endData)
     },
     disabledDate(current) {
       return current && current < moment().subtract(1, 'days').endOf('day')

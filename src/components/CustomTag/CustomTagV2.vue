@@ -169,7 +169,7 @@ export default {
   },
   mounted() {
     this.currentActiveTagCategory = this.mergeTagList.length ? this.mergeTagList[0] : null
-    this.$logger.info('customTags', this.customTags, 'selectedTagsList', this.selectedTagsList, 'currentActiveTagCategory', this.currentActiveTagCategory)
+    console.info('customTags', this.customTags, 'selectedTagsList', this.selectedTagsList, 'currentActiveTagCategory', this.currentActiveTagCategory)
     const tagList = this.selectedTagsList.slice()
     tagList.forEach(tag => {
       const tagCategoryItem = this.mergeTagList.find(item => item.name === tag.parentName)
@@ -195,8 +195,8 @@ export default {
     },
     mergeTagList: function () {
       const list = []
-      this.$logger.info('customTags', this.customTags)
-      this.$logger.info('scopeTagsList', this.scopeTagsList)
+      console.info('customTags', this.customTags)
+      console.info('scopeTagsList', this.scopeTagsList)
       const userGlobalTags = this.customTags.userGlobalTags
       this.scopeTagsList.forEach((scope, index) => {
        const scopeIndex = this.customTags.recommends.findIndex(item => item.name === scope)
@@ -258,7 +258,7 @@ export default {
         }
       })
 
-      this.$logger.info('mergeTagList', list)
+      console.info('mergeTagList', list)
       return list
     },
     filterKeywordListInput() {
@@ -289,7 +289,7 @@ export default {
   },
   watch: {
     selectedTagsList () {
-      this.$logger.info('selectedTagsList change', this.selectedTagsList)
+      console.info('selectedTagsList change', this.selectedTagsList)
       const tagList = this.selectedTagsList.slice()
       tagList.forEach(tag => {
         const tagCategoryItem = this.mergeTagList.find(item => item.name === tag.parentName)
@@ -325,7 +325,7 @@ export default {
       this.$emit('change-user-tags', this.tagList)
     },
     selectChooseTag (parent, tag, superParent) {
-      this.$logger.info('choose tag ', parent, tag, superParent)
+      console.info('choose tag ', parent, tag, superParent)
         this.tagList.push({
           'parentName': superParent ? (superParent.name + '-' + parent.name) : parent.name,
           'name': tag,
@@ -355,7 +355,7 @@ export default {
       console.log(item)
     },
     handleCreateTagByInput (parent, superParent) {
-      this.$logger.info('skill handleCreateTagByInput ' + this.createTagName, 'parent', parent)
+      console.info('skill handleCreateTagByInput ' + this.createTagName, 'parent', parent)
       const existTag = this.tagList.find(item => item.name.toLowerCase() === this.createTagName.toLowerCase())
       if (existTag) {
         this.$message.warn('already exist same name tag')
@@ -368,7 +368,7 @@ export default {
         }
         this.tagLoading = true
         AddUserTagNew(item).then((response) => {
-          this.$logger.info('add AddUserTagNew ', response.result)
+          console.info('add AddUserTagNew ', response.result)
           if (response.success) {
             item.id = response.result.id
             this.createTagName = ''
@@ -386,24 +386,24 @@ export default {
     },
 
     handleKeyEnter (data) {
-      this.$logger.info('tag handleKeyEnter', data)
+      console.info('tag handleKeyEnter', data)
       this.handleCreateTagByInput(this.currentActiveTagCategory)
     },
 
     searchTag (keyword) {
-      this.$logger.info('tag searchTag', keyword)
+      console.info('tag searchTag', keyword)
       this.createTagName = this.inputTag
     },
     refreshTag () {
       this.$emit('reload-user-tags')
     },
     handleChangeCategory(category) {
-      this.$logger.info('change category', category)
+      console.info('change category', category)
       this.currentActiveTagCategory = category
     },
 
     updateTagCategoryTooltip () {
-      this.$logger.info('updateTagCategoryTooltip', this.currentActiveTagCategory)
+      console.info('updateTagCategoryTooltip', this.currentActiveTagCategory)
       if (this.currentActiveTagCategory) {
         UserTagAddOrUpdate({
           id: this.currentActiveTagCategory.id,

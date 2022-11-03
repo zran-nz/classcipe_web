@@ -224,19 +224,19 @@ export default {
     }
   },
   created () {
-    this.$logger.info('load TaskLink with id[' + this.fromId + '] fromType[' + this.fromType + ']')
+    console.info('load TaskLink with id[' + this.fromId + '] fromType[' + this.fromType + ']')
     this.getAssociate()
   },
   methods: {
     getAssociate () {
-      this.$logger.info('GetAssociate id[' + this.fromId + '] fromType[' + this.fromType + ']')
+      console.info('GetAssociate id[' + this.fromId + '] fromType[' + this.fromType + ']')
       this.linkGroupLoading = true
       GetAssociate({
         id: this.fromId,
         type: this.fromType,
         published: this.isLibrary ? 1 : 0
       }).then(response => {
-        this.$logger.info('TaskLink GetAssociate response', response)
+        console.info('TaskLink GetAssociate response', response)
         if (response.success) {
           const associateData = response.result
           this.ownerLinkGroupList = []
@@ -276,7 +276,7 @@ export default {
               this.selectedList.push(content.type + '-' + content.id)
             })
           })
-          this.$logger.info('ownerLinkGroupList', this.ownerLinkGroupList)
+          console.info('ownerLinkGroupList', this.ownerLinkGroupList)
         } else {
           this.$message.error(response.message)
         }
@@ -286,13 +286,13 @@ export default {
     },
 
     handleEnsureSelectedLink (data) {
-      this.$logger.info('handleEnsureSelectedLink', data)
+      console.info('handleEnsureSelectedLink', data)
       this.selectLinkContentVisible = false
       this.getAssociate()
     },
 
     handleLinkGroup (group) {
-      this.$logger.info('handleLinkGroup', group)
+      console.info('handleLinkGroup', group)
       this.subDefaultGroupName = group.group
       if (group.group.trim() === 'Linked assessment tool(s)') {
         this.subFilterType = typeMap.evaluation
@@ -313,7 +313,7 @@ export default {
     },
 
     handleToggleEditGroupName (linkGroup) {
-      this.$logger.info('handleToggleEditGroupName', linkGroup)
+      console.info('handleToggleEditGroupName', linkGroup)
       if (linkGroup.editing) {
         linkGroup.editing = false
         const ids = []
@@ -326,7 +326,7 @@ export default {
           groupName: linkGroup.group,
           ids: ids
         }).then(response => {
-          this.$logger.info('AddOrSaveGroupName', response)
+          console.info('AddOrSaveGroupName', response)
           linkGroup.editing = false
         })
       } else {
@@ -348,14 +348,14 @@ export default {
       }
     },
     handleDeleteLinkItem (item) {
-      this.$logger.info('handleDeleteLinkItem', item)
+      console.info('handleDeleteLinkItem', item)
       AssociateCancel({
         fromId: this.fromId,
         fromType: this.fromType,
         toId: item.id,
         toType: item.type
       }).then(response => {
-        this.$logger.info('handleDeleteLinkItem response ', response)
+        console.info('handleDeleteLinkItem response ', response)
         // 刷新子组件的关联数据
         this.getAssociate()
       })
@@ -373,7 +373,7 @@ export default {
           groupName: linkGroup.group,
           ids: ids
         }).then(response => {
-          this.$logger.info('AddOrSaveGroupName', response)
+          console.info('AddOrSaveGroupName', response)
         })
       })
     }

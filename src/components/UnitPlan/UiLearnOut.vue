@@ -516,17 +516,17 @@
     },
     watch: {
       learnOuts (val) {
-        this.$logger.info('learnOuts change!', val)
+        console.info('learnOuts change!', val)
         this.knowledgeList = val
       },
 
       selfOuts (val) {
-        this.$logger.info('selfOuts change!', val)
+        console.info('selfOuts change!', val)
         this.initSelfOuts()
       },
       // 更新centuryList中的数据，禁用已经被选择的选项
       centuryTagList (val) {
-        this.$logger.info('centuryTagList change!', val, this.centuryList)
+        console.info('centuryTagList change!', val, this.centuryList)
 
         // 重置所有的centuryList为可选
         this.centuryList.forEach(child => this.removeDisabled(child))
@@ -570,7 +570,7 @@
         }
       },
       initSelfOuts () {
-        this.$logger.info('initSelfOuts', this.selfOuts)
+        console.info('initSelfOuts', this.selfOuts)
         const skillInputList = this.selfOuts.filter(item => item.tagType === TagType.skill)
         const knowledgeInputList = this.selfOuts.filter(item => item.tagType === TagType.knowledge)
         const centuryInputList = this.selfOuts.filter(item => item.tagType === TagType.century)
@@ -580,21 +580,21 @@
         } else {
           this.skillInputList = []
         }
-        this.$logger.info('skillInputList', this.skillInputList)
+        console.info('skillInputList', this.skillInputList)
 
         if (knowledgeInputList.length) {
           this.knowledgeInputList = knowledgeInputList
         } else {
           this.knowledgeInputList = []
         }
-        this.$logger.info('knowledgeInputList', this.skillInputList)
+        console.info('knowledgeInputList', this.skillInputList)
 
         if (centuryInputList.length) {
           this.centuryInputList = centuryInputList
         } else {
           this.centuryInputList = []
         }
-        this.$logger.info('centuryInputList', this.skillInputList)
+        console.info('centuryInputList', this.skillInputList)
       },
 
       handleActiveDescription (type, k) {
@@ -669,11 +669,11 @@
         this.handleUpdateCenturyTag()
       },
       handleAddCenturyTag () {
-        this.$logger.info('handleAddCenturyTag ', this.centuryTagList)
+        console.info('handleAddCenturyTag ', this.centuryTagList)
         this.centuryTagList.push([])
       },
       handleUpdateCenturyTag () {
-        this.$logger.info('handleUpdateCenturyTag ', 'selected', this.centuryTagList, 'option', this.centuryList)
+        console.info('handleUpdateCenturyTag ', 'selected', this.centuryTagList, 'option', this.centuryList)
       },
       treeForeach (tree, func) {
         tree.forEach(data => {
@@ -684,7 +684,7 @@
       get21century () {
         getAll21Century({
         }).then((response) => {
-          this.$logger.info('getAll21Century response', response)
+          console.info('getAll21Century response', response)
           if (response.success) {
              this.centuryList = response.result
              this.treeForeach(this.centuryList, node => {
@@ -712,7 +712,7 @@
       // 21世纪的数据需要根据学科分类显示
       getCenturyCategoryList (type) {
         const list = this.getKnowledgeListType(type)
-        this.$logger.info('getCenturyCategoryList list ', list)
+        console.info('getCenturyCategoryList list ', list)
         const categoryDataMap = new Map()
         categoryDataMap.set('Others', [])
         list.forEach(item => {
@@ -757,7 +757,7 @@
             list: categoryDataMap.get('Others')
           })
         }
-        this.$logger.info('getCenturyCategoryList ', categoryDataList)
+        console.info('getCenturyCategoryList ', categoryDataList)
         return categoryDataList
       },
 
@@ -771,22 +771,22 @@
       },
 
       handleDeleteSkill (skill) {
-        this.$logger.info('handleDelete ', skill)
+        console.info('handleDelete ', skill)
         this.skillInputList = this.skillInputList.filter(item => item.key !== skill.key)
       },
 
       handleDeleteKnowledge (knowledge) {
-        this.$logger.info('handleDelete ', knowledge)
+        console.info('handleDelete ', knowledge)
         this.knowledgeInputList = this.knowledgeInputList.filter(item => item.key !== knowledge.key)
       },
 
       handleDeleteCentury (century) {
-        this.$logger.info('handleDelete ', century)
+        console.info('handleDelete ', century)
         this.centuryInputList = this.centuryInputList.filter(item => item.key !== century.key)
       },
 
       handleAddNew(tagType, inputList) {
-        this.$logger.info('handleAddNew ', inputList)
+        console.info('handleAddNew ', inputList)
         inputList.push({
           name: '',
           subjectId: null,
@@ -823,7 +823,7 @@
           })
         }
 
-        this.$logger.info('getSelfOuts ', selfOuts)
+        console.info('getSelfOuts ', selfOuts)
         return selfOuts
       },
       domFn(key, currentChoose) {

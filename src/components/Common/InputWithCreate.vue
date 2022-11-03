@@ -73,7 +73,7 @@ export default {
   watch: {
     optionList: {
       handler: function (newVal, oldVal) {
-        this.$logger.info('optionList changed ', newVal)
+        console.info('optionList changed ', newVal)
         this.myOptionList = []
 
         newVal.forEach(option => {
@@ -92,7 +92,7 @@ export default {
     },
     defaultSelectedId: {
       handler: function (newVal, oldVal) {
-        this.$logger.info('defaultSelectedId changed ' + newVal)
+        console.info('defaultSelectedId changed ' + newVal)
         this.showOptionList = false
         this.selectedId = newVal
         this.creating = false
@@ -138,7 +138,7 @@ export default {
       }
       this.myOptionList.push(optionItem)
     })
-    this.$logger.info('myOptionList ', this.myOptionList)
+    console.info('myOptionList ', this.myOptionList)
     this.selectedId = this.defaultSelectedId
 
     if (this.defaultDisplayName) {
@@ -155,7 +155,7 @@ export default {
   },
   methods: {
     createNew () {
-      this.$logger.info('create-new ' + this.displayValue + ' ' + this.creating)
+      console.info('create-new ' + this.displayValue + ' ' + this.creating)
       if (!this.creating) {
         this.creating = true
         this.$emit('create-new', { value: this.displayValue, index: this.index })
@@ -163,7 +163,7 @@ export default {
     },
 
     handleSelectItem (item) {
-      this.$logger.info('handleSelectItem ' + item.id, 'disabledIdList ' + this.disabledIdList)
+      console.info('handleSelectItem ' + item.id, 'disabledIdList ' + this.disabledIdList)
       if (this.disabledIdList.indexOf(item.id) === -1) {
         this.$emit('selected', item)
         this.displayValue = item.name

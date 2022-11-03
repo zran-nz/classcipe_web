@@ -80,9 +80,9 @@ export default {
   },
   methods: {
     selectHeaderSet () {
-      this.$logger.info('selectHeaderSet')
+      console.info('selectHeaderSet')
       AssessmentToolHeaderNamesList().then(res => {
-        this.$logger.info('AssessmentToolHeaderNamesList', res)
+        console.info('AssessmentToolHeaderNamesList', res)
         if (res.code === 0) {
           const headerList = []
           const headerNameStrSet = new Set()
@@ -93,7 +93,7 @@ export default {
             })
             headerNameStrSet.add(item.headerNameList)
           })
-          this.$logger.info('headerList', headerList)
+          console.info('headerList', headerList)
           this.$refs.table.optionStrSet = headerNameStrSet
           this.$refs.table.optionList = headerList
           this.$refs.table.selectHeaderSetModalVisible = true
@@ -104,12 +104,12 @@ export default {
     },
 
     deleteAssessmentTool () {
-      this.$logger.info('deleteAssessmentTool', this.assessment)
+      console.info('deleteAssessmentTool', this.assessment)
       if (this.assessment.id) {
         AssessmentToolInfoDelete({
           id: this.assessment.id
         }).then((res) => {
-          this.$logger.info('deleteAssessmentTool res', res)
+          console.info('deleteAssessmentTool res', res)
           this.$emit('delete', this.assessment.key)
         })
       } else {

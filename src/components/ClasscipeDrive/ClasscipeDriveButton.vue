@@ -64,7 +64,7 @@ export default {
       this.driveVisible = true
     },
     hiddenClasscipeDrive () {
-      this.$logger.info('hiddenClasscipeDrive')
+      console.info('hiddenClasscipeDrive')
       this.driveVisible = false
     }
   }

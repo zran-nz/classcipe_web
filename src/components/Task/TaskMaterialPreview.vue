@@ -138,7 +138,7 @@ export default {
     }
   },
   created () {
-    this.$logger.info('currentPageElementLists ', this.currentPageElementLists)
+    console.info('currentPageElementLists ', this.currentPageElementLists)
     if (this.filterType) {
       this.elementsList = this.currentPageElementLists.filter(item => item.type === this.filterType)
     } else {
@@ -147,12 +147,12 @@ export default {
   },
   methods: {
     handleGotoImgIndex (index) {
-      this.$logger.info('handleGotoImgIndex ' + index)
+      console.info('handleGotoImgIndex ' + index)
       this.currentImgIndex = index
       this.$refs.carousel.goTo(index)
     },
     handlePreviewMaterial (item) {
-      this.$logger.info('handlePreviewMaterial ' + item)
+      console.info('handlePreviewMaterial ' + item)
       if (item.type !== 'tip') {
         window.open(item.url, '_blank')
       }

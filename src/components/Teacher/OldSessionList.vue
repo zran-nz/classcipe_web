@@ -224,7 +224,7 @@ export default {
     },
 
     handleStartOrJoin (item) {
-      this.$logger.info('handleStartOrJoin item :', item)
+      console.info('handleStartOrJoin item :', item)
       if (item.status === this.classStatus.close) {
         this.visible = true
         return
@@ -259,7 +259,7 @@ export default {
     },
 
     showPreviewSessionList () {
-      this.$logger.info('showPreviewSessionList')
+      console.info('showPreviewSessionList')
       this.$emit('show-preview-session-list')
     },
 
@@ -269,12 +269,12 @@ export default {
     },
 
     handleTeacherProjecting (item) {
-      this.$logger.info('handleStartSession', item)
+      console.info('handleStartSession', item)
       window.open(lessonHost + 'd/' + item.classId, '_blank')
     },
 
     handleDashboard (item) {
-      this.$logger.info('handleDashboard', item)
+      console.info('handleDashboard', item)
       window.open(lessonHost + 'd/' + item.classId, '_blank')
     },
     getStatusFormat (status) {

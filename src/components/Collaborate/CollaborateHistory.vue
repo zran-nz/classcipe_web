@@ -86,7 +86,7 @@ export default {
     }
   },
   created () {
-    this.$logger.info('CollaborateHistory created', this.historyList)
+    console.info('CollaborateHistory created', this.historyList)
     this.collaborateHistoryList = this.historyList
     if (this.collaborateHistoryList.length > 0) {
       const historyItem = {}
@@ -102,7 +102,7 @@ export default {
   },
   methods: {
     handleRestoreHistory (content) {
-      this.$logger.info('handleRestoreHistory', content)
+      console.info('handleRestoreHistory', content)
       if (content instanceof Object) {
         this.$emit('restore', content)
       } else {

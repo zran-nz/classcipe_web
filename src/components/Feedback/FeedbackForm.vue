@@ -95,17 +95,17 @@ export default {
     },
 
     handleEditImg () {
-      this.$logger.info('handleEditImg')
+      console.info('handleEditImg')
       this.imgEditModalVisible = true
     },
 
     handleCancelEditImg () {
-      this.$logger.info('handleCancelEditImg')
+      console.info('handleCancelEditImg')
       this.imgEditModalVisible = false
     },
 
     handleCloseEditImg (data) {
-      this.$logger.info('handleCloseEditImg', data)
+      console.info('handleCloseEditImg', data)
       if (data) {
         this.imgBase64Data = data
       }

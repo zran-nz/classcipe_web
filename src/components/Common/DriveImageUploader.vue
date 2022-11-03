@@ -140,7 +140,7 @@ export default {
         this.modelSrc = data
         const suffix = mime.split('/')[1]
         const file = new File([u8arr], `custom_image_${Date.now()}_${Math.random().toString(36).slice(2)}.${suffix}`, { type: mime })
-        this.$logger.info('upload file', file)
+        console.info('upload file', file)
         this.confirmLoading = true
         upAwsS3File(this.$store.getters.userInfo.id, file, this.getProgressUpLoad, result => {
           this.onSuccess(file, result)
@@ -149,11 +149,11 @@ export default {
     },
 
     getProgressUpLoad (progress) {
-      this.$logger.info('getProgressUpLoad', progress)
+      console.info('getProgressUpLoad', progress)
       this.confirmLoading = true
     },
     onSuccess (file, result) {
-      this.$logger.info('upload success', file, result)
+      console.info('upload success', file, result)
       this.$EventBus.$emit(ClasscipeDriveEvent.INSERT_UPLOADED_IMAGE, {
         field: this.field,
         data: result

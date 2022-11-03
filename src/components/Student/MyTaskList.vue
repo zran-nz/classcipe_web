@@ -631,18 +631,18 @@ export default {
     },
     handleStartSession (item) {
       this.startLoading = true
-      this.$logger.info('handleStartSession', item)
+      console.info('handleStartSession', item)
       if (item && item.task) {
         const requestData = {
           taskId: item.task.id
         }
-        this.$logger.info('handleStartSession', requestData)
+        console.info('handleStartSession', requestData)
         SelfStudyTaskStart(requestData).then(res => {
-          this.$logger.info('StartOpenSession res', res)
+          console.info('StartOpenSession res', res)
           if (res.success) {
             this.startLoading = false
             const targetUrl = lessonHost + 's/' + res.result.classId + '?token=' + storage.get(ACCESS_TOKEN)
-            this.$logger.info('try open ' + targetUrl)
+            console.info('try open ' + targetUrl)
             // window.open(targetUrl, '_blank')
             window.location.href = targetUrl
           } else {
@@ -666,14 +666,14 @@ export default {
     handleRestoreItem (item) {
       console.info('handleRestoreItem', item)
       SelfStudyRestore({ id: item.id }).then(response => {
-        this.$logger.info('handleRestoreItem response', response)
+        console.info('handleRestoreItem response', response)
       }).finally(() => {
         this.loadMyContent()
       })
     },
     handlePermanentDeleteItem (item) {
       SelfStudyDelete({ id: item.id }).then(response => {
-        this.$logger.info('handleRestoreItem response', response)
+        console.info('handleRestoreItem response', response)
       }).finally(() => {
         this.loadMyContent()
       })

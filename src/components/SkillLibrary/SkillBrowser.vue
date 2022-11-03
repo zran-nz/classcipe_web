@@ -44,7 +44,7 @@ export default {
   computed: {
   },
   created () {
-    this.$logger.info('SkillBrowser selectMode', this.selectMode)
+    console.info('SkillBrowser selectMode', this.selectMode)
   },
   mounted () {
   },

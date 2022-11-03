@@ -102,7 +102,7 @@ export default {
   created () {
     this.loadingTree = true
     GetTreeByKey({ key: this.rootKey }).then((response) => {
-      this.$logger.info('TagTree response', response.result)
+      console.info('TagTree response', response.result)
       if (response.success) {
         this.treeItemData = response.result.children
         if (this.treeItemData.length === 0) {
@@ -129,7 +129,7 @@ export default {
       console.log('Trigger Select', keys, event)
       this.loadingContent = true
       GetGlobalTagKeywords({ tagId: keys[0] }).then((response) => {
-        this.$logger.info('GetGlobalTagKeywords response', response.result)
+        console.info('GetGlobalTagKeywords response', response.result)
         if (response.success) {
           this.tagValues = response.result
         } else {

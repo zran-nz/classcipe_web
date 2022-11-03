@@ -93,7 +93,7 @@ export default {
       })
       const data = res.result
       if (data) {
-        this.$logger.info('discountSettingQuery', data)
+        console.info('discountSettingQuery', data)
         this.discount = data.discount
         this.price = data.price
         this.enableDiscount = data.enableDiscount
@@ -109,7 +109,7 @@ export default {
       this.visible = true
     },
     async updatePrice () {
-      this.$logger.info('update price')
+      console.info('update price')
       const type = parseInt(this.content.type)
       await discountSettingSave({
         contentId: this.content.id,
@@ -128,7 +128,7 @@ export default {
       this.$emit('finish')
     },
     handleDurationChange (date) {
-      this.$logger.info('handleDurationChange', date)
+      console.info('handleDurationChange', date)
       this.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD 00:00:00')
       this.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD 00:00:00')
     },

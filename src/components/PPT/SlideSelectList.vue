@@ -214,13 +214,13 @@ export default {
     },
 
     handlePreviewDetail (data) {
-      this.$logger.info('handlePreviewDetail', data)
+      console.info('handlePreviewDetail', data)
       if (data.type) {
         this.previewCurrentId = data.id
         this.previewType = data.type
         this.previewVisible = true
       } else {
-        this.$logger.info('previewPpt')
+        console.info('previewPpt')
         this.pptThumbnailList = data.thumbnailList
         this.previewPptVisible = true
       }
@@ -237,13 +237,13 @@ export default {
     },
 
     handleSearchByInputFilter (data) {
-      this.$logger.info('handleSearchByInputFilter', data)
+      console.info('handleSearchByInputFilter', data)
       this.filterParams = data
       this.handleSearchSlide()
     },
 
     handleSearchSlide (data) {
-      this.$logger.info('handleSearchSlide', this.filterSourceType, data)
+      console.info('handleSearchSlide', this.filterSourceType, data)
       switch (this.filterSourceType) {
         case sourceType.Recommend:
           this.getRecommendSlide()
@@ -269,7 +269,7 @@ export default {
       this.searching = true
       const params = Object.assign({ taskId: this.sourceId }, this.filterParams)
       recommendTemplates(params).then(res => {
-        this.$logger.info('recommendTemplates res', res)
+        console.info('recommendTemplates res', res)
         if (res && res.result) {
           res.result.forEach(item => {
             item.thumbnailList = []
@@ -281,7 +281,7 @@ export default {
             }
           })
           this.slideList = res.result
-          this.$logger.info('recommendTemplates slideList', this.slideList)
+          console.info('recommendTemplates slideList', this.slideList)
         }
       }).finally(() => {
         this.searching = false
@@ -289,13 +289,13 @@ export default {
     },
     getTemplateSlide () {
       this.searching = true
-      this.$logger.info('this.filterParams', this.filterParams)
+      console.info('this.filterParams', this.filterParams)
       if (!this.filterParams) {
         // 未筛选 默认推荐模板
         return this.getRecommendSlide()
       }
       FilterTemplates(Object.assign({}, this.filterParams)).then(res => {
-        this.$logger.info('getTemplateSlide res', res)
+        console.info('getTemplateSlide res', res)
         if (res && res.result) {
           res.result.forEach(item => {
             item.thumbnailList = []
@@ -327,7 +327,7 @@ export default {
         params = Object.assign(this.filterParams, params)
       }
       FindMyContent(params).then((res) => {
-        this.$logger.info('getMyContentSlide res', res)
+        console.info('getMyContentSlide res', res)
         if (res && res.result) {
           res.result.records.forEach(item => {
             item.thumbnailList = []
@@ -340,7 +340,7 @@ export default {
           })
           this.slideList = res.result.records
           this.slideList = this.slideList.filter(item => item.id !== this.sourceId)
-          this.$logger.info('slideList', this.slideList)
+          console.info('slideList', this.slideList)
         }
       }).finally(() => {
         this.searching = false
@@ -358,7 +358,7 @@ export default {
       if (this.filterParams) {
         params = Object.assign(this.filterParams, params)
       }
-      this.$logger.info('params', params)
+      console.info('params', params)
       queryLibraryResource(params).then(res => {
         if (res && res.result) {
           res.result.forEach(item => {
@@ -371,14 +371,14 @@ export default {
             }
           })
           this.slideList = res.result
-          this.$logger.info('loadLibrary res', this.slideList)
+          console.info('loadLibrary res', this.slideList)
         }
       }).finally(() => {
         this.searching = false
       })
     },
     handleBuyItem(id) {
-      this.$logger.info('handleBuyItem', id)
+      console.info('handleBuyItem', id)
       const buyIndex = this.slideList.findIndex(item => item.id === id)
       if (buyIndex > -1) {
         this.slideList[buyIndex].buyed = true

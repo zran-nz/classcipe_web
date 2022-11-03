@@ -260,7 +260,7 @@ export default {
   },
   destroyed () {
     SkillLibraryEventBus.$off(SkillLibraryEvent.SkillContentListSelectClick, this.handleSkillContentListSelectClick)
-    this.$logger.info('skill off handleSkillContentListSelectClick ContentListSelectClick handler')
+    console.info('skill off handleSkillContentListSelectClick ContentListSelectClick handler')
   },
   data () {
     return {
@@ -293,7 +293,7 @@ export default {
           type: TagOriginType.Origin
         })
       } else {
-        this.$logger.info('skill tag name ' + item.name + ' exist', item, tagNameSet)
+        console.info('skill tag name ' + item.name + ' exist', item, tagNameSet)
       }
 
       // descriptionTagMap按照descriptionId初始化对应的tagList
@@ -302,27 +302,27 @@ export default {
         this.descriptionId2InfoMap.set(item.descriptionId, {
           ...item
         })
-        this.$logger.info('skill tag description match', item)
+        console.info('skill tag description match', item)
       } else {
-        this.$logger.info('skill tag skip! current bindCurriculum not match curriculumId ' + item.curriculumId + ' ' + this.$store.getters.bindCurriculum)
+        console.info('skill tag skip! current bindCurriculum not match curriculumId ' + item.curriculumId + ' ' + this.$store.getters.bindCurriculum)
       }
 
       // descriptionTagMap筛选相同大纲的大纲描述和tag
       if (item.curriculumId === this.$store.getters.bindCurriculum) {
-        this.$logger.info('skill current bindCurriculum  match curriculumId, add ' + item.descriptionId + ' to descriptionTagMap', item, descriptionTagMap[item.descriptionId])
+        console.info('skill current bindCurriculum  match curriculumId, add ' + item.descriptionId + ' to descriptionTagMap', item, descriptionTagMap[item.descriptionId])
         const tagList = descriptionTagMap.get(item.descriptionId)
         tagList.push({
           ...item,
           type: TagOriginType.Origin
         })
         descriptionTagMap.set(item.descriptionId, tagList)
-        this.$logger.info('skill tag description match add tag', item)
+        console.info('skill tag description match add tag', item)
       } else {
-        this.$logger.info('skill skip! current bindCurriculum not match curriculumId' + item.curriculumId, item, this.$store.getters.bindCurriculum)
+        console.info('skill skip! current bindCurriculum not match curriculumId' + item.curriculumId, item, this.$store.getters.bindCurriculum)
       }
     })
 
-    this.$logger.info('skill descriptionTagMap', descriptionTagMap)
+    console.info('skill descriptionTagMap', descriptionTagMap)
     // trans descriptionTagMap to list
     for (const [descriptionId, tagList] of descriptionTagMap) {
       this.skillDescriptionTagList.push(Object.assign({}, {
@@ -330,16 +330,16 @@ export default {
         tagList,
         _updateTimestamp: new Date().getTime()
       }))
-      this.$logger.info('skill add ' + descriptionId + ' tagList ', tagList)
+      console.info('skill add ' + descriptionId + ' tagList ', tagList)
     }
     this.skillDescriptionTagList = sortBy(this.skillDescriptionTagList, '_updateTimestamp', 'asc').reverse()
-    this.$logger.info('skill after add tagList', this.tagList)
-    this.$logger.info('skill after add skillDescriptionTagList', this.skillDescriptionTagList)
-    this.$logger.info('skill after add descriptionId2InfoMap', this.descriptionId2InfoMap)
+    console.info('skill after add tagList', this.tagList)
+    console.info('skill after add skillDescriptionTagList', this.skillDescriptionTagList)
+    console.info('skill after add descriptionId2InfoMap', this.descriptionId2InfoMap)
   },
   watch: {
     searchList () {
-      this.$logger.info('skill update search tag list with list size ' + (this.searchList.length), this.searchList)
+      console.info('skill update search tag list with list size ' + (this.searchList.length), this.searchList)
       let tagList = []
       tagList = tagList.filter(item => item.type !== this.tagOriginType.Search)
       const existNameList = []
@@ -353,13 +353,13 @@ export default {
         }
       })
       this.tagList = tagList
-      this.$logger.info('skill after update search tag list', this.tagList)
+      console.info('skill after update search tag list', this.tagList)
     }
   },
   methods: {
     handleSkillContentListSelectClick (data) {
       if (data.questionIndex === this.questionIndex) {
-        this.$logger.info('skill handleSkillContentListSelectClick hit ' + this.questionIndex, data)
+        console.info('skill handleSkillContentListSelectClick hit ' + this.questionIndex, data)
         const tagIndex = this.skillDescriptionTagList.findIndex(tItem => tItem.descriptionId === data.descriptionId)
         if (tagIndex === -1) {
           this.descriptionId2InfoMap.set(data.descriptionId, {
@@ -372,11 +372,11 @@ export default {
           })
         }
         SkillLibraryEventBus.$emit(SkillLibraryEvent.SkillContentListSelectedListUpdate, { id: data.descriptionId })
-        this.$logger.info('skill descriptionId2InfoMap[' + data.descriptionId + ']', this.descriptionId2InfoMap.get(data.descriptionId))
+        console.info('skill descriptionId2InfoMap[' + data.descriptionId + ']', this.descriptionId2InfoMap.get(data.descriptionId))
       }
     },
     handleKeyup () {
-      this.$logger.info('skill handleKeyup ', this.inputTag)
+      console.info('skill handleKeyup ', this.inputTag)
       this.debouncedSearchKnowledge(this.inputTag)
       this.createTagName = this.inputTag
     },
@@ -394,42 +394,42 @@ export default {
     },
 
     handleDescriptionTagClose (tag) {
-      this.$logger.info('skill handleDescriptionTagClose ', tag)
+      console.info('skill handleDescriptionTagClose ', tag)
       const tagIndex = this.skillDescriptionTagList.findIndex(item => item.descriptionId === tag.descriptionId)
       const item = this.skillDescriptionTagList[tagIndex]
-      this.$logger.info('skill raw handleDescriptionTagClose ', item)
+      console.info('skill raw handleDescriptionTagClose ', item)
       item.tagList = item.tagList.filter(item => item.name !== tag.name)
       this.skillDescriptionTagList.splice(tagIndex, 1, item)
       this.$emit('remove-skill-tag', {
         questionIndex: this.questionIndex,
         ...tag
       })
-      this.$logger.info('skill after handleDescriptionTagClose ', this.skillDescriptionTagList[tagIndex])
+      console.info('skill after handleDescriptionTagClose ', this.skillDescriptionTagList[tagIndex])
     },
 
     handleActiveDescription (subKnowledge) {
-      this.$logger.info('skill handleActiveDescription TagList' + subKnowledge, ' old tag list', this.tagList, this.skillDescriptionTagList)
+      console.info('skill handleActiveDescription TagList' + subKnowledge, ' old tag list', this.tagList, this.skillDescriptionTagList)
       this.activeDescriptionId = subKnowledge
-      this.$logger.info('skill activeDescriptionId ' + this.activeDescriptionId)
+      console.info('skill activeDescriptionId ' + this.activeDescriptionId)
       // 改变排序
       const tagIndex = this.skillDescriptionTagList.findIndex(item => item.descriptionId === this.activeDescriptionId)
       const tagItem = this.skillDescriptionTagList[tagIndex]
       tagItem._updateTimestamp = new Date().getTime()
       this.skillDescriptionTagList.splice(tagIndex, 1, tagItem)
       this.skillDescriptionTagList = sortBy(this.skillDescriptionTagList, '_updateTimestamp', 'asc').reverse()
-      this.$logger.info('skill update sort ', this.skillDescriptionTagList)
+      console.info('skill update sort ', this.skillDescriptionTagList)
 
       console.info('skill dblclick desc searchKnowledge')
       SkillQueryTagsBySkillId({
         skillId: this.activeDescriptionId
       }).then((response) => {
-        this.$logger.info('skill SkillQueryTagsBySkillId response', response.result)
+        console.info('skill SkillQueryTagsBySkillId response', response.result)
         const descriptionList = response.result
 
         let tagList = [...this.tagList]
-        this.$logger.info('skill tag list filter before tag list' + this.tagOriginType.Description, tagList)
+        console.info('skill tag list filter before tag list' + this.tagOriginType.Description, tagList)
         tagList = tagList.filter(item => item.type !== this.tagOriginType.Description)
-        this.$logger.info('skill tag list filter after tag list' + this.tagOriginType.Description, tagList)
+        console.info('skill tag list filter after tag list' + this.tagOriginType.Description, tagList)
         const existNameList = []
         descriptionList.forEach(item => {
           if (existNameList.indexOf(item.name) === -1) {
@@ -441,12 +441,12 @@ export default {
           }
         })
         this.tagList = tagList
-        this.$logger.info('skill handleActiveDescription after update search tag list', this.tagList)
+        console.info('skill handleActiveDescription after update search tag list', this.tagList)
       })
     },
 
     handleCreateTagByInput () {
-      this.$logger.info('skill handleCreateTagByInput ' + this.createTagName)
+      console.info('skill handleCreateTagByInput ' + this.createTagName)
       const existTag = this.tagList.find(item => item.name === this.createTagName)
       if (existTag) {
         this.$message.warn('already exist same name tag')
@@ -460,7 +460,7 @@ export default {
     },
 
     handleDeleteCreatedTag (tag) {
-      this.$logger.info('skill handleDeleteCreatedTag ', tag)
+      console.info('skill handleDeleteCreatedTag ', tag)
       const tagList = []
       this.tagList.forEach(item => {
         if (!(item.type === this.tagOriginType.Create && item.name === tag.name)) {
@@ -468,11 +468,11 @@ export default {
         }
       })
       this.tagList = tagList
-      this.$logger.info('skill after handleDeleteCreatedTag tag list', this.tagList)
+      console.info('skill after handleDeleteCreatedTag tag list', this.tagList)
     },
 
     handleDeleteKnowledgeItem (descriptionId) {
-      this.$logger.info('skill handleDeleteKnowledgeItem ' + descriptionId, this.skillDescriptionTagList)
+      console.info('skill handleDeleteKnowledgeItem ' + descriptionId, this.skillDescriptionTagList)
       const tagIndex = this.skillDescriptionTagList.findIndex(item => item.descriptionId === descriptionId)
       const item = this.skillDescriptionTagList[tagIndex]
       if (tagIndex !== -1) {
@@ -483,37 +483,37 @@ export default {
           })
         })
         this.skillDescriptionTagList.splice(tagIndex, 1)
-        this.$logger.info('skill after delete ' + descriptionId, this.skillDescriptionTagList)
+        console.info('skill after delete ' + descriptionId, this.skillDescriptionTagList)
       } else {
-        this.$logger.info('skill descriptionTagMap dont exist ' + descriptionId)
+        console.info('skill descriptionTagMap dont exist ' + descriptionId)
       }
     },
 
     handleDbClickTagListTag (tag) {
-      this.$logger.info('skill handleDbClickTagListTag', tag)
+      console.info('skill handleDbClickTagListTag', tag)
       // name 搜索是否有匹配的大纲描述
       SkillSearch({
         key: tag.name
       }).then((response) => {
         console.info('skill handleDbClickTagListTag searchKnowledge response', response)
         this.skillTagNameSearchList = response.result.filter(item => item.curriculumId === this.$store.getters.bindCurriculum)
-        this.$logger.info('skill after filter curriculumId skillTagNameSearchList', this.skillTagNameSearchList)
+        console.info('skill after filter curriculumId skillTagNameSearchList', this.skillTagNameSearchList)
         this.skillTagNameSearchListSelected = []
         this.skillTagNameSearchListDialogueVisible = true
       })
     },
 
     handleEnsureTagSearchList () {
-      this.$logger.info('skill handleEnsureTagSearchList', this.skillTagNameSearchListSelected)
+      console.info('skill handleEnsureTagSearchList', this.skillTagNameSearchListSelected)
       const ensureKnowledgeTagList = []
       this.skillTagNameSearchList.forEach(item => {
         if (this.skillTagNameSearchListSelected.indexOf(item.descriptionId) !== -1) {
           ensureKnowledgeTagList.push(item)
         } else {
-          this.$logger.info(item.descriptionId + ' dont exist in ', this.skillTagNameSearchListSelected)
+          console.info(item.descriptionId + ' dont exist in ', this.skillTagNameSearchListSelected)
         }
       })
-      this.$logger.info('skill ensureKnowledgeTagList', ensureKnowledgeTagList)
+      console.info('skill ensureKnowledgeTagList', ensureKnowledgeTagList)
 
       ensureKnowledgeTagList.forEach(item => {
         let tagIndex = this.skillDescriptionTagList.findIndex(tItem => tItem.descriptionId === item.descriptionId)
@@ -541,7 +541,7 @@ export default {
           })
           this.skillDescriptionTagList.splice(tagIndex, 1, tagItem)
         } else {
-          this.$logger.info('skill skip! exist ' + item.name + ' ' + item.id)
+          console.info('skill skip! exist ' + item.name + ' ' + item.id)
         }
       })
 
@@ -551,43 +551,43 @@ export default {
     },
 
     skillTagNameSearchListChange (checkedValue) {
-      this.$logger.info('skill skillTagNameSearchListChange', checkedValue)
+      console.info('skill skillTagNameSearchListChange', checkedValue)
       this.skillTagNameSearchListSelected = checkedValue
     },
 
     handleCreateDescription () {
-      this.$logger.info('skill handleCreateDescription')
+      console.info('skill handleCreateDescription')
       this.skillAssociateLibraryVisible = true
     },
 
     handleEnsureAssociate () {
-      this.$logger.info('skill handleEnsureAssociate')
+      console.info('skill handleEnsureAssociate')
       this.skillAssociateLibraryVisible = false
     },
 
     handleTagItemDragStart (tag, event) {
-      this.$logger.info('skill handleTagItemDragStart', tag, event)
+      console.info('skill handleTagItemDragStart', tag, event)
       event.dataTransfer.setData('tag', JSON.stringify(tag))
     },
 
     handleTagItemDrop (item, event) {
       const descriptionId = item.descriptionId
       if (this.activeDescriptionId === descriptionId) {
-        this.$logger.info('skill handleTagItemDrop ' + descriptionId, item, event)
+        console.info('skill handleTagItemDrop ' + descriptionId, item, event)
         const knowledgeInfo = this.descriptionId2InfoMap.get(descriptionId)
-        this.$logger.info('skill knowledgeInfo ', knowledgeInfo)
+        console.info('skill knowledgeInfo ', knowledgeInfo)
         let rawTag = event.dataTransfer.getData('tag')
-        this.$logger.info('skill drag tag ', rawTag)
+        console.info('skill drag tag ', rawTag)
         rawTag = JSON.parse(rawTag)
         const tag = Object.assign({}, knowledgeInfo)
         delete tag.id
         tag.name = rawTag.name
-        this.$logger.info('skill ready add tag ', tag)
+        console.info('skill ready add tag ', tag)
 
         const tagIndex = this.skillDescriptionTagList.findIndex(tItem => tItem.descriptionId === descriptionId)
         const tagItem = this.skillDescriptionTagList[tagIndex]
         if (!tagItem.tagList.find(eItem => eItem.name === tag.name)) {
-          this.$logger.info('skill add tag', tag)
+          console.info('skill add tag', tag)
           tagItem.tagList.push({
             ...tag,
             type: TagOriginType.Origin
@@ -600,7 +600,7 @@ export default {
           SkillQueryTagsBySkillId({
             skillId: descriptionId
           }).then((response) => {
-            this.$logger.info('skill SkillQueryTagsBySkillId response check', response.result)
+            console.info('skill SkillQueryTagsBySkillId response check', response.result)
             const descriptionList = response.result
             descriptionList.forEach(item => {
               if (item.name === tag.name) {
@@ -612,15 +612,15 @@ export default {
             if (!existSameNameTag) {
               const tagInfo = this.descriptionId2InfoMap.get(tag.descriptionId)
               const newTagData = Object.assign(tagInfo, { name: tag.name })
-              this.$logger.info('new tag data', newTagData)
+              console.info('new tag data', newTagData)
               SkillAddOrUpdateTag(newTagData).then((response) => {
-                this.$logger.info('skill SkillAddOrUpdateTag response', response)
+                console.info('skill SkillAddOrUpdateTag response', response)
 
                 if (response.success) {
                   SkillQueryTagsBySkillId({
                     skillId: tag.descriptionId
                   }).then((response) => {
-                    this.$logger.info('skill SkillQueryTagsBySkillId sub response check', response.result)
+                    console.info('skill SkillQueryTagsBySkillId sub response check', response.result)
                     const descriptionList = response.result
                     descriptionList.forEach(item => {
                       if (item.name === tag.name) {
@@ -639,19 +639,19 @@ export default {
             }
           })
         } else {
-          this.$logger.info('skill skip! exist ' + tag.name + ' ' + tag.id)
+          console.info('skill skip! exist ' + tag.name + ' ' + tag.id)
           this.$message.warn('already exist same name tag')
         }
       } else {
-        this.$logger.info('skill not in edit mode', descriptionId, this.activeDescriptionId)
+        console.info('skill not in edit mode', descriptionId, this.activeDescriptionId)
       }
     },
 
     replaceTempTag (tag) {
-      this.$logger.info('skill replace tag', tag)
+      console.info('skill replace tag', tag)
       const tagIndex = this.skillDescriptionTagList.findIndex(tItem => tItem.descriptionId === (tag.descriptionId || tag.id))
       const tagItem = this.skillDescriptionTagList[tagIndex]
-      this.$logger.info('skill replace tag target list', tagItem.tagList)
+      console.info('skill replace tag target list', tagItem.tagList)
       tagItem.tagList = tagItem.tagList.filter(item => item.name !== tag.name)
       tagItem.tagList.push({
         ...tag,

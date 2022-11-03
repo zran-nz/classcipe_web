@@ -73,7 +73,7 @@ export default {
   },
   watch: {
     defaultValue (val) {
-      this.$logger.info('defaultValue change', val)
+      console.info('defaultValue change', val)
       this.value = val
     }
   },

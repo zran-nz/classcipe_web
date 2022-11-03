@@ -137,7 +137,7 @@ export default {
           if (item.knowledgeId) {
             this.selectedIdList.push(item.knowledgeId)
           } else {
-            this.$logger.info('parentData selected id not exist ', item)
+            console.info('parentData selected id not exist ', item)
           }
         })
       }).finally(() => {
@@ -146,37 +146,37 @@ export default {
     },
 
     handleSelectAssessmentType(data) {
-      this.$logger.info('handleSelectAssessmentType', data)
+      console.info('handleSelectAssessmentType', data)
       this.selectedAssessmentList = data
     },
 
     handleSelectListData(data) {
-      this.$logger.info('handleSelectListData', data)
+      console.info('handleSelectListData', data)
       this.selectedSyncList = data
     },
 
     handleSelectCurriculum(data) {
-      this.$logger.info('handleSelectCurriculum', data)
+      console.info('handleSelectCurriculum', data)
       this.selectedCurriculumList = data
     },
 
     handleSelectSubjectSpecificSkillListData(data) {
       this.selectedSpecificSkillList = data
-      this.$logger.info('handleSelectSubjectSpecificSkillListData', data)
+      console.info('handleSelectSubjectSpecificSkillListData', data)
     },
 
     handleSelect21CenturySkillListData(data) {
-      this.$logger.info('handleSelect21CenturySkillListData', data)
+      console.info('handleSelect21CenturySkillListData', data)
       this.selectedCenturySkillList = data
     },
 
     handleSelectIdu(data) {
-      this.$logger.info('handleSelectIdu', data)
+      console.info('handleSelectIdu', data)
       this.selectedIduList = data
     },
 
     handleSelectRecommend(data) {
-      this.$logger.info('handleSelectRecommend', data)
+      console.info('handleSelectRecommend', data)
       this.selectedRecommendList = data
     },
 
@@ -200,7 +200,7 @@ export default {
     },
 
     handleEnsureSelectData() {
-      this.$logger.info('handleEnsureSelectData',
+      console.info('handleEnsureSelectData',
         this.selectedCurriculumList,
         this.selectedSpecificSkillList,
         this.selectedCenturySkillList,
@@ -208,10 +208,10 @@ export default {
         this.selectedIduList,
         this.selectedRecommendList,
         this.selectedSyncList)
-      this.$logger.info('mySelectedList', this.$refs.newBrowser.mySelectedList)
-      this.$logger.info('learnOuts', this.form.learnOuts)
+      console.info('mySelectedList', this.$refs.newBrowser.mySelectedList)
+      console.info('learnOuts', this.form.learnOuts)
       const filterLearnOuts = this.$refs.newBrowser.mySelectedList.filter(item => (!item.hasOwnProperty('isSelfCustom') || (item.hasOwnProperty('isSelfCustom') && !item.isSelfCustom)))
-      this.$logger.info('filterLearnOuts', filterLearnOuts)
+      console.info('filterLearnOuts', filterLearnOuts)
       this.form.learnOuts = JSON.parse(JSON.stringify(filterLearnOuts))
       this.$refs.newBrowser.selectedRecommendList.forEach(item => {
         if (item.hasOwnProperty('isSelfCustom') && item.isSelfCustom) {
@@ -285,7 +285,7 @@ export default {
           path: data.knowledgeData.path
         })
       })
-      this.$logger.info('this.form.learnOuts', this.form.learnOuts)
+      console.info('this.form.learnOuts', this.form.learnOuts)
       this.selectSyncDataVisible = false
       this.autoSave()
     },

@@ -114,7 +114,7 @@ export default {
     }
   },
   created() {
-    this.$logger.info('UnitLinkedContent ' + this.fromId)
+    console.info('UnitLinkedContent ' + this.fromId)
     this.getAssociate()
     ClasscipeEventBus.$on(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleAddNew)
   },
@@ -146,7 +146,7 @@ export default {
       this.creatingTask = true
 
       TaskAddOrUpdate(data).then((response) => {
-        this.$logger.info('TaskAddOrUpdate response', response.result)
+        console.info('TaskAddOrUpdate response', response.result)
         if (response.success) {
           if (response.code !== 520 && response.code !== 403) {
             // 关联当前unit与task
@@ -165,13 +165,13 @@ export default {
               ]
             }
             Associate(associateData).then((res) => {
-              this.$logger.info('associate success')
+              console.info('associate success')
               this.$router.push('/teacher/add-task-v2/' + taskId)
             }).finally(() => {
               this.creatingTask = false
             })
           } else {
-            this.$logger.info('等待授权回调')
+            console.info('等待授权回调')
           }
         } else {
           this.$message.error(response.message)
@@ -186,18 +186,18 @@ export default {
     },
 
     handleConfirmAddCategory (selectedCategoryList) {
-      this.$logger.info('handleConfirmAddCategory', selectedCategoryList)
+      console.info('handleConfirmAddCategory', selectedCategoryList)
       this.addCategoryVisible = false
       const newGroupNameList = []
       selectedCategoryList.forEach(groupName => {
         this.ownerLinkGroupList.findIndex(group => group.group === groupName) === -1 && newGroupNameList.push(groupName)
       })
       this.handleAddTerm(newGroupNameList)
-      this.$logger.info('newGroupNameList', newGroupNameList)
+      console.info('newGroupNameList', newGroupNameList)
     },
 
     async getAssociate () {
-      this.$logger.info('GetAssociate id[' + this.fromId)
+      console.info('GetAssociate id[' + this.fromId)
       if (!this.fromId) {
         return
       }
@@ -213,7 +213,7 @@ export default {
         published: 0
       })
 
-      this.$logger.info('UnitLinkedContent getAssociate', response)
+      console.info('UnitLinkedContent getAssociate', response)
       const isExistEmptyGroup = response.result.groups.some(group => group.groupName === '')
       response.result.owner.forEach(ownerItem => {
         const groupItem = response.result.groups.find(group => group.groupName === ownerItem.group)
@@ -231,7 +231,7 @@ export default {
         }
       })
       const groups = response.result.groups
-      this.$logger.info('GetAssociate owner', this.ownerLinkGroupList)
+      console.info('GetAssociate owner', this.ownerLinkGroupList)
 
       this.ownerLinkGroupList.forEach(group => {
         const targetGroup = groups.find(item => item.groupName === group.group || (group.group === 'Relevant Unit Plan(s)' && item.groupName === ''))
@@ -253,11 +253,11 @@ export default {
         })
       })
       this.groups = groups
-      this.$logger.info('groups', groups)
+      console.info('groups', groups)
       this.associateUnitIdList = Array.from(new Set(this.associateUnitIdList))
       this.associateTaskIdList = Array.from(new Set(this.associateTaskIdList))
-      this.$logger.info('GetAssociate associateUnitIdList', this.associateUnitIdList)
-      this.$logger.info('GetAssociate associateTaskIdList', this.associateTaskIdList)
+      console.info('GetAssociate associateUnitIdList', this.associateUnitIdList)
+      console.info('GetAssociate associateTaskIdList', this.associateTaskIdList)
       this.$emit('update-unit-id-list', this.associateUnitIdList)
       this.$emit('update-task-id-list', this.associateTaskIdList)
       this.linkGroupLoading = false
@@ -272,12 +272,12 @@ export default {
     },
 
     async handleDragContent (event, groupItem) {
-      this.$logger.info('UnitLinkedContent handleDropContent', event, groupItem)
+      console.info('UnitLinkedContent handleDropContent', event, groupItem)
       event.item.style.display = 'none'
       const itemData = JSON.parse(event.item.dataset.item)
       event.item?.parentElement && event.item.parentElement.removeChild(event.item)
-      this.$logger.info('item data', itemData)
-      this.$logger.info('item inner', event.item.dataset.inner)
+      console.info('item data', itemData)
+      console.info('item inner', event.item.dataset.inner)
 
       if (event.item.dataset.inner) {
         await this.handleDeleteLinkItem(itemData, false)
@@ -294,13 +294,13 @@ export default {
           }
         ]
       }
-      this.$logger.info('associateData', associateData)
+      console.info('associateData', associateData)
       await Associate(associateData)
       await this.getAssociate()
     },
 
     async handleDeleteGroup (group) {
-      this.$logger.info('handleDeleteGroup', group)
+      console.info('handleDeleteGroup', group)
       const jobList = []
       group.contents.forEach(content => {
         jobList.push(AssociateCancel({
@@ -309,19 +309,19 @@ export default {
           toId: content.id,
           toType: content.type
         }).then(response => {
-          this.$logger.info('handleDeleteLinkItem response ', response)
+          console.info('handleDeleteLinkItem response ', response)
         }))
       })
 
       await Promise.all(jobList)
 
-      this.$logger.info('handleDeleteGroup all contents')
+      console.info('handleDeleteGroup all contents')
       DeleteGroup({
         fromId: this.fromId,
         fromType: this.$classcipe.typeMap['unit-plan'],
         id: group.id
       }).then(async response => {
-        this.$logger.info('DeleteGroup', response)
+        console.info('DeleteGroup', response)
         await this.getAssociate()
       }).finally(() => {
         this.$EventBus.$emit('refresh-link-content-list')
@@ -329,7 +329,7 @@ export default {
     },
 
     async handleAddTerm(newGroupNameList) {
-      this.$logger.info('handleAddTerm', this.groupNameList)
+      console.info('handleAddTerm', this.groupNameList)
       const jobList = []
       for (let i = 0; i < newGroupNameList.length; i++) {
         jobList.push(AddOrSaveGroupName({
@@ -351,14 +351,14 @@ export default {
     },
 
     async handleDeleteLinkItem (item, refresh = true) {
-      this.$logger.info('handleDeleteLinkItem', item)
+      console.info('handleDeleteLinkItem', item)
       const response = await AssociateCancel({
         fromId: this.fromId,
         fromType: this.$classcipe.typeMap['unit-plan'],
         toId: item.id,
         toType: item.type
       })
-      this.$logger.info('handleDeleteLinkItem response ', response)
+      console.info('handleDeleteLinkItem response ', response)
       // 刷新子组件的关联数据
       if (refresh) {
         await this.getAssociate()

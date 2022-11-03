@@ -75,7 +75,7 @@ export default {
   },
   created() {
     this.displayOptionList = []
-    this.$logger.info('myOptionList ', this.myOptionList)
+    console.info('myOptionList ', this.myOptionList)
 
     if (this.defaultDisplayName) {
       this.displayValue = this.defaultDisplayName
@@ -112,7 +112,7 @@ export default {
         subjectIds: this.subjectIds,
         key: this.displayValue.trim()
       })
-      this.$logger.info('SearchKnowledge res', res)
+      console.info('SearchKnowledge res', res)
       if (res.success) {
         this.optionList = res.result.filter(item => item.name.toLowerCase() !== this.displayValue.trim().toLowerCase())
       }

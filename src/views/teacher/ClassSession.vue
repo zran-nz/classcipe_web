@@ -344,7 +344,7 @@ export default {
       this.loadMyContent()
     },
     handleImport(val) {
-      this.$logger.info('handleImport', val)
+      console.info('handleImport', val)
       const type = val === 'quick' ? typeMap.task : val
       const source = val === 'quick' ? val : ''
       const path = `/teacher/session-import/${type}/${this.$route.params.classId}?searchType=2&source=${source}`
@@ -436,7 +436,7 @@ export default {
     },
 
     handleStartSessionHistory (item, mode) {
-      this.$logger.info('handleStartSessionHistory', item, 'mode:', mode)
+      console.info('handleStartSessionHistory', item, 'mode:', mode)
       this.sessionMode = mode
       this.sessionItem = item
       // if (!item.presentationId) {
@@ -454,7 +454,7 @@ export default {
       // }).finally(() => {
       //   this.oldSelectSessionVisible = true
       //   this.oldSelectSessionTaskId = item.id
-      //   this.$logger.info('set currentPreviewLesson', item)
+      //   console.info('set currentPreviewLesson', item)
       //   this.currentPreviewLesson = item
       // })
     },
@@ -462,19 +462,19 @@ export default {
     handleStartSession () {
       this.startLoading = true
       const item = this.sessionItem
-      this.$logger.info('handleStartSession', item)
+      console.info('handleStartSession', item)
       if (item.presentationId) {
         const requestData = {
           taskId: item.id,
           mode: this.sessionMode === 1 ? lessonStatus.teacherPaced : lessonStatus.studentPaced
         }
-        this.$logger.info('handleStartSession', requestData)
+        console.info('handleStartSession', requestData)
         StartOpenSession(requestData).then(res => {
-          this.$logger.info('StartOpenSession res', res)
+          console.info('StartOpenSession res', res)
           if (res.success) {
             this.startLoading = false
             const targetUrl = lessonHost + 'd/' + res.result.classId + '?token=' + storage.get('feathers-jwt')
-            this.$logger.info('try open ' + targetUrl)
+            console.info('try open ' + targetUrl)
             const url = lessonHost + 't/' + res.result.classId + '?token=' + storage.get('feathers-jwt')
             let windowObjectReference
             const height = document.documentElement.clientHeight * 0.7
@@ -521,7 +521,7 @@ export default {
     },
 
     handleStartOrJoin (item, paced) {
-      this.$logger.info('handleStartOrJoin', item, 'paced:', paced)
+      console.info('handleStartOrJoin', item, 'paced:', paced)
       return this.goToClassPage(item.classId, paced)
       // this.loading = true
       // if (item.status !== paced) {

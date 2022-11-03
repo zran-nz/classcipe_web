@@ -235,14 +235,14 @@
     },
     methods: {
       toggleViewMode (viewMode) {
-        this.$logger.info('viewMode', viewMode)
+        console.info('viewMode', viewMode)
         storage.set(VIEW_MODE, viewMode)
         this.viewMode = viewMode
       },
       loadMyContent () {
         this.loading = true
         GetFindSharedNotReceived().then((response) => {
-          this.$logger.info('GetFindSharedNotReceived response', response)
+          console.info('GetFindSharedNotReceived response', response)
           this.sharedNotReceivedList = response.result
         }).finally(() => {
           this.loading = false
@@ -309,7 +309,7 @@
       },
 
       handleCollaborate (item) {
-        this.$logger.info('handleCollaborate', item)
+        console.info('handleCollaborate', item)
         ReceiveCollaborate({ id: item.id }).then(res => {
           console.info('ReceiveCollaborate', res)
           this.$message.success('collaborate successfully')
@@ -319,7 +319,7 @@
       },
 
       handleDeleteCollaborate (item) {
-        this.$logger.info('handleDeleteCollaborate', item)
+        console.info('handleDeleteCollaborate', item)
         DeleteCollaborate({ id: item.id }).then(res => {
           console.info('DeleteCollaborate', res)
         }).then(() => {

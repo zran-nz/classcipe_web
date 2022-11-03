@@ -267,23 +267,23 @@ export default {
     }
   },
   created () {
-    this.$logger.info('load PlanLink with id[' + this.fromId + '] fromType[' + this.fromType + ']')
+    console.info('load PlanLink with id[' + this.fromId + '] fromType[' + this.fromType + ']')
     this.subFilterTypeList = [typeMap.task]
     this.getAssociate()
   },
   methods: {
     getAssociate () {
-      this.$logger.info('GetAssociate id[' + this.fromId + '] fromType[' + this.fromType + ']')
+      console.info('GetAssociate id[' + this.fromId + '] fromType[' + this.fromType + ']')
       this.linkGroupLoading = true
       GetAssociate({
         id: this.fromId,
         type: this.fromType,
         published: this.isLibrary ? 1 : 0
       }).then(response => {
-        this.$logger.info('CommonLink GetAssociate response', response)
+        console.info('CommonLink GetAssociate response', response)
         this.groups = response.result.groups
-        this.$logger.info('formatted owner', response.result.owner)
-        this.$logger.info('formatted others', response.result.others)
+        console.info('formatted owner', response.result.owner)
+        console.info('formatted others', response.result.others)
         this.othersLinkGroupList = []
         this.ownerLinkGroupList = response.result.owner
         this.groups.forEach(item => {
@@ -296,13 +296,13 @@ export default {
           })
         })
         this.groups = this.groups.sort((a, b) => !a.groupName ? -1 : 1)
-        this.$logger.info('formatted groups', this.groups)
+        console.info('formatted groups', this.groups)
 
-        this.$logger.info('ownerLinkGroupList', this.ownerLinkGroupList)
+        console.info('ownerLinkGroupList', this.ownerLinkGroupList)
         response.result.others.forEach(item => {
           this.othersLinkGroupList.unshift(...item.contents)
         })
-        this.$logger.info('othersLinkGroupList', this.othersLinkGroupList)
+        console.info('othersLinkGroupList', this.othersLinkGroupList)
         this.$emit('group-name-list-update')
       }).finally(() => {
         this.linkGroupLoading = false
@@ -310,13 +310,13 @@ export default {
     },
 
     handleEnsureSelectedLink (data) {
-      this.$logger.info('handleEnsureSelectedLink', data)
+      console.info('handleEnsureSelectedLink', data)
       this.selectLinkContentVisible = false
       this.getAssociate()
     },
 
     handleLinkGroup (group) {
-      this.$logger.info('handleLinkGroup', group)
+      console.info('handleLinkGroup', group)
       this.subDefaultGroupName = group.groupName
       this.selectLinkContentVisible = true
       this.selectedList = []
@@ -331,7 +331,7 @@ export default {
     },
 
     handleToggleEditGroupName (linkGroup, index) {
-      this.$logger.info('handleToggleEditGroupName', linkGroup)
+      console.info('handleToggleEditGroupName', linkGroup)
       if (linkGroup.editing) {
         // 生成一个唯一的groupName
         let uniqueGroupName = 'Untitled group '
@@ -356,7 +356,7 @@ export default {
           id: linkGroup.id,
           groupName: linkGroup.groupName
         }).then(response => {
-          this.$logger.info('AddOrSaveGroupName', response)
+          console.info('AddOrSaveGroupName', response)
         }).finally(() => {
           // this.getAssociate()
           linkGroup.editing = false
@@ -369,13 +369,13 @@ export default {
       }
     },
     handleDeleteGroup (linkGroup) {
-      this.$logger.info('handleDeleteGroup', linkGroup)
+      console.info('handleDeleteGroup', linkGroup)
       DeleteGroup({
         fromId: this.fromId,
         fromType: this.fromType,
         id: linkGroup.id
       }).then(response => {
-        this.$logger.info('DeleteGroup', response)
+        console.info('DeleteGroup', response)
         this.getAssociate()
       })
     },
@@ -396,14 +396,14 @@ export default {
       }
     },
     handleDeleteLinkItem (item) {
-      this.$logger.info('handleDeleteLinkItem', item)
+      console.info('handleDeleteLinkItem', item)
       AssociateCancel({
         fromId: this.fromId,
         fromType: this.fromType,
         toId: item.id,
         toType: item.type
       }).then(response => {
-        this.$logger.info('handleDeleteLinkItem response ', response)
+        console.info('handleDeleteLinkItem response ', response)
         // 刷新子组件的关联数据
         this.getAssociate()
       })
@@ -419,7 +419,7 @@ export default {
         fromType: this.fromType,
         groups: this.groups
       }).then(response => {
-        this.$logger.info('AddOrSaveGroupName', response)
+        console.info('AddOrSaveGroupName', response)
       }).finally(() => {
         // this.getAssociate()
       })
@@ -433,10 +433,10 @@ export default {
     },
 
     handleDragContent (event, data) {
-      this.$logger.info('PlanLink handleDragContent', event, this.groups, data)
+      console.info('PlanLink handleDragContent', event, this.groups, data)
       // 提取数据
       const item = JSON.parse(event.item.dataset.item)
-      this.$logger.info('drag in data ', item)
+      console.info('drag in data ', item)
     }
   }
 }

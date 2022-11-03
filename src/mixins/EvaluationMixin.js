@@ -90,20 +90,20 @@ export const EvaluationMixin = {
      * @param {Function} callback 初始化成功后的回调，可选
      */
     CheckAndCreateTaskSessionEvaluationData (sessionId, taskId, callback) {
-      this.$logger.info(`CheckTaskSessionExistEvaluationData ${sessionId} sessionId` + sessionId)
+      console.info(`CheckTaskSessionExistEvaluationData ${sessionId} sessionId` + sessionId)
       // 此处classId为sessionId
       GetSessionEvaluationByClassId({ classId: sessionId }).then(response => {
-          this.$logger.info(`CheckTaskSessionExistEvaluationData ${sessionId} response`, response)
+          console.info(`CheckTaskSessionExistEvaluationData ${sessionId} response`, response)
           const data = response.result
 
           // 如果没有评估数据，那么准备初始化评估数据表
           if (!data.evaluation) {
-            this.$logger.info('CheckTaskSessionExistEvaluationData no evaluation data, start init ' + sessionId)
+            console.info('CheckTaskSessionExistEvaluationData no evaluation data, start init ' + sessionId)
             this.initTaskSessionEvaluationData(sessionId, taskId, callback)
           } else {
-            this.$logger.info('CheckTaskSessionExistEvaluationData has evaluation data, skip it ' + sessionId)
+            console.info('CheckTaskSessionExistEvaluationData has evaluation data, skip it ' + sessionId)
             if (callback) {
-              this.$logger.info('skip and callback')
+              console.info('skip and callback')
               callback()
             }
           }
@@ -121,13 +121,13 @@ export const EvaluationMixin = {
      */
     initTaskSessionEvaluationData (sessionId, taskId, callback) {
       // 加载task关联的evaluation表单数据
-      this.$logger.info('initTaskSessionEvaluationData ' + taskId)
+      console.info('initTaskSessionEvaluationData ' + taskId)
       const associateEvaluationIdList = []
       GetAssociate({
         id: taskId,
         type: this.typeMap.task
       }).then(response => {
-        this.$logger.info('GetAssociateEvaluationTable ', response)
+        console.info('GetAssociateEvaluationTable ', response)
         response.result.owner.forEach(item => {
           item.contents.forEach(content => {
             if (content.type === typeMap.evaluation) {
@@ -144,12 +144,12 @@ export const EvaluationMixin = {
           })
         })
       }).finally(() => {
-        this.$logger.info('associateEvaluationIdList ', associateEvaluationIdList)
+        console.info('associateEvaluationIdList ', associateEvaluationIdList)
 
         if (associateEvaluationIdList.length) {
           const forms = []
           EvaluationQueryByIds({ ids: associateEvaluationIdList }).then((response) => {
-            this.$logger.info('associateEvaluationIdList EvaluationQueryByIds ', response)
+            console.info('associateEvaluationIdList EvaluationQueryByIds ', response)
             const existedFormIdList = []
             response.result.forEach(evaluationItem => {
               evaluationItem.forms.forEach(formItem => {
@@ -170,19 +170,19 @@ export const EvaluationMixin = {
                     initRawData: JSON.parse(formItem.initRawData)
                   })
                 } else {
-                  this.$logger.info('form existed ', formItem)
+                  console.info('form existed ', formItem)
                 }
               })
             })
           }).then(() => {
             this.taskEvaluationForms = forms
-            this.$logger.info('taskEvaluationForms', this.taskEvaluationForms)
+            console.info('taskEvaluationForms', this.taskEvaluationForms)
             this.saveInitSessionEvaluationData(sessionId, taskId, callback)
           })
         } else {
           this.$logger.warn('no associate evaluation data for task ' + taskId)
           if (callback) {
-            this.$logger.info('no associate and callback')
+            console.info('no associate and callback')
             callback()
           }
         }
@@ -196,11 +196,11 @@ export const EvaluationMixin = {
      * @param {Function} callback 初始化成功后的回调，可选
      */
     saveInitSessionEvaluationData (sessionId, taskId, callback) {
-      this.$logger.info('saveInitSessionEvaluationData ' + sessionId)
+      console.info('saveInitSessionEvaluationData ' + sessionId)
 
       const formData = JSON.parse(JSON.stringify(this.evaluationForm))
       const formDataList = JSON.parse(JSON.stringify(this.taskEvaluationForms))
-      this.$logger.info('formDataList', formDataList, 'formData', formData)
+      console.info('formDataList', formDataList, 'formData', formData)
       formData.classId = sessionId
       // 获取评估数据
       formDataList.forEach(formItem => {
@@ -215,7 +215,7 @@ export const EvaluationMixin = {
         formData.id = this.evaluationId
       }
       SaveSessionEvaluation(formData).then((response) => {
-        this.$logger.info('SaveSessionEvaluation response', response)
+        console.info('SaveSessionEvaluation response', response)
         if (response.result && response.result.id) {
           this.evaluationId = response.result.id
         }
@@ -223,7 +223,7 @@ export const EvaluationMixin = {
           this.taskEvaluationForms = []
           this.evaluationForm.forms = []
           if (callback) {
-            this.$logger.info('saveInitSessionEvaluationData callback')
+            console.info('saveInitSessionEvaluationData callback')
             callback()
           }
         } else {
@@ -233,14 +233,14 @@ export const EvaluationMixin = {
     },
 
     handleEvaluationAttendance(data) {
-      this.$logger.info('handleEvaluationAttendance', data)
+      console.info('handleEvaluationAttendance', data)
 
       const content = data.content
       if (content.sessionId === this.sessionId) {
         SchoolClassListClassAttendance({
           sessionId: this.sessionId
         }).then(response => {
-          this.$logger.info('refreshAttendance response', response)
+          console.info('refreshAttendance response', response)
 
           const attendanceList = []
           const attendanceEmailList = []
@@ -262,8 +262,8 @@ export const EvaluationMixin = {
               })
               this.attendanceList = attendanceList
               this.attendanceEmailList = attendanceEmailList
-              this.$logger.info('attendanceList', this.attendanceList)
-              this.$logger.info('newStudentList', newStudentList)
+              console.info('attendanceList', this.attendanceList)
+              console.info('newStudentList', newStudentList)
 
               if (newStudentList.length) {
                 newStudentList.forEach(studentItem => {
@@ -296,7 +296,7 @@ export const EvaluationMixin = {
                   })
 
                   this.$set(this.studentEvaluateData, studentItem.email, studentEvaluateDataItem)
-                  this.$logger.info('add student ' + studentItem.email, this.studentEvaluateData)
+                  console.info('add student ' + studentItem.email, this.studentEvaluateData)
                 })
 
                 this.$notification.open({
@@ -330,7 +330,7 @@ export const EvaluationMixin = {
     },
 
     handleEvaluationTeacherSubmit(data) {
-      this.$logger.info('handleEvaluationTeacherSubmit', data)
+      console.info('handleEvaluationTeacherSubmit', data)
       const content = data.content
       if (content.sessionId === this.sessionId) {
         this.hasNewEvaluationDataReceived = true
@@ -343,7 +343,7 @@ export const EvaluationMixin = {
       }
     },
     handleEvaluationStudentSubmit(data) {
-      this.$logger.info('handleEvaluationStudentSubmit', data)
+      console.info('handleEvaluationStudentSubmit', data)
 
       const content = data.content
       if (content.sessionId === this.sessionId) {
@@ -357,7 +357,7 @@ export const EvaluationMixin = {
       }
     },
     handleEvaluationPeerSubmit(data) {
-      this.$logger.info('handleEvaluationPeerSubmit', data)
+      console.info('handleEvaluationPeerSubmit', data)
       const content = data.content
       if (content.sessionId === this.sessionId) {
         this.hasNewEvaluationDataReceived = true
@@ -370,7 +370,7 @@ export const EvaluationMixin = {
       }
     },
     handleEvaluationSetChange(data) {
-      this.$logger.info('handleEvaluationSetChange', data, 'this.sessionId', this.sessionId)
+      console.info('handleEvaluationSetChange', data, 'this.sessionId', this.sessionId)
       const evaluationSet = data.content
       if (evaluationSet && evaluationSet.sessionId === this.sessionId) {
         const oldMode = this.showWaitingMask
@@ -383,7 +383,7 @@ export const EvaluationMixin = {
     },
 
     handleRefreshEvaluationData () {
-      this.$logger.info('handleRefreshEvaluationData')
+      console.info('handleRefreshEvaluationData')
       window.location.reload()
     }
   }

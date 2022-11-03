@@ -42,7 +42,7 @@ export default {
   },
   methods: {
     toggleType (type, label) {
-      this.$logger.info('toggleType ' + type + ' label ' + label)
+      console.info('toggleType ' + type + ' label ' + label)
       this.currentType = type
       this.currentTypeLabel = label
       this.pageNo = 1

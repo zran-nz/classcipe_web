@@ -428,23 +428,23 @@ export default {
   },
   watch: {
     currentCurriculumId (val) {
-      this.$logger.info('NewBrowser change currentCurriculumId to ' + val)
+      console.info('NewBrowser change currentCurriculumId to ' + val)
       this.defaultCurriculumId = val
     }
   },
   created () {
-    this.$logger.info('NewBrowser selectMode', this.selectMode)
-    this.$logger.info('NewBrowser showMenu', this.showMenu)
-    this.$logger.info('recommendData', this.recommendData)
-    this.$logger.info('selectedIdList', this.selectedIdList)
-    this.$logger.info('selectedList', this.selectedList)
+    console.info('NewBrowser selectMode', this.selectMode)
+    console.info('NewBrowser showMenu', this.showMenu)
+    console.info('recommendData', this.recommendData)
+    console.info('selectedIdList', this.selectedIdList)
+    console.info('selectedList', this.selectedList)
     this.mySelectedIdList = this.selectedIdList
     this.myRecommendData = JSON.parse(JSON.stringify(this.recommendData))
 
     getAllCurriculums().then((response) => {
-      this.$logger.info('getAllCurriculums', response)
+      console.info('getAllCurriculums', response)
       this.curriculumOptions = response.result
-      this.$logger.info('getAllCurriculums', this.curriculumOptions)
+      console.info('getAllCurriculums', this.curriculumOptions)
     })
 
     const recommendIdList = []
@@ -488,9 +488,9 @@ export default {
     })
 
     this.updateSelectedGradeSet()
-    this.$logger.info('mySelectedList', this.mySelectedList)
-    this.$logger.info('selectedRecommendList', this.selectedRecommendList)
-    this.$logger.info('selectedRecommendIdList', this.selectedRecommendIdList)
+    console.info('mySelectedList', this.mySelectedList)
+    console.info('selectedRecommendList', this.selectedRecommendList)
+    console.info('selectedRecommendIdList', this.selectedRecommendIdList)
     LibraryEventBus.$on(LibraryEvent.CenturySkillsSelect, this.handleCenturySkillsSelect)
     LibraryEventBus.$on(LibraryEvent.CancelCenturySkillsSelect, this.handleCancelCenturySkillsSelect)
   },
@@ -512,19 +512,19 @@ export default {
   methods: {
 
     handleCurriculumChange (value) {
-      this.$logger.info('handleCurriculumChange ' + value)
+      console.info('handleCurriculumChange ' + value)
       this.currentCurriculumId = value
       LibraryEventBus.$emit(LibraryEvent.ChangeCurriculum, value)
     },
 
     handleSelectListData (data) {
-      this.$logger.info('NewBrowser handleSelectListData', data)
+      console.info('NewBrowser handleSelectListData', data)
       this.selectedKnowledgeList = data
       this.$emit('select-sync', data)
     },
     // curriculum
     handleSelectCurriculumListData (data) {
-      this.$logger.info('NewBrowser handleSelectCurriculumListData', data)
+      console.info('NewBrowser handleSelectCurriculumListData', data)
       this.selectedCurriculumList = data
       this.$emit('select-curriculum', data)
 
@@ -533,7 +533,7 @@ export default {
 
     // subject-specific-skill
     handleSelectSubjectSpecificSkillListData (data) {
-      this.$logger.info('NewBrowser handleSelectSubjectSpecificSkillListData', data)
+      console.info('NewBrowser handleSelectSubjectSpecificSkillListData', data)
       this.selectedSubjectSpecificSkillList = data
       this.$emit('select-subject-specific-skill', data)
 
@@ -542,7 +542,7 @@ export default {
 
     // century-skill
     handleSelect21CenturySkillListData (data) {
-      this.$logger.info('NewBrowser handleSelect21CenturySkillListData', data)
+      console.info('NewBrowser handleSelect21CenturySkillListData', data)
       this.selected21CenturySkillList = data
       this.$emit('select-century-skill', data)
 
@@ -550,7 +550,7 @@ export default {
     },
 
     handleSelectAll21CenturyListData (data) {
-      this.$logger.info('NewBrowser handleSelectAll21CenturyListData', data)
+      console.info('NewBrowser handleSelectAll21CenturyListData', data)
       this.selectedAll21CenturyList = data
       this.$emit('select-all-21-century', data)
 
@@ -558,7 +558,7 @@ export default {
     },
     // assessment type
     handleSelectAssessmentType (data) {
-      this.$logger.info('NewBrowser handleSelectAssessmentType', data)
+      console.info('NewBrowser handleSelectAssessmentType', data)
       this.selectedAssessmentList = data
       this.$emit('select-assessmentType', data)
 
@@ -566,7 +566,7 @@ export default {
     },
 
     handleSelectIdu (data) {
-      this.$logger.info('NewBrowser handleSelectIdu', data)
+      console.info('NewBrowser handleSelectIdu', data)
       this.selectedIduList = data
       this.$emit('select-idu', data)
 
@@ -574,7 +574,7 @@ export default {
     },
 
     handleSelectBigIdeaData (data) {
-      this.$logger.info('NewBrowser handleSelectBigIdeaData', data)
+      console.info('NewBrowser handleSelectBigIdeaData', data)
       this.selectedBigIdeaList = data
       this.$emit('select-big-idea', data)
 
@@ -582,7 +582,7 @@ export default {
     },
 
     handleRemoveSelected (item) {
-      this.$logger.info('NewBrowser handleRemoveSelected', item)
+      console.info('NewBrowser handleRemoveSelected', item)
 
       if (item.dataType) {
         this.$refs['contentList'].handleRemoveSelected(item)
@@ -593,13 +593,13 @@ export default {
     },
 
     handleUpdateSelectedList (data) {
-      this.$logger.info('NewBrowser handleUpdateSelectedList', data)
+      console.info('NewBrowser handleUpdateSelectedList', data)
       this.mySelectedList = data
 
       this.updateSelectedGradeSet()
     },
     handleAddRecommend (recommendItem) {
-      this.$logger.info('NewBrowser handleAddRecommend', recommendItem, 'this.mySelectedIdList.indexOf(recommendItem.knowledgeId)', this.mySelectedIdList.indexOf(recommendItem.knowledgeId))
+      console.info('NewBrowser handleAddRecommend', recommendItem, 'this.mySelectedIdList.indexOf(recommendItem.knowledgeId)', this.mySelectedIdList.indexOf(recommendItem.knowledgeId))
       if (this.mySelectedIdList.indexOf(recommendItem.knowledgeId) === -1) {
         const existIndex = this.selectedRecommendList.findIndex(item => item.knowledgeId === recommendItem.knowledgeId)
         const existIdIndex = this.selectedRecommendIdList.findIndex(item => item === recommendItem.knowledgeId)
@@ -611,14 +611,14 @@ export default {
           this.selectedRecommendIdList.push(recommendItem.knowledgeId)
         }
         this.$emit('select-recommend', this.selectedRecommendList)
-        this.$logger.info('after NewBrowser handleAddRecommend', this.selectedRecommendList, this.selectedRecommendIdList)
+        console.info('after NewBrowser handleAddRecommend', this.selectedRecommendList, this.selectedRecommendIdList)
       }
 
       this.updateSelectedGradeSet()
     },
 
     handleRemoveMySelected (data) {
-      this.$logger.info('NewBrowser handleRemoveMySelected', data)
+      console.info('NewBrowser handleRemoveMySelected', data)
       const index = this.mySelectedList.findIndex(item => (data.knowledgeId === item.knowledgeId))
       if (index > -1) {
         this.mySelectedList.splice(index, 1)
@@ -627,12 +627,12 @@ export default {
     },
 
     handleCancelSelectData () {
-      this.$logger.info('NewBrowser handleCancelSelectData')
+      console.info('NewBrowser handleCancelSelectData')
       this.$emit('cancel-select')
     },
 
     handleEnsureSelectData () {
-      this.$logger.info('NewBrowser handleEnsureSelectData')
+      console.info('NewBrowser handleEnsureSelectData')
       if (this.selectedGradeIdSet.size > 1) {
         this.$confirm({
           title: 'Alert',
@@ -648,7 +648,7 @@ export default {
       }
     },
     handleCenturySkillsSelect(data) {
-      this.$logger.info('NewBrowser handleCenturySkillsSelect', data)
+      console.info('NewBrowser handleCenturySkillsSelect', data)
       this.selected21CenturyItem = data.item
     },
 
@@ -661,7 +661,7 @@ export default {
     },
 
     updateSelectedGradeSet () {
-      this.$logger.info('NewBrowser updateSelectedGradeSet',
+      console.info('NewBrowser updateSelectedGradeSet',
         this.mySelectedList,
         this.selectedCurriculumList,
         this.selectedKnowledgeList,
@@ -758,11 +758,11 @@ export default {
       if (this.selected21CenturyItem && this.selected21CenturyItem.gradeId) {
         this.selectedGradeIdSet.add(this.selected21CenturyItem.gradeId)
       }
-      this.$logger.info('------- this.selectedGradeIdSet', this.selectedGradeIdSet)
+      console.info('------- this.selectedGradeIdSet', this.selectedGradeIdSet)
     },
 
     handleUpdateCurrentNavPath (data) {
-      this.$logger.info('NewBrowser handleUpdateCurrentNavPath', data)
+      console.info('NewBrowser handleUpdateCurrentNavPath', data)
       this.currentNavPath = data
     },
 

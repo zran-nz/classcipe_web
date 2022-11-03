@@ -577,7 +577,7 @@ export default {
       this.handleSelfEditCheck()
     },
     handleUploadLogo (coverData) {
-      this.$logger.info('handleUpdateCover', coverData)
+      console.info('handleUpdateCover', coverData)
       updateSchool({
         id: this.currentSchool.id,
         logo: coverData.url
@@ -589,7 +589,7 @@ export default {
       })
     },
     sendVerifyLink() {
-      this.$logger.info('sendVerifyLink')
+      console.info('sendVerifyLink')
       this.sendLoading = true
       SendVerifyLink(this.info.email).then(res => {
         if (res.success) {

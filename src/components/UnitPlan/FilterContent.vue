@@ -103,7 +103,7 @@ export default {
     }
   },
   created () {
-    this.$logger.info('SearchFilter created', this.filterConfig)
+    console.info('SearchFilter created', this.filterConfig)
     if (this.filterConfig) {
       this.filter = this.filterConfig
     }
@@ -143,7 +143,7 @@ export default {
           }
         })
       })
-      this.$logger.info('updateFilterConfig', this.filter)
+      console.info('updateFilterConfig', this.filter)
       this.$emit('filter-config-update', this.filter)
     },
     getGroupOptions (parent) {
@@ -175,7 +175,7 @@ export default {
       this.updateFilterConfig()
     },
     clickRadioGroup(property, value) {
-      this.$logger.info('clickRadioGroup property value', property, value)
+      console.info('clickRadioGroup property value', property, value)
       if (this.filter[property] === value) {
         this.filter[property] = ''
       } else {

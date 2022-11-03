@@ -317,12 +317,12 @@ export default {
   },
   methods: {
     handleUpdateFilterConfig (filter) {
-      this.$logger.info('handleUpdateFilterConfig', filter)
+      console.info('handleUpdateFilterConfig', filter)
       this.filterParams = filter
       this.triggerSearch()
     },
     triggerSearch() {
-      this.$logger.info('triggerSearch', this.searchKey)
+      console.info('triggerSearch', this.searchKey)
       const filterConfig = {
         searchKey: this.searchKey,
         filterCategoryType: this.searchKey ? '' : this.filterType,
@@ -335,7 +335,7 @@ export default {
     },
     initTemplateFilter() {
       GetTreeByKey({ key: 'template' }).then((response) => {
-        this.$logger.info('initTemplateFilter response', response.result)
+        console.info('initTemplateFilter response', response.result)
         if (response.success) {
           this.treeItemData = response.result.children
           this.treeItemData.forEach(item => {
@@ -483,7 +483,7 @@ export default {
     },
     GetTagYearTips() {
       GetTagYearTips().then((response) => {
-        this.$logger.info('GetTagYearTips response', response.result)
+        console.info('GetTagYearTips response', response.result)
         if (response.success) {
           const tagYears = response.result
           tagYears.forEach(tag => {
@@ -498,7 +498,7 @@ export default {
         } else {
           this.$message.error(response.message)
         }
-        this.$logger.info('centuryTagMap ', this.centuryTagMap)
+        console.info('centuryTagMap ', this.centuryTagMap)
       })
     },
     handleTabYearChange(activeKey) {

@@ -332,7 +332,7 @@ export default {
   },
   watch: {
     selectedType (value) {
-      this.$logger.info('watch select type ' + value)
+      console.info('watch select type ' + value)
       this.pageNo = 1
       this.myContentList = []
       this.pagination.total = 0
@@ -356,7 +356,7 @@ export default {
       // this.currentType = this.filterTypeList[0]
       // this.currentTypeLabel = getLabelNameType(this.typeMap[this.filterTypeList[0]])
     // }
-    // this.$logger.info('currentType ' + this.currentType + ' , currentTypeLabel ' + this.currentTypeLabel + ', selected type ' + this.selectedType)
+    // console.info('currentType ' + this.currentType + ' , currentTypeLabel ' + this.currentTypeLabel + ', selected type ' + this.selectedType)
     this.loadMyContent()
   },
   mounted () {
@@ -371,12 +371,12 @@ export default {
       } else if (this.selectedType === 'shared') {
         this.loading = false
         this.skeletonLoading = false
-        this.$logger.info('shared coming soon!')
+        console.info('shared coming soon!')
       }
     },
 
     handleToggleDataListMode (mode) {
-      this.$logger.info('handleToggleDataListMode' + mode)
+      console.info('handleToggleDataListMode' + mode)
       this.dataListMode = mode
     },
 
@@ -413,13 +413,13 @@ export default {
     },
 
     getMyFavorites () {
-      this.$logger.info('getMyFavorites')
+      console.info('getMyFavorites')
       FavoritesGetMyFavorites({
         type: typeMap[this.currentType],
         pageNo: this.pageNo,
         pageSize: this.pagination.pageSize
       }).then((res) => {
-        this.$logger.info('FavoritesGetMyFavorites response', res)
+        console.info('FavoritesGetMyFavorites response', res)
         if (res.result && res.result.records && res.result.records.length) {
           res.result.records.forEach((record, index) => {
             record.key = index
@@ -490,7 +490,7 @@ export default {
       MyContentEventBus.$emit(MyContentEvent.ReferContentItem, { item })
     },
     handlePreviewTemplate (template) {
-      this.$logger.info('handlePreviewTemplate ', template)
+      console.info('handlePreviewTemplate ', template)
       this.previewTemplateVisible = true
       this.previewTemplate = template
     }

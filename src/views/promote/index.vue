@@ -22,13 +22,13 @@ export default {
     }
   },
   created () {
-    this.$logger.info('promote redirecting ' + this.code)
+    console.info('promote redirecting ' + this.code)
     this.handleRedirect()
   },
   methods: {
     ...mapMutations([SET_PROMOTE_CODE]),
     handleRedirect() {
-      this.$logger.info('promote redirecting ' + this.code)
+      console.info('promote redirecting ' + this.code)
       if (this.code) {
         queryById({
           id: this.code

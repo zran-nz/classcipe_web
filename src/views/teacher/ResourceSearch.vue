@@ -85,7 +85,7 @@ export default {
   },
   mixins: [ UserModeMixin ],
   created() {
-    this.$logger.info('LibrarySearch: created', this.searchKeyword)
+    console.info('LibrarySearch: created', this.searchKeyword)
     this.handleDoSearch()
   },
   methods: {
@@ -95,7 +95,7 @@ export default {
         searchKey: this.searchKeyword,
         schoolId: this.currentSchool?.id
       }).then(response => {
-        this.$logger.info('QueryContentsFilter result : ', response)
+        console.info('QueryContentsFilter result : ', response)
         this.dataList = response.result ? response.result : []
       }).finally(() => {
         this.searching = false
@@ -103,7 +103,7 @@ export default {
     },
 
     handleSearch(keyword) {
-      this.$logger.info('LibrarySearch handleSearch', keyword)
+      console.info('LibrarySearch handleSearch', keyword)
       this.searchKeyword = keyword
       this.handleDoSearch()
     }

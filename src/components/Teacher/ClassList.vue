@@ -180,23 +180,23 @@ export default {
     },
 
     handleTeacherProjecting (item) {
-      this.$logger.info('handleStartSession', item)
+      console.info('handleStartSession', item)
       window.open(lessonHost + 'd/' + item.classId, '_blank')
     },
 
     handleDashboard (item) {
-      this.$logger.info('handleDashboard', item)
+      console.info('handleDashboard', item)
       window.open(lessonHost + 'd/' + item.classId, '_blank')
     },
 
     handleReviewEditEvaluation (item) {
-      this.$logger.info('handleReviewEditEvaluation', item, this.classData)
+      console.info('handleReviewEditEvaluation', item, this.classData)
       this.$router.push({
         path: `/teacher/class-evaluation/${this.classData.id}/${item.taskClassId}/${item.classId}`
       })
     },
     handleArchiveSession (item) {
-      this.$logger.info('handleArchiveSession', item)
+      console.info('handleArchiveSession', item)
     }
   }
 }

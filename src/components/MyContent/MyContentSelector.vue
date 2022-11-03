@@ -45,13 +45,13 @@ export default {
   computed: {
   },
   created () {
-    this.$logger.info('MyContentSelector selectedType ' + this.selectedType + ', mode:' + this.mode + ', filterType ', this.filterTypeList)
+    console.info('MyContentSelector selectedType ' + this.selectedType + ', mode:' + this.mode + ', filterType ', this.filterTypeList)
   },
   mounted () {
   },
   methods: {
     handleToggleType (type) {
-      this.$logger.info('handleToggleType ' + type)
+      console.info('handleToggleType ' + type)
       this.selectedType = type
     }
   }

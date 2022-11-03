@@ -752,7 +752,7 @@ export default {
   watch: {
     currentStep: {
       handler(val) {
-        this.$logger.info('currentStep change', val)
+        console.info('currentStep change', val)
         this.handleDisplayRightModule()
       },
       deep: true,
@@ -762,7 +762,7 @@ export default {
   async created() {
     window.TaskFieldCheck = this.calculateCanPublish
     window.TaskFieldSave = this.autoSaveData
-    this.$logger.info('add task created ' + this.taskId + ' ' + this.$route.path + ' mode: ' + this.mode, this.$route.params)
+    console.info('add task created ' + this.taskId + ' ' + this.$route.path + ' mode: ' + this.mode, this.$route.params)
 
     this.$EventBus.$on(SlideEvent.SELECT_TEMPLATE, this.handleSelectTemplate)
     this.$EventBus.$on(SlideEvent.CANCEL_SELECT_TEMPLATE, this.handleRemoveTemplate)
@@ -773,7 +773,7 @@ export default {
     this.token = token
     this.$store.dispatch('loadFormConfigData', token).then(() => {
       this.formSteps = this.$store.getters.formConfigData.taskSteps || []
-      this.$logger.info('formSteps', this.formSteps)
+      console.info('formSteps', this.formSteps)
       this.requiredFields = this.$classcipe.taskRequiredFields
 
       if (this.currentActiveStepIndex < 0 || this.currentActiveStepIndex > this.formSteps.length - 1) {
@@ -784,9 +784,9 @@ export default {
       this.checkIsFullBodyStep()
       const basicSteps = this.formSteps.find(step => step.name === 'Edit Basic')
       this.priorityTags = basicSteps ? basicSteps.tags : []
-      this.$logger.info('priorityTags', this.priorityTags)
+      console.info('priorityTags', this.priorityTags)
     })
-    this.$logger.info('恢复step', this.currentActiveStepIndex, this.currentStep)
+    console.info('恢复step', this.currentActiveStepIndex, this.currentStep)
     this.initData()
     this.getAssociate()
     this.queryContentCollaborates(this.taskId, this.contentType.task)
@@ -802,13 +802,13 @@ export default {
   },
   methods: {
     initData() {
-      this.$logger.info('initData doing...')
+      console.info('initData doing...')
       GetMyGrades().then((response) => {
-        this.$logger.info('add task initData done', response)
+        console.info('add task initData done', response)
         this.gradeList = response.result
       }).then(() => {
         if (this.taskId) {
-          this.$logger.info('restore task data ' + this.taskId)
+          console.info('restore task data ' + this.taskId)
           this.restoreTask(this.taskId, true)
         } else {
           this.contentLoading = false
@@ -820,7 +820,7 @@ export default {
     },
 
     handleUpdateCover (coverData) {
-      this.$logger.info('handleUpdateCover', coverData)
+      console.info('handleUpdateCover', coverData)
       if (coverData.type === 'video') {
         this.form.coverVideo = coverData.url
       } else {
@@ -829,7 +829,7 @@ export default {
     },
 
     updateUnitIdList (idList) {
-      this.$logger.info('associateUnitPlanIdList', idList)
+      console.info('associateUnitPlanIdList', idList)
       this.associateUnitPlanIdList = idList
       this.asyncSaveDataFn()
     },
@@ -844,11 +844,11 @@ export default {
       } else {
         this.currentRightModule = RightModule.customTag
       }
-      this.$logger.info('handleDisplayRightModule', this.currentRightModule)
+      console.info('handleDisplayRightModule', this.currentRightModule)
     },
 
     handleAuthCallback() {
-      this.$logger.info('handleAuthCallback')
+      console.info('handleAuthCallback')
       this.loadThumbnail(false)
     },
 
@@ -857,7 +857,7 @@ export default {
        if (this.canEdit) {
          if (this.currentActiveStepIndex === this.formSteps.length - 1) {
            const notRemind = storage.get(`${this.taskId}-${this.$store.getters.userInfo.id}-not-remind`)
-           this.$logger.info('notRemind ', notRemind)
+           console.info('notRemind ', notRemind)
            if (this.$store.state.app.userMode === USER_MODE.SCHOOL || !!notRemind) {
              this.$router.replace({
                path: redirectPath
@@ -885,12 +885,12 @@ export default {
       if (needLoadThumbnail) {
         this.contentLoading = true
       }
-      this.$logger.info('restoreTask ' + taskId)
+      console.info('restoreTask ' + taskId)
       this.saving = true
       TaskQueryById({
         id: taskId
       }).then(response => {
-        this.$logger.info('TaskQueryById ' + taskId, response.result)
+        console.info('TaskQueryById ' + taskId, response.result)
         if (response.code === 0 && response.success) {
           const taskData = response.result
           if (!taskData.materialList) {
@@ -915,7 +915,7 @@ export default {
               displayCustomFieldData[customField.id] = ''
             })
           }
-          this.$logger.info('displayCustomFieldData', displayCustomFieldData)
+          console.info('displayCustomFieldData', displayCustomFieldData)
           taskData.customFieldData = displayCustomFieldData
           this.form = taskData
           this.form.showSelected = taskData.showSelected ? taskData.showSelected : false
@@ -944,7 +944,7 @@ export default {
         // copy副本 为了判断数据变更
         this.oldForm = Object.assign({}, this.form)
         this.initCompleted = true
-        this.$logger.info('restoreTask done', this.form)
+        console.info('restoreTask done', this.form)
 
         this.loadingShareContent()
         // 非owner看到图片
@@ -968,9 +968,9 @@ export default {
       if (taskData.customFieldData) {
         taskData.customFieldData = JSON.stringify(taskData.customFieldData)
       }
-      this.$logger.info('basic taskData', taskData)
+      console.info('basic taskData', taskData)
       const response = await TaskAddOrUpdate(taskData)
-      this.$logger.info('TaskAddOrUpdate', response.result)
+      console.info('TaskAddOrUpdate', response.result)
       // 内容更新发送协同通知
       if (!deepEqual(this.form, this.oldForm)) {
         this.handleSaveContentEvent(this.taskId, this.contentType.task, this.oldForm)
@@ -987,13 +987,13 @@ export default {
       }
     },
     handlePublishTask() {
-      this.$logger.info('handlePublishTask', {
+      console.info('handlePublishTask', {
         id: this.taskId,
         status: 1
       })
 
       this.checkRequiredFields()
-      this.$logger.info('this.emptyRequiredFields', this.emptyRequiredFields)
+      console.info('this.emptyRequiredFields', this.emptyRequiredFields)
 
       if (this.form.slideEditing) {
         this.$confirm({
@@ -1049,7 +1049,7 @@ export default {
     },
 
     handleSelectTaskType(type) {
-      this.$logger.info('handleSelectTaskType ' + type)
+      console.info('handleSelectTaskType ' + type)
       if (this.canEdit) {
         this.form.taskType = type
         // #协同编辑event事件
@@ -1067,7 +1067,7 @@ export default {
     },
 
     handleSelectTemplate (template) {
-      this.$logger.info('handleSelectTemplate', template)
+      console.info('handleSelectTemplate', template)
       const index = this.form.selectedTemplateList.findIndex(item => item.presentationId === template.presentationId)
       if (index === -1) {
         this.form.selectedTemplateList.push(template)
@@ -1076,7 +1076,7 @@ export default {
     },
 
     handleRemoveTemplate(template) {
-      this.$logger.info('handleRemoveTemplate ', template)
+      console.info('handleRemoveTemplate ', template)
       const index = this.form.selectedTemplateList.findIndex(item => item.presentationId === template.presentationId)
       if (index !== -1) {
         this.form.selectedTemplateList.splice(index, 1)
@@ -1084,7 +1084,7 @@ export default {
     },
 
     handleViewDetail(item) {
-      this.$logger.info('handleViewDetail ', item)
+      console.info('handleViewDetail ', item)
       if (item.type === this.contentType['unit-plan']) {
         this.$router.push({
           path: '/teacher/unit-plan-redirect/' + item.id
@@ -1093,12 +1093,12 @@ export default {
     },
 
     handleUpdateSelected(data) {
-      this.$logger.info('handleUpdateSelected', data)
+      console.info('handleUpdateSelected', data)
       this.relevantSelectedQuestionList = data.questionList
     },
 
     async handleCreateTask(showMask) {
-      this.$logger.info('handleCreateTask')
+      console.info('handleCreateTask')
       const hideLoading = this.$message.loading('Creating ppt in Google Slides...', 0)
       if (!this.creating) {
         this.creating = true
@@ -1112,7 +1112,7 @@ export default {
 
         if (response.success) {
           if (response.code === 520 || response.code === 403) {
-            this.$logger.info('等待授权回调')
+            console.info('等待授权回调')
             hideLoading()
             this.$message.loading('Waiting for Google Slides auth...', 10)
             this.creating = false
@@ -1124,7 +1124,7 @@ export default {
           hideLoading()
         }
 
-        this.$logger.info('handleCreateTask', response.result)
+        console.info('handleCreateTask', response.result)
         try {
           this.saving = true
           if (response.result && response.result?.presentationId && response.code === 0) {
@@ -1146,14 +1146,14 @@ export default {
     },
 
     loadThumbnail(needRefresh, hiddenMask = false) {
-      this.$logger.info('loadThumbnail ' + this.form.presentationId)
+      console.info('loadThumbnail ' + this.form.presentationId)
       if (!this.thumbnailListLoading) {
         this.thumbnailListLoading = true
         TemplatesGetPresentation({
           taskId: this.form.id,
           needRefresh: needRefresh
         }).then(response => {
-          this.$logger.info('loadThumbnail response', response.result)
+          console.info('loadThumbnail response', response.result)
           if (response.code === 0) {
             this.restoreTask(this.form.id, false)
             // 不加这段 thumbnailList无法设置，slides draft 就无法显示
@@ -1171,7 +1171,7 @@ export default {
           } else if (response.code === 403) {
             this.$router.push({ path: '/teacher/main/created-by-me' })
           } else if (response.code === this.ErrorCode.ppt_google_token_expires || response.code === this.ErrorCode.ppt_forbidden) {
-            this.$logger.info('等待授权事件通知')
+            console.info('等待授权事件通知')
           }
         }).finally(() => {
           this.thumbnailListLoading = false
@@ -1180,12 +1180,12 @@ export default {
     },
 
     async handleEditGoogleSlide() {
-      this.$logger.info('handleEditGoogleSlide star')
+      console.info('handleEditGoogleSlide star')
       this.$store.commit(SET_GLOBAL_LOADING, true)
       this.$nextTick(async () => {
         try {
           this.editGoogleSlideLoading = true
-          this.$logger.info('handleEditGoogleSlide', this.form.presentationId, this.$store.getters.globalLoading)
+          console.info('handleEditGoogleSlide', this.form.presentationId, this.$store.getters.globalLoading)
           // fake_buy_处理library bug后没有实际上copy ppt的情况
           if (this.form.presentationId && !this.form.presentationId.startsWith('fake_buy_')) {
             // 设置正在编辑状态，my content根据这个提示是否先save再排课
@@ -1194,7 +1194,7 @@ export default {
             if (res.code === 0) {
               top.location.href = 'https://docs.google.com/presentation/d/' + this.form.presentationId + '/edit'
             } else if (res.code === 520 || res.code === 403) {
-              this.$logger.info('等待授权回调')
+              console.info('等待授权回调')
               this.$message.loading('Waiting for Google Slides auth...', 10)
               this.creating = false
               this.saving = false
@@ -1212,7 +1212,7 @@ export default {
     },
 
     getAssociate() {
-      this.$logger.info('AddTask GetAssociate id[' + this.taskId + '] fromType[' + this.contentType.task + ']')
+      console.info('AddTask GetAssociate id[' + this.taskId + '] fromType[' + this.contentType.task + ']')
       this.associateUnitPlanIdList = []
       this.associateTaskIdList = []
       this.associateLoading = true
@@ -1220,7 +1220,7 @@ export default {
         id: this.taskId,
         type: this.contentType.task
       }).then(response => {
-        this.$logger.info('AddTask GetAssociate response', response)
+        console.info('AddTask GetAssociate response', response)
         this.groupNameList = []
         this.groupNameListOther = []
         response.result.owner.forEach(item => {
@@ -1261,15 +1261,15 @@ export default {
             }
           })
         })
-        this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
-        this.$logger.info('*******************associateUnitPlanIdList', this.associateUnitPlanIdList)
-        this.$logger.info('associateTaskIdList', this.associateTaskIdList)
-        this.$logger.info('associateQuestionList', this.associateQuestionList)
+        console.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
+        console.info('*******************associateUnitPlanIdList', this.associateUnitPlanIdList)
+        console.info('associateTaskIdList', this.associateTaskIdList)
+        console.info('associateQuestionList', this.associateQuestionList)
         this.requiredFields = this.$classcipe.taskRequiredFields
       }).finally(() => {
         this.associateLoading = false
 
-        this.$logger.info('AddTask GetAssociate associateUnitPlanIdList', this.associateUnitPlanIdList)
+        console.info('AddTask GetAssociate associateUnitPlanIdList', this.associateUnitPlanIdList)
         if (this.associateUnitPlanIdList.length > 0) {
           this.loadRefLearnOuts()
           this.handleSelfOutsData()
@@ -1285,7 +1285,7 @@ export default {
         type: this.contentType['unit-plan'],
         ids: this.associateUnitPlanIdList
       })
-      this.$logger.info('FindSourceOutcomes response', response)
+      console.info('FindSourceOutcomes response', response)
       if (response.success) {
         const recommendMap = new Map()
         response.result.forEach(item => {
@@ -1304,17 +1304,17 @@ export default {
             list: value
           })
         }
-        this.$logger.info('loadRefLearnOuts update RecommendData ', this.recommendData)
+        console.info('loadRefLearnOuts update RecommendData ', this.recommendData)
       }
     },
 
     async handleSelfOutsData() {
-      this.$logger.info(' handleSelfOutsData')
+      console.info(' handleSelfOutsData')
       const response = await GetReferOutcomes({
         id: this.taskId,
         type: this.contentType.task
       })
-      this.$logger.info('getReferOutcomes response', response)
+      console.info('getReferOutcomes response', response)
       if (response.success && response.result.length) {
          const list = response.result
          list.forEach(item => {
@@ -1325,17 +1325,17 @@ export default {
 
              const targetItem = this.recommendData.find(rItem => rItem.fromId === item.fromId)
              if (targetItem) {
-               this.$logger.info('targetItem ' + targetItem.fromName + ' add SelfCustom SelfOut ' + item.name, item)
+               console.info('targetItem ' + targetItem.fromName + ' add SelfCustom SelfOut ' + item.name, item)
                targetItem.list.push(item)
              }
            }
          })
-        this.$logger.info('handleSelfOutsData update RecommendData ', this.recommendData)
+        console.info('handleSelfOutsData update RecommendData ', this.recommendData)
       }
     },
 
     handleRemoveLearnOuts(data) {
-      this.$logger.info('handleRemoveLearnOuts', data)
+      console.info('handleRemoveLearnOuts', data)
       var index = this.form.learnOuts.findIndex(item => (item.knowledgeId === data.knowledgeId))
       if (index > -1) {
         this.form.learnOuts.splice(index, 1)
@@ -1346,7 +1346,7 @@ export default {
     },
 
     handleUpdateSelfOuts (data) {
-      this.$logger.info('handleUpdateSelfOuts', data)
+      console.info('handleUpdateSelfOuts', data)
       const tagType = data.tagType
       const dataList = data.list
       let selfOuts = this.form.selfOuts
@@ -1357,7 +1357,7 @@ export default {
         }
       })
       this.form.selfOutss = selfOuts
-      this.$logger.info('selfOuts', selfOuts)
+      console.info('selfOuts', selfOuts)
     },
     handleSelectDescription() {
       // 获取当前task关联的unit-plan的描述数据
@@ -1366,10 +1366,10 @@ export default {
         if (item.knowledgeId) {
           this.selectedIdList.push(item.knowledgeId)
         } else {
-          this.$logger.info('parentData selected id not exist ', item)
+          console.info('parentData selected id not exist ', item)
         }
       })
-      this.$logger.info('handleSelectDescription selectedList', this.selectedList, ' recommendData ', this.recommendData)
+      console.info('handleSelectDescription selectedList', this.selectedList, ' recommendData ', this.recommendData)
       this.selectSyncDataVisible = true
 
       // #协同编辑event事件
@@ -1377,7 +1377,7 @@ export default {
     },
 
     handleStepChange(data) {
-      this.$logger.info('task handleStepChange ', data)
+      console.info('task handleStepChange ', data)
       this.currentStep = data.step
       this.currentActiveStepIndex = data.index
       sessionStorage.setItem('task-step-' + this.taskId, data.index)
@@ -1409,7 +1409,7 @@ export default {
 
     // 切换当前的字段的点评数据，从总的collaborateCommentList筛选初当前字段相关的点评数据
     handleSwitchComment(data) {
-      this.$logger.info('handleSwitchComment', data)
+      console.info('handleSwitchComment', data)
       if (!data.activeStatus) {
         this.currentFieldName = ''
         this.handleDisplayRightModule()
@@ -1425,7 +1425,7 @@ export default {
         }
       })
       this.currentCollaborateCommentList = list
-      this.$logger.info('currentCollaborateCommentList', list)
+      console.info('currentCollaborateCommentList', list)
 
       // #协同编辑event事件
       this.handleCollaborateEvent(this.taskId, data.fieldName, data.fieldName)
@@ -1434,7 +1434,7 @@ export default {
     // 每次点击都重新加载一下最新数据
     handleViewCollaborate() {
       this.showHistoryLoading = true
-      this.$logger.info('handleViewCollaborate')
+      console.info('handleViewCollaborate')
       if (this.currentRightModule === this.rightModule.collaborate) {
         this.handleDisplayRightModule()
       } else {
@@ -1445,17 +1445,17 @@ export default {
     },
 
     handleUpdateCommentList() {
-      this.$logger.info('handleUpdateCommentList')
+      console.info('handleUpdateCommentList')
       this.GetCollaborateComment(this.form.type, this.form.id)
     },
 
     handleRestoreField(data) {
-      this.$logger.info('handleRestoreField', data, this.form)
+      console.info('handleRestoreField', data, this.form)
       if (data) {
         this.form = data
         this.$message.success('restore successfully!')
       }
-      this.$logger.info('after handleRestoreField', this.form)
+      console.info('after handleRestoreField', this.form)
     },
 
     getSessionStep() {
@@ -1467,12 +1467,12 @@ export default {
       }
     },
     handleSelectPreviewTemplate(template) {
-      this.$logger.info('handleSelectPreviewTemplate ', template)
+      console.info('handleSelectPreviewTemplate ', template)
       this.handleSelectTemplateMadel(template)
       this.previewTemplateVisible = false
     },
     removeSelectTemplate(template) {
-      this.$logger.info('removeSelectTemplate ', template)
+      console.info('removeSelectTemplate ', template)
       const index = this.form.selectedTemplateList.findIndex(item => item.id === template.id)
       if (index > -1) {
         this.form.selectedTemplateList.splice(index, 1)
@@ -1493,11 +1493,11 @@ export default {
       if (taskData.customFieldData) {
         taskData.customFieldData = JSON.stringify(taskData.customFieldData)
       }
-      this.$logger.info('basic taskData', taskData)
+      console.info('basic taskData', taskData)
       this.saving = true
       const response = await TaskAddOrUpdate(taskData)
       this.saving = false
-      this.$logger.info('TaskAddOrUpdate', response.result)
+      console.info('TaskAddOrUpdate', response.result)
       return response
     },
 
@@ -1507,11 +1507,11 @@ export default {
         slideEditing: true,
         type: this.contentType.task
       }
-      this.$logger.info('updateSlideEditing', updateData)
+      console.info('updateSlideEditing', updateData)
       this.saving = true
       const response = await UpdateSlideEditing(updateData)
       this.saving = false
-      this.$logger.info('updateSlideEditing', response.result)
+      console.info('updateSlideEditing', response.result)
       return response
     },
 
@@ -1521,16 +1521,16 @@ export default {
         link: null,
         error: null
       })
-      this.$logger.info('handleAddMaterial', this.form.materialList)
+      console.info('handleAddMaterial', this.form.materialList)
     },
 
     handleRemoveMaterialItem(item, index) {
       this.form.materialList = this.form.materialList.filter((it, idx) => idx !== index)
-      this.$logger.info('handleRemoveMaterialItem ', this.form.materialList)
+      console.info('handleRemoveMaterialItem ', this.form.materialList)
     },
 
     handleMaterialListFlagChange(checked) {
-      this.$logger.info('handleMaterialListFlagChange ', checked)
+      console.info('handleMaterialListFlagChange ', checked)
       if (checked) {
         if (this.form.materialList.length === 0) {
           this.handleAddMaterial()
@@ -1542,7 +1542,7 @@ export default {
     },
 
     handleShareTask() {
-      this.$logger.info('handleShareTask')
+      console.info('handleShareTask')
       this.shareVisible = true
     },
 
@@ -1551,7 +1551,7 @@ export default {
         sourceId: this.form.id,
         sourceType: this.form.type
       }).then(response => {
-        this.$logger.info('form QueryContentShare response', response)
+        console.info('form QueryContentShare response', response)
         if (response.result) {
           this.shareStatus = response.result.status
         } else {
@@ -1574,7 +1574,7 @@ export default {
     },
 
     handleChangeClassSessionTime (classItem) {
-      this.$logger.info('handleChangeClassSessionTime', classItem)
+      console.info('handleChangeClassSessionTime', classItem)
       if (!classItem.checked) {
         classItem.momentRangeDate = []
         classItem.startDate = null
@@ -1594,7 +1594,7 @@ export default {
     },
 
     handleDeleteClass (idx, classItem) {
-      this.$logger.info('handleDeleteClass', classItem)
+      console.info('handleDeleteClass', classItem)
       const newTaskClassList = []
       for (let i = 0; i < this.form.taskClassList.length; i++) {
         if (this.form.taskClassList[i].classId === classItem.classId && i === idx) {
@@ -1629,12 +1629,12 @@ export default {
 
     // 切换ppt展示封面还是选择的模板
     changeSelected(checked) {
-      this.$logger.info('changeSelected ', checked)
+      console.info('changeSelected ', checked)
       this.form.showSelected = checked
     },
 
     // handleUpdateLearningObjectives (data) {
-      // this.$logger.info('handleUpdateLearningObjectives', data)
+      // console.info('handleUpdateLearningObjectives', data)
       // this.form.learnOuts = data.learnOuts
       // this.form.curriculumId = data.curriculumId
       // this.form.subjectList = data.selectedSubjectList
@@ -1643,7 +1643,7 @@ export default {
     // },
 
     async handleUpdateBySubTaskSetting (data) {
-      this.$logger.info('handleUpdateBySubTaskSetting', data)
+      console.info('handleUpdateBySubTaskSetting', data)
       this.waitingRedirect = true
       this.saving = true
       this.form.price = data.price
@@ -1691,20 +1691,20 @@ export default {
       }
     },
     handleGoToSubTask (data) {
-      this.$logger.info('handleGoToSubTask', data)
+      console.info('handleGoToSubTask', data)
       this.$router.replace({
         path: '/teacher/split-task/' + this.taskId
       })
     },
     async handleDiscountSettingSave(discountItem) {
-      this.$logger.info('DiscountSettingSave', discountItem)
+      console.info('DiscountSettingSave', discountItem)
       const response = await discountSettingSave(discountItem)
-      this.$logger.info('TaskAddOrUpdate', response.result)
+      console.info('TaskAddOrUpdate', response.result)
     },
     handleUpdateQuestion(data) {
-      this.$logger.info('handleUpdateQuestion', data)
+      console.info('handleUpdateQuestion', data)
       this.form.questions = data.map(item => ({ id: item.id, name: item.name }))
-      this.$logger.info('handleUpdateQuestion questions', this.form.questions)
+      console.info('handleUpdateQuestion questions', this.form.questions)
     },
     handleGoogleAuthCallback() {
       if (!this.showCollaborateModalVisible) {

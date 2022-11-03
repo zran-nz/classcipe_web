@@ -200,7 +200,7 @@ export default {
   },
   watch: {
     commentList (value) {
-      this.$logger.info('CollaborateCommentPanel commentList', value)
+      console.info('CollaborateCommentPanel commentList', value)
       this.rawCommentList = []
       value.forEach(item => {
         item.sendLoading = false
@@ -210,7 +210,7 @@ export default {
       })
       this.formatCommentList = this.rawCommentList
       this.addRoot = this.formatCommentList.length === 0
-      this.$logger.info('formatCommentList', this.formatCommentList)
+      console.info('formatCommentList', this.formatCommentList)
       this.formatNewReply()
     }
   },
@@ -218,7 +218,7 @@ export default {
 
   },
   created () {
-    this.$logger.info('CollaborateCommentPanel commentList', this.commentList)
+    console.info('CollaborateCommentPanel commentList', this.commentList)
     this.originalCommentList = this.commentList
     this.rawCommentList = []
     this.commentList.forEach(item => {
@@ -227,10 +227,10 @@ export default {
         this.rawCommentList.push(item)
       }
     })
-    this.$logger.info('rawCommentList', this.rawCommentList)
+    console.info('rawCommentList', this.rawCommentList)
     this.formatCommentList = this.rawCommentList
     this.addRoot = this.formatCommentList.length === 0
-    this.$logger.info('formatCommentList', this.formatCommentList)
+    console.info('formatCommentList', this.formatCommentList)
     this.formatNewReply()
   },
   methods: {

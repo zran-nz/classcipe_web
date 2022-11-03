@@ -1024,8 +1024,8 @@ export default {
   },
   watch: {
     referDetailVisible(value) {
-      this.$logger.info('watch referDetailVisible ' + value)
-      this.$logger.info('screen width: ', document.body.clientWidth)
+      console.info('watch referDetailVisible ' + value)
+      console.info('screen width: ', document.body.clientWidth)
       if (value && document.body.clientWidth < 1700) {
         this.showSidebar = false
       } else {
@@ -1033,11 +1033,11 @@ export default {
       }
     },
     'form.inquiry': function(value, newValue) {
-      this.$logger.info('watch form.inquiry change ' + value, newValue)
+      console.info('watch form.inquiry change ' + value, newValue)
       if (this.hideRecommendQuestion) {
         return
       }
-      this.$logger.info('get recommend question ' + value)
+      console.info('get recommend question ' + value)
       this.findQuestionsByBigIdea(value)
       // 重新load recommend
       this.loadBigIdeaLearnOuts()
@@ -1081,12 +1081,12 @@ export default {
       })
     },
     hasExtraRecommend() {
-      this.$logger.info('-------------', this.form.learnOuts, this.recommendDataIdList)
+      console.info('-------------', this.form.learnOuts, this.recommendDataIdList)
       let ret = false
       this.form.learnOuts.forEach(item => {
         if (this.recommendDataIdList.indexOf(item.knowledgeId) === -1) {
           ret = true
-          this.$logger.info('------------learnOuts', item, ' not exist in ', this.recommendDataIdList)
+          console.info('------------learnOuts', item, ' not exist in ', this.recommendDataIdList)
         }
       })
 
@@ -1102,7 +1102,7 @@ export default {
   async created() {
     window.TaskFieldCheck = this.calculateCanPublish
     window.TaskFieldSave = this.autoSaveData
-    this.$logger.info('unitPlanId ' + this.unitPlanId + ' ' + this.$route.path)
+    console.info('unitPlanId ' + this.unitPlanId + ' ' + this.$route.path)
     LibraryEventBus.$on(LibraryEvent.ContentListSelectClick, this.handleDescriptionSelectClick)
 
     let token = this.$route.query.token
@@ -1115,15 +1115,15 @@ export default {
       // 增加inquiryKeywords
       const Inquiry = this.formSteps.find(item => item.name === 'Inquiry')
       Inquiry && Inquiry.commonFields.push(this.planField.InquiryKeywords)
-      this.$logger.info('formSteps', this.formSteps)
+      console.info('formSteps', this.formSteps)
       this.requiredFields = this.$classcipe.planRequiredFields
-      this.$logger.info('requiredFields', this.requiredFields)
+      console.info('requiredFields', this.requiredFields)
       // this.requiredFields = list
       // if (this.form.inquiryKeywords.length === 0) {
       //   const list = this.requiredFields.slice()
       //   list.splice(list.indexOf(this.PlanField.Inquiry), 1)
       //   this.requiredFields = list
-      //   this.$logger.info('associateQuestionList empty remove Inquiry from requiredFields')
+      //   console.info('associateQuestionList empty remove Inquiry from requiredFields')
       // }
       if (this.currentActiveStepIndex < 0 || this.currentActiveStepIndex > this.formSteps.length - 1) {
         this.currentActiveStepIndex = 0
@@ -1145,41 +1145,41 @@ export default {
   },
   methods: {
     initData() {
-      this.$logger.info('initData doing...')
+      console.info('initData doing...')
       Promise.all([
         GetAllSdgs(),
         GetMyGrades(),
         SubjectTree({ curriculumId: this.$store.getters.bindCurriculum }),
         GetTreeByKey({ key: 'Real world connections' })
       ]).then((sdgListResponse) => {
-        this.$logger.info('initData done', sdgListResponse)
+        console.info('initData done', sdgListResponse)
 
         // GetAllSdgs
-        this.$logger.info('GetAllSdgs Response ', sdgListResponse[0])
+        console.info('GetAllSdgs Response ', sdgListResponse[0])
         if (!sdgListResponse[0].code) {
           this.sdgList = sdgListResponse[0].result
         }
 
         // GetMyGrades
         if (!sdgListResponse[1].code) {
-          this.$logger.info('GetMyGrades', sdgListResponse[1].result)
+          console.info('GetMyGrades', sdgListResponse[1].result)
           this.gradeList = sdgListResponse[1].result
         }
 
         // SubjectTree
         if (!sdgListResponse[2].code) {
-          this.$logger.info('SubjectTree', sdgListResponse[2].result)
+          console.info('SubjectTree', sdgListResponse[2].result)
           let subjectTree = sdgListResponse[2].result
           subjectTree = formatSubjectTree(subjectTree)
           this.subjectTree = subjectTree
-          this.$logger.info('after format subjectTree', subjectTree)
+          console.info('after format subjectTree', subjectTree)
         }
         // rwc list
         if (!sdgListResponse[3].code) {
-          this.$logger.info('rwc', sdgListResponse[3].result)
+          console.info('rwc', sdgListResponse[3].result)
           this.rwcList = sdgListResponse[3].result.children ? sdgListResponse[3].result.children : []
         }
-        this.$logger.info('sdgList', this.sdgList)
+        console.info('sdgList', this.sdgList)
       }).then(() => {
         this.restoreUnitPlan(this.unitPlanId, true)
       }).catch((e) => {
@@ -1209,12 +1209,12 @@ export default {
 
     // 填充自定义大纲内容
     async handleSelfOutsData() {
-      this.$logger.info(' handleSelfOutsData')
+      console.info(' handleSelfOutsData')
       const response = await GetReferOutcomes({
         id: this.unitPlanId,
         type: this.contentType['unit-plan']
       })
-      this.$logger.info('getReferOutcomes response', response)
+      console.info('getReferOutcomes response', response)
       if (response.success && response.result.length) {
         const list = response.result
         list.forEach(item => {
@@ -1225,7 +1225,7 @@ export default {
 
             const targetItem = this.recommendData.find(rItem => rItem.fromId === item.fromId)
             if (targetItem) {
-              this.$logger.info('targetItem ' + targetItem.fromName + ' add SelfCustom SelfOut ' + item.name, item)
+              console.info('targetItem ' + targetItem.fromName + ' add SelfCustom SelfOut ' + item.name, item)
               targetItem.list.push(item)
             }
           }
@@ -1237,11 +1237,11 @@ export default {
       if (isFirstLoad) {
         this.contentLoading = true
       }
-      this.$logger.info('restoreUnitPlan ' + unitPlanId)
+      console.info('restoreUnitPlan ' + unitPlanId)
       UnitPlanQueryById({
         id: unitPlanId
       }).then(response => {
-        this.$logger.info('UnitPlanQueryById ' + unitPlanId, response.result)
+        console.info('UnitPlanQueryById ' + unitPlanId, response.result)
         if (response.code === 0 && response.success) {
           const unitPlanData = response.result
           if (unitPlanData.scenarios.length === 0) {
@@ -1285,7 +1285,7 @@ export default {
               displayCustomFieldData[customField.id] = ''
             })
           }
-          this.$logger.info('displayCustomFieldData', displayCustomFieldData)
+          console.info('displayCustomFieldData', displayCustomFieldData)
           unitPlanData.customFieldData = displayCustomFieldData
 
           this.saving = true
@@ -1307,20 +1307,20 @@ export default {
     },
 
     handleDescriptionSearch(index, description) {
-      this.$logger.info('handleDescriptionSearch:', index, description)
+      console.info('handleDescriptionSearch:', index, description)
       this.form.scenarios[index].description = description
       this.debouncedGetSdgByDescription(index, description)
     },
 
     searchScenario(index, description) {
-      this.$logger.info('searchScenario', description)
+      console.info('searchScenario', description)
       this.currentIndex = index
       if (typeof description === 'string' && description.trim().length >= 3) {
         // this.$refs.descriptionInputSearch.fetching = true
         ScenarioSearch({
           searchKey: this.form.scenarios[index].description
         }).then((response) => {
-          this.$logger.info('searchByDescription', response)
+          console.info('searchByDescription', response)
           this.descriptionSearchList = response.result
         })
       } else {
@@ -1334,7 +1334,7 @@ export default {
         this.form.scenarios[index].description = scenario.description
         if (scenario.sdgKeyWords.length) {
           const keyWords = scenario.sdgKeyWords
-          this.$logger.info('scenario[' + index + '].sdgKeyWords', keyWords)
+          console.info('scenario[' + index + '].sdgKeyWords', keyWords)
           this.form.scenarios[index].sdgKeyWords = keyWords
         }
       }
@@ -1352,13 +1352,13 @@ export default {
     handleDeleteSdg(sdgIndex) {
       if (this.form.scenarios.length > 1) {
         this.form.scenarios.splice(sdgIndex, 1)
-        this.$logger.info('scenarios ', this.form.scenarios, 'sdgTotal ' + this.form.scenarios.length)
+        console.info('scenarios ', this.form.scenarios, 'sdgTotal ' + this.form.scenarios.length)
       } else {
         this.$message.warn(this.$t('teacher.add-unit-plan.at-least-one-sdg'))
       }
     },
     handleRemoveQuestion(index) {
-      this.$logger.info('handleRemoveQuestion ', index)
+      console.info('handleRemoveQuestion ', index)
       if (this.form.questions.length === 1) {
         this.form.questions[index].name = ''
       } else {
@@ -1367,7 +1367,7 @@ export default {
     },
 
     async save() {
-      this.$logger.info('save', this.form)
+      console.info('save', this.form)
       this.saving = true
       this.cleaPageCache()
       const unitPlanData = JSON.parse(JSON.stringify(this.form))
@@ -1377,10 +1377,10 @@ export default {
       if (unitPlanData.customFieldData) {
         unitPlanData.customFieldData = JSON.stringify(unitPlanData.customFieldData)
       }
-      this.$logger.info('UnitPlanAddOrUpdate unitPlanData', unitPlanData)
+      console.info('UnitPlanAddOrUpdate unitPlanData', unitPlanData)
       try {
         const response = await UnitPlanAddOrUpdate(unitPlanData)
-        this.$logger.info('UnitPlanAddOrUpdate res', response.result)
+        console.info('UnitPlanAddOrUpdate res', response.result)
         if (!response.success) {
           this.oldForm = Object.assign({}, this.form)
           this.$message.error(response.message)
@@ -1394,13 +1394,13 @@ export default {
       }
     },
     handlePublishUnitPlan() {
-      this.$logger.info('handlePublishUnitPlan', {
+      console.info('handlePublishUnitPlan', {
         id: this.unitPlanId,
         status: 1
       })
 
       this.checkRequiredFields()
-      this.$logger.info('this.emptyRequiredFields', this.emptyRequiredFields)
+      console.info('this.emptyRequiredFields', this.emptyRequiredFields)
       if (this.emptyRequiredFields.length === 0) {
         this.form.status = 1
         this.handlePublishFormItem(1)
@@ -1430,7 +1430,7 @@ export default {
     },
 
     handleAddUnitPlanTask() {
-      this.$logger.info('handleAddUnitPlanTask ' + this.unitPlanId)
+      console.info('handleAddUnitPlanTask ' + this.unitPlanId)
       // 下创建一个空的task，然后关联，然后再跳转过去
       if (!this.addLoading) {
         this.addLoading = true
@@ -1439,7 +1439,7 @@ export default {
           associateId: this.form.id,
           associateType: this.form.type
         }).then((response) => {
-          this.$logger.info('TaskAddOrUpdate', response.result)
+          console.info('TaskAddOrUpdate', response.result)
           if (response.success) {
             Associate({
               fromId: this.unitPlanId,
@@ -1447,7 +1447,7 @@ export default {
               toId: response.result.id,
               toType: this.contentType.task
             }).then(response => {
-              this.$logger.info('Associate response ', response)
+              console.info('Associate response ', response)
             })
             this.addLoading = false
             this.$router.push({
@@ -1460,7 +1460,7 @@ export default {
           this.addLoading = false
         })
       } else {
-        this.$logger.info('add loading')
+        console.info('add loading')
       }
     },
 
@@ -1473,12 +1473,12 @@ export default {
       }
     },
     handleConfirmAssociate() {
-      this.$logger.info('handleConfirmAssociate')
+      console.info('handleConfirmAssociate')
       this.associateLibraryVisible = false
     },
 
     getAssociate() {
-      this.$logger.info('AddUnitPlan GetAssociate id[' + this.unitPlanId + '] fromType[' + this.contentType['unit-plan'] + ']')
+      console.info('AddUnitPlan GetAssociate id[' + this.unitPlanId + '] fromType[' + this.contentType['unit-plan'] + ']')
       this.associateUnitPlanIdList = []
       this.associateTaskIdList = []
       this.associateTaskList = []
@@ -1486,7 +1486,7 @@ export default {
         id: this.unitPlanId,
         type: this.contentType['unit-plan']
       }).then(response => {
-        this.$logger.info('AddUnitPlan GetAssociate response', response)
+        console.info('AddUnitPlan GetAssociate response', response)
         this.groupNameList = response.result.groups
         this.groupNameListOther = []
         this.selectedTaskList = [] // 只添加空group name分组数据
@@ -1523,10 +1523,10 @@ export default {
           })
         })
         this.newTermName = 'Untitled category_' + (this.groupNameList.length)
-        this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
-        this.$logger.info('*******************associateUnitPlanIdList', this.associateUnitPlanIdList)
-        this.$logger.info('*******************associateTaskIdList', this.associateTaskIdList)
-        this.$logger.info('associateTaskIdList', this.associateTaskIdList)
+        console.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
+        console.info('*******************associateUnitPlanIdList', this.associateUnitPlanIdList)
+        console.info('*******************associateTaskIdList', this.associateTaskIdList)
+        console.info('associateTaskIdList', this.associateTaskIdList)
       }).finally(() => {
         this.linkGroupLoading = false
 
@@ -1543,11 +1543,11 @@ export default {
 
     loadTaskCategoryDesc() {
       const associateTaskIdList = (new Set(this.associateTaskIdList))
-      this.$logger.info('loadTaskCategoryDesc', associateTaskIdList)
+      console.info('loadTaskCategoryDesc', associateTaskIdList)
       QueryTagsByIds({
         ids: Array.from(associateTaskIdList)
       }).then(res => {
-        this.$logger.info('loadTaskCategoryDesc res', res.result)
+        console.info('loadTaskCategoryDesc res', res.result)
         this.readonlyTagCategoryDescList = res.result
       })
     },
@@ -1562,7 +1562,7 @@ export default {
           ids: this.associateUnitPlanIdList
         })
 
-        this.$logger.info('FindSourceOutcomes unit-plan response', response)
+        console.info('FindSourceOutcomes unit-plan response', response)
         if (response.success) {
           const recommendMap = new Map()
           response.result.forEach(item => {
@@ -1583,8 +1583,8 @@ export default {
             })
           }
         }
-        this.$logger.info('update unit-plan recommendData ', this.recommendData)
-        this.$logger.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
+        console.info('update unit-plan recommendData ', this.recommendData)
+        console.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
       }
 
       if (this.associateTaskIdList.length) {
@@ -1593,7 +1593,7 @@ export default {
           ids: this.associateTaskIdList
         })
         if (response.success) {
-          this.$logger.info('FindSourceOutcomes task response', response)
+          console.info('FindSourceOutcomes task response', response)
           const recommendMap = new Map()
           response.result.forEach(item => {
             if (recommendMap.has(item.fromId)) {
@@ -1612,8 +1612,8 @@ export default {
               list: value
             })
           }
-          this.$logger.info('update task recommendData ', this.recommendData)
-          this.$logger.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
+          console.info('update task recommendData ', this.recommendData)
+          console.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
         }
       }
     },
@@ -1624,7 +1624,7 @@ export default {
           bigIdea: this.form.inquiry,
           id: this.unitPlanId
         }).then(response => {
-          this.$logger.info('FindBigIdeaSourceOutcomes response', response)
+          console.info('FindBigIdeaSourceOutcomes response', response)
           const recommendMap = new Map()
           response.result.forEach(item => {
             if (recommendMap.has(item.fromId)) {
@@ -1643,17 +1643,17 @@ export default {
               list: value
             })
           }
-          this.$logger.info('update unit-plan recommendData ', this.recommendData)
-          this.$logger.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
+          console.info('update unit-plan recommendData ', this.recommendData)
+          console.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
         })
       }
     },
 
     handleStepChange(data) {
-      this.$logger.info('task handleStepChange ', data)
+      console.info('task handleStepChange ', data)
       this.currentStep = data.step
       this.priorityTags = data.step.tags
-      this.$logger.info('priorityTags', this.priorityTags)
+      console.info('priorityTags', this.priorityTags)
       this.currentActiveStepIndex = data.index
       this.resetRightModuleVisible()
       sessionStorage.setItem('unit-plan-step-' + this.unitPlanId, data.index)
@@ -1677,7 +1677,7 @@ export default {
     },
 
     handleSwitchComment(data) {
-      this.$logger.info('handleSwitchComment', data)
+      console.info('handleSwitchComment', data)
       if (!data.activeStatus) {
         this.currentFieldName = ''
         this.handleDisplayRightModule()
@@ -1695,7 +1695,7 @@ export default {
 
     // 每次点击都重新加载一下最新数据
     handleViewCollaborate() {
-      this.$logger.info('handleViewCollaborate')
+      console.info('handleViewCollaborate')
       if (this.currentRightModule === this.rightModule.collaborate) {
         this.handleDisplayRightModule()
       } else {
@@ -1706,24 +1706,24 @@ export default {
     },
 
     handleUpdateCommentList() {
-      this.$logger.info('handleUpdateCommentList')
+      console.info('handleUpdateCommentList')
       this.GetCollaborateComment(this.form.type, this.form.id)
     },
 
     handleRestoreField(data) {
-      this.$logger.info('handleRestoreField', data, this.form)
+      console.info('handleRestoreField', data, this.form)
       if (data) {
         this.form = data
         this.$message.success('restore successfully!')
       }
-      this.$logger.info('after handleRestoreField', this.form)
+      console.info('after handleRestoreField', this.form)
     },
     handQuestionSetting() {
       this.confirmLoading = true
       UserSetting({
         disableQuestion: !this.disableQuestion
       }).then((response) => {
-        this.$logger.info('UserSetting', response.result)
+        console.info('UserSetting', response.result)
         if (response.success) {
           this.$store.dispatch('GetInfo')
         } else {
@@ -1742,7 +1742,7 @@ export default {
         return
       }
       FindQuestionsByBigIdea({ bigIdea: bigIdea, limit: 5 }).then(response => {
-        this.$logger.info('FindQuestionsByBigIdea ', response)
+        console.info('FindQuestionsByBigIdea ', response)
         this.recommendQuestionList = []
         if (response.success) {
           const formQuestion = this.form.questions.map(item => {
@@ -1772,11 +1772,11 @@ export default {
       this.form.questions.push(question)
     },
     handleSelectQuestion(questions) {
-      this.$logger.info('handleSelectQuestion ', questions)
+      console.info('handleSelectQuestion ', questions)
       this.selectedQuestionList = questions
     },
     handleEnsureSelectQuestionData() {
-      this.$logger.info('handleEnsureSelectQuestionData ', this.selectedQuestionList)
+      console.info('handleEnsureSelectQuestionData ', this.selectedQuestionList)
       const formQuestion = this.form.questions.map(item => {
         return item.name
       })
@@ -1820,7 +1820,7 @@ export default {
     },
 
     handleShareUnitPlan() {
-      this.$logger.info('handleShareUnitPlan')
+      console.info('handleShareUnitPlan')
       this.shareVisible = true
     },
     loadingShareContent() {
@@ -1828,7 +1828,7 @@ export default {
         sourceId: this.form.id,
         sourceType: this.form.type
       }).then(response => {
-        this.$logger.info('form QueryContentShare response', response)
+        console.info('form QueryContentShare response', response)
         if (response.result) {
           this.shareStatus = response.result.status
         } else {
@@ -1847,7 +1847,7 @@ export default {
       }, 100)
     },
     handleUpdateCover (coverData) {
-      this.$logger.info('handleUpdateCover', coverData)
+      console.info('handleUpdateCover', coverData)
       if (coverData.type === 'video') {
         this.form.coverVideo = coverData.url
       } else {
@@ -1856,13 +1856,13 @@ export default {
     },
 
     updateTaskIdList (idList) {
-      this.$logger.info('updateTaskIdList', idList)
+      console.info('updateTaskIdList', idList)
       this.associateTaskIdList = idList
       this.asyncSaveDataFn()
     },
 
     handleUpdateLearningObjectives (data) {
-      this.$logger.info('handleUpdateLearningObjectives', data)
+      console.info('handleUpdateLearningObjectives', data)
       this.form.learnOuts = data.learnOuts
       this.form.curriculumId = data.curriculumId
       this.form.subjectList = data.selectedSubjectList
@@ -1901,14 +1901,14 @@ export default {
         const keywords = item[key] ? item[key] : []
         keywords.splice(tagIndex, 1)
         this.$set(item, key, keywords)
-        this.$logger.info('handleRmInquiryKey', item, key, tagIndex, 'keywords', keywords)
+        console.info('handleRmInquiryKey', item, key, tagIndex, 'keywords', keywords)
         this.asyncSaveDataFn()
       }
     },
     handleUpdateQuestion(data) {
-      this.$logger.info('handleUpdateQuestion', data)
+      console.info('handleUpdateQuestion', data)
       this.form.questions = data.map(item => ({ id: item.id, name: item.name }))
-      this.$logger.info('handleUpdateQuestion questions', this.form.questions)
+      console.info('handleUpdateQuestion questions', this.form.questions)
     }
   }
 }

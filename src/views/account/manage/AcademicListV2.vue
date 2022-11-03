@@ -263,7 +263,7 @@ export default {
       })
     },
     handleDelete(record, index) {
-      this.$logger.info('handleDelete ', record)
+      console.info('handleDelete ', record)
       if (record.terms && record.terms.length > 0) {
         let isHasCls = false
         record.terms.forEach(term => {
@@ -302,7 +302,7 @@ export default {
         this.$message.error('You can not delete this term because you have schedule subject class for this term.')
         return
       }
-      this.$logger.info('handleDeleteTerm ', record)
+      console.info('handleDeleteTerm ', record)
       this.$confirm({
         title: 'Confirm delete term',
         content: 'Are you confirm delete term ' + record.name + ' ?',

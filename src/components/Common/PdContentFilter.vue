@@ -75,7 +75,7 @@ export default {
     }
   },
   created() {
-    this.$logger.info('pdTagList', this.pdTagList)
+    console.info('pdTagList', this.pdTagList)
     this.pdTagList.forEach(pdTag => {
       this.$set(this.filter, pdTag.category, [])
     })

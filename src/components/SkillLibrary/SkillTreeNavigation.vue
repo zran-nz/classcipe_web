@@ -43,7 +43,7 @@ export default {
     }
   },
   created () {
-    this.$logger.info('NewTreeNavigation selectMode', this.selectMode)
+    console.info('NewTreeNavigation selectMode', this.selectMode)
     const skillData = {
       id: '1',
       expandStatus: true,

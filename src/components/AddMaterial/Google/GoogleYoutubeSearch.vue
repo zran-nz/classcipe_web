@@ -21,7 +21,7 @@ export default {
   created() {},
   watch: {},
   mounted() {
-    this.$logger.info(this.videoId, 'watch videoId')
+    console.info(this.videoId, 'watch videoId')
   },
   methods: {}
 }

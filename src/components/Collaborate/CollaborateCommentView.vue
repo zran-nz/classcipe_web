@@ -217,28 +217,28 @@ export default {
   },
   watch: {
     commentList (value) {
-      this.$logger.info('CollaborateCommentPanel commentList', value)
+      console.info('CollaborateCommentPanel commentList', value)
       this.rawCommentList = []
       value.forEach(item => {
         item.sendLoading = false
         this.rawCommentList.push(item)
       })
       this.formatCommentList = this.rawCommentList
-      this.$logger.info('formatCommentList', this.formatCommentList)
+      console.info('formatCommentList', this.formatCommentList)
       // this.formatNewReply()
     }
   },
   created () {
-    this.$logger.info('CollaborateCommentPanel commentList', this.commentList)
+    console.info('CollaborateCommentPanel commentList', this.commentList)
     this.originalCommentList = this.commentList
     this.rawCommentList = []
     this.commentList.forEach(item => {
       item.sendLoading = false
       this.rawCommentList.push(item)
     })
-    this.$logger.info('rawCommentList', this.rawCommentList)
+    console.info('rawCommentList', this.rawCommentList)
     this.formatCommentList = this.rawCommentList
-    this.$logger.info('formatCommentList', this.formatCommentList)
+    console.info('formatCommentList', this.formatCommentList)
     this.formatNewReply()
   },
   methods: {
@@ -249,7 +249,7 @@ export default {
       if (name && typeof name === 'string') {
         fName = name
       }
-      this.$logger.info('handleFilterNameChange', fName, this.formatCommentList)
+      console.info('handleFilterNameChange', fName, this.formatCommentList)
       const tmpCommentList = []
       if (this.currentType === 0) {
         this.commentList.forEach(rootComment => {
@@ -285,13 +285,13 @@ export default {
             tmpCommentList.push(rootComment)
           }
         })
-        this.$logger.info('tmpCommentList', tmpCommentList)
+        console.info('tmpCommentList', tmpCommentList)
       }
       this.formatCommentList = tmpCommentList
     },
 
     toggleType (type, label) {
-      this.$logger.info('toggleType ' + type + ' label ' + label)
+      console.info('toggleType ' + type + ' label ' + label)
       this.currentType = type
       this.currentTypeLabel = label
       this.formatCommentList = []
@@ -299,7 +299,7 @@ export default {
         this.formatCommentList = this.commentList
       } else {
         this.handleFilterNameChange(this.$store.getters.userInfo.nickname)
-        this.$logger.info('formatCommentList', this.formatCommentList)
+        console.info('formatCommentList', this.formatCommentList)
       }
     }
 

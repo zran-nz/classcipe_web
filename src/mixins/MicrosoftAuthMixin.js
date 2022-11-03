@@ -28,7 +28,7 @@ export const MicrosoftAuthMixin = {
      */
     goToMicrosoftAuth() {
       const email = this.$store.getters.email
-      this.$logger.info('goToMicrosoftAuth email:', email)
+      console.info('goToMicrosoftAuth email:', email)
       let url = getThirdAuthURL('microsoft')
       url += `?role=teacher`
       url += `&email=${email}`
@@ -40,7 +40,7 @@ export const MicrosoftAuthMixin = {
         window.sessionStorage.setItem(SESSION_CALLBACK_URL, getUrlWithNoParams(this.callbackUrl))
       }
       window.sessionStorage.setItem('SESSION_AUTH_TYPE', 'microsoft')
-      this.$logger.info('full auth url ', url)
+      console.info('full auth url ', url)
       const height = 600
       const width = 800
       // 获得窗口的垂直位置
@@ -58,7 +58,7 @@ export const MicrosoftAuthMixin = {
     handleMicrosoftAuthCallback (event) {
       const data = event.data
       if (data && data.event === 'authUpdate' && data.authType === 'microsoft') {
-        this.$logger.info('microsoft auth update!')
+        console.info('microsoft auth update!')
         window.sessionStorage.removeItem('SESSION_AUTH_TYPE')
         this.$store.dispatch('GetInfo')
       }
@@ -66,9 +66,9 @@ export const MicrosoftAuthMixin = {
 
     async checkMicrosoftAuthExpired() {
       const ret = await checkAuthExpired('microsoft', this.$store.getters.email)
-      this.$logger.info('checkMicrosoftAuthExpired', ret)
+      console.info('checkMicrosoftAuthExpired', ret)
       if (ret.code === 0 && ret.success) {
-        this.$logger.info('microsoft auth no expired!')
+        console.info('microsoft auth no expired!')
         return true
       } else {
         return false
@@ -82,11 +82,11 @@ export const MicrosoftAuthMixin = {
       } else {
         const authExpired = await this.checkMicrosoftAuthExpired()
         if (!authExpired) {
-          this.$logger.info('microsoft auth already expired')
+          console.info('microsoft auth already expired')
           this.goToMicrosoftAuth()
           return false
         } else {
-          this.$logger.info('microsoft auth still no expired')
+          console.info('microsoft auth still no expired')
           return true
         }
       }

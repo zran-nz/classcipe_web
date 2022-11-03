@@ -81,16 +81,16 @@ export default {
     }
   },
   created () {
-    this.$logger.info('AddKeywordTag created ', this.currentTag)
+    console.info('AddKeywordTag created ', this.currentTag)
     this.searchType = this.currentTag.type
     this.tagList = this.currentTag.keywords ? this.currentTag.keywords : []
-    this.$logger.info('tagList', this.tagList, ' searchType ', this.searchType)
+    console.info('tagList', this.tagList, ' searchType ', this.searchType)
     this.debouncedSearchKnowledge = debounce(this.searchTag, 500)
   },
   methods: {
 
     handleKeyUpSearch () {
-      this.$logger.info('handleKeyUpSearch ', this.inputValue)
+      console.info('handleKeyUpSearch ', this.inputValue)
       this.debouncedSearchKnowledge(this.inputValue)
     },
     searchTag (keyword) {
@@ -113,7 +113,7 @@ export default {
           })
         }
       }
-      this.$logger.info('searchList', this.searchList)
+      console.info('searchList', this.searchList)
     },
     handleAddTag () {
       console.info('handleAddTag ' + this.inputValue)

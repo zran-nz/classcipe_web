@@ -121,7 +121,7 @@ export default {
     startRecord() {
       this.isRecording = true
       this.endRecording = false
-      this.$logger.info('startRecord', document.getElementsByClassName('record-video'))
+      console.info('startRecord', document.getElementsByClassName('record-video'))
       startRecordVideo(document.getElementsByClassName('record-video')[0], this.countToRecord, this.fail)
     },
     countToRecord() {

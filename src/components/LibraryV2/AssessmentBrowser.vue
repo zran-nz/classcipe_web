@@ -305,7 +305,7 @@
     },
     watch: {
       curriculumId (value) {
-        this.$logger.info('curriculumId change ' + value)
+        console.info('curriculumId change ' + value)
         this.refreshSubjectTree()
         this.getGradesByCurriculumId(value)
       }
@@ -343,7 +343,7 @@
       }
     },
     created () {
-      this.$logger.info('CurriculumBrowser blockWidth:' + this.blockWidth)
+      console.info('CurriculumBrowser blockWidth:' + this.blockWidth)
       this.getSubjectTree()
       this.getGradesByCurriculumId(this.curriculumId)
     },
@@ -351,7 +351,7 @@
 
       getGradesByCurriculumId (curriculumId) {
         GetGradesByCurriculumId({ curriculumId: curriculumId }).then(response => {
-          this.$logger.info('GetGradesByCurriculumId', response.result)
+          console.info('GetGradesByCurriculumId', response.result)
           this.gradeList = response.result
         })
       },
@@ -368,7 +368,7 @@
       getSubjectTree () {
         this.mainSubjectListLoading = true
         SubjectTree({ curriculumId: this.curriculumId }).then(response => {
-          this.$logger.info('getSubjectTree response', response.result)
+          console.info('getSubjectTree response', response.result)
           this.mainSubjectList = response.result.filter(item => item.subjectType === SubjectType.Skill || item.subjectType === SubjectType.LearnAndSkill)
         }).finally(() => {
           this.mainSubjectListLoading = false
@@ -380,7 +380,7 @@
       },
 
       handleSelectGradeItem (gradeItem) {
-        this.$logger.info('handleSelectGradeItem ', gradeItem)
+        console.info('handleSelectGradeItem ', gradeItem)
         if (gradeItem.id !== this.currentGradeId) {
           this.currentGradeId = gradeItem.id
           this.currentGradeName = gradeItem.name
@@ -392,27 +392,27 @@
       getAssessmentTypeList () {
         this.assessmentNameList = []
         this.assessmentTypeListLoading = true
-        this.$logger.info('grade:' + this.currentGradeId + ', subjectId:' + this.currentMainSubjectId)
+        console.info('grade:' + this.currentGradeId + ', subjectId:' + this.currentMainSubjectId)
         GetAssessmentTypeList({
           gradeId: this.currentGradeId,
           subjectId: this.currentMainSubjectId
         }).then((response) => {
-          this.$logger.info('GetAssessmentTypeList response', response)
+          console.info('GetAssessmentTypeList response', response)
           this.assessmentNameList = response.result
-          this.$logger.info('assessmentNameList', this.assessmentNameList)
+          console.info('assessmentNameList', this.assessmentNameList)
         }).finally(() => {
           this.assessmentTypeListLoading = false
         })
       },
 
       handleSelectDataItem (dataItem) {
-        this.$logger.info('handleSelectDataItem ', dataItem)
+        console.info('handleSelectDataItem ', dataItem)
         this.currentDataId = dataItem.id
         this.$emit('previewDetail', dataItem)
       },
 
       handleClickBlock (blockIndex, path) {
-        this.$logger.info('handleClickBlock ' + blockIndex)
+        console.info('handleClickBlock ' + blockIndex)
         this.$emit('clickBlock', {
           curriculumId: this.curriculumId,
           gradeId: this.currentGradeId,
@@ -424,26 +424,26 @@
       },
 
       handleToggleDataListMode (mode) {
-        this.$logger.info('handleToggleDataListMode' + mode)
+        console.info('handleToggleDataListMode' + mode)
         this.dataListMode = mode
       },
 
       toggleType (type, label) {
-        this.$logger.info('toggleType ' + type + ' label ' + label)
+        console.info('toggleType ' + type + ' label ' + label)
         this.currentType = type
         this.currentTypeLabel = label
       },
 
       queryContentByAssessment (assessmentItem) {
         this.subKnowledgeListLoading = true
-        this.$logger.info('queryContentByAssessment ' + assessmentItem.id)
+        console.info('queryContentByAssessment ' + assessmentItem.id)
         this.handleClickBlock(4, assessmentItem.name)
         this.currentAssessmentTypeId = assessmentItem.id
         QueryKnowledgesByAssessmentTypeId({
           assessmentTypeId: assessmentItem.id,
           gradeId: this.currentGradeId
         }).then(response => {
-          this.$logger.info('queryContentByAssessment response', response.result)
+          console.info('queryContentByAssessment response', response.result)
           this.subKnowledgeListLoading = true
           this.subKnowledgeList = response.result
         }).finally(() => {
@@ -452,7 +452,7 @@
       },
 
       handleSelectSubKnowledgeItem (subKnowledgeItem) {
-        this.$logger.info('handleSelectSubKnowledgeItem', subKnowledgeItem)
+        console.info('handleSelectSubKnowledgeItem', subKnowledgeItem)
         if (subKnowledgeItem.id !== this.currentSubKnowledgeId) {
           this.currentSubKnowledgeId = subKnowledgeItem.id
           this.dataList = []
@@ -463,9 +463,9 @@
 
       knowledgeQueryContentByDescriptionId (descriptionId) {
         this.dataListLoading = true
-        this.$logger.info('knowledgeQueryContentByDescriptionId ' + descriptionId)
+        console.info('knowledgeQueryContentByDescriptionId ' + descriptionId)
         KnowledgeQueryContentByDescriptionId({ descriptionId }).then(response => {
-          this.$logger.info('KnowledgeQueryContentByDescriptionId response', response.result)
+          console.info('KnowledgeQueryContentByDescriptionId response', response.result)
           this.dataList = response.result
           this.$emit('update-data-list', this.dataList)
         }).finally(() => {

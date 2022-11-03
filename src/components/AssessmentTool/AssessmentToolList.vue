@@ -142,7 +142,7 @@ export default {
     },
 
     handleConfirmSelect () {
-      this.$logger.info('handleConfirmSelect', this.selectedAssessmentList)
+      console.info('handleConfirmSelect', this.selectedAssessmentList)
       this.inserting = true
       this.$emit('confirm-select', this.selectedAssessmentList)
     }

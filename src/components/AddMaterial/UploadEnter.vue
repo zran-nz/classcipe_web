@@ -147,7 +147,7 @@ export default {
   mounted() {},
   methods: {
     onSuccess(file, result) {
-      this.$logger.info('onSuccess', file, result)
+      console.info('onSuccess', file, result)
       const nameList = file.type.split('/')
       const fileNameList = file.name.split('.')
       let name = ''
@@ -208,7 +208,7 @@ export default {
         },
         (type, url, mediaType) => {
           if (url) {
-            this.$logger.info('addDrive done', url, mediaType)
+            console.info('addDrive done', url, mediaType)
             AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
               type: mediaType.indexOf('image') > -1 ? 'image' : 'video',
               url: this.$classcipe.replaceToClasscipeCDN(url)
@@ -254,7 +254,7 @@ export default {
     doneSelect(imageUrl) {
       uploadImageToAwsByUrl(this.$store.getters.userInfo.id, imageUrl)
         .then(url => {
-          this.$logger.info('uploadImageToAwsByUrl', url)
+          console.info('uploadImageToAwsByUrl', url)
           AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_NEW_MEDIA, {
             type: 'image',
             url: this.$classcipe.replaceToClasscipeCDN(url)

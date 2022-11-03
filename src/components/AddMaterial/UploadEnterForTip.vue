@@ -146,7 +146,7 @@ export default {
         },
         (type, url, mediaType) => {
           if (url) {
-            this.$logger.info('addDrive done', url, mediaType)
+            console.info('addDrive done', url, mediaType)
             AddMaterialEventBus.$emit(ModalEventsNameEnum.ADD_MEDIA_FOR_TIP, {
               type: mediaType.indexOf('image') > -1 ? 'image' : 'video',
               url: url

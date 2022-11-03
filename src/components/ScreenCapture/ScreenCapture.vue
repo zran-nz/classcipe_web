@@ -45,7 +45,7 @@ export default {
   },
   methods: {
     handleScreenCapture () {
-      this.$logger.info(`handleScreenCapture ${this.recording}`)
+      console.info(`handleScreenCapture ${this.recording}`)
       if (!this.recording) {
         this.recording = true
         this.$emit('update-recording', this.recording)
@@ -53,7 +53,7 @@ export default {
     },
 
     onSendVideo(url) {
-      this.$logger.info('onSendVideo', url)
+      console.info('onSendVideo', url)
       this.recording = false
       this.$EventBus.$emit(ScreenCaptureEvent.SCREEN_CAPTURE_VIDEO_ADD, {
         field: this.field,
@@ -63,7 +63,7 @@ export default {
     },
 
     cancelRecord (data) {
-      this.$logger.info('cancelRecord', data)
+      console.info('cancelRecord', data)
       this.recording = false
       this.$emit('update-recording', this.recording)
     }

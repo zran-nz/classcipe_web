@@ -80,7 +80,7 @@ export default {
   },
   methods: {
     handleActiveItem (item) {
-      this.$logger.info('SlidePreview handleActiveItem', item)
+      console.info('SlidePreview handleActiveItem', item)
       this.currentActiveId = item.link + '_' + item.time
       const domId = 'dot-item-' + item.link + '_' + item.time
       const dom = document.getElementById(domId)

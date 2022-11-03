@@ -215,27 +215,27 @@ export default {
     },
 
     handleAuthCallback () {
-      this.$logger.info('TaskPreview handleAuthCallback')
+      console.info('TaskPreview handleAuthCallback')
       this.loadThumbnail()
     },
 
     loadThumbnail () {
-      this.$logger.info('TaskPreview loadThumbnail ' + this.task.presentationId, this.task.selectPageObjectIds)
+      console.info('TaskPreview loadThumbnail ' + this.task.presentationId, this.task.selectPageObjectIds)
       if (this.task.presentationId) {
         TemplatesGetPublishedPresentation({
           taskId: this.task.id
         }).then(response => {
-          this.$logger.info('task loadThumbnail response', response.result)
+          console.info('task loadThumbnail response', response.result)
           if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
             const pageObjects = response.result.pageObjects
             this.imgList = []
             pageObjects.forEach(page => {
               this.imgList.push(page.contentUrl)
               this.slideLoading = false
-              this.$logger.info('current imgList ', this.imgList)
+              console.info('current imgList ', this.imgList)
             })
           } else {
-            this.$logger.info('等待授权事件通知')
+            console.info('等待授权事件通知')
           }
         })
       } else {
@@ -254,11 +254,11 @@ export default {
     },
 
     handleViewModeChange () {
-      this.$logger.info('handleViewModeChange ' + this.viewMode)
+      console.info('handleViewModeChange ' + this.viewMode)
     },
 
     handleGotoImgIndex (index) {
-      this.$logger.info('handleGotoImgIndex ' + index)
+      console.info('handleGotoImgIndex ' + index)
       this.currentImgIndex = index
       this.$refs.carousel.goTo(index)
     }

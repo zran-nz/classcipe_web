@@ -34,13 +34,13 @@ export default {
   },
   methods: {
     handleClickSwitch (event) {
-      this.$logger.info('handleClickSwitch', this.activeStatus)
+      console.info('handleClickSwitch', this.activeStatus)
       this.activeStatus = !this.activeStatus
       const eventData = {
         fieldName: this.fieldName,
         activeStatus: this.activeStatus
       }
-      this.$logger.info('event data', eventData)
+      console.info('event data', eventData)
       this.$emit('switch', eventData)
       event.stopPropagation()
       event.preventDefault()

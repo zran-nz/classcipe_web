@@ -89,11 +89,11 @@ export const UtilMixin = {
     },
 
     getWeekByDate (startDate, endDate) {
-      this.$logger.info('getWeekByDate', startDate, endDate)
+      console.info('getWeekByDate', startDate, endDate)
       if (startDate && endDate) {
         let str = ''
         const diffDays = moment(endDate).diff(moment(startDate), 'days')
-        this.$logger.info('diffDays', diffDays)
+        console.info('diffDays', diffDays)
         const week = Math.floor(Math.abs(diffDays / 7))
         const day = Math.ceil(Math.abs(diffDays % 7))
         if (week > 0) {
@@ -102,7 +102,7 @@ export const UtilMixin = {
         if (day > 0) {
           str += ((day > 1) ? day + ' days ' : day + ' day ')
         }
-        this.$logger.info('getWeekByDate str', str)
+        console.info('getWeekByDate str', str)
         return str
       } else {
         return ''

@@ -49,7 +49,7 @@ export default {
   mounted() {
     const targetIndex = this.menuList.indexOf(this.selectedItem)
     if (targetIndex > -1) {
-      this.$logger.info('radioSwitch', this.$refs.radioSwitch.childNodes)
+      console.info('radioSwitch', this.$refs.radioSwitch.childNodes)
       const target = this.$refs.radioSwitch.childNodes[targetIndex]
       const rect = target.getBoundingClientRect()
       this.width = rect.width
@@ -58,7 +58,7 @@ export default {
   },
   methods: {
     handleSelectItem (item, event) {
-      this.$logger.info('handleSelectItem', item)
+      console.info('handleSelectItem', item)
       this.selectedItem = item
       const target = event.target
       const rect = target.getBoundingClientRect()

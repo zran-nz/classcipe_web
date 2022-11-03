@@ -80,7 +80,7 @@ export default {
   },
   watch: {
     '$route.path' (to) {
-      logger.debug('nav watch route path change ' + to)
+      console.debug('nav watch route path change ' + to)
       this.selectedKeys = [to]
       // 如果是学校模式，当前路由如果是library，则跳出到mytask
       if (this.userMode === USER_MODE.SCHOOL && to === '/student/library-v2') {

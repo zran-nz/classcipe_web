@@ -63,7 +63,7 @@ export default {
     }
   },
   created() {
-    this.$logger.info('RecommendData created', this.recommendDataList)
+    console.info('RecommendData created', this.recommendDataList)
     this.myRecommendDataList = this.recommendDataList
   },
   methods: {
@@ -76,7 +76,7 @@ export default {
     },
 
     handleEnsureSelect() {
-      this.$logger.info('RecommendData handleEnsureSelect', this.selectedLearnOutList)
+      console.info('RecommendData handleEnsureSelect', this.selectedLearnOutList)
       this.$emit('confirm', this.selectedLearnOutList)
     },
 

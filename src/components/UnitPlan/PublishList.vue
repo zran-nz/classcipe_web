@@ -79,11 +79,11 @@ export default {
       }
       this.myTaskList.push(itemData)
     })
-    this.$logger.info('PublishList myTaskList', this.myTaskList)
+    console.info('PublishList myTaskList', this.myTaskList)
   },
   methods: {
     handlePublish () {
-      this.$logger.info('PublishList handlePublish', this.selectedIdList)
+      console.info('PublishList handlePublish', this.selectedIdList)
       this.selectedIdList = []
       this.myTaskList.forEach(item => {
         if (item.checked) {
@@ -93,7 +93,7 @@ export default {
       this.$emit('publish', this.selectedIdList)
     },
     handleChangeItem (task) {
-      this.$logger.info('PublishList handleChangeItem', task)
+      console.info('PublishList handleChangeItem', task)
       task.checked = !task.checked
     },
     handleClose() {

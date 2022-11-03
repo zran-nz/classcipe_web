@@ -284,10 +284,10 @@ export default {
       let pubTagList = this.$store.getters.pubTagList
       let priTagList = this.$store.getters.priTagList
       if (!this.$store.state.classcipeConfig.ibAuth) {
-        this.$logger.info('bf filter ib pubTagList priTagList', pubTagList, priTagList)
+        console.info('bf filter ib pubTagList priTagList', pubTagList, priTagList)
         pubTagList = pubTagList.filter(item => !item.ib)
         priTagList = priTagList.filter(item => !item.ib)
-        this.$logger.info('filter ib pubTagList priTagList', pubTagList, priTagList)
+        console.info('filter ib pubTagList priTagList', pubTagList, priTagList)
       }
       const tagList = JSON.parse(JSON.stringify([...pubTagList, ...priTagList]))
       if (this.priorityTags.length) {
@@ -384,10 +384,10 @@ export default {
 
     associateTagCategoryNameList () {
       const categorySet = new Set()
-      this.$logger.info('categoryTagMap is ', this.categoryTagMap)
-      this.$logger.info('selectedTagNameList is ', this.selectedTagNameList)
+      console.info('categoryTagMap is ', this.categoryTagMap)
+      console.info('selectedTagNameList is ', this.selectedTagNameList)
       for (const category in this.categoryTagMap) {
-        this.$logger.info('check category', category, this.categoryTagMap[category])
+        console.info('check category', category, this.categoryTagMap[category])
         const list = this.categoryTagMap[category]
         let notAllExist = false
         list.forEach(tagName => {
@@ -456,7 +456,7 @@ export default {
     },
 
     closeTag (closeTagItem) {
-      this.$logger.info('close tag', closeTagItem)
+      console.info('close tag', closeTagItem)
 
       const index = this.selectedTagList.findIndex(customTagItem => customTagItem.name === closeTagItem.name && customTagItem.category === closeTagItem.category)
       if (index > -1) {
@@ -473,26 +473,26 @@ export default {
           this.$emit('update:tagCategoryDesc', list)
         }
       }
-      this.$logger.info('after close tag customTags', this.selectedTagList)
+      console.info('after close tag customTags', this.selectedTagList)
     },
 
     async createTag () {
-      this.$logger.info('create tag', this.inputTag, this.currentActiveTagCategory)
+      console.info('create tag', this.inputTag, this.currentActiveTagCategory)
       if (this.inputTag.trim() && this.currentActiveTagCategory) {
         // eslint-disable-next-line no-undef
         const ret = await App.service('tags').patch(this.currentActiveTagCategory._id, { $addToSet: { tags: [this.inputTag.trim()] } })
-        this.$logger.info('create tag ret', ret)
+        console.info('create tag ret', ret)
         this.initTagData()
         this.inputTag = ''
       }
     },
 
     async deleteTag (deleteTagItem) {
-      this.$logger.info('delete tag', deleteTagItem)
+      console.info('delete tag', deleteTagItem)
       if (deleteTagItem && deleteTagItem.isPri && this.currentActiveTagCategory) {
         // eslint-disable-next-line no-undef
         const ret = await App.service('tags').patch(this.currentActiveTagCategory._id, { $pull: { tags: [deleteTagItem.tag] } })
-        this.$logger.info('deleteTag tag ret', ret)
+        console.info('deleteTag tag ret', ret)
         const index = this.currentActiveTagCategory.tags.findIndex(tagItem => tagItem.tag === deleteTagItem.tag)
         if (index > -1) {
           this.currentActiveTagCategory.tags.splice(index, 1)
@@ -501,7 +501,7 @@ export default {
     },
 
     selectTag (category, selectTagItem) {
-      this.$logger.info('select tag', category, selectTagItem)
+      console.info('select tag', category, selectTagItem)
       const index = this.selectedTagList.findIndex(customTagItem => customTagItem.name === selectTagItem.tag && customTagItem.category === selectTagItem.set)
       if (index === -1) {
         this.selectedTagList.push({
@@ -511,7 +511,7 @@ export default {
         })
       }
       this.$emit('update:customTags', this.selectedTagList)
-      this.$logger.info('after selectTag customTags', this.selectedTagList)
+      console.info('after selectTag customTags', this.selectedTagList)
 
       // 新增不存在的分类描述
       const list = JSON.parse(JSON.stringify(this.tagCategoryDesc))
@@ -526,7 +526,7 @@ export default {
     },
 
     updateTagCategoryTagCategoryDesc () {
-      this.$logger.info('updateTagCategoryTagCategoryDesc', this.currentActiveTagCategory, this.currentTagCategoryDesc)
+      console.info('updateTagCategoryTagCategoryDesc', this.currentActiveTagCategory, this.currentTagCategoryDesc)
       const categorySet = new Set()
       const list = []
 
@@ -546,7 +546,7 @@ export default {
       if (!this.tagCategoryDesc.some(item => item.category === this.currentActiveTagCategory.set)) {
         list.push({ category: this.currentActiveTagCategory.set, description: this.currentTagCategoryDesc })
       }
-      this.$logger.info('update tagCategoryDesc', list)
+      console.info('update tagCategoryDesc', list)
       this.$emit('update:tagCategoryDesc', list)
     },
 
@@ -560,12 +560,12 @@ export default {
     },
 
     updateCurrentCategory () {
-      this.$logger.info('updateCurrentCategory')
+      console.info('updateCurrentCategory')
       this.inputTag = ''
     },
 
     activeCategory (tagItem) {
-      this.$logger.info('activeCategory', tagItem)
+      console.info('activeCategory', tagItem)
       const category = this.allTagList.find(category => category.set === tagItem.category)
       if (category) {
         this.switchCategory(category)
@@ -573,7 +573,7 @@ export default {
     },
 
     loadAssociateCustomTags (idTypeList) {
-      this.$logger.info('loadAssociateCustomTags', idTypeList)
+      console.info('loadAssociateCustomTags', idTypeList)
       if (idTypeList.length) {
         const idTypeSet = new Set()
         const idTypeListSet = []
@@ -586,7 +586,7 @@ export default {
         })
         const categoryTagMap = {}
         QueryCustomTags(Array.from(idTypeListSet)).then(response => {
-          this.$logger.info('loadAssociateCustomTags customTags', response)
+          console.info('loadAssociateCustomTags customTags', response)
           this.associateCustomTags = response.result
 
           const associateTagContents = {}
@@ -606,7 +606,7 @@ export default {
               } else {
                 categoryTagMap[customTag.category] = [customTag.name]
               }
-              this.$logger.info('categoryTagMap init', categoryTagMap)
+              console.info('categoryTagMap init', categoryTagMap)
             })
             this.categoryTagMap = categoryTagMap
           })

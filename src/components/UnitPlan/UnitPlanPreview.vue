@@ -242,7 +242,7 @@ export default {
     },
 
     handleViewModeChange () {
-      this.$logger.info('handleViewModeChange ' + this.viewMode)
+      console.info('handleViewModeChange ' + this.viewMode)
     }
   }
 }

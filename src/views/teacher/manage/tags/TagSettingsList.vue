@@ -388,7 +388,7 @@ export default {
     },
 
     handleSchoolTagRemove: function (record) {
-      this.$logger.info('SchoolTagDelete', record)
+      console.info('SchoolTagDelete', record)
       this.loading = true
       SchoolTagDelete({ id: record.id }).then((res) => {
         if (res.success) {
@@ -411,7 +411,7 @@ export default {
       })
     },
     modalLibraryOk (selectTagIds) {
-      this.$logger.info('modalLibraryOk', selectTagIds)
+      console.info('modalLibraryOk', selectTagIds)
       this.selectCommonTagIds = []
       selectTagIds.forEach(id => {
           if (id.indexOf('loadChild') === -1) {
@@ -425,7 +425,7 @@ export default {
     },
     getCommonSelectTags() {
       SchoolCommonTagList({ schoolId: this.currentSchool.id }).then(response => {
-        this.$logger.info('SchoolCommonTagList', response)
+        console.info('SchoolCommonTagList', response)
         if (response.success) {
           this.selectCommonTagIds = response.result.map(tag => { return tag.id })
         }

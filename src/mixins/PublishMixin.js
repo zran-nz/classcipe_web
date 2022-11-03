@@ -34,12 +34,12 @@ export const PublishMixin = {
     if (this.contentId) {
       console.log('start required check ' + this.contentId)
       const isCheck = window.sessionStorage.getItem('required-check-' + this.contentId)
-      this.$logger.info('isCheck for ' + this.contentId, isCheck)
+      console.info('isCheck for ' + this.contentId, isCheck)
       if (isCheck) {
         this.autoCheckRequired = true
-        this.$logger.info('start Check for ' + this.contentId, isCheck)
+        console.info('start Check for ' + this.contentId, isCheck)
       } else {
-        this.$logger.info('not Check for ' + this.contentId, isCheck)
+        console.info('not Check for ' + this.contentId, isCheck)
       }
     } else {
       console.warn('contentId not set')
@@ -117,7 +117,7 @@ export const PublishMixin = {
           }
         } else {
           if (simpleIsEmpty(this.form[field])) {
-            this.$logger.info(`${field} is empty`, this.form[field])
+            console.info(`${field} is empty`, this.form[field])
             this.emptyRequiredFields.push(field)
             this.formSteps.forEach(step => {
               if (step.commonFields.indexOf(field) > -1) {
@@ -143,14 +143,14 @@ export const PublishMixin = {
       } else {
         this.form.canPublish = true
       }
-      this.$logger.info('canPublish', this.form.canPublish)
+      console.info('canPublish', this.form.canPublish)
 
-      this.$logger.info('checkRequiredFields done!', this.formSteps)
+      console.info('checkRequiredFields done!', this.formSteps)
 
       this.$classcipe.unSetRequiredCheck(this.contentId)
     },
     calculateCanPublish() {
-      this.$logger.info('calculateCanPublish', this.canEdit)
+      console.info('calculateCanPublish', this.canEdit)
       if (!this.canEdit) return
       // 给有未填写字段的step添加红色提示
       let canPublish = true
@@ -174,7 +174,7 @@ export const PublishMixin = {
           }
         } else if (field === TaskField.Link || field === PlanField.Link) {
           if (!this.associateUnitPlanIdList?.length && !this.associateTaskIdList?.length) {
-            this.$logger.info(`${field} is empty`, this.associateUnitPlanIdList, this.associateTaskIdList)
+            console.info(`${field} is empty`, this.associateUnitPlanIdList, this.associateTaskIdList)
             this.emptyRequiredFields.push(field)
             this.formSteps.forEach(step => {
               if (step.commonFields.indexOf(field) > -1) {
@@ -214,7 +214,7 @@ export const PublishMixin = {
           }
         } else {
           if (simpleIsEmpty(this.form[field])) {
-            this.$logger.info(`${field} is empty`, this.form[field])
+            console.info(`${field} is empty`, this.form[field])
             this.emptyRequiredFields.push(field)
             this.formSteps.forEach(step => {
               if (step.commonFields.indexOf(field) > -1) {
@@ -233,7 +233,7 @@ export const PublishMixin = {
     },
 
     showEditPriceDialog() {
-      this.$logger.info('showEditPriceDialog', this.$refs.editPrice)
+      console.info('showEditPriceDialog', this.$refs.editPrice)
       this.$refs.editPrice.showEditPrice()
     },
     showPublishTips() {

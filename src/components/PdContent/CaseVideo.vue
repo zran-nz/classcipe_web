@@ -77,11 +77,11 @@ export default {
   },
   methods: {
     handleCapturedVideoData(data) {
-      this.$logger.info('handleCapturedVideoData', data)
+      console.info('handleCapturedVideoData', data)
     },
 
     handleSelectDrive (eventData) {
-      this.$logger.info('case video handleSelectDriveItem', eventData)
+      console.info('case video handleSelectDriveItem', eventData)
       if (eventData?.field === this.field) {
         this.classcipeRecordFiles = eventData.data
         // this.currentMediaFileUrl = eventData.data.filePath
@@ -92,7 +92,7 @@ export default {
       }
     },
     handleSelectYoutube (eventData) {
-      this.$logger.info('handleSelectYoutube', eventData)
+      console.info('handleSelectYoutube', eventData)
       if (eventData && eventData.field === this.field) {
         this.currentMediaFileUrl = eventData.data.link
         this.currentDriveType = DriveType.Youtube
@@ -102,7 +102,7 @@ export default {
       }
     },
     handleSelectGoogleDrive (eventData) {
-      this.$logger.info('handleSelectGoogleDrive', eventData)
+      console.info('handleSelectGoogleDrive', eventData)
       if (eventData && eventData.field === this.field) {
         this.currentMediaFileUrl = eventData.data
         this.currentDriveType = DriveType.GoogleDrive
@@ -113,7 +113,7 @@ export default {
     },
 
     handleAddScreenCapture (eventData) {
-      this.$logger.info('handleAddScreenCapture', eventData)
+      console.info('handleAddScreenCapture', eventData)
       if (eventData && eventData.field === this.field) {
         this.currentMediaFileUrl = eventData.data
         this.currentDriveType = DriveType.Upload
@@ -121,17 +121,17 @@ export default {
       }
     },
     handleSelectUploadItem (eventData) {
-      this.$logger.info('CustomCoverMedia handleSelectUploadItem', eventData)
+      console.info('CustomCoverMedia handleSelectUploadItem', eventData)
       if (eventData && eventData.field === this.field) {
         this.currentMediaFileUrl = eventData.data
         this.currentFileName = eventData.name
         this.currentFileLength = eventData.size
-        this.$logger.info('currentMediaFileUrl', this.currentFileName)
+        console.info('currentMediaFileUrl', this.currentFileName)
         this.afterSelectInsert()
       }
     },
     afterSelectInsert() {
-      this.$logger.info('CaseVideo handleAddVideo done', this.currentMediaFileUrl)
+      console.info('CaseVideo handleAddVideo done', this.currentMediaFileUrl)
       this.$refs.drive.hiddenClasscipeDrive()
       this.$emit('update', {
         filePath: this.currentMediaFileUrl,
@@ -144,7 +144,7 @@ export default {
     },
 
     handleDeleteVideo (item) {
-      this.$logger.info('case video handleDeleteVideo', item)
+      console.info('case video handleDeleteVideo', item)
       this.$emit('delete-video', item)
     }
   }

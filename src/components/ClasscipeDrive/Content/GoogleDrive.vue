@@ -27,7 +27,7 @@ export default {
     return {}
   },
   created() {
-    this.$logger.info(`GoogleDrive field ${this.field}`)
+    console.info(`GoogleDrive field ${this.field}`)
   },
   methods: {
     showGoogleDrive () {

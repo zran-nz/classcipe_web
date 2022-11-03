@@ -19,7 +19,7 @@ export default {
       appLogin(token)
     }
     if (window.opener) {
-      this.$logger.info('发送消息给父窗口，通知授权更新')
+      console.info('发送消息给父窗口，通知授权更新')
       window.opener.postMessage({
         event: ClasscipeEvent.GOOGLE_AUTH_REFRESH
       }, '*')

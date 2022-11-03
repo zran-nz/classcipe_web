@@ -290,12 +290,12 @@ export default {
     },
 
     restoreVideo() {
-      this.$logger.info('restoreVideo ' + this.videoId)
+      console.info('restoreVideo ' + this.videoId)
       this.saving = true
       VideoQueryById({
         id: this.videoId
       }).then(response => {
-        this.$logger.info('VideoQueryById ' + this.videoId, response.result)
+        console.info('VideoQueryById ' + this.videoId, response.result)
         if (response.code === 0 && response.success) {
           const data = response.result
           data.type = this.$classcipe.typeMap.video
@@ -314,7 +314,7 @@ export default {
     save() {
       this.saving = true
       return VideoAddOrUpdate(this.form).then(res => {
-        this.$logger.info('VideoAddOrUpdate', res)
+        console.info('VideoAddOrUpdate', res)
       }).finally(() => {
         this.saving = false
       })
@@ -371,7 +371,7 @@ export default {
     },
 
     handleStepChange(data) {
-      this.$logger.info('pd handleStepChange ', data)
+      console.info('pd handleStepChange ', data)
       this.currentStep = data.step
       this.currentActiveStepIndex = data.index
       this.setSessionStep(data.index)
@@ -393,18 +393,18 @@ export default {
     },
 
     updateAssociatedIdList (idList) {
-      this.$logger.info('updateAssociatedIdList', idList)
+      console.info('updateAssociatedIdList', idList)
       this.associateIdList = idList
     },
 
     handleUpdateVideo (video) {
-      this.$logger.info('handleUpdateVideo', video)
+      console.info('handleUpdateVideo', video)
       this.form.video = video.url
       this.form.videoType = video.type
     },
 
     handlePublish (status) {
-      this.$logger.info('handlePublish', status, this.requiredFields, this.form)
+      console.info('handlePublish', status, this.requiredFields, this.form)
       this.checkRequiredFields()
       if (this.emptyRequiredFields.length === 0) {
         this.form.status = 1
@@ -435,7 +435,7 @@ export default {
     },
 
     handleUpdateCover (coverData) {
-      this.$logger.info('handleUpdateCover', coverData)
+      console.info('handleUpdateCover', coverData)
       if (coverData.type === 'video') {
         this.form.coverVideo = coverData.url
       } else {
@@ -444,7 +444,7 @@ export default {
     },
 
     handleUpdateLearningObjectives (data) {
-      this.$logger.info('handleUpdateLearningObjectives', data)
+      console.info('handleUpdateLearningObjectives', data)
       this.form.learnOuts = data.learnOuts
       this.form.curriculumId = data.curriculumId
       this.form.subjectList = data.selectedSubjectList

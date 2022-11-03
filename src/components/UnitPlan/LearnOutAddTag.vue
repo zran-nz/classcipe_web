@@ -157,7 +157,7 @@ export default {
     // this.knowledge.tags.forEach(tag => {
     //   this.tags.push(tag)
     // })
-    this.$logger.info('knowledge ', this.knowledge)
+    console.info('knowledge ', this.knowledge)
     this.loadRecommendTags()
   },
   watch: {
@@ -168,7 +168,7 @@ export default {
     closeTag (tag) {
       this.tags.splice(this.tags.indexOf(tag), 1)
       this.$emit('handle-select-tags', this.tags)
-      this.$logger.info('handle-select-tags ', this.tags)
+      console.info('handle-select-tags ', this.tags)
     },
     selectChooseTag (tag) {
       this.addTag(tag)
@@ -176,7 +176,7 @@ export default {
     loadRecommendTags () {
       this.contentLoading = true
       FindRecommendByKnowledgeId({ knowledgeId: this.knowledge.knowledgeId }).then((response) => {
-        this.$logger.info('loadRecommendTags response', response.result)
+        console.info('loadRecommendTags response', response.result)
         if (response.success) {
           this.hotList = response.result.hots
           this.recommendList = response.result.tags
@@ -196,17 +196,17 @@ export default {
         this.tags.push(tag)
       }
       this.$emit('handle-select-tags', this.tags)
-      this.$logger.info('handle-select-tags ', this.tags)
+      console.info('handle-select-tags ', this.tags)
     },
 
     handleKeyup () {
-      this.$logger.info('tag handleKeyup ', this.inputTag)
+      console.info('tag handleKeyup ', this.inputTag)
       this.debouncedSearchKnowledge(this.inputTag)
       this.handleCreateTagByInput()
     },
 
     handleCreateTagByInput () {
-      this.$logger.info('skill handleCreateTagByInput ' + this.inputTag)
+      console.info('skill handleCreateTagByInput ' + this.inputTag)
       this.addTag(this.inputTag)
       this.inputTag = ''
     },

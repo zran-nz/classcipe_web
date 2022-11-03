@@ -336,7 +336,7 @@ export default {
     },
 
     handleDeleteItem() {
-      this.$logger.info('handleDeleteItem', this.content)
+      console.info('handleDeleteItem', this.content)
       this.$emit('delete', this.content)
     },
 
@@ -354,7 +354,7 @@ export default {
     handleRestoreItem () {
       console.info('handleRestoreItem', this.content)
       ContentRestore({ id: this.content.id, type: this.content.type }).then(response => {
-        this.$logger.info('handleRestoreItem response', response)
+        console.info('handleRestoreItem response', response)
       }).finally(() => {
         this.$emit('delete', {
           content: this.content
@@ -368,7 +368,7 @@ export default {
     },
 
     updatePrice (obj) {
-      this.$logger.info('update price')
+      console.info('update price')
       this.content.price = obj.price
       this.content.discountPrice = obj.discountPrice
       this.visible = false

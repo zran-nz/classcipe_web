@@ -244,7 +244,7 @@ export default {
     },
 
     handleSelfLearning(isSelfLearning) {
-      this.$logger.info('handleSelfLearning', isSelfLearning)
+      console.info('handleSelfLearning', isSelfLearning)
       this.isSelfLearning = isSelfLearning
     },
     handlePublishStatus() {
@@ -269,7 +269,7 @@ export default {
     },
 
     updatePrice (obj) {
-      this.$logger.info('update price')
+      console.info('update price')
       this.content.price = obj.price
       this.content.discountPrice = obj.discountPrice
       this.visible = false

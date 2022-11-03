@@ -173,7 +173,7 @@ export default {
   },
   methods: {
     initData() {
-      this.$logger.info('initData doing...')
+      console.info('initData doing...')
 
       TaskQueryById({
         id: this.parentTaskId
@@ -202,7 +202,7 @@ export default {
               displayCustomFieldData[customField.id] = ''
             })
           }
-          this.$logger.info('displayCustomFieldData', displayCustomFieldData)
+          console.info('displayCustomFieldData', displayCustomFieldData)
           taskData.customFieldData = displayCustomFieldData
           this.allLearningObjectiveList = taskData.learnOuts.slice()
           this.allTags = JSON.parse(JSON.stringify(taskData.customTags))
@@ -212,19 +212,19 @@ export default {
           this.form.name = ''
           this.form.image = ''
           this.contentLoading = false
-          this.$logger.info('restore split task', this.form)
+          console.info('restore split task', this.form)
         }
       })
       this.loadThumbnail(false)
     },
     loadThumbnail(needRefresh) {
       this.thumbnailListLoading = true
-      this.$logger.info('loadThumbnail ' + this.form.presentationId)
+      console.info('loadThumbnail ' + this.form.presentationId)
       TemplatesGetPresentation({
         taskId: this.parentTaskId,
         needRefresh: needRefresh
       }).then(response => {
-        this.$logger.info('loadThumbnail response', response.result)
+        console.info('loadThumbnail response', response.result)
         if (response.code === 0) {
           this.form.presentationId = response.result.presentationId
           this.form.revisionId = response.result.revisionId
@@ -237,7 +237,7 @@ export default {
         } else if (response.code === 403) {
           this.$router.push({ path: '/teacher/main/created-by-me' })
         } else if (response.code === this.ErrorCode.ppt_google_token_expires || response.code === this.ErrorCode.ppt_forbidden) {
-          this.$logger.info('等待授权事件通知')
+          console.info('等待授权事件通知')
         }
       }).finally(() => {
         this.thumbnailListLoading = false
@@ -263,7 +263,7 @@ export default {
         //
         //     if (response.success) {
         //       if (response.code === 520 || response.code === 403) {
-        //         this.$logger.info('等待授权回调')
+        //         console.info('等待授权回调')
         //         this.$message.loading('Waiting for Google Slides auth...', 10)
         //         this.nextLoading = false
         //         return
@@ -271,7 +271,7 @@ export default {
         //
         //       if (response.result && response.result?.presentationId && response.code === 0) {
         //         this.form.presentationId = response.result.presentationId
-        //         this.$logger.info('update ppt id', this.form.presentationId)
+        //         console.info('update ppt id', this.form.presentationId)
         //         this.form.slideEditing = false
         //         await this.save()
         //       }
@@ -293,7 +293,7 @@ export default {
       })
     },
     handleUpdateCover (coverData) {
-      this.$logger.info('handleUpdateCover', coverData)
+      console.info('handleUpdateCover', coverData)
       if (coverData.type === 'video') {
         this.form.coverVideo = coverData.url
       } else {
@@ -305,7 +305,7 @@ export default {
       if (taskData.customFieldData) {
         taskData.customFieldData = JSON.stringify(taskData.customFieldData)
       }
-      this.$logger.info('basic sub split taskData', taskData)
+      console.info('basic sub split taskData', taskData)
       this.saving = true
       const response = await SplitTask({
         subTasks: [taskData],
@@ -314,10 +314,10 @@ export default {
 
       if (response.code === 0 && !this.form.id) {
         this.form.id = response.result.ids[0]
-        this.$logger.info('update sub task id')
+        console.info('update sub task id')
       }
       this.saving = false
-      this.$logger.info('Split task response', response.result)
+      console.info('Split task response', response.result)
       return response
     }
   }

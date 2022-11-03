@@ -53,7 +53,7 @@ export const BaseEventMixin = {
     changeCollaborate: function (newValue) {
       if (newValue && newValue.indexOf(this.form.id) > -1) {
         this.changeCollaborateAction(false)
-        this.$logger.info('need changeCollaborate')
+        console.info('need changeCollaborate')
         this.queryContentCollaborates(this.form.id, this.form.type)
       }
     }
@@ -225,7 +225,7 @@ export const BaseEventMixin = {
     },
     beforeunloadHandler (event) {
       // debugger
-      this.$logger.info('beforeunloadHandler ', this.$route.name)
+      console.info('beforeunloadHandler ', this.$route.name)
       if (this.$route.name === 'AddTask' || this.$route.name === 'UnitPlan') {
         event = event || window.event
         if (event) {
@@ -247,7 +247,7 @@ export const BaseEventMixin = {
     queryContentCollaborates (id, type) {
       this.collaborate = {}
       QueryContentCollaborates({ id: id, type: type }).then(response => {
-        this.$logger.info('QueryContentCollaborates response:', response)
+        console.info('QueryContentCollaborates response:', response)
         if (response.success) {
           this.collaborate = response.result
         }
@@ -257,7 +257,7 @@ export const BaseEventMixin = {
       this.collaborate = data
     },
     handleBack () {
-      this.$logger.info('handleBack')
+      console.info('handleBack')
       this.$router.push({ path: '/teacher/main/created-by-me' })
     },
     handleCollaborateEvent(formId, fieldName, inputValue) {
@@ -304,7 +304,7 @@ export const BaseEventMixin = {
       this.currentFieldName = ''
     },
     handleStartCollaborate() {
-      this.$logger.info('handleStartCollaborate')
+      console.info('handleStartCollaborate')
       this.collaborateContent = Object.assign({}, this.form)
       this.showCollaborateModalVisible = true
     },
@@ -319,7 +319,7 @@ export const BaseEventMixin = {
     GetCollaborateModifiedHistory(sourceType, sourceId) {
       GetCollaborateModifiedHistory({ sourceType: sourceType, sourceId: sourceId }).then(response => {
         this.historyList = []
-        this.$logger.info('GetCollaborateModifiedHistory', response)
+        console.info('GetCollaborateModifiedHistory', response)
         if (!response.code) {
           this.historyList = response.result
         }
@@ -327,7 +327,7 @@ export const BaseEventMixin = {
     },
     GetCollaborateComment(sourceType, sourceId) {
       GetCollaborateComment({ sourceType: sourceType, sourceId: sourceId }).then(response => {
-        this.$logger.info('GetCollaborateComment', response)
+        console.info('GetCollaborateComment', response)
         if (!response.code) {
           this.collaborateCommentList = response.result
         }
@@ -340,7 +340,7 @@ export const BaseEventMixin = {
       this.GetCollaborateComment(sourceType, sourceId)
     },
     handleShareStatus (status) {
-      this.$logger.info('handleShareStatus', status)
+      console.info('handleShareStatus', status)
       this.shareStatus = status
     }
   }

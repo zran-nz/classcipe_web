@@ -147,7 +147,7 @@ export default {
       this.drawingStatus = true
       this.downX = event.offsetX
       this.downY = event.offsetY
-      this.$logger.info('x:', this.downX, 'y:', this.downY)
+      console.info('x:', this.downX, 'y:', this.downY)
       this.canvas.beginPath()
     },
     mouseup() {
@@ -180,7 +180,7 @@ export default {
       if (this.drawingType !== 'font') {
         return
       }
-      this.$logger.info('canvasClick font')
+      console.info('canvasClick font')
       this.textareaShow = true
       const x = event.offsetX
       const y = event.offsetY

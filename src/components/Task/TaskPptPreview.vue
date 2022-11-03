@@ -241,8 +241,8 @@ export default {
     }
   },
   created () {
-    this.$logger.info('taskForm ', this.taskForm)
-    this.$logger.info('thumbnailList ', this.thumbnailList)
+    console.info('taskForm ', this.taskForm)
+    console.info('thumbnailList ', this.thumbnailList)
     this.imgList = []
     this.thumbnailList.forEach(item => {
       // item.id = 'SLIDES_API1068190746_49' // test
@@ -258,7 +258,7 @@ export default {
       })
       QueryByClassInfoSlideId({ slideId: this.taskForm.presentationId, pageIds: pageIds }).then(response => {
         // QueryByClassInfoSlideId({ slideId: '1X9fE0m4j4Ey5BvSxof_a0bVxTDNaDfadJTlhkXmyikk' }).then(response => {
-        this.$logger.info('QueryByClassInfoSlideId ', response)
+        console.info('QueryByClassInfoSlideId ', response)
         if (response.success) {
           this.elementsList = response.result.relements
           this.itemsList = response.result.items
@@ -268,16 +268,16 @@ export default {
       })
     },
     handleGotoImgIndex (index) {
-      this.$logger.info('handleGotoImgIndex ' + index)
+      console.info('handleGotoImgIndex ' + index)
       this.currentImgIndex = index
       this.$refs.carousel.goTo(index)
     },
     handleSelectTemplate () {
-      this.$logger.info('handleSelectTemplate ' + this.template.name)
+      console.info('handleSelectTemplate ' + this.template.name)
       this.$emit('handle-select', this.template)
     },
     handlePreviewMaterial (item) {
-      this.$logger.info('handlePreviewMaterial ' + item)
+      console.info('handlePreviewMaterial ' + item)
       if (item.type !== 'tip') {
         window.open(item.url, '_blank')
       }

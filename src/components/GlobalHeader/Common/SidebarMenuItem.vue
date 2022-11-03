@@ -48,7 +48,7 @@ export default {
   },
   methods: {
     handleClickMenu () {
-      this.$logger.info('handleClickMenu', this.path)
+      console.info('handleClickMenu', this.path)
       // 特殊清除shareType逻辑
       if (this.path === '/teacher/main/created-by-me') {
         sessionStorage.removeItem(SESSION_SHARE_TYPE)

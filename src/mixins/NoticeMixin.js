@@ -59,7 +59,7 @@ export const NoticeMixin = {
       }
     },
     viewNotification (record) {
-      this.$logger.info('viewNotification', record)
+      console.info('viewNotification', record)
       // 标记已读取
       if (record.readFlag === '0') {
         EditCementSend({ anntId: record.id }).then(() => {

@@ -492,7 +492,7 @@ export default {
   },
   created() {
     this.loading = true
-    this.$logger.info('LearningObjective subjectList', this.subjectList, 'yearList', this.yearList, 'languageList', this.languageList, 'learningObjectives', this.learningObjectives, 'lang', this.languageList)
+    console.info('LearningObjective subjectList', this.subjectList, 'yearList', this.yearList, 'languageList', this.languageList, 'learningObjectives', this.learningObjectives, 'lang', this.languageList)
     this.asyncEmitUpdateEventFn = debounce(this.emitUpdateEvent, 1000)
     this.asyncUpdateFilterListFn = debounce(this.updateFilterList, 1000)
     this.initData()
@@ -506,24 +506,24 @@ export default {
       getCurriculumBySchoolId({
         schoolId: this.currentSchool.id
       }).then((response) => {
-        this.$logger.info('getAllCurriculums', response)
+        console.info('getAllCurriculums', response)
         let list = response.result.map(item => ({
           ...item,
           name: item.curriculumName,
           id: item.curriculumId
         }))
 
-        this.$logger.info('filter ib ibAuth', this.$store.state.classcipeConfig.ibAuth)
+        console.info('filter ib ibAuth', this.$store.state.classcipeConfig.ibAuth)
         if (!this.$store.state.classcipeConfig.ibAuth) {
-          this.$logger.info('bf filter ib', list)
+          console.info('bf filter ib', list)
           list = list.filter(item => item.name.indexOf('IB') === -1)
-          this.$logger.info('filter ib', list)
+          console.info('filter ib', list)
         }
         this.curriculumOptions = list
         this.init()
-        this.$logger.info('getAllCurriculums', this.curriculumOptions, list)
+        console.info('getAllCurriculums', this.curriculumOptions, list)
       }).finally(() => {
-        this.$logger.info('LearningObjective init done', this.filterConfig)
+        console.info('LearningObjective init done', this.filterConfig)
         this.loading = false
         this.startWatch()
       })
@@ -561,7 +561,7 @@ export default {
         console.log('watch filterConfig changed', oldValue.curriculumId, newValue.curriculumId)
         this.updating = true
         // if (newValue.curriculumId !== oldValue.curriculumId) {
-        //   this.$logger.info('reset filterConfig data', this.data)
+        //   console.info('reset filterConfig data', this.data)
         // } else {
           this.asyncUpdateFilterListFn()
         // }
@@ -573,7 +573,7 @@ export default {
     },
 
     handleResetCurriculum () {
-      this.$logger.info('handleResetCurriculum')
+      console.info('handleResetCurriculum')
       if (this.canEdit) {
         if (this.filterConfig.curriculumId) {
           this.filterConfig.selectedSubjectList = []
@@ -587,14 +587,14 @@ export default {
         this.subjectOptions = []
         this.yearIndex = null
         this.selectCurriculum = null
-        this.$logger.info('reset data', this.data)
+        console.info('reset data', this.data)
       }
     },
 
     async handleSelectCurriculum (id) {
       if (this.canEdit) {
         id = id.toString()
-        this.$logger.info('handleSelectCurriculum id', id)
+        console.info('handleSelectCurriculum id', id)
         if (id !== this.filterConfig.curriculumId) {
           this.filterConfig.selectedSubjectList = []
           this.filterConfig.selectedYearList = []
@@ -625,7 +625,7 @@ export default {
           this.$logger.warn('No curriculum data.')
         }
         this.selectCurriculum = null
-        this.$logger.info('handleSelectCurriculum curriculum', curriculum)
+        console.info('handleSelectCurriculum curriculum', curriculum)
       }
     },
 
@@ -646,24 +646,24 @@ export default {
     },
 
     showRecommend () {
-      this.$logger.info('showRecommend', this.recommendDataList)
+      console.info('showRecommend', this.recommendDataList)
       if (this.canEdit) {
         this.recommendDataVisible = true
       }
     },
 
     handleSelectSubject (subject) {
-      this.$logger.info('handleSelectSubject', subject)
+      console.info('handleSelectSubject', subject)
       if (!this.filterConfig.selectedSubjectList.includes(subject)) {
-        this.$logger.info('handleSelectSubject add ' + subject)
+        console.info('handleSelectSubject add ' + subject)
         this.filterConfig.selectedSubjectList = [subject, ...this.filterConfig.selectedSubjectList]
       }
-      this.$logger.info('selectedSubjectList', this.filterConfig.selectedSubjectList)
+      console.info('selectedSubjectList', this.filterConfig.selectedSubjectList)
       this.selectedSubject = null
     },
 
     handleSelectYear (year) {
-      this.$logger.info('handleSelectYear', year)
+      console.info('handleSelectYear', year)
       if (this.filterConfig.selectedYearList.indexOf(year) === -1) {
         this.filterConfig.selectedYearList.unshift(year)
       }
@@ -671,7 +671,7 @@ export default {
     },
 
     handleSelectLanguage (language) {
-      this.$logger.info('handleSelectLanguage', language)
+      console.info('handleSelectLanguage', language)
       this.filterConfig.selectedLanguageList = [ language ]
       this.selectedLanguage = null
     },
@@ -683,7 +683,7 @@ export default {
     },
 
     handleSelectItem (item) {
-      this.$logger.info('handleSelectItem', item)
+      console.info('handleSelectItem', item)
       if (this.canEdit) {
         if (this.selectedList.indexOf(item) === -1) {
           this.$set(item, 'generalCapabilities', [])
@@ -697,7 +697,7 @@ export default {
     },
 
     handleDelete (item) {
-      this.$logger.info('handleDelete', item)
+      console.info('handleDelete', item)
       if (this.selectedList.indexOf(item) !== -1) {
         this.selectedList.splice(this.selectedList.indexOf(item), 1)
       }
@@ -718,7 +718,7 @@ export default {
     },
 
     handleSelectGeneralCapability (item) {
-      this.$logger.info('handleSelectGeneralCapability', arguments[1])
+      console.info('handleSelectGeneralCapability', arguments[1])
       const generalCapabilityList = JSON.parse(JSON.stringify(arguments[1][0]))
       const lastIndex = generalCapabilityList.length - 1
       const generalCapability = {
@@ -727,11 +727,11 @@ export default {
         id: arguments[1][1][lastIndex].id
       }
       item.generalCapabilities.push(generalCapability)
-      this.$logger.info('current lo item', item)
+      console.info('current lo item', item)
     },
 
     handleDeleteCapability (item, capability) {
-      this.$logger.info('handleDeleteCapability', capability)
+      console.info('handleDeleteCapability', capability)
       const index = item.generalCapabilities.indexOf(capability)
       if (index !== -1) {
         item.generalCapabilities.splice(index, 1)
@@ -743,7 +743,7 @@ export default {
         ...this.filterConfig,
         learnOuts: this.selectedList
       }
-      this.$logger.info(`emitUpdateEvent eventData loading: ${this.loading}`, eventData)
+      console.info(`emitUpdateEvent eventData loading: ${this.loading}`, eventData)
       this.$emit('change', eventData)
     },
 
@@ -784,7 +784,7 @@ export default {
     },
 
     handleConfirmSelectRecommend (dataList) {
-      this.$logger.info('handleConfirmSelectRecommend', dataList)
+      console.info('handleConfirmSelectRecommend', dataList)
       if (dataList && dataList.length) {
         dataList.forEach(item => {
           this.selectedList.unshift(JSON.parse(JSON.stringify(item)))

@@ -456,9 +456,9 @@ export default {
     },
 
     handleTeacherProjecting (item) {
-      this.$logger.info('handleStartSession', item)
+      console.info('handleStartSession', item)
       const targetUrl = lessonHost + 'd/' + item.classId + '?token=' + storage.get('feathers-jwt')
-      this.$logger.info('try open ' + targetUrl)
+      console.info('try open ' + targetUrl)
       // window.open(targetUrl, '_blank')
       // 课堂那边需要点击返回回到表单，改成location.href跳转
       const url = lessonHost + 't/' + item.classId + '?token=' + storage.get('feathers-jwt')
@@ -482,12 +482,12 @@ export default {
     },
 
     handleDashboard (item) {
-      this.$logger.info('handleDashboard', item)
+      console.info('handleDashboard', item)
       window.open(lessonHost + 'd/' + item.classId, '_blank')
     },
 
     handleReviewEditEvaluation (item) {
-      this.$logger.info('handleReviewEditEvaluation', item, this.classData)
+      console.info('handleReviewEditEvaluation', item, this.classData)
       // 先判断evaluation当前在状态，默认教师评估状态。然后进入不同的状态路由
       GetEvaluationMode({
         sessionId: item.classId
@@ -508,18 +508,18 @@ export default {
       })
     },
     searchSession () {
-      this.$logger.info('searchSession', this.sessionName)
+      console.info('searchSession', this.sessionName)
       this.loadTeacherClasses()
     },
     handleArchiveSession (item) {
-      this.$logger.info('handleArchiveSession', item)
+      console.info('handleArchiveSession', item)
       this.$confirm({
         title: 'Confirm archive session',
         content: 'Are you confirm archive this session ?',
         centered: true,
         onOk: () => {
           ChangeClassStatus({ classId: item.classId, status: 1 }).then(response => {
-            this.$logger.info('ChangeClassStatus', response)
+            console.info('ChangeClassStatus', response)
           }).finally(() => {
             this.loadTeacherClasses()
           })
@@ -544,14 +544,14 @@ export default {
       })
     },
     handleRestoreSession (item) {
-      this.$logger.info('handleRestoreSession', item)
+      console.info('handleRestoreSession', item)
       this.$confirm({
         title: 'Confirm restore session',
         content: 'Are you confirm restore this session ?',
         centered: true,
         onOk: () => {
           ChangeClassStatus({ classId: item.classId, status: 0 }).then(response => {
-            this.$logger.info('ChangeClassStatus', response)
+            console.info('ChangeClassStatus', response)
           }).finally(() => {
             this.loadTeacherClasses()
           })
@@ -572,7 +572,7 @@ export default {
     },
 
     handleReopenSession (item) {
-      this.$logger.info('handleRestoreSession', item)
+      console.info('handleRestoreSession', item)
       this.$confirm({
         title: 'Confirm reopen session',
         content: 'Are you confirm reopen this session ?',
@@ -588,7 +588,7 @@ export default {
     },
 
     handleEndSession (item) {
-      this.$logger.info('handleEndSession', item)
+      console.info('handleEndSession', item)
       this.$confirm({
         title: 'Confirm end session',
         content: 'Are you confirm end this session ?',
@@ -603,7 +603,7 @@ export default {
     },
 
     handleTakeAway (item) {
-      this.$logger.info('handleTakeAway', item)
+      console.info('handleTakeAway', item)
       this.takeAwayClassId = item.taskClassId
       this.takeAwaySessionId = item.classId
       this.takeAwaySlideId = item.slideId
@@ -615,7 +615,7 @@ export default {
     },
 
     handleClickMember (member) {
-      this.$logger.info('handleClickMember', member)
+      console.info('handleClickMember', member)
       if (this.$refs.takeaway) {
         this.$refs.takeaway.handleEnsureTakeaway()
       }
@@ -624,17 +624,17 @@ export default {
     handleToggleGroupExpand (group, event) {
       event.stopPropagation()
       event.preventDefault()
-      this.$logger.info('handleToggleGroupExpand', group)
+      console.info('handleToggleGroupExpand', group)
       group.expand = !group.expand
     },
 
     loadTakeAwayClassStudentData (classId) {
-      this.$logger.info('loadTakeAwayClassStudentData classId ' + classId)
+      console.info('loadTakeAwayClassStudentData classId ' + classId)
       this.loadingTakeAwayData = true
       GetSessionEvaluationByClassId({ classId }).then(response => {
-        this.$logger.info('init data response', response)
+        console.info('init data response', response)
         // 加载班级信息数据
-        this.$logger.info('GetSessionEvaluationByClassId response', response.result)
+        console.info('GetSessionEvaluationByClassId response', response.result)
         // 所有的学生id用于遍历构造学生评价数据 "对象"
         const allGroupStudentUserIdList = []
 
@@ -653,7 +653,7 @@ export default {
           data.classMembersVos.forEach(item => {
             item.userId = item.email
           })
-          this.$logger.info('formatted classMembersVos', data.classMembersVos)
+          console.info('formatted classMembersVos', data.classMembersVos)
           data.classMembersVos.forEach(studentItem => {
             if (allGroupStudentUserIdList.indexOf(studentItem.userId) === -1) {
               this.allNoGroupStudentUserList.push(studentItem)

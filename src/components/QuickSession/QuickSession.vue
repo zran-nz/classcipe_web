@@ -173,7 +173,7 @@ export default {
     }
   },
   created() {
-    this.$logger.info('QuickSession created', this.selectedClass)
+    console.info('QuickSession created', this.selectedClass)
     if (this.selectedClass) {
       this.classItem = this.selectedClass
     }
@@ -192,7 +192,7 @@ export default {
         }),
         SchoolClassGetMyClasses()
       ]).then(response => {
-        this.$logger.info('quick session dict', response)
+        console.info('quick session dict', response)
 
         if (response[0].success) {
           this.interactiveTypeList = response[0].result
@@ -207,7 +207,7 @@ export default {
         }
 
         if (!response[3].code) {
-          this.$logger.info('class list', response[3].result)
+          console.info('class list', response[3].result)
           this.classList = response[3].result
         }
       }).finally(() => {
@@ -216,7 +216,7 @@ export default {
     },
 
     handleToggleInteractiveType (interactive) {
-      this.$logger.info('toggle interactive type', interactive)
+      console.info('toggle interactive type', interactive)
       const idx = this.selectedInteractiveList.indexOf(interactive.value)
       if (idx === -1) {
         this.selectedInteractiveList.push(interactive.value)
@@ -226,7 +226,7 @@ export default {
       this.updatePromptList()
     },
     handleTogglePurposeType (purpose) {
-      this.$logger.info('toggle purpose type', purpose)
+      console.info('toggle purpose type', purpose)
       const idx = this.selectedPurposeList.indexOf(purpose.value)
       if (idx === -1) {
         this.selectedPurposeList.push(purpose.value)
@@ -255,7 +255,7 @@ export default {
     },
 
     handleSelectPromptItem (promptItem) {
-      this.$logger.info('select prompt item', promptItem)
+      console.info('select prompt item', promptItem)
       if (this.selectedPrompt !== promptItem) {
         this.selectedPrompt = promptItem
       } else {
@@ -264,18 +264,18 @@ export default {
     },
 
     handleStartSession () {
-      this.$logger.info('start session', this.selectedPrompt)
+      console.info('start session', this.selectedPrompt)
       this.startLoading = true
       quickStartSession({
         name: this.selectedPrompt.name,
         presentationId: this.selectedPrompt.presentationId,
         classId: this.classItem ? this.classItem.id : null
       }).then((response) => {
-        this.$logger.info('start session response', response)
+        console.info('start session response', response)
         this.startLoading = false
         if (response.success) {
           const targetUrl = lessonHost + 'd/' + response.result.classId + '?token=' + storage.get('feathers-jwt')
-          this.$logger.info('try open ' + targetUrl)
+          console.info('try open ' + targetUrl)
           // 课堂那边需要点击返回回到表单，改成location.href跳转
           const url = lessonHost + 't/' + response.result.classId + '?token=' + storage.get('feathers-jwt')
           var windowObjectReference
@@ -320,20 +320,20 @@ export default {
     },
 
     handleSelectClass (eventData) {
-      this.$logger.info('handleSelectClass', eventData)
+      console.info('handleSelectClass', eventData)
       this.classItem = eventData
     },
 
     handleCreateNewClass (data) {
-      this.$logger.info('handleCreateNewClass', data)
+      console.info('handleCreateNewClass', data)
       PersonalAddOrUpdateClass({ name: data.value }).then(response => {
         SchoolClassGetMyClasses().then(response => {
-          this.$logger.info('SchoolClassGetMyClasses', response)
+          console.info('SchoolClassGetMyClasses', response)
           this.classList = response.result
           // 自动选中刚刚新建的班级
           const selectedClassItem = this.classList.find(item => item.name === data.value)
           if (data.index !== -1 && this.form.taskClassList.length > data.index && selectedClassItem) {
-            this.$logger.info('handleCreateNewClass selectedClassItem', selectedClassItem)
+            console.info('handleCreateNewClass selectedClassItem', selectedClassItem)
             this.form.taskClassList[data.index].classId = selectedClassItem.id
           }
         })

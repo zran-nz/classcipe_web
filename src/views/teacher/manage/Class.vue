@@ -332,7 +332,7 @@ export default {
       this.$refs.modalForm.disableSubmit = false
     },
     handleDelete(record) {
-      this.$logger.info('handleDelete ', record)
+      console.info('handleDelete ', record)
       let promise = null
       if (this.userMode === USER_MODE.SELF) {
         promise = PersonalClassDelete
@@ -340,7 +340,7 @@ export default {
         promise = SchoolClassDelete
       }
       promise(record).then(response => {
-        this.$logger.info('SchoolClassDelete', response.result)
+        console.info('SchoolClassDelete', response.result)
         this.loadData()
       })
     },
@@ -348,7 +348,7 @@ export default {
       const curriculumId = this.userMode === USER_MODE.SELF
           ? this.$store.getters.bindCurriculum : (this.currentSchool.curriculumId || this.$store.getters.bindCurriculum)
       GetGradesByCurriculumId({ curriculumId: curriculumId }).then(response => {
-        this.$logger.info('GetGradesByCurriculumId', response.result)
+        console.info('GetGradesByCurriculumId', response.result)
         this.gradeList = response.result
       })
     },
@@ -358,7 +358,7 @@ export default {
         roles: 'teacher',
         pageSize: 1000
       })
-      this.$logger.info('getSchoolUsers', res.result)
+      console.info('getSchoolUsers', res.result)
       this.teacherList = res.result ? res.result.records : []
     },
     async getStudentList() {
@@ -367,14 +367,14 @@ export default {
         roles: 'student',
         pageSize: 1000
       })
-      this.$logger.info('getSchoolUsers', res.result)
+      console.info('getSchoolUsers', res.result)
       this.studentList = res.result ? res.result.records : []
     },
     async getSubjectList() {
       const curriculumId = this.userMode === USER_MODE.SELF
           ? this.$store.getters.bindCurriculum : (this.currentSchool.curriculumId || this.$store.getters.bindCurriculum)
       const response = await SubjectTree({ curriculumId: curriculumId })
-      this.$logger.info('getSubjectTree response', response.result)
+      console.info('getSubjectTree response', response.result)
       this.subjectList = response.result ? response.result : []
     },
     searchClass() {

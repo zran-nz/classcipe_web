@@ -238,7 +238,7 @@ export default {
       switch (source) {
         case 'google':
         case 'zoom':
-          this.$logger.info('thirdSignIn google', source)
+          console.info('thirdSignIn google', source)
           url = getThirdAuthURL(source)
           url += `?role=${role}`
           url += `&channelId=${getCookie(SET_PROMOTE_CODE)}`
@@ -247,7 +247,7 @@ export default {
           if (this.callbackUrl) {
             window.sessionStorage.setItem(SESSION_CALLBACK_URL, getUrlWithNoParams(this.callbackUrl))
           }
-          this.$logger.info('full auth url ', url)
+          console.info('full auth url ', url)
           window.location.href = url
           break
         default:

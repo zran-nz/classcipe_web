@@ -384,7 +384,7 @@ export default {
       if (this.currentActiveStudentId && this.currentActiveFormId && this.studentEvaluateData) {
         return this.studentEvaluateData[this.currentActiveStudentId][this.currentActiveFormId]
       } else {
-        this.$logger.info('no formBodyData currentActiveFormId ' + this.currentActiveFormId + ' currentActiveStudentId ' + this.currentActiveStudentId, ' studentEvaluateData ', this.studentEvaluateData)
+        console.info('no formBodyData currentActiveFormId ' + this.currentActiveFormId + ' currentActiveStudentId ' + this.currentActiveStudentId, ' studentEvaluateData ', this.studentEvaluateData)
         return null
       }
     },
@@ -395,7 +395,7 @@ export default {
   },
   watch: {
     currentActiveFormId (formId) {
-      this.$logger.info('update currentActiveFormId ' + formId)
+      console.info('update currentActiveFormId ' + formId)
       // 判断当前的formId是否是允许他评
       if (this.mode === EvaluationTableMode.PeerEvaluate && formId && this.studentEvaluateData) {
         this.allowPeerEvaluate = true
@@ -405,7 +405,7 @@ export default {
           rowIdList.forEach(rowId => {
             const rowData = currentFormData[rowId]
             if (rowData && rowData.peerEmail && this.currentUserGroupUserIdList.indexOf(rowData.peerEmail) !== -1) {
-              this.$logger.info('student ' + studentId + ' row ' + rowId + ' has peerEvaluation')
+              console.info('student ' + studentId + ' row ' + rowId + ' has peerEvaluation')
               this.allowPeerEvaluate = false
             }
           })
@@ -511,9 +511,9 @@ export default {
   },
   mixins: [ EvaluationMixin ],
   beforeRouteLeave(to, from, next) {
-    this.$logger.info('beforeRouteLeave', to, from, next)
-    this.$logger.info('forms', this.forms, 'oldFormsJson', this.oldFormsJson)
-    this.$logger.info('studentEvaluateData', this.studentEvaluateData, 'oldStudentEvaluationJson', this.oldStudentEvaluationJson)
+    console.info('beforeRouteLeave', to, from, next)
+    console.info('forms', this.forms, 'oldFormsJson', this.oldFormsJson)
+    console.info('studentEvaluateData', this.studentEvaluateData, 'oldStudentEvaluationJson', this.oldStudentEvaluationJson)
     if (this.initCompleted && (JSON.stringify(this.forms) !== this.oldFormsJson || JSON.stringify(this.studentEvaluateData) !== this.oldStudentEvaluationJson)) {
       this.$confirm({
         title: 'Alert',
@@ -535,7 +535,7 @@ export default {
     }
   },
   created () {
-    this.$logger.info('[' + this.mode + '] created ClassSessionEvaluation sessionId' + this.sessionId)
+    console.info('[' + this.mode + '] created ClassSessionEvaluation sessionId' + this.sessionId)
 
     this.initClassSessionEvaluation()
     // 每次打开第一次提示多选模式
@@ -543,11 +543,11 @@ export default {
   },
   methods: {
     initClassSessionEvaluation () {
-      this.$logger.info('initClassSessionEvaluation sessionId ' + this.sessionId)
+      console.info('initClassSessionEvaluation sessionId ' + this.sessionId)
       SchoolClassListClassAttendance({
         sessionId: this.sessionId
       }).then(response => {
-        this.$logger.info('SchoolClassListClassAttendance', response)
+        console.info('SchoolClassListClassAttendance', response)
         if (response.success && response.result.length > 0) {
           this.attendanceList = []
           this.attendanceEmailList = []
@@ -559,7 +559,7 @@ export default {
               attendanceEmailSet.add(item.email)
             }
           })
-          this.$logger.info('attendanceList', this.attendanceList)
+          console.info('attendanceList', this.attendanceList)
         }
       }).catch(error => {
         this.loading = false
@@ -573,9 +573,9 @@ export default {
     loadClassSessionEvaluationData () {
       this.loading = true
       GetSessionEvaluationByClassId({ classId: this.sessionId }).then(response => {
-        this.$logger.info('init data response', response)
+        console.info('init data response', response)
         // 加载班级信息数据
-        this.$logger.info('GetSessionEvaluationByClassId response', response.result)
+        console.info('GetSessionEvaluationByClassId response', response.result)
         // 所有的学生id用于遍历构造学生评价数据 "对象"
         const allGroupStudentUserIdList = []
 
@@ -592,7 +592,7 @@ export default {
             if (member.userId === this.$store.getters.userInfo.email) {
               this.currentUserGroupId = group.id
               this.currentUserGroupUserIdList = group.members.map(member => member.userId)
-              this.$logger.info('currentUserGroupId' + this.currentUserGroupId, 'currentUserGroupUserIdList', this.currentUserGroupUserIdList)
+              console.info('currentUserGroupId' + this.currentUserGroupId, 'currentUserGroupUserIdList', this.currentUserGroupUserIdList)
             }
           })
         })
@@ -604,7 +604,7 @@ export default {
           data.classMembersVos.forEach(item => {
             item.userId = item.email
           })
-          this.$logger.info('formatted classMembersVos', data.classMembersVos)
+          console.info('formatted classMembersVos', data.classMembersVos)
           data.classMembersVos.forEach(studentItem => {
             if (allGroupStudentUserIdList.indexOf(studentItem.userId) === -1) {
               this.allNoGroupStudentUserIdList.push(studentItem.userId)
@@ -616,7 +616,7 @@ export default {
             this.allStudentUserIdList.push(studentItem.email)
           })
         }
-        this.$logger.info('allNoGroupStudentUserIdList', this.allNoGroupStudentUserIdList)
+        console.info('allNoGroupStudentUserIdList', this.allNoGroupStudentUserIdList)
 
         // 使用班级信息填充表单基础信息，保持header显示的按钮标题兼容显示
         if (data.classInfo && !data.evaluation) {
@@ -625,7 +625,7 @@ export default {
           this.form.createBy = data.classInfo.author
           this.form.createTime = new Date(data.classInfo.date * 1000)
           this.form.type = typeMap.classSessionEvaluation
-          this.$logger.info('init form data', this.form)
+          console.info('init form data', this.form)
         }
 
         const allStudentUserIdList = this.allStudentUserIdList
@@ -650,7 +650,7 @@ export default {
             })
           })
 
-          this.$logger.info('forms', this.forms)
+          console.info('forms', this.forms)
           this.oldFormsJson = JSON.stringify(this.forms)
 
           // forms为空那么数据已经失效
@@ -662,7 +662,7 @@ export default {
           this.currentActiveFormId = this.forms[0].formId
         }
 
-        this.$logger.info('allStudentUserIdList', this.allStudentUserIdList)
+        console.info('allStudentUserIdList', this.allStudentUserIdList)
 
         // 初始化评估数据，构造遍历所有学生的评价数据对象，更具对象索引到具体表单的某一行的点评数据
         let isEmptyStudentEvaluateData = false
@@ -683,14 +683,14 @@ export default {
         }
 
         this.isEmptyStudentEvaluateData = isEmptyStudentEvaluateData
-        this.$logger.info('isEmptyStudentEvaluateData ' + isEmptyStudentEvaluateData, data.evaluation)
+        console.info('isEmptyStudentEvaluateData ' + isEmptyStudentEvaluateData, data.evaluation)
         if (!isEmptyStudentEvaluateData) {
           const studentEvaluateData = JSON.parse(data.evaluation.studentEvaluateData)
-          this.$logger.info('exist studentEvaluateData', studentEvaluateData)
+          console.info('exist studentEvaluateData', studentEvaluateData)
           // 处理新增的学生
           allStudentUserIdList.forEach(studentId => {
             if (!studentEvaluateData.hasOwnProperty(studentId)) {
-              this.$logger.info('new student', studentId)
+              console.info('new student', studentId)
               studentEvaluateData[studentId] = {}
               this.forms.forEach(formItem => {
                 studentEvaluateData[studentId][formItem.formId] = {
@@ -721,7 +721,7 @@ export default {
           })
           this.studentEvaluateData = studentEvaluateData
           this.oldStudentEvaluationJson = data.evaluation.studentEvaluateData
-          this.$logger.info('restore studentEvaluateData', this.studentEvaluateData)
+          console.info('restore studentEvaluateData', this.studentEvaluateData)
         } else if (allStudentUserIdList.length && this.forms.length) {
           // 初始化学生表格数据, studentEvaluateData[学生Id][表单Id][列Id] = 列数据
           const studentEvaluateData = {}
@@ -754,7 +754,7 @@ export default {
             })
           })
 
-          this.$logger.info('studentEvaluateData init finished ', studentEvaluateData)
+          console.info('studentEvaluateData init finished ', studentEvaluateData)
           this.studentEvaluateData = studentEvaluateData
           this.oldStudentEvaluationJson = JSON.stringify(studentEvaluateData)
 
@@ -762,7 +762,7 @@ export default {
             // 默认选中第一个学生的第一个评估表格
             this.currentActiveStudentId = allGroupStudentUserIdList[0]
             this.selectedMemberIdList.push(this.currentActiveStudentId)
-            this.$logger.info('currentActiveFormId ' + this.currentActiveFormId + ' currentActiveStudentId ' + this.currentActiveStudentId)
+            console.info('currentActiveFormId ' + this.currentActiveFormId + ' currentActiveStudentId ' + this.currentActiveStudentId)
           }
         }
 
@@ -778,14 +778,14 @@ export default {
           if (this.currentActiveFormId) {
             this.allowPeerEvaluate = true
             this.allStudentUserIdList.forEach(studentId => {
-              this.$logger.info('studentId ' + studentId + ' currentActiveFormId ', this.currentActiveFormId)
+              console.info('studentId ' + studentId + ' currentActiveFormId ', this.currentActiveFormId)
               const currentFormData = this.studentEvaluateData[studentId][this.currentActiveFormId]
               const rowIdList = Object.keys(currentFormData)
               rowIdList.forEach(rowId => {
                 const rowData = currentFormData[rowId]
-                this.$logger.info('currentFormData', currentFormData, 'rowId', rowData)
+                console.info('currentFormData', currentFormData, 'rowId', rowData)
                 if (rowData && rowData.peerEmail && this.currentUserGroupUserIdList.indexOf(rowData.peerEmail) !== -1) {
-                  this.$logger.info('student ' + studentId + ' row ' + rowId + ' has peerEvaluation')
+                  console.info('student ' + studentId + ' row ' + rowId + ' has peerEvaluation')
                   this.allowPeerEvaluate = false
                 }
               })
@@ -817,13 +817,13 @@ export default {
     },
 
     handleActiveForm (idx, formItem) {
-      this.$logger.info('handleActiveForm ' + idx, formItem)
+      console.info('handleActiveForm ' + idx, formItem)
       if (this.currentActiveFormId !== formItem.formId) {
         this.currentActiveFormId = formItem.formId
       }
     },
     handleClickMember (group, member) {
-      this.$logger.info('handleClickMember', 'group', group, 'member', member, 'selectedMemberIdList', this.selectedMemberIdList)
+      console.info('handleClickMember', 'group', group, 'member', member, 'selectedMemberIdList', this.selectedMemberIdList)
       // 只允许老师和他评选择其他人
       if (this.mode === EvaluationTableMode.PeerEvaluate) {
         if (!this.allowPeerEvaluate) {
@@ -836,7 +836,7 @@ export default {
             content: 'Your evaluation will replace the current result.',
             centered: true,
             onOk: () => {
-              this.$logger.info('currentActiveStudentId', member)
+              console.info('currentActiveStudentId', member)
               this.selectedMemberIdList = [member.userId]
               this.currentActiveStudentId = member.userId
               this.selectedGroupIdList = []
@@ -848,7 +848,7 @@ export default {
 
     // 只允许选择一个小组
     handleSelectGroup (group) {
-      this.$logger.info('handleSelectGroup', group)
+      console.info('handleSelectGroup', group)
 
       // 只允许老师和他评选择小组
       if (this.mode === EvaluationTableMode.PeerEvaluate) {
@@ -874,7 +874,7 @@ export default {
 
             if (this.selectedMemberNameList.length > 1) {
               const confirmVisible = window.sessionStorage.getItem('multiConfirmVisible')
-              this.$logger.info('confirmVisible ' + confirmVisible)
+              console.info('confirmVisible ' + confirmVisible)
               if (!confirmVisible) {
                 this.showMultiSelectedConfirm = true
               }
@@ -888,22 +888,22 @@ export default {
             this.currentActiveStudentId = null
             this.currentActiveGroupId = null
           }
-          this.$logger.info('handleSelectGroup selectedMemberIdList', this.selectedMemberIdList)
+          console.info('handleSelectGroup selectedMemberIdList', this.selectedMemberIdList)
         }
       } else {
-        this.$logger.info('current mode ' + this.mode + ' ignore it!')
+        console.info('current mode ' + this.mode + ' ignore it!')
       }
     },
 
     handleToggleGroupExpand (group, event) {
       event.stopPropagation()
       event.preventDefault()
-      this.$logger.info('handleToggleGroupExpand', group)
+      console.info('handleToggleGroupExpand', group)
       group.expand = !group.expand
     },
 
     handleEditFormTitle (formItem) {
-      this.$logger.info('handleEditFormTitle', formItem)
+      console.info('handleEditFormTitle', formItem)
       if (this.mode === EvaluationTableMode.Edit) {
         if (this.currentFormItem) {
           this.currentFormItem.titleEditing = false
@@ -916,7 +916,7 @@ export default {
     },
 
     handleEnsureUpdateFormTitle () {
-      this.$logger.info('handleEnsureUpdateFormTitle', this.currentEditingTitle)
+      console.info('handleEnsureUpdateFormTitle', this.currentEditingTitle)
       this.currentFormItem.title = this.currentEditingTitle
       this.currentFormItem.titleEditing = false
     },
@@ -935,7 +935,7 @@ export default {
     },
     // switchEvaluate标识是否跳转到评估页面，true为跳转，false为不跳转
     handleSaveEvaluation (switchEvaluate) {
-      this.$logger.info('handleSaveEvaluation', this.forms)
+      console.info('handleSaveEvaluation', this.forms)
 
       if (!this.isEmptyStudentEvaluateData && this.mode === EvaluationTableMode.Edit) {
         this.$info({
@@ -949,7 +949,7 @@ export default {
             const formDataList = []
             this.$refs.evaluationTable.forEach(tableItem => {
               const tableData = tableItem.getTableStructData()
-              this.$logger.info('getTableStructData ', tableData, 'header', tableData.headers, 'row list', tableData.list)
+              console.info('getTableStructData ', tableData, 'header', tableData.headers, 'row list', tableData.list)
               this.forms.forEach(formItem => {
                 if (formItem.formId === tableData.formId) {
                   const formData = {
@@ -966,11 +966,11 @@ export default {
                 }
               })
             })
-            this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.sessionId', this.sessionId)
+            console.info('formDataList', formDataList, 'this.form', this.form, 'this.sessionId', this.sessionId)
             this.form.classId = this.sessionId
             this.form.forms = formDataList
             // 获取评估数据
-            this.$logger.info('!!!!!!!!!!!!!!!!!! studentEvaluateData !!!!!!!!!!!', this.studentEvaluateData)
+            console.info('!!!!!!!!!!!!!!!!!! studentEvaluateData !!!!!!!!!!!', this.studentEvaluateData)
             this.form.studentEvaluateData = '{}'
 
             if (formDataList.length === 0) {
@@ -982,12 +982,12 @@ export default {
               return false
             } else {
               SaveSessionEvaluation(this.form).then((response) => {
-                this.$logger.info('SaveSessionEvaluation', response)
+                console.info('SaveSessionEvaluation', response)
                 this.$message.success('Save successfully!')
                 this.formSaving = false
               }).then(() => {
                 let currentForm = this.forms.filter(item => item.formId === this.currentActiveFormId)
-                this.$logger.info('currentForm', currentForm)
+                console.info('currentForm', currentForm)
                 if (currentForm.length) {
                   currentForm = currentForm[0]
                 } else {
@@ -995,7 +995,7 @@ export default {
                 }
                 if (this.mode === EvaluationTableMode.TeacherEvaluate && currentForm && (currentForm.pe || currentForm.se)) {
                   GetSessionEvaluationByClassId({ classId: this.sessionId }).then(response => {
-                    this.$logger.info('after SaveSessionEvaluation GetSessionEvaluationByClassId', response)
+                    console.info('after SaveSessionEvaluation GetSessionEvaluationByClassId', response)
 
                     const data = response.result
                     if (data.evaluation && data.evaluation.studentEvaluateData) {
@@ -1008,10 +1008,10 @@ export default {
                       const peerEvaluateIdList = []
 
                       userIds.forEach(userId => {
-                        this.$logger.info('userId ' + userId, evaluateDataObj[userId])
+                        console.info('userId ' + userId, evaluateDataObj[userId])
                         const studentData = evaluateDataObj[userId]
                         const formData = studentData[this.currentActiveFormId]
-                        this.$logger.info('user form data', formData)
+                        console.info('user form data', formData)
 
                         // 统计是否自评
                         const rowKeys = Object.keys(formData)
@@ -1029,7 +1029,7 @@ export default {
                         })
                       })
 
-                      this.$logger.info('studentEvaluateIdList', studentEvaluateIdList, 'peerEvaluateIdList', peerEvaluateIdList)
+                      console.info('studentEvaluateIdList', studentEvaluateIdList, 'peerEvaluateIdList', peerEvaluateIdList)
                       this.studentEvaluateIdList = studentEvaluateIdList
                       this.peerEvaluateIdList = peerEvaluateIdList
                       this.showEvaluationNoticeVisible = true
@@ -1052,7 +1052,7 @@ export default {
         const formDataList = []
         this.$refs.evaluationTable.forEach(tableItem => {
           const tableData = tableItem.getTableStructData()
-          this.$logger.info('getTableStructData ', tableData, 'header', tableData.headers, 'row list', tableData.list)
+          console.info('getTableStructData ', tableData, 'header', tableData.headers, 'row list', tableData.list)
           this.forms.forEach(formItem => {
             if (formItem.formId === tableData.formId) {
               const formData = {
@@ -1069,11 +1069,11 @@ export default {
             }
           })
         })
-        this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.sessionId', this.sessionId)
+        console.info('formDataList', formDataList, 'this.form', this.form, 'this.sessionId', this.sessionId)
         this.form.classId = this.sessionId
         this.form.forms = formDataList
         // 获取评估数据
-        this.$logger.info('!!!!!!!!!!!!!!!!!! studentEvaluateData !!!!!!!!!!!', this.studentEvaluateData)
+        console.info('!!!!!!!!!!!!!!!!!! studentEvaluateData !!!!!!!!!!!', this.studentEvaluateData)
         this.form.studentEvaluateData = JSON.stringify(this.studentEvaluateData)
 
         if (formDataList.length === 0) {
@@ -1085,12 +1085,12 @@ export default {
           return false
         } else {
           SaveSessionEvaluation(this.form).then((response) => {
-            this.$logger.info('SaveSessionEvaluation', response)
+            console.info('SaveSessionEvaluation', response)
             this.$message.success('Save successfully!')
             this.formSaving = false
           }).then(() => {
             let currentForm = this.forms.filter(item => item.formId === this.currentActiveFormId)
-            this.$logger.info('currentForm', currentForm)
+            console.info('currentForm', currentForm)
             if (currentForm.length) {
               currentForm = currentForm[0]
             } else {
@@ -1098,7 +1098,7 @@ export default {
             }
             if (this.mode === EvaluationTableMode.TeacherEvaluate && currentForm && (currentForm.pe || currentForm.se)) {
               GetSessionEvaluationByClassId({ classId: this.sessionId }).then(response => {
-                this.$logger.info('after SaveSessionEvaluation GetSessionEvaluationByClassId', response)
+                console.info('after SaveSessionEvaluation GetSessionEvaluationByClassId', response)
 
                 const data = response.result
                 if (data.evaluation && data.evaluation.studentEvaluateData) {
@@ -1111,10 +1111,10 @@ export default {
                   const peerEvaluateIdList = []
 
                   userIds.forEach(userId => {
-                    this.$logger.info('userId ' + userId, evaluateDataObj[userId])
+                    console.info('userId ' + userId, evaluateDataObj[userId])
                     const studentData = evaluateDataObj[userId]
                     const formData = studentData[this.currentActiveFormId]
-                    this.$logger.info('user form data', formData)
+                    console.info('user form data', formData)
 
                     // 统计是否自评
                     const rowKeys = Object.keys(formData)
@@ -1132,7 +1132,7 @@ export default {
                     })
                   })
 
-                  this.$logger.info('studentEvaluateIdList', studentEvaluateIdList, 'peerEvaluateIdList', peerEvaluateIdList)
+                  console.info('studentEvaluateIdList', studentEvaluateIdList, 'peerEvaluateIdList', peerEvaluateIdList)
                   this.studentEvaluateIdList = studentEvaluateIdList
                   this.peerEvaluateIdList = peerEvaluateIdList
                   this.showEvaluationNoticeVisible = true
@@ -1151,18 +1151,18 @@ export default {
     },
 
     goEvaluatePage () {
-      this.$logger.info('goEvaluatePage')
+      console.info('goEvaluatePage')
       // window.location.pathname = defaultStudentRouter
     },
     handleSaveAndBackEvaluation () {
-      this.$logger.info('handleSaveAndBackEvaluation', this.forms)
+      console.info('handleSaveAndBackEvaluation', this.forms)
 
       if (!this.isEmptyStudentEvaluateData && this.mode === EvaluationTableMode.Edit) {
         this.$info({
           title: 'Notice',
           content: 'After modifying the form, all student evaluation data will be cleared',
           onOk: () => {
-            this.$logger.info('handleSaveAndBackEvaluation onOk')
+            console.info('handleSaveAndBackEvaluation onOk')
             this.formSaving = true
             this.showEvaluationNoticeVisible = false
 
@@ -1170,7 +1170,7 @@ export default {
             const formDataList = []
             this.$refs.evaluationTable.forEach(tableItem => {
               const tableData = tableItem.getTableStructData()
-              this.$logger.info('getTableStructData ', tableData, 'header', tableData.headers, 'row list', tableData.list)
+              console.info('getTableStructData ', tableData, 'header', tableData.headers, 'row list', tableData.list)
               this.forms.forEach(formItem => {
                 if (formItem.formId === tableData.formId) {
                   const formData = {
@@ -1187,11 +1187,11 @@ export default {
                 }
               })
             })
-            this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.sessionId', this.sessionId)
+            console.info('formDataList', formDataList, 'this.form', this.form, 'this.sessionId', this.sessionId)
             this.form.classId = this.sessionId
             this.form.forms = formDataList
             // 获取评估数据
-            this.$logger.info('!!!!!!!!!!!!!!!!!! studentEvaluateData !!!!!!!!!!!', this.studentEvaluateData)
+            console.info('!!!!!!!!!!!!!!!!!! studentEvaluateData !!!!!!!!!!!', this.studentEvaluateData)
             this.form.studentEvaluateData = '{}'
 
             if (formDataList.length === 0) {
@@ -1200,7 +1200,7 @@ export default {
               return false
             } else {
               SaveSessionEvaluation(this.form).then((response) => {
-                this.$logger.info('SaveSessionEvaluation', response)
+                console.info('SaveSessionEvaluation', response)
                 if (response.success) {
                   this.$message.success('Save successfully!')
                   this.formSaving = false
@@ -1220,7 +1220,7 @@ export default {
         const formDataList = []
         this.$refs.evaluationTable.forEach(tableItem => {
           const tableData = tableItem.getTableStructData()
-          this.$logger.info('getTableStructData ', tableData, 'header', tableData.headers, 'row list', tableData.list)
+          console.info('getTableStructData ', tableData, 'header', tableData.headers, 'row list', tableData.list)
           this.forms.forEach(formItem => {
             if (formItem.formId === tableData.formId) {
               const formData = {
@@ -1237,11 +1237,11 @@ export default {
             }
           })
         })
-        this.$logger.info('formDataList', formDataList, 'this.form', this.form, 'this.sessionId', this.sessionId)
+        console.info('formDataList', formDataList, 'this.form', this.form, 'this.sessionId', this.sessionId)
         this.form.classId = this.sessionId
         this.form.forms = formDataList
         // 获取评估数据
-        this.$logger.info('!!!!!!!!!!!!!!!!!! studentEvaluateData !!!!!!!!!!!', this.studentEvaluateData)
+        console.info('!!!!!!!!!!!!!!!!!! studentEvaluateData !!!!!!!!!!!', this.studentEvaluateData)
         this.form.studentEvaluateData = JSON.stringify(this.studentEvaluateData)
 
         if (formDataList.length === 0) {
@@ -1250,7 +1250,7 @@ export default {
           return false
         } else {
           SaveSessionEvaluation(this.form).then((response) => {
-            this.$logger.info('SaveSessionEvaluation', response)
+            console.info('SaveSessionEvaluation', response)
             if (response.success) {
               this.$message.success('Save successfully!')
               this.formSaving = false
@@ -1264,12 +1264,12 @@ export default {
     },
 
     handleSaveCurrentEvaluation () {
-      this.$logger.info('handleSaveCurrentEvaluation')
+      console.info('handleSaveCurrentEvaluation')
       this.showEvaluationNoticeVisible = false
       setTimeout(() => {
         this.studentEvaluateIdList = []
         this.peerEvaluateIdList = []
-        this.$logger.info('studentEvaluateIdList', this.studentEvaluateIdList, 'peerEvaluateIdList', this.peerEvaluateIdList)
+        console.info('studentEvaluateIdList', this.studentEvaluateIdList, 'peerEvaluateIdList', this.peerEvaluateIdList)
       }, 5000)
     },
 
@@ -1278,12 +1278,12 @@ export default {
 
     // 修改表头数据处理
     handleUpdateForm (data) {
-      this.$logger.info('handleUpdateForm', data)
+      console.info('handleUpdateForm', data)
       this.form.name = data.name
     },
 
     handleDeleteForm (formItem) {
-      this.$logger.info('handleDeleteForm', formItem)
+      console.info('handleDeleteForm', formItem)
       const forms = []
       this.forms.forEach(form => {
         if (form.formId !== formItem.formId) {
@@ -1299,30 +1299,30 @@ export default {
         this.$delete(this.studentEvaluateData[studentId], formItem.formId)
       })
 
-      this.$logger.info('after delete ' + formItem.formId, this.studentEvaluateData)
-      this.$logger.info('after delete forms' + formItem.formId, this.forms)
+      console.info('after delete ' + formItem.formId, this.studentEvaluateData)
+      console.info('after delete forms' + formItem.formId, this.forms)
     },
 
     handleToggleStudentEvaluation (formItem) {
-      this.$logger.info('handleToggleStudentEvaluation', formItem)
+      console.info('handleToggleStudentEvaluation', formItem)
       formItem.menuVisible = !formItem.menuVisible
     },
 
     handleTogglePeerEvaluation (formItem) {
-      this.$logger.info('handleTogglePeerEvaluation', formItem)
+      console.info('handleTogglePeerEvaluation', formItem)
       formItem.menuVisible = !formItem.menuVisible
     },
 
     handleToggleMenuVisible (formItem) {
-      this.$logger.info('handleToggleMenuVisible', formItem)
+      console.info('handleToggleMenuVisible', formItem)
       if (this.mode === EvaluationTableMode.Edit) {
         formItem.menuVisible = !formItem.menuVisible
       }
     },
 
     handleUpdateEvaluate (data) {
-      this.$logger.info('handleUpdateEvaluate', data)
-      this.$logger.info('before update studentEvaluateData', this.studentEvaluateData)
+      console.info('handleUpdateEvaluate', data)
+      console.info('before update studentEvaluateData', this.studentEvaluateData)
       if (this.mode === EvaluationTableMode.PeerEvaluate) {
         // 更新当前选中的所有学生的对应的form的rowId的数据为对应列
         const allSelectedStudentUserId = []
@@ -1341,12 +1341,12 @@ export default {
             })
           }
         })
-        this.$logger.info('all selected member userId ', allSelectedStudentUserId)
+        console.info('all selected member userId ', allSelectedStudentUserId)
         // 遍历所有当前选中的用户，设置对应的选中的用-对应的表单-对应的行-对应的列-对应的评估数据
         allSelectedStudentUserId.forEach(userId => {
-          this.$logger.info(data.evaluationMode + ' studentEvaluateData userId ' + userId, this.studentEvaluateData[userId])
-          this.$logger.info(data.evaluationMode + ' studentEvaluateData formId ' + data.formId, this.studentEvaluateData[userId][data.formId])
-          this.$logger.info(data.evaluationMode + ' studentEvaluateData rowId ' + data.rowId, this.studentEvaluateData[userId][data.formId][data.rowId])
+          console.info(data.evaluationMode + ' studentEvaluateData userId ' + userId, this.studentEvaluateData[userId])
+          console.info(data.evaluationMode + ' studentEvaluateData formId ' + data.formId, this.studentEvaluateData[userId][data.formId])
+          console.info(data.evaluationMode + ' studentEvaluateData rowId ' + data.rowId, this.studentEvaluateData[userId][data.formId][data.rowId])
          if (data.evaluationMode === EvaluationTableMode.PeerEvaluate) {
             this.studentEvaluateData[userId][data.formId][data.rowId].peerEmail = data.evaluateUserEmail
             this.studentEvaluateData[userId][data.formId][data.rowId].peerName = data.evaluateUserName
@@ -1358,15 +1358,15 @@ export default {
               this.studentEvaluateData[userId][data.formId][data.rowId].peerEvaluation = data.value
             }
           }
-          this.$logger.info('set ' + userId + ' formId ' + data.formId + ' row ' + data.rowId, this.studentEvaluateData[userId][data.formId][data.rowId], 'data', data)
+          console.info('set ' + userId + ' formId ' + data.formId + ' row ' + data.rowId, this.studentEvaluateData[userId][data.formId][data.rowId], 'data', data)
         })
       }
 
-      this.$logger.info('after update studentEvaluateData', this.studentEvaluateData)
+      console.info('after update studentEvaluateData', this.studentEvaluateData)
     },
 
     handleAddEvidence (data) {
-      this.$logger.info('handleAddEvidence', data, this.selectedMemberIdList)
+      console.info('handleAddEvidence', data, this.selectedMemberIdList)
       if (this.selectedMemberIdList.length === 1) {
         this.evidenceSelectVisible = true
         this.currentEvidenceItem = data.data
@@ -1381,7 +1381,7 @@ export default {
     },
 
     handleEnsureEvidenceFinish (data) {
-      this.$logger.info('handleEnsureEvidenceFinish', data)
+      console.info('handleEnsureEvidenceFinish', data)
       // 给当前所有被选中的学生的对应rowId的evidence都加数据
       const rowId = this.currentEvidenceItem.rowId
       // 更新当前选中的所有学生的对应的form的rowId的数据为对应列
@@ -1401,28 +1401,28 @@ export default {
           })
         }
       })
-      this.$logger.info('all selected member userId ', allSelectedStudentUserId)
+      console.info('all selected member userId ', allSelectedStudentUserId)
       // 遍历所有当前选中的用户，设置对应的选中的用-对应的表单-对应的行-对应的列-对应的evidence数据
       allSelectedStudentUserId.forEach(userId => {
-        this.$logger.info('evidence row', this.studentEvaluateData[userId][this.currentActiveFormId][rowId])
+        console.info('evidence row', this.studentEvaluateData[userId][this.currentActiveFormId][rowId])
         if (this.mode === EvaluationTableMode.StudentEvaluate) {
           this.studentEvaluateData[userId][this.currentActiveFormId][rowId].evidenceIdStudentList = data.data
         } else if (this.mode === EvaluationTableMode.TeacherEvaluate) {
           this.studentEvaluateData[userId][this.currentActiveFormId][rowId].evidenceIdList = data.data
         }
-        this.$logger.info('evidence update user id ' + userId + ' row ' + rowId + ' data', this.studentEvaluateData[userId][this.currentActiveFormId][rowId])
+        console.info('evidence update user id ' + userId + ' row ' + rowId + ' data', this.studentEvaluateData[userId][this.currentActiveFormId][rowId])
       })
       this.evidenceSelectVisible = false
     },
 
     handleCloseMultiConfirm () {
-      this.$logger.info('handleCloseMultiConfirm')
+      console.info('handleCloseMultiConfirm')
       this.showMultiSelectedConfirm = false
       window.sessionStorage.setItem('multiConfirmVisible', 'hidden')
     },
 
     handleUpdateComment (comment) {
-      this.$logger.info('handleUpdateComment')
+      console.info('handleUpdateComment')
       if (this.mode === EvaluationTableMode.TeacherEvaluate) {
         // 更新当前选中的所有学生的对应的form的comment的数据为对应列
         const allSelectedStudentUserId = []
@@ -1441,12 +1441,12 @@ export default {
             })
           }
         })
-        this.$logger.info('all selected member userId ', allSelectedStudentUserId)
+        console.info('all selected member userId ', allSelectedStudentUserId)
         // 遍历所有当前选中的用户，设置对应的选中的用-对应的表单-对应的行-对应的列-对应的评估数据
         allSelectedStudentUserId.forEach(userId => {
           if (userId !== this.currentActiveStudentId) {
             this.studentEvaluateData[userId][this.currentActiveFormId].comment = comment
-            this.$logger.info('update ' + userId + ' form ' + this.currentActiveFormId + ' comment' + comment, this.studentEvaluateData[userId][this.currentActiveFormId])
+            console.info('update ' + userId + ' form ' + this.currentActiveFormId + ' comment' + comment, this.studentEvaluateData[userId][this.currentActiveFormId])
           }
         })
       }
@@ -1460,7 +1460,7 @@ export default {
       } else if (formType === EvaluationTableType.CenturySkills) {
         this.newTableName = '21st Century Skills ' + (this.forms.length + 1)
       }
-      this.$logger.info('newTableName', this.newTableName)
+      console.info('newTableName', this.newTableName)
     }
   }
 }

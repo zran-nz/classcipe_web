@@ -60,11 +60,11 @@ export default {
     }
   },
   created () {
-    this.$logger.info('RelevantTagSelector relevantQuestionList', this.relevantQuestionList)
+    console.info('RelevantTagSelector relevantQuestionList', this.relevantQuestionList)
   },
   methods: {
     handleSelectQuestion (item) {
-      this.$logger.info('handleSelectQuestion', item)
+      console.info('handleSelectQuestion', item)
       const index = this.selectedQuestionIdList.indexOf(item.questionId)
       const qIndex = this.selectedQuestionList.findIndex(q => q.questionId === item.questionId)
       if (index !== -1 && qIndex !== -1) {
@@ -99,7 +99,7 @@ export default {
     },
 
     handleSelectKnowledge (data) {
-      this.$logger.info('handleSelectKnowledge', data)
+      console.info('handleSelectKnowledge', data)
       const idIndex = this.selectedKnowledgeTagIdList.findIndex(item => item === data.id)
       const tagIndex = this.selectedKnowledgeTagList.findIndex(item => item.info.id === data.id)
       if (idIndex !== -1 && tagIndex !== -1) {
@@ -113,7 +113,7 @@ export default {
     },
 
     handleSelectSkill (data) {
-      this.$logger.info('handleSelectSkill', data)
+      console.info('handleSelectSkill', data)
       const idIndex = this.selectedSkillTagIdList.findIndex(item => item === data.id)
       const tagIndex = this.selectedSkillTagList.findIndex(item => item.id === data.id)
       if (idIndex !== -1 && tagIndex !== -1) {
@@ -127,7 +127,7 @@ export default {
     },
 
     updateSelected () {
-      this.$logger.info('updateSelected', this.selectedQuestionList, this.selectedKnowledgeTagIdList, this.selectedSkillTagIdList)
+      console.info('updateSelected', this.selectedQuestionList, this.selectedKnowledgeTagIdList, this.selectedSkillTagIdList)
       const questionList = []
       this.selectedQuestionList.forEach(item => {
         const qData = {
@@ -151,7 +151,7 @@ export default {
 
         questionList.push(qData)
       })
-      this.$logger.info('updateSelected data', questionList)
+      console.info('updateSelected data', questionList)
       this.$emit('update-selected', { questionList: questionList })
     }
   }

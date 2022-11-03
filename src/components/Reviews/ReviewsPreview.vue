@@ -327,7 +327,7 @@ export default {
           if (this.justifyPromise(promise)) {
             this.delLoading = true
             promise.then((response) => {
-              this.$logger.info('del response', response)
+              console.info('del response', response)
               if (response.success) {
                 this.$message.success('Del successfully')
                 this.myReviews = null

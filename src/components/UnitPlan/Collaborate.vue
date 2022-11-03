@@ -83,7 +83,7 @@ export default {
       }
       this.uploading = true
       AddUserCollaborate(data).then((response) => {
-        this.$logger.info('AddUserCollaborate response', response.result)
+        console.info('AddUserCollaborate response', response.result)
         if (response.success) {
            this.$message.success('Add Collaborate successfully')
            this.handleClose()
@@ -126,7 +126,7 @@ export default {
   },
   created () {
     GetCollaborateUsers({ id: this.id, type: this.type }).then((response) => {
-      this.$logger.info('GetCollaborateUsers response', response.result)
+      console.info('GetCollaborateUsers response', response.result)
       if (response.success) {
         this.value = response.result
       } else {

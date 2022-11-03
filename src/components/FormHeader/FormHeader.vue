@@ -196,7 +196,7 @@ export default {
       this.collaborateUserList = userList
     },
     handleBack() {
-      this.$logger.info('handleBack')
+      console.info('handleBack')
       if (this.needConfirm) {
         this.$confirm({
           title: 'Confirm to leave',
@@ -228,16 +228,16 @@ export default {
     },
     handleSave() {
       this.saving = true
-      this.$logger.info('handleSave')
+      console.info('handleSave')
       this.$emit('save')
     },
     handlePublish(status) {
       this.publishing = true
-      this.$logger.info('handlePublish')
+      console.info('handlePublish')
       this.$emit('publish', status)
     },
     handleStartCollaborate() {
-      this.$logger.info('handleStartCollaborate')
+      console.info('handleStartCollaborate')
       this.$emit('collaborate')
     },
 
@@ -245,19 +245,19 @@ export default {
       this.$emit('view-collaborate')
     },
     handleEnsureNewFormName() {
-      this.$logger.info('handleEnsureNewFormName ' + this.form.name)
+      console.info('handleEnsureNewFormName ' + this.form.name)
       this.editFormNameMode = false
       if (this.formName && this.formName !== this.form.name) {
         const data = Object.assign({}, this.form)
         data.name = this.formName
         this.$emit('update-form', data)
       }
-      this.$logger.info('editFormNameMode ' + this.editFormNameMode)
+      console.info('editFormNameMode ' + this.editFormNameMode)
     },
 
     handleSharing() {
       this.sharing = true
-      this.$logger.info('handleSharing')
+      console.info('handleSharing')
       this.$emit('share')
     },
     formatOnlineEmail(email) {
@@ -265,7 +265,7 @@ export default {
     },
 
     handleCancelBounce () {
-      this.$logger.info('handleCancelBounce')
+      console.info('handleCancelBounce')
       this.debounceHiddenHeader.cancel()
     }
   }

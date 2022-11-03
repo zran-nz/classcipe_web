@@ -220,28 +220,28 @@ export default {
     })
 
     getAllCurriculums().then((response) => {
-      this.$logger.info('getAllCurriculums', response)
+      console.info('getAllCurriculums', response)
       this.curriculumOptions = response.result
-      this.$logger.info('getAllCurriculums', this.curriculumOptions)
+      console.info('getAllCurriculums', this.curriculumOptions)
     })
   },
   mounted () {
     this.blockWidth = (this.$refs['wrapper'].getBoundingClientRect().width - 781) / 2.0
-    this.$logger.info('globalWidth ' + this.blockWidth)
+    console.info('globalWidth ' + this.blockWidth)
   },
   methods: {
     toggleBrowserType (browserTypeItem) {
-      this.$logger.info('toggleBrowserType ' + browserTypeItem.type)
+      console.info('toggleBrowserType ' + browserTypeItem.type)
       if (browserTypeItem.type !== this.currentBrowserType) {
         this.currentBrowserType = browserTypeItem.type
         this.navPath = []
         this.navPath.push({ blockIndex: 0, path: browserTypeItem.label })
-        this.$logger.info('reset and add path ' + browserTypeItem.label)
+        console.info('reset and add path ' + browserTypeItem.label)
       }
     },
 
     handleBlockCollapse (data) {
-      this.$logger.info('handleBlockCollapse ' + data.blockIndex, data)
+      console.info('handleBlockCollapse ' + data.blockIndex, data)
       this.previewVisible = false
       if (this.blockIndex !== data.blockIndex) {
         this.blockIndex = data.blockIndex
@@ -254,17 +254,17 @@ export default {
           this.blockWidth = (this.$refs['wrapper'].getBoundingClientRect().width - 681) / 2.0
           this.browserMarginLeft = (data.blockIndex - 1) * this.blockWidth + 100
         }
-        this.$logger.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
+        console.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
       } else {
-        this.$logger.info('same block collapse')
+        console.info('same block collapse')
       }
       this.navPath = this.navPath.filter((item) => item.blockIndex < data.blockIndex)
       this.navPath.push({ blockIndex: data.blockIndex, path: data.path })
-      this.$logger.info('add path ' + data.path)
+      console.info('add path ' + data.path)
     },
 
     handlePreviewDetail (data) {
-      this.$logger.info('handlePreviewDetail', data)
+      console.info('handlePreviewDetail', data)
       this.previewVisible = false
       this.$nextTick(() => {
         this.previewCurrentId = data.id
@@ -274,7 +274,7 @@ export default {
     },
 
     handlePreviewClose () {
-      this.$logger.info('handlePreviewClose')
+      console.info('handlePreviewClose')
       this.previewCurrentId = ''
       this.previewType = ''
       this.previewVisible = false
@@ -282,7 +282,7 @@ export default {
 
     handleViewLeft () {
       this.previewVisible = false
-      this.$logger.info('handleViewLeft ' + (this.blockIndex))
+      console.info('handleViewLeft ' + (this.blockIndex))
       if (this.blockIndex < 2) {
         this.hasLeftBlock = false
         this.browserMarginLeft = 0
@@ -294,12 +294,12 @@ export default {
         this.browserMarginLeft = (this.blockIndex - 1) * this.blockWidth + 100
       }
       const path = this.navPath.pop()
-      this.$logger.info('remove path ' + path)
-      this.$logger.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
+      console.info('remove path ' + path)
+      console.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
     },
 
     handleNavPathChange (data) {
-      this.$logger.info('handleNavPathChange', data)
+      console.info('handleNavPathChange', data)
       this.previewVisible = false
       const blockIndex = data.blockIndex
       if (blockIndex <= 2) {
@@ -314,11 +314,11 @@ export default {
         this.browserMarginLeft = (this.blockIndex - 1) * this.blockWidth + 100
       }
       this.navPath = this.navPath.filter(item => item.blockIndex <= blockIndex)
-      this.$logger.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
+      console.info('browserMarginLeft ' + this.browserMarginLeft + ', hasLeftBlock:' + this.hasLeftBlock)
     },
 
     handleCurriculumChange (value) {
-      this.$logger.info('handleCurriculumChange ' + value)
+      console.info('handleCurriculumChange ' + value)
       this.currentCurriculumId = value
       this.hasLeftBlock = false
       this.blockIndex = 0

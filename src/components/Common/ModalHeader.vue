@@ -31,7 +31,7 @@ export default {
   },
   methods: {
     handleClickClose () {
-      this.$logger.info('handleClickClose')
+      console.info('handleClickClose')
       this.$emit('close')
     }
   }

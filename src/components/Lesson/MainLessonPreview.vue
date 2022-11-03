@@ -207,25 +207,25 @@ export default {
     },
 
     handleAuthCallback () {
-      this.$logger.info('handleAuthCallback')
+      console.info('handleAuthCallback')
       this.loadThumbnail()
     },
 
     loadThumbnail () {
-      this.$logger.info('LessonPreview loadThumbnail ' + this.lesson.presentationId, this.lesson.selectPageObjectIds)
+      console.info('LessonPreview loadThumbnail ' + this.lesson.presentationId, this.lesson.selectPageObjectIds)
       if (this.lesson.presentationId) {
         TemplatesGetPublishedPresentation({
           taskId: this.lesson.id
         }).then(response => {
           if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
             this.imgList = []
-            this.$logger.info('lesson loadThumbnail response', response.result)
+            console.info('lesson loadThumbnail response', response.result)
             const pageObjects = response.result.pageObjects
             pageObjects.forEach(page => {
               this.imgList.push(page.contentUrl)
               this.slideLoading = false
             })
-            this.$logger.info('current imgList ', this.imgList)
+            console.info('current imgList ', this.imgList)
           }
         })
       } else {
@@ -244,11 +244,11 @@ export default {
     },
 
     handleViewModeChange () {
-      this.$logger.info('handleViewModeChange ' + this.viewMode)
+      console.info('handleViewModeChange ' + this.viewMode)
     },
 
     handleGotoImgIndex (index) {
-      this.$logger.info('handleGotoImgIndex ' + index)
+      console.info('handleGotoImgIndex ' + index)
       this.currentImgIndex = index
       this.$refs.carousel.goTo(index)
     }

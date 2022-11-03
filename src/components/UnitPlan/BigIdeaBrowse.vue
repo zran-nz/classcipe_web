@@ -136,7 +136,7 @@ export default {
     // this.QuerySourceTagByCategory()
     this.QueryBigIdea()
     // SubjectTree({ curriculumId: this.$store.getters.bindCurriculum }).then(res => {
-    //   this.$logger.info('SubjectTree response', res.result)
+    //   console.info('SubjectTree response', res.result)
     //   if (res.success) {
     //     this.subjectList = [{ name: 'All Subject', id: '' }]
     //     this.subjectTree = res.result
@@ -165,7 +165,7 @@ export default {
     //     this.subjectIds = []
     //   }
     //   QuerySourceTagByCategory({ category: TAG_CATGORY_KEYWORDS, searchKey: this.inputTag }).then(response => {
-    //     this.$logger.info('QuerySourceTagByCategory response', response.result)
+    //     console.info('QuerySourceTagByCategory response', response.result)
     //     if (response.success) {
     //       this.keywordList = response.result.tags
     //       this.keywordHotList = response.result.hots
@@ -200,7 +200,7 @@ export default {
         params.keywords = this.inputTag
       }
       QueryNewBigIdea(params).then(response => {
-        this.$logger.info('QueryNewBigIdea response', response.result)
+        console.info('QueryNewBigIdea response', response.result)
         if (response.success) {
           this.bigIdeaList = response.result
           // if (this.inputTag) {
@@ -210,7 +210,7 @@ export default {
       }).finally(() => {
         this.bigLoading = false
          //  QueryTagsBySubjectIds({ 'mainSubjectId': this.subjectId, keywords: this.selectedKeywords }).then(response => {
-         //    this.$logger.info('queryTagsByMainSubjectId response', response.result)
+         //    console.info('queryTagsByMainSubjectId response', response.result)
          //    if (response.success) {
          //      this.conceptList = response.result['Universal Concept']
          //    }
@@ -218,9 +218,9 @@ export default {
     })
     },
     queryTagsBySubjectIds () {
-      this.$logger.info('queryTagsBySubjectIds')
+      console.info('queryTagsBySubjectIds')
       QueryTagsBySubjectIds({ 'mainSubjectId': this.subjectId }).then(response => {
-        this.$logger.info('queryTagsByMainSubjectId response', response.result)
+        console.info('queryTagsByMainSubjectId response', response.result)
         if (response.success) {
           this.conceptList = response.result['Universal Concept']
           this.keywordList = response.result['Key words']

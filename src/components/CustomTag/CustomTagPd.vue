@@ -281,18 +281,18 @@ export default {
       })
     },
     closeTag (closeTagItem) {
-      this.$logger.info('close tag', closeTagItem)
+      console.info('close tag', closeTagItem)
 
       const index = this.selectedTagList.findIndex(selectedTagItem => selectedTagItem.key === closeTagItem.key)
       if (index > -1) {
         this.selectedTagList.splice(index, 1)
       }
-      this.$logger.info('after close tag customTags', this.selectedTagList)
+      console.info('after close tag customTags', this.selectedTagList)
       this.$emit('update:customTags', this.selectedTagList)
     },
 
     selectTag (category, selectTagItem) {
-      this.$logger.info(`select ${category.category} tag ${selectTagItem.name}`, this.customTags, category, selectTagItem)
+      console.info(`select ${category.category} tag ${selectTagItem.name}`, this.customTags, category, selectTagItem)
       const index = this.selectedTagList.findIndex(selectedTagItem => selectedTagItem.key === selectTagItem.key)
       if (index === -1) {
         this.selectedTagList.push(selectTagItem)
@@ -312,7 +312,7 @@ export default {
     },
 
     updateCurrentCategory () {
-      this.$logger.info('updateCurrentCategory')
+      console.info('updateCurrentCategory')
       this.inputTag = ''
     },
 
@@ -323,7 +323,7 @@ export default {
     },
 
     activeCategory (tagItem) {
-      this.$logger.info('activeCategory', tagItem)
+      console.info('activeCategory', tagItem)
       const category = this.allTagList.find(category => category.category === tagItem.category)
       if (category) {
         this.switchCategory(category)

@@ -148,7 +148,7 @@ export default {
     } else if (this.userMode === this.USER_MODE.SCHOOL) {
       this.handleSearchContent()
     }
-    this.$logger.info('ImportContent created ' + this.currentSchoolId)
+    console.info('ImportContent created ' + this.currentSchoolId)
   },
   methods: {
     handleCloseModal () {
@@ -186,7 +186,7 @@ export default {
     },
 
     handleSelect (content) {
-      this.$logger.info('handleSelect', content)
+      console.info('handleSelect', content)
       if (this.selectedList.indexOf(content) === -1) {
         this.selectedList.push(content)
         this.currentActiveItem = content
@@ -205,7 +205,7 @@ export default {
     },
 
     handleImport () {
-      this.$logger.info('handleImport', this.selectedList)
+      console.info('handleImport', this.selectedList)
       const data = {
         otherContents: []
       }
@@ -217,7 +217,7 @@ export default {
         })
       })
 
-      this.$logger.info('handleImport data', data)
+      console.info('handleImport data', data)
       this.importing = true
       ImportOtherIdentityContent(data).then((res) => {
         if (res.success && res.code === 0) {

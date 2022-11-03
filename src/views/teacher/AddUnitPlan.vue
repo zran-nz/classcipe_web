@@ -1263,8 +1263,8 @@ export default {
   },
   watch: {
     referDetailVisible(value) {
-      this.$logger.info('watch referDetailVisible ' + value)
-      this.$logger.info('screen width: ', document.body.clientWidth)
+      console.info('watch referDetailVisible ' + value)
+      console.info('screen width: ', document.body.clientWidth)
       if (value && document.body.clientWidth < 1700) {
         this.showSidebar = false
       } else {
@@ -1272,11 +1272,11 @@ export default {
       }
     },
     'form.inquiry': function(value, newValue) {
-      this.$logger.info('watch form.inquiry change ' + value, newValue)
+      console.info('watch form.inquiry change ' + value, newValue)
       if (this.hideRecommendQuestion) {
         return
       }
-      this.$logger.info('get recommend question ' + value)
+      console.info('get recommend question ' + value)
       this.findQuestionsByBigIdea(value)
       // 重新load recommend
       this.loadBigIdeaLearnOuts()
@@ -1344,12 +1344,12 @@ export default {
       })
     },
     hasExtraRecommend() {
-      this.$logger.info('-------------', this.form.learnOuts, this.recommendDataIdList)
+      console.info('-------------', this.form.learnOuts, this.recommendDataIdList)
       let ret = false
       this.form.learnOuts.forEach(item => {
         if (this.recommendDataIdList.indexOf(item.knowledgeId) === -1) {
           ret = true
-          this.$logger.info('------------learnOuts', item, ' not exist in ', this.recommendDataIdList)
+          console.info('------------learnOuts', item, ' not exist in ', this.recommendDataIdList)
         }
       })
 
@@ -1424,12 +1424,12 @@ export default {
 
     // 填充自定义大纲内容
     async handleSelfOutsData() {
-      this.$logger.info(' handleSelfOutsData')
+      console.info(' handleSelfOutsData')
       const response = await GetReferOutcomes({
         id: this.unitPlanId,
         type: this.contentType['unit-plan']
       })
-      this.$logger.info('getReferOutcomes response', response)
+      console.info('getReferOutcomes response', response)
       if (response.success && response.result.length) {
         const list = response.result
         list.forEach(item => {
@@ -1440,7 +1440,7 @@ export default {
 
             const targetItem = this.recommendData.find(rItem => rItem.fromId === item.fromId)
             if (targetItem) {
-              this.$logger.info('targetItem ' + targetItem.fromName + ' add SelfCustom SelfOut ' + item.name, item)
+              console.info('targetItem ' + targetItem.fromName + ' add SelfCustom SelfOut ' + item.name, item)
               targetItem.list.push(item)
             }
           }
@@ -1504,7 +1504,7 @@ export default {
             displayCustomFieldData[customField.id] = ''
           })
         }
-        this.$logger.info('displayCustomFieldData', displayCustomFieldData)
+        console.info('displayCustomFieldData', displayCustomFieldData)
         unitPlanData.customFieldData = displayCustomFieldData
 
         this.form = unitPlanData
@@ -1658,7 +1658,7 @@ export default {
       console.info('Unit Plan handleAddSkillTag', data)
       console.info('target question data', this.questionDataObj[data.questionIndex])
       this.questionDataObj[data.questionIndex].skillTags.push(Object.assign({}, data))
-      this.$logger.info('after handleAddSkillTag questionDataObj ' + data.questionIndex, this.questionDataObj[data.questionIndex])
+      console.info('after handleAddSkillTag questionDataObj ' + data.questionIndex, this.questionDataObj[data.questionIndex])
     },
 
     async handleSaveUnitPlan(isBack) {
@@ -1698,13 +1698,13 @@ export default {
       this.handleSaveContentEvent(this.unitPlanId, this.contentType['unit-plan'], this.oldForm)
     },
     handlePublishUnitPlan(status) {
-      this.$logger.info('handlePublishUnitPlan', {
+      console.info('handlePublishUnitPlan', {
         id: this.unitPlanId,
         status: status
       }, 'associateTaskList', this.associateTaskList)
 
       const isNeedPublishAssociate = this.associateTaskList.some(item => item.status === 0)
-      this.$logger.info('handlePublishUnitPlan isNeedPublishAssociate', isNeedPublishAssociate)
+      console.info('handlePublishUnitPlan isNeedPublishAssociate', isNeedPublishAssociate)
       if (status) {
         if (!isNeedPublishAssociate) {
           this.form.status = status
@@ -1717,7 +1717,7 @@ export default {
             okText: 'Yes',
             cancelText: 'No, publish this Unit plan only.',
             onOk: () => {
-              this.$logger.info('handlePublishUnitPlan onOk')
+              console.info('handlePublishUnitPlan onOk')
               this.publishListVisible = true
             },
             onCancel: () => {
@@ -1742,9 +1742,9 @@ export default {
     },
 
     handleMultiPublish(associateIdList) {
-      this.$logger.info('handleMultiPublish', associateIdList)
+      console.info('handleMultiPublish', associateIdList)
       const associates = associateIdList.map(id => { return { id: id, type: this.contentType.task } })
-      this.$logger.info('handleMultiPublish associates', associates)
+      console.info('handleMultiPublish associates', associates)
       const data = {
         id: this.unitPlanId,
         status: 1,
@@ -1766,7 +1766,7 @@ export default {
     },
 
     handleMultiPublishClose() {
-      this.$logger.info('handleMultiPublishClose')
+      console.info('handleMultiPublishClose')
       this.$refs.commonFormHeader.publishing = false
       this.publishListVisible = false
     },
@@ -1797,7 +1797,7 @@ export default {
     },
 
     handleAddUnitPlanTask() {
-      this.$logger.info('handleAddUnitPlanTask ' + this.unitPlanId)
+      console.info('handleAddUnitPlanTask ' + this.unitPlanId)
       // 下创建一个空的task，然后关联，然后再跳转过去
       if (!this.addLoading) {
         this.addLoading = true
@@ -1806,7 +1806,7 @@ export default {
           associateId: this.form.id,
           associateType: this.form.type
         }).then((response) => {
-          this.$logger.info('TaskAddOrUpdate', response.result)
+          console.info('TaskAddOrUpdate', response.result)
           if (response.success) {
             Associate({
               fromId: this.unitPlanId,
@@ -1814,7 +1814,7 @@ export default {
               toId: response.result.id,
               toType: this.contentType.task
             }).then(response => {
-              this.$logger.info('Associate response ', response)
+              console.info('Associate response ', response)
             })
             this.addLoading = false
             this.$router.push({
@@ -1827,7 +1827,7 @@ export default {
           this.addLoading = false
         })
       } else {
-        this.$logger.info('add loading')
+        console.info('add loading')
       }
     },
 
@@ -1841,7 +1841,7 @@ export default {
           associateId: this.form.id,
           associateType: this.form.type
         }).then((response) => {
-          this.$logger.info('LessonAddOrUpdate', response.result)
+          console.info('LessonAddOrUpdate', response.result)
           if (response.success) {
             Associate({
               fromId: this.unitPlanId,
@@ -1849,7 +1849,7 @@ export default {
               toId: response.result.id,
               toType: this.contentType.lesson
             }).then(response => {
-              this.$logger.info('Associate response ', response)
+              console.info('Associate response ', response)
             })
             this.addLoading = false
             this.$router.push({
@@ -1862,7 +1862,7 @@ export default {
           this.addLoading = false
         })
       } else {
-        this.$logger.info('add loading')
+        console.info('add loading')
       }
     },
 
@@ -1876,7 +1876,7 @@ export default {
           associateId: this.form.id,
           associateType: this.form.type
         }).then((response) => {
-          this.$logger.info('EvaluationAddOrUpdate', response.result)
+          console.info('EvaluationAddOrUpdate', response.result)
           if (response.success) {
             Associate({
               fromId: this.unitPlanId,
@@ -1884,7 +1884,7 @@ export default {
               toId: response.result.id,
               toType: this.contentType.evaluation
             }).then(response => {
-              this.$logger.info('Associate response ', response)
+              console.info('Associate response ', response)
             })
             this.addLoading = false
             this.$router.push({
@@ -1897,12 +1897,12 @@ export default {
           this.addLoading = false
         })
       } else {
-        this.$logger.info('add loading')
+        console.info('add loading')
       }
     },
 
     goBack() {
-      this.$logger.info('click goBack')
+      console.info('click goBack')
       this.$router.push({ path: '/teacher/main/created-by-me' })
     },
     handleChangeCustomTags(tags) {
@@ -1976,7 +1976,7 @@ export default {
     },
 
     handleAddAudioOverview() {
-      this.$logger.info('handleAddAudioOverview')
+      console.info('handleAddAudioOverview')
       this.showAddAudioVisible = true
     },
     handleSelectDescription() {
@@ -1991,10 +1991,10 @@ export default {
         if (item.knowledgeId) {
           this.selectedIdList.push(item.knowledgeId)
         } else {
-          this.$logger.info('parentData selected id not exist ', item)
+          console.info('parentData selected id not exist ', item)
         }
       })
-      this.$logger.info('handleSelectDescription selectedList', this.selectedList, ' recommendData ', this.recommendData)
+      console.info('handleSelectDescription selectedList', this.selectedList, ' recommendData ', this.recommendData)
       this.selectSyncDataVisible = true
       this.defaultActiveMenu = NavigationType.learningOutcomes
 
@@ -2002,32 +2002,32 @@ export default {
       this.handleCollaborateEvent(this.unitPlanId, this.planField.Assessment, this.form.assessment)
     },
     handleConfirmAssociate() {
-      this.$logger.info('handleConfirmAssociate')
+      console.info('handleConfirmAssociate')
       this.associateLibraryVisible = false
     },
 
     handleStartRefer() {
-      this.$logger.info('handleStartRefer')
+      console.info('handleStartRefer')
       this.selectReferMyContentVisible = true
       this.referDetailVisible = false
     },
 
     handleDescriptionSelectClick(data) {
-      this.$logger.info('unit plan handleDescriptionSelectClick', data)
+      console.info('unit plan handleDescriptionSelectClick', data)
       this.selectSyncDataVisible = false
     },
 
     handleReferItem(data) {
-      this.$logger.info('handleReferItem', data)
+      console.info('handleReferItem', data)
       this.referId = data.item.id
       this.referType = data.item.type
       this.selectReferMyContentVisible = false
       this.referDetailVisible = true
-      this.$logger.info('referId ' + this.referId + ' referType ' + this.referType)
+      console.info('referId ' + this.referId + ' referType ' + this.referType)
     },
 
     handleCloseReferDetail() {
-      this.$logger.info('handleCloseReferDetail')
+      console.info('handleCloseReferDetail')
       this.referDetailVisible = false
       this.referId = null
       this.referType = null
@@ -2035,7 +2035,7 @@ export default {
     },
 
     handleHoverReferBlock(data) {
-      this.$logger.info('handleHoverReferBlock', data)
+      console.info('handleHoverReferBlock', data)
       this.$refs['form'].className = 'unit-plan-form-left ' + data.blockType
       document.getElementById(data.blockType).scrollIntoView({
         behavior: 'smooth',
@@ -2044,7 +2044,7 @@ export default {
     },
 
     handleReferBlock(data) {
-      this.$logger.info('handleReferBlock', data)
+      console.info('handleReferBlock', data)
       if (data.blockType === 'overview') {
         this.form.overview = data.data
       }
@@ -2072,21 +2072,21 @@ export default {
     },
 
     handleReferAssociate(data) {
-      this.$logger.info('handleReferAssociate', data)
+      console.info('handleReferAssociate', data)
       Associate({
         fromId: this.unitPlanId,
         fromType: this.contentType['unit-plan'],
         toId: data.item.id,
         toType: data.item.type
       }).then(response => {
-        this.$logger.info('Associate response ', response)
+        console.info('Associate response ', response)
         // 刷新子组件的关联数据
         this.$message.success('associate successfully!')
       })
     },
     showSelectLinkContentVisible() {
       if (!this.form.questions || this.form.questions.length === 0) {
-        this.$logger.info('no relevantQuestionList')
+        console.info('no relevantQuestionList')
         var that = this
         this.$confirm({
           title: 'Alert',
@@ -2101,7 +2101,7 @@ export default {
     },
     showSelectAddContentTypeVisible() {
       if (!this.form.questions || this.form.questions.length === 0) {
-        this.$logger.info('no relevantQuestionList')
+        console.info('no relevantQuestionList')
         var that = this
         this.$confirm({
           title: 'Alert',
@@ -2116,7 +2116,7 @@ export default {
     },
 
     handleAddTasks() {
-      this.$logger.info('handleAddTasks', this.groupNameList)
+      console.info('handleAddTasks', this.groupNameList)
       this.linkLoading = true
       // 如果第一部分有内容，点击link激活step 到第二部分，否则提示先输入第一部分表单内容
       if (this.form.name ||
@@ -2145,14 +2145,14 @@ export default {
     },
 
     handleAddTerm() {
-      this.$logger.info('handleAddTerm', this.groupNameList)
+      console.info('handleAddTerm', this.groupNameList)
       this.addCategoryLoading = true
       AddOrSaveGroupName({
         fromId: this.unitPlanId,
         fromType: this.contentType['unit-plan'],
         groupName: this.defaultGroupName + '_' + this.groupNameList.length
       }).then(response => {
-        this.$logger.info('AddOrSaveGroupName', response)
+        console.info('AddOrSaveGroupName', response)
         this.$refs.planLink.getAssociate()
         this.addCategoryLoading = false
       })
@@ -2162,7 +2162,7 @@ export default {
     },
 
     handleEnsureSelectedLink(data) {
-      this.$logger.info('handleEnsureSelectedLink', data)
+      console.info('handleEnsureSelectedLink', data)
       this.selectLinkContentVisible = false
       this.getAssociate()
       // 刷新组件内的列表
@@ -2173,7 +2173,7 @@ export default {
     },
 
     getAssociate() {
-      this.$logger.info('AddUnitPlan GetAssociate id[' + this.unitPlanId + '] fromType[' + this.contentType['unit-plan'] + ']')
+      console.info('AddUnitPlan GetAssociate id[' + this.unitPlanId + '] fromType[' + this.contentType['unit-plan'] + ']')
       this.associateUnitPlanIdList = []
       this.associateTaskIdList = []
       this.associateTaskList = []
@@ -2181,7 +2181,7 @@ export default {
         id: this.unitPlanId,
         type: this.contentType['unit-plan']
       }).then(response => {
-        this.$logger.info('AddUnitPlan GetAssociate response', response)
+        console.info('AddUnitPlan GetAssociate response', response)
         this.groupNameList = response.result.groups
         this.groupNameListOther = []
         this.selectedTaskList = [] // 只添加空group name分组数据
@@ -2230,10 +2230,10 @@ export default {
           })
         })
         this.newTermName = 'Untitled category_' + (this.groupNameList.length)
-        this.$logger.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
-        this.$logger.info('*******************associateUnitPlanIdList', this.associateUnitPlanIdList)
-        this.$logger.info('*******************associateTaskIdList', this.associateTaskIdList)
-        this.$logger.info('associateTaskIdList', this.associateTaskIdList)
+        console.info('AddTask GetAssociate formatted groupNameList', this.groupNameList, this.groupNameListOther)
+        console.info('*******************associateUnitPlanIdList', this.associateUnitPlanIdList)
+        console.info('*******************associateTaskIdList', this.associateTaskIdList)
+        console.info('associateTaskIdList', this.associateTaskIdList)
       }).finally(() => {
         this.linkGroupLoading = false
 
@@ -2250,11 +2250,11 @@ export default {
 
     loadTaskCategoryDesc() {
       const associateTaskIdList = (new Set(this.associateTaskIdList))
-      this.$logger.info('loadTaskCategoryDesc', associateTaskIdList)
+      console.info('loadTaskCategoryDesc', associateTaskIdList)
       QueryTagsByIds({
         ids: associateTaskIdList
       }).then(res => {
-        this.$logger.info('loadTaskCategoryDesc res', res.result)
+        console.info('loadTaskCategoryDesc res', res.result)
         this.readonlyTagCategoryDescList = res.result
       })
     },
@@ -2269,7 +2269,7 @@ export default {
           ids: this.associateUnitPlanIdList
         })
 
-        this.$logger.info('FindSourceOutcomes unit-plan response', response)
+        console.info('FindSourceOutcomes unit-plan response', response)
         if (response.success) {
           const recommendMap = new Map()
           response.result.forEach(item => {
@@ -2290,8 +2290,8 @@ export default {
             })
           }
         }
-        this.$logger.info('update unit-plan recommendData ', this.recommendData)
-        this.$logger.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
+        console.info('update unit-plan recommendData ', this.recommendData)
+        console.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
       }
 
       if (this.associateTaskIdList.length) {
@@ -2300,7 +2300,7 @@ export default {
           ids: this.associateTaskIdList
         })
         if (response.success) {
-          this.$logger.info('FindSourceOutcomes task response', response)
+          console.info('FindSourceOutcomes task response', response)
           const recommendMap = new Map()
           response.result.forEach(item => {
             if (recommendMap.has(item.fromId)) {
@@ -2319,8 +2319,8 @@ export default {
               list: value
             })
           }
-          this.$logger.info('update task recommendData ', this.recommendData)
-          this.$logger.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
+          console.info('update task recommendData ', this.recommendData)
+          console.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
         }
       }
     },
@@ -2331,7 +2331,7 @@ export default {
           bigIdea: this.form.inquiry,
           id: this.unitPlanId
         }).then(response => {
-          this.$logger.info('FindBigIdeaSourceOutcomes response', response)
+          console.info('FindBigIdeaSourceOutcomes response', response)
           const recommendMap = new Map()
           response.result.forEach(item => {
             if (recommendMap.has(item.fromId)) {
@@ -2350,14 +2350,14 @@ export default {
               list: value
             })
           }
-          this.$logger.info('update unit-plan recommendData ', this.recommendData)
-          this.$logger.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
+          console.info('update unit-plan recommendData ', this.recommendData)
+          console.info('************************update unit-plan recommendDataIdList ', this.recommendDataIdList)
         })
       }
     },
 
     handleUpdateGroupNameList() {
-      this.$logger.info('handleUpdateGroupNameList')
+      console.info('handleUpdateGroupNameList')
       this.getAssociate()
       // #协同编辑event事件
       this.handleCollaborateEvent(this.unitPlanId, this.planField.Link, this.associateTaskList)
@@ -2368,32 +2368,32 @@ export default {
     },
     // TODO 选择的assessment数据
     handleSelectAssessmentType(data) {
-      this.$logger.info('handleSelectAssessmentType', data)
+      console.info('handleSelectAssessmentType', data)
       this.selectedAssessmentList = data
     },
 
     handleSelectCurriculum(data) {
-      this.$logger.info('handleSelectCurriculum', data)
+      console.info('handleSelectCurriculum', data)
       this.selectedCurriculumList = data
     },
 
     handleSelectSubjectSpecificSkillListData(data) {
       this.selectedSpecificSkillList = data
-      this.$logger.info('handleSelectSubjectSpecificSkillListData', data)
+      console.info('handleSelectSubjectSpecificSkillListData', data)
     },
 
     handleSelect21CenturySkillListData(data) {
-      this.$logger.info('handleSelect21CenturySkillListData', data)
+      console.info('handleSelect21CenturySkillListData', data)
       this.selectedCenturySkillList = data
     },
 
     handleSelectIdu(data) {
-      this.$logger.info('handleSelectIdu', data)
+      console.info('handleSelectIdu', data)
       this.selectedIduList = data
     },
 
     handleSelectRecommend(data) {
-      this.$logger.info('handleSelectRecommend', data)
+      console.info('handleSelectRecommend', data)
       this.selectedRecommendList = data
     },
 
@@ -2408,17 +2408,17 @@ export default {
     },
 
     handleEnsureSelectData() {
-      this.$logger.info('handleEnsureSelectData',
+      console.info('handleEnsureSelectData',
         this.selectedCurriculumList,
         this.selectedSpecificSkillList,
         this.selectedCenturySkillList,
         this.selectedBigIdeaList,
         this.selectedAssessmentList,
         this.selectedIduList)
-      this.$logger.info('mySelectedList', this.$refs.newBrowser.mySelectedList)
-      this.$logger.info('learnOuts', this.form.learnOuts)
+      console.info('mySelectedList', this.$refs.newBrowser.mySelectedList)
+      console.info('learnOuts', this.form.learnOuts)
       const filterLearnOuts = this.$refs.newBrowser.mySelectedList.filter(item => (!item.hasOwnProperty('isSelfCustom') || (item.hasOwnProperty('isSelfCustom') && !item.isSelfCustom)))
-      this.$logger.info('filterLearnOuts', filterLearnOuts)
+      console.info('filterLearnOuts', filterLearnOuts)
       this.form.learnOuts = JSON.parse(JSON.stringify(filterLearnOuts))
       this.$refs.newBrowser.selectedRecommendList.forEach(item => {
         if (item.hasOwnProperty('isSelfCustom') && item.isSelfCustom) {
@@ -2468,12 +2468,12 @@ export default {
           path: data.knowledgeData.path
         })
       })
-      this.$logger.info('this.form.learnOuts', this.form.learnOuts)
+      console.info('this.form.learnOuts', this.form.learnOuts)
       this.selectSyncDataVisible = false
       this.handleCancelSelectData()
     },
     handleRemoveLearnOuts(data) {
-      this.$logger.info('handleRemoveLearnOuts', data)
+      console.info('handleRemoveLearnOuts', data)
       var index = this.form.learnOuts.findIndex(item => (item.knowledgeId === data.knowledgeId))
       if (index > -1) {
         this.form.learnOuts.splice(index, 1)
@@ -2496,7 +2496,7 @@ export default {
     loadCustomTags() {
       // this.$refs.customTag.tagLoading = true
       FindCustomTags({}).then((response) => {
-        this.$logger.info('FindCustomTags response', response.result)
+        console.info('FindCustomTags response', response.result)
         if (response.success) {
           this.customTags = response.result
           // 默认展示的tag分类
@@ -2532,11 +2532,11 @@ export default {
         }
         if (currentDom.classList.contains('tag-content-block') && currentDom.hasAttribute('data-field-name')) {
           const fieldName = currentDom.getAttribute('data-field-name')
-          this.$logger.info('current block fieldName', fieldName)
+          console.info('current block fieldName', fieldName)
           this.currentFocusFieldName = fieldName
           if (this.$store.getters.formConfigData?.planFieldTagMap?.[fieldName]) {
             this.customTagList = this.$store.getters.formConfigData.planFieldTagMap[fieldName].map(item => item.tagName)
-            this.$logger.info(fieldName + ' customTagList', this.customTagList)
+            console.info(fieldName + ' customTagList', this.customTagList)
           }
         }
         if (currentDom && currentDom.classList.contains('root-locate-form')) {
@@ -2545,12 +2545,12 @@ export default {
       }
       // custom tag 自带了margin-top: 20px,这里减掉不然不对齐。
       if (this.currentFocusFieldName) {
-        this.$logger.info('show currentFocusFieldName tag ', this.currentFocusFieldName)
+        console.info('show currentFocusFieldName tag ', this.currentFocusFieldName)
         this.customTagTop = formTop - 20
         this.showCustomTag = true
         this.setRightModuleVisible(this.rightModule.customTag)
       } else {
-        this.$logger.info('show global tag')
+        console.info('show global tag')
         CustomTagType.plan.default.forEach(name => {
           this.customTagList.push(name)
         })
@@ -2569,7 +2569,7 @@ export default {
 
     // 切换当前的字段的点评数据，从总的collaborateCommentList筛选初当前字段相关的点评数据
     handleSwitchComment(data) {
-      this.$logger.info('handleSwitchComment', data)
+      console.info('handleSwitchComment', data)
       if (!data.activeStatus) {
         // 关闭
         this.currentFieldName = ''
@@ -2585,12 +2585,12 @@ export default {
       this.collaborateCommentList = list
       this.collaborateTop = data.top
       // this.showCollaborateCommentVisible = true
-      // this.$logger.info('currentCollaborateCommentList', this.currentCollaborateCommentList)
+      // console.info('currentCollaborateCommentList', this.currentCollaborateCommentList)
     },
 
     // 每次点击都重新加载一下最新数据
     handleViewCollaborate() {
-      this.$logger.info('handleViewCollaborate')
+      console.info('handleViewCollaborate')
       if (this.showModuleList.indexOf(this.rightModule.collaborate) !== -1) {
         this.resetRightModuleVisible()
       } else {
@@ -2605,17 +2605,17 @@ export default {
 
     // TODO 发布评论后需要更新最新的评论列表,刷新数据
     handleUpdateCommentList() {
-      this.$logger.info('handleUpdateCommentList')
+      console.info('handleUpdateCommentList')
       this.GetCollaborateComment(this.form.type, this.form.id)
     },
 
     // historyData以及在接口请求的相应逻辑中正对数据进行‘格式’，
     // 这样在这里就可以直接this.$set设置字段的数据
     handleRestoreField(data) {
-      this.$logger.info('handleRestoreField', data, this.form)
+      console.info('handleRestoreField', data, this.form)
       if (data) {
         // data.historyData.forEach(dataItem => {
-        //   this.$logger.info('set ' + dataItem.fieldName, dataItem.data[0])
+        //   console.info('set ' + dataItem.fieldName, dataItem.data[0])
         //   if (Array.isArray(dataItem.data[0])) {
         //     // 清空数组
         //     this.form[dataItem.fieldName].splice(0, this.form[dataItem.fieldName].length)
@@ -2629,14 +2629,14 @@ export default {
         this.form = data
         this.$message.success('restore successfully!')
       }
-      this.$logger.info('after handleRestoreField', this.form)
+      console.info('after handleRestoreField', this.form)
     },
     handQuestionSetting() {
       this.confirmLoading = true
       UserSetting({
         disableQuestion: !this.disableQuestion
       }).then((response) => {
-        this.$logger.info('UserSetting', response.result)
+        console.info('UserSetting', response.result)
         if (response.success) {
           this.$store.dispatch('GetInfo')
         } else {
@@ -2725,7 +2725,7 @@ export default {
         , '_blank')
     },
     handleClickTaskDetail(e) {
-      this.$logger.info('handleClickTaskDetail', this.showTaskDetails)
+      console.info('handleClickTaskDetail', this.showTaskDetails)
       this.setRightModuleVisible(this.rightModule.taskDetails)
       // this.showTaskDetails = !this.showTaskDetails
       const eventDom = e.target
@@ -2746,7 +2746,7 @@ export default {
     },
 
     handleShareUnitPlan() {
-      this.$logger.info('handleShareUnitPlan')
+      console.info('handleShareUnitPlan')
       this.shareVisible = true
     },
     loadingShareContent() {
@@ -2754,7 +2754,7 @@ export default {
         sourceId: this.form.id,
         sourceType: this.form.type
       }).then(response => {
-        this.$logger.info('form QueryContentShare response', response)
+        console.info('form QueryContentShare response', response)
         if (response.result) {
           this.shareStatus = response.result.status
         } else {

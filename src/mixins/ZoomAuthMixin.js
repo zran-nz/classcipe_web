@@ -38,7 +38,7 @@ export const ZoomAuthMixin = {
      */
     goToZoomAuth() {
       const email = this.$store.getters.email
-      this.$logger.info('goToZoomAuth email:', email)
+      console.info('goToZoomAuth email:', email)
       let url = getThirdAuthURL('zoom')
       url += `?role=teacher`
       url += `&email=${email}`
@@ -50,7 +50,7 @@ export const ZoomAuthMixin = {
         window.sessionStorage.setItem(SESSION_CALLBACK_URL, getUrlWithNoParams(this.callbackUrl))
       }
       window.sessionStorage.setItem('SESSION_AUTH_TYPE', 'zoom')
-      this.$logger.info('full auth url ', url)
+      console.info('full auth url ', url)
       const height = 600
       const width = 800
       // 获得窗口的垂直位置
@@ -68,7 +68,7 @@ export const ZoomAuthMixin = {
     handleZoomAuthCallback (event) {
       const data = event.data
       if (data && data.event === 'authUpdate' && data.authType === 'zoom') {
-        this.$logger.info('zoom auth update!')
+        console.info('zoom auth update!')
         window.sessionStorage.removeItem('SESSION_AUTH_TYPE')
         this.$store.dispatch('GetInfo')
         this.$store.commit('SET_ZOOM_CHECKED', true)
@@ -77,9 +77,9 @@ export const ZoomAuthMixin = {
 
     async checkZoomAuthExpired() {
       const ret = await checkAuthExpired('zoom', this.$store.getters.email)
-      this.$logger.info('checkZoomAuthExpired', ret)
+      console.info('checkZoomAuthExpired', ret)
       if (ret.code === 0 && ret.success) {
-        this.$logger.info('zoom auth no expired!')
+        console.info('zoom auth no expired!')
         return true
       } else {
         this.$store.commit('SET_ZOOM_CHECKED', false)
@@ -106,12 +106,12 @@ export const ZoomAuthMixin = {
       } else {
         const authExpired = await this.checkZoomAuthExpired()
         if (!authExpired) {
-          this.$logger.info('zoom auth already expired')
+          console.info('zoom auth already expired')
           // this.goToZoomAuth()
           this.$store.commit('SET_ZOOM_CHECKED', false)
           return false
         } else {
-          this.$logger.info('zoom auth still no expired')
+          console.info('zoom auth still no expired')
           this.$store.commit('SET_ZOOM_CHECKED', true)
           return true
         }

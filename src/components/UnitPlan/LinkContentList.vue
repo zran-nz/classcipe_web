@@ -132,11 +132,11 @@ export default {
   },
   methods: {
     handleTypeFilter () {
-      this.$logger.info('handleTypeFilter selectedIdList', this.selectedIdList)
+      console.info('handleTypeFilter selectedIdList', this.selectedIdList)
       this.$refs.filter.triggerSearch()
     },
     handleSearch (data) {
-      this.$logger.info('handleSearch data', data)
+      console.info('handleSearch data', data)
       this.searching = true
       if (this.sourceType === 'MyContent') {
         this.searchContent(data)
@@ -183,13 +183,13 @@ export default {
           this.contentList = []
           this.pagination.total = 0
         }
-        this.$logger.info('loadContent contentList', this.contentList)
+        console.info('loadContent contentList', this.contentList)
       }).finally(() => {
         this.searching = false
       })
     },
     loadLibrary (data) {
-      this.$logger.info('loadLibrary', data)
+      console.info('loadLibrary', data)
       data.type = this.filterTypes
       data.excludedMe = true // 排除不在library展示my content内容
       QueryContentsFilter(data).then(response => {

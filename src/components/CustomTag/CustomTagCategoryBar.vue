@@ -58,7 +58,7 @@ export default {
   },
   methods: {
     scrollLeft () {
-      this.$logger.info('scrollLeft')
+      console.info('scrollLeft')
       const tagCategoryTabDom = document.getElementById('cc-user-tag-category-tabs')
       tagCategoryTabDom.scrollTo({
         left: tagCategoryTabDom.scrollLeft - 300,
@@ -66,7 +66,7 @@ export default {
       })
     },
     scrollRight () {
-      this.$logger.info('scrollRight')
+      console.info('scrollRight')
       const tagCategoryTabDom = document.getElementById('cc-user-tag-category-tabs')
       tagCategoryTabDom.scrollTo({
         left: tagCategoryTabDom.scrollLeft + 300,
@@ -75,7 +75,7 @@ export default {
     },
 
     handleActiveTagCategory (categoryItem) {
-      this.$logger.info('handleActiveTagCategory', categoryItem)
+      console.info('handleActiveTagCategory', categoryItem)
       this.$emit('update:activeTagCategory', categoryItem)
       this.$emit('update')
     },

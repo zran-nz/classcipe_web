@@ -104,12 +104,12 @@ export default {
   },
   methods: {
     handleUpdateFilterConfig (filter) {
-      this.$logger.info('handleUpdateFilterConfig', filter)
+      console.info('handleUpdateFilterConfig', filter)
       this.filterParams = filter
       this.triggerSearch()
     },
     triggerSearch() {
-      this.$logger.info('triggerSearch', this.searchKey)
+      console.info('triggerSearch', this.searchKey)
       const filterConfig = Object.assign({}, { searchKey: this.searchKey, ...this.filterParams })
       this.$emit('search', filterConfig)
     },
@@ -123,7 +123,7 @@ export default {
     loadUserTags () {
       // this.$refs.customTag.tagLoading = true
       FindCustomTags({}).then((response) => {
-        this.$logger.info('FindCustomTags response', response.result)
+        console.info('FindCustomTags response', response.result)
         if (response.success) {
           this.filterSaOptions = []
           this.filterFaOptions = []

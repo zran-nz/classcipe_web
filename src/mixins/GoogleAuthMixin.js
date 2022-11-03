@@ -28,7 +28,7 @@ export const GoogleAuthMixin = {
      */
     goToGoogleAuth() {
       const email = this.$store.getters.email
-      this.$logger.info('goToGoogleAuth email:', email)
+      console.info('goToGoogleAuth email:', email)
       let url = getThirdAuthURL('google')
       url += `?role=teacher`
       url += `&channelId=${getCookie(SET_PROMOTE_CODE)}`
@@ -38,7 +38,7 @@ export const GoogleAuthMixin = {
         window.sessionStorage.setItem(SESSION_CALLBACK_URL, getUrlWithNoParams(this.callbackUrl))
       }
       window.sessionStorage.setItem('SESSION_AUTH_TYPE', 'google')
-      this.$logger.info('full auth url ', url)
+      console.info('full auth url ', url)
       const height = 600
       const width = 800
       // 获得窗口的垂直位置
@@ -56,7 +56,7 @@ export const GoogleAuthMixin = {
     handleGoogleAuthCallback (event) {
       const data = event.data
       if (data && data.event === 'authUpdate' && data.authType === 'google') {
-        this.$logger.info('google auth update!')
+        console.info('google auth update!')
         window.sessionStorage.removeItem('SESSION_AUTH_TYPE')
         this.$store.dispatch('GetInfo')
       }
@@ -64,9 +64,9 @@ export const GoogleAuthMixin = {
 
     async checkGoogleAuthExpired() {
       const ret = await checkAuthExpired('google', this.$store.getters.email)
-      this.$logger.info('checkGoogleAuthExpired', ret)
+      console.info('checkGoogleAuthExpired', ret)
       if (ret.code === 0 && ret.success) {
-        this.$logger.info('google auth no expired!')
+        console.info('google auth no expired!')
         return true
       } else {
         return false
@@ -80,11 +80,11 @@ export const GoogleAuthMixin = {
       } else {
         const authExpired = await this.checkGoogleAuthExpired()
         if (!authExpired) {
-          this.$logger.info('google auth already expired')
+          console.info('google auth already expired')
           this.goToGoogleAuth()
           return false
         } else {
-          this.$logger.info('google auth still no expired')
+          console.info('google auth still no expired')
           return true
         }
       }

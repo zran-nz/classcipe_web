@@ -81,7 +81,7 @@ export default {
     }).then(res => {
       const data = res.result
       if (data) {
-        this.$logger.info('discountSettingQuery', data)
+        console.info('discountSettingQuery', data)
         this.discountSetting.salesOff = data.saleOff
         this.discountSetting.overs = data.overs
         this.discountSetting.startDate = data.discountStartTime
@@ -99,7 +99,7 @@ export default {
     },
 
     async handleConfirmDiscountSetting () {
-      this.$logger.info('handleConfirmDiscountSetting', this.discountSetting)
+      console.info('handleConfirmDiscountSetting', this.discountSetting)
       this.discountSetting.salesOff = parseFloat(this.discountSetting.salesOff).toFixed(2)
       this.discountSetting.overs = parseFloat(this.discountSetting.overs).toFixed(2)
       if (this.discountSetting.salesOff > this.discountSetting.overs) {
@@ -119,7 +119,7 @@ export default {
     },
 
     handleDurationChange (date) {
-      this.$logger.info('handleDurationChange', date)
+      console.info('handleDurationChange', date)
       this.discountSetting.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD 00:00:00')
       this.discountSetting.endData = moment(date[1].toDate()).utc().format('YYYY-MM-DD 00:00:00')
     },

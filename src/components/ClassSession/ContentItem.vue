@@ -324,7 +324,7 @@ export default {
   },
   methods: {
     editItem() {
-      // this.$logger.info('edit session content', this.session)
+      // console.info('edit session content', this.session)
       // if (this.content.presentationId) {
         this.$router.push({
           path: '/teacher/schedule-session/' + this.content.id + '/' + this.content.type + '?sessionId=' + this.session.session.classId
@@ -341,11 +341,11 @@ export default {
     },
 
     handlePreviewSession() {
-      this.$logger.info('handlePreviewSession', this.content)
+      console.info('handlePreviewSession', this.content)
     },
 
     handleDeleteSession() {
-      this.$logger.info('handleDeleteSession', this.session.session)
+      console.info('handleDeleteSession', this.session.session)
       if (this.session.session) {
         // if (WORK_SHOPS_STATUS.ARCHIVED.value === this.session.status) {
           this.$confirm({
@@ -424,11 +424,11 @@ export default {
     },
 
     handleCoteacher() {
-      this.$logger.info('handleCoteacher', this.content)
+      console.info('handleCoteacher', this.content)
     },
 
     handleTakeaway() {
-      this.$logger.info('handleTakeaway', this.content)
+      console.info('handleTakeaway', this.content)
     },
 
     startZoom () {
@@ -440,7 +440,7 @@ export default {
     },
 
     toggleEditSessionName () {
-      this.$logger.info('toggleEditSessionName', this.session)
+      console.info('toggleEditSessionName', this.session)
       if (this.editingSessionName) {
         if (this.newSessionName.trim().length) {
           this.session.session.sessionName = this.newSessionName.trim()
@@ -463,9 +463,9 @@ export default {
     },
 
     updateSession() {
-      this.$logger.info('update session', this.session)
+      console.info('update session', this.session)
       AddOrUpdateClass(this.session.session).then(response => {
-        this.$logger.info('response item', response)
+        console.info('response item', response)
       })
     },
 
@@ -474,7 +474,7 @@ export default {
     },
 
     handleDateChange (date, dateString) {
-      this.$logger.info('handleDateChange', date, dateString)
+      console.info('handleDateChange', date, dateString)
       this.session.sessionStartTime = moment(date[0].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
       this.session.deadline = moment(date[1].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
       this.updateSession()

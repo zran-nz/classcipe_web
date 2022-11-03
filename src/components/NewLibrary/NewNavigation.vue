@@ -39,11 +39,11 @@ export default {
     }
   },
   created() {
-    this.$logger.info('NewNavigation')
+    console.info('NewNavigation')
   },
   watch: {
     navPath(newNavPath) {
-      this.$logger.info('NewNavigation navPath changed', newNavPath)
+      console.info('NewNavigation navPath changed', newNavPath)
       let path = this.curriculumLabel + '>'
       newNavPath.forEach((item) => {
         if (item && item.hasOwnProperty('name')) {
@@ -68,7 +68,7 @@ export default {
   },
   methods: {
     handleContentListUpdate(data) {
-      this.$logger.info('handleContentListUpdate', data)
+      console.info('handleContentListUpdate', data)
       const currentTreeItem = Object.assign({}, data)
       const navPathObjList = [currentTreeItem.parentTreeData, currentTreeItem.currentTreeData]
       let parentItem = currentTreeItem.parentTreeData
@@ -80,12 +80,12 @@ export default {
     },
 
     handleChangeCurriculum() {
-      this.$logger.info('NewNavigation handleChangeCurriculum')
+      console.info('NewNavigation handleChangeCurriculum')
       this.navPath = []
     },
 
     handleLibraryNavClick(path) {
-      this.$logger.info('handleLibraryNavClick ', path)
+      console.info('handleLibraryNavClick ', path)
       LibraryEventBus.$emit(LibraryEvent.ContentListItemClick, {
         item: path,
         parent: path.parent
@@ -94,11 +94,11 @@ export default {
 
     getCurriculums() {
       getAllCurriculums().then((response) => {
-        this.$logger.info('getAllCurriculums', response)
+        console.info('getAllCurriculums', response)
         if (response.success) {
           const currentCurriculumId = this.currentCurriculum ? this.currentCurriculum : this.$store.getters.bindCurriculum
           const curriculum = response.result.find(item => parseInt(item.id) === parseInt(currentCurriculumId))
-          this.$logger.info('bindCurriculum', curriculum)
+          console.info('bindCurriculum', curriculum)
           if (curriculum) {
             this.curriculumLabel = curriculum.name
           }

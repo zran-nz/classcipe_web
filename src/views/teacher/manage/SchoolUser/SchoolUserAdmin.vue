@@ -235,7 +235,7 @@ export default {
         roles: SchoolUserRole.teacher,
         pageSize: 1000
       })
-      this.$logger.info('getTeacherList', res.result)
+      console.info('getTeacherList', res.result)
       this.teacherList = res.result ? res.result.records : []
     },
     async handleSearch() {

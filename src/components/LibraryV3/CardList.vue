@@ -150,7 +150,7 @@ export default {
 
     hiddenArrow(dom) {
       setTimeout(() => {
-        this.$logger.info('hidden arrow', dom, 'scrollLeft', dom.scrollLeft, 'offsetWidth', dom.offsetWidth, 'scrollWidth', dom.scrollWidth)
+        console.info('hidden arrow', dom, 'scrollLeft', dom.scrollLeft, 'offsetWidth', dom.offsetWidth, 'scrollWidth', dom.scrollWidth)
         if (dom && (dom.scrollLeft + dom.offsetWidth >= dom.scrollWidth)) {
           this.hasMoreRight = false
         } else {
@@ -162,7 +162,7 @@ export default {
         } else {
           this.hasMoreLeft = true
         }
-        this.$logger.info(`hasMoreLeft ${this.hasMoreLeft} hasMoreRight ${this.hasMoreRight}`)
+        console.info(`hasMoreLeft ${this.hasMoreLeft} hasMoreRight ${this.hasMoreRight}`)
       }, 500)
     }
   }

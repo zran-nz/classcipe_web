@@ -135,10 +135,10 @@ export default {
   },
   methods: {
     handleDateChange (date, dateString) {
-      this.$logger.info('handleDateChange', date, dateString)
+      console.info('handleDateChange', date, dateString)
       this.startDate = moment(date[0].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
       this.endDate = moment(date[1].toDate()).utc().format('YYYY-MM-DD HH:mm:ss')
-      this.$logger.info('handleDateChange', this.startDate, this.endDate)
+      console.info('handleDateChange', this.startDate, this.endDate)
       this.$emit('select-date', {
         startDate: this.startDate,
         endDate: this.endDate
@@ -157,7 +157,7 @@ export default {
       }
       this.startDate = moment(date.startDate).utc().format('YYYY-MM-DD HH:mm:ss')
       this.endDate = moment(date.endDate).utc().format('YYYY-MM-DD HH:mm:ss')
-      this.$logger.info('handleDateChange', this.startDate, this.endDate)
+      console.info('handleDateChange', this.startDate, this.endDate)
       this.$emit('select-date', {
         startDate: this.startDate,
         endDate: this.endDate
@@ -165,7 +165,7 @@ export default {
     },
 
     async handleZoomStatusChange () {
-      this.$logger.info('handleZoomStatusChange', this.enableZoom)
+      console.info('handleZoomStatusChange', this.enableZoom)
       this.$emit('select-zoom-status', this.enableZoom)
     },
 

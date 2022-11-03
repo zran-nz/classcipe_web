@@ -172,7 +172,7 @@ export default {
         pageNo: 1,
         pageSize: 10000
       }).then(res => {
-        this.$logger.info('listClass res records', res)
+        console.info('listClass res records', res)
         this.classList = (res?.result?.records || []).filter(cls => cls.status !== 2)
         this.studentList = []
         if (this.classList.length === 1) {
@@ -191,7 +191,7 @@ export default {
     },
     handleSelectClass (item) {
       if (this.classId && item.id !== this.classId) return
-      this.$logger.info('handleSelectClass', item, 'this.checkedClass', this.checkedClass)
+      console.info('handleSelectClass', item, 'this.checkedClass', this.checkedClass)
       this.checkedClass = [item]
       this.currentSelectedClass = item
       this.loadCurrentClassStudent()
@@ -199,12 +199,12 @@ export default {
     },
 
     removeClassStudent(classItem) {
-      this.$logger.info('before removeClassStudent', this.checkedStudent)
+      console.info('before removeClassStudent', this.checkedStudent)
       this.checkedStudent = this.checkedStudent.filter(student => student.classes.length === 0 || student.classes[0].id !== classItem.id)
-      this.$logger.info('after removeClassStudent', this.checkedStudent)
+      console.info('after removeClassStudent', this.checkedStudent)
     },
     loadCurrentClassStudent() {
-      this.$logger.info('loadCurrentClassStudent', this.currentSelectedClass)
+      console.info('loadCurrentClassStudent', this.currentSelectedClass)
       if (this.currentSelectedClass) {
         this.studentListLoading = true
         getSchoolUsers({
@@ -214,7 +214,7 @@ export default {
           pageSize: 10000,
           pageNo: 1
         }).then(res => {
-          this.$logger.info('loadClassStudent', res)
+          console.info('loadClassStudent', res)
           if (res.result) {
             this.studentList = res.result.records
             this.checkedStudent = this.studentList.slice()
@@ -226,21 +226,21 @@ export default {
     },
 
     selectPrivateWorkshop () {
-      this.$logger.info('selectPrivateWorkshop', this.checkedStudent)
+      console.info('selectPrivateWorkshop', this.checkedStudent)
       this.$emit('select-workshop-type', {
         workshopType: 1
       })
     },
 
     selectPublicWorkshop () {
-      this.$logger.info('selectPrivateWorkshop', this.checkedStudent)
+      console.info('selectPrivateWorkshop', this.checkedStudent)
       this.$emit('select-workshop-type', {
         workshopType: 2
       })
     },
 
     getSelectedData () {
-      this.$logger.info('getSelectedData', this.checkedClass, this.checkedStudent)
+      console.info('getSelectedData', this.checkedClass, this.checkedStudent)
       return {
         classIds: this.checkedClass.map(item => item.id),
         selectStudents: this.checkedStudent.map(item => item.id)
@@ -248,9 +248,9 @@ export default {
     },
 
     handleSelectStudent (student) {
-      this.$logger.info('handleSelectStudent', student)
+      console.info('handleSelectStudent', student)
       if (this.selectedStudentIdList.indexOf(student.id) !== -1) {
-        this.$logger.info('remove student', student)
+        console.info('remove student', student)
         this.checkedStudent.splice(this.checkedStudent.findIndex(it => it.id === student.id), 1)
       } else {
         this.checkedStudent.push(student)
@@ -259,7 +259,7 @@ export default {
     },
 
     onSelectAllChange() {
-      this.$logger.info('onSelectAllChange', this.selectAllFlag)
+      console.info('onSelectAllChange', this.selectAllFlag)
       this.selectAllFlag = !this.selectAllFlag
       if (this.selectAllFlag) {
         this.checkedStudent = this.studentList.slice()

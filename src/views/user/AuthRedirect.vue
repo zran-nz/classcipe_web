@@ -16,7 +16,7 @@ export default {
     const redirect = paramSearch.get('redirect')
     this.$store.dispatch('LoginWithToken', token).then(() => {
       this.$store.dispatch('GetInfo').then(response => {
-        this.$logger.info('redirect path is ' + redirect)
+        console.info('redirect path is ' + redirect)
         this.$router.push({ path: redirect })
       }).catch((e) => {
         this.$message.error('Redirect Auth Failed,' + e)

@@ -152,7 +152,7 @@ export default {
     }
   },
   created () {
-    this.$logger.info('SelectEvaluationList taskId ' + this.taskId + ' classId ' + this.classId + ' hiddenEvaluationId ' + this.hiddenEvaluationId)
+    console.info('SelectEvaluationList taskId ' + this.taskId + ' classId ' + this.classId + ' hiddenEvaluationId ' + this.hiddenEvaluationId)
     this.loadMyContent()
   },
   methods: {
@@ -202,14 +202,14 @@ export default {
         this.mySelectedList.push(itemId)
         this.mySelectedMap.set(itemId, item)
       }
-      this.$logger.info('mySelectedList', this.mySelectedList)
+      console.info('mySelectedList', this.mySelectedList)
     },
 
     handleToggleSelect (item) {
       console.info('handleToggleSelect', item)
       if (item.expand) {
         EvaluationQueryByIds({ ids: [item.id] }).then((response) => {
-          this.$logger.info('handleToggleSelect EvaluationQueryByIds ' + item.id, response)
+          console.info('handleToggleSelect EvaluationQueryByIds ' + item.id, response)
           const forms = []
           response.result.forEach(evaluationItem => {
             evaluationItem.forms.forEach(formItem => {
@@ -236,12 +236,12 @@ export default {
     },
 
     handleCancel () {
-      this.$logger.info('cancel')
+      console.info('cancel')
       this.$emit('cancel')
     },
 
     handleEnsure () {
-      this.$logger.info('handleEnsure')
+      console.info('handleEnsure')
       const list = []
       this.mySelectedList.forEach(item => {
         list.push(item.split('-')[1])

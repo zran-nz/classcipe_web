@@ -730,7 +730,7 @@ export default {
         list.forEach(item => {
           if (item.hasOwnProperty(this.headerType.Description)) {
             if (item[this.headerType.Description].isDescription === false) {
-              this.$logger.info('!!! has21CenturySkillNoDescriptionItem', item)
+              console.info('!!! has21CenturySkillNoDescriptionItem', item)
               flag = true
             }
           }
@@ -755,7 +755,7 @@ export default {
     }
   },
   created() {
-    this.$logger.info('[' + this.mode + '] EvaluationTable created formType ' + this.formType, 'initRawHeaders', this.initRawHeaders, 'initRawData', this.initRawData, ' formBodyData', this.formBodyData)
+    console.info('[' + this.mode + '] EvaluationTable created formType ' + this.formType, 'initRawHeaders', this.initRawHeaders, 'initRawData', this.initRawData, ' formBodyData', this.formBodyData)
 
     // 评估模式参数校验
     if ([
@@ -1023,7 +1023,7 @@ export default {
         }
       }
     }
-    this.$logger.info('[' + this.mode + '] form headers ', this.headers)
+    console.info('[' + this.mode + '] form headers ', this.headers)
 
     if (this.initRawData.length) {
       this.list = this.initRawData
@@ -1040,21 +1040,21 @@ export default {
     LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleContentListSelectClick)
     LibraryEventBus.$off(LibraryEvent.CenturySkillsSelect, this.handleCenturySkillsSelect)
     LibraryEventBus.$off(LibraryEvent.CancelCenturySkillsSelect, this.handleCancelCenturySkillsSelect)
-    this.$logger.info('[' + this.mode + '] off NewClickableKnowledgeTag ContentListSelectClick handler')
+    console.info('[' + this.mode + '] off NewClickableKnowledgeTag ContentListSelectClick handler')
   },
   methods: {
 
     handleContentListSelectClick(data) {
       if (data.questionIndex === 'evaluation_') {
-        this.$logger.info('[' + this.mode + '] evaluation handleContentListSelectClick hit', data)
+        console.info('[' + this.mode + '] evaluation handleContentListSelectClick hit', data)
         LibraryEventBus.$emit(LibraryEvent.ContentListSelectedListUpdate, { id: data.subKnowledgeId })
       }
     },
 
     handleEditHeader(header) {
       this.disabledDraggable = true
-      this.$logger.info('disabled Draggable')
-      this.$logger.info('[' + this.mode + '] handleEditHeader', header)
+      console.info('disabled Draggable')
+      console.info('[' + this.mode + '] handleEditHeader', header)
       if (header.editable) {
         this.headers.forEach(item => {
           if (item.label.length === 0) {
@@ -1072,7 +1072,7 @@ export default {
           }
         })
       } else {
-        this.$logger.info('[' + this.mode + '] current header not editable', header)
+        console.info('[' + this.mode + '] current header not editable', header)
       }
     },
 
@@ -1092,7 +1092,7 @@ export default {
     },
 
     handleAddNewHeader(hIndex) {
-      this.$logger.info('[' + this.mode + '] handleAddNewHeader this.selfHeaderTypeIndex ' + this.selfHeaderAddIndex + ' hIndex ' + hIndex)
+      console.info('[' + this.mode + '] handleAddNewHeader this.selfHeaderTypeIndex ' + this.selfHeaderAddIndex + ' hIndex ' + hIndex)
 
       // 重新生成一个唯一的表头类型，示例：user_define__1、user_define__2
       let userDefineHeaderType = this.headerType.UserDefine + this.selfHeaderAddIndex
@@ -1123,12 +1123,12 @@ export default {
         item[headerItem.type] = { name: null }
       })
       this.list = oldList
-      this.$logger.info('[' + this.mode + '] after update list', this.list)
+      console.info('[' + this.mode + '] after update list', this.list)
       this.selfHeaderAddIndex++
     },
 
     handleRemoveHeader(header) {
-      this.$logger.info('[' + this.mode + '] handleRemoveHeader ', header)
+      console.info('[' + this.mode + '] handleRemoveHeader ', header)
       const index = this.headers.findIndex(item => item.type === header.type)
       if (index !== -1) {
         this.headers.splice(index, 1)
@@ -1138,11 +1138,11 @@ export default {
         delete item[header.type]
       })
       this.list = oldList
-      this.$logger.info('[' + this.mode + '] after delete column update list', this.list)
+      console.info('[' + this.mode + '] after delete column update list', this.list)
     },
 
     handleAddNewLine() {
-      this.$logger.info('[' + this.mode + '] handleAddNewLine ')
+      console.info('[' + this.mode + '] handleAddNewLine ')
       const newLineItem = {}
       const rowId = this.generateRowId()
       newLineItem.rowId = rowId
@@ -1196,12 +1196,12 @@ export default {
           rowId
         }
       }
-      this.$logger.info('[' + this.mode + '] init new line ', newLineItem)
+      console.info('[' + this.mode + '] init new line ', newLineItem)
       this.list.push(newLineItem)
     },
 
     handleAddNewLineWithTaskOuts () {
-      this.$logger.info('[' + this.mode + '] handleAddNewLineWithTaskOuts ', this.taskLearnOuts, this.taskSelfOuts)
+      console.info('[' + this.mode + '] handleAddNewLineWithTaskOuts ', this.taskLearnOuts, this.taskSelfOuts)
       const totalOuts = this.taskLearnOuts.concat(this.taskSelfOuts)
       totalOuts.forEach(outItem => {
         const newLineItem = {}
@@ -1226,7 +1226,7 @@ export default {
             num: 0,
             rowId
           }
-          this.$logger.info('[' + this.mode + '] init new line ', newLineItem)
+          console.info('[' + this.mode + '] init new line ', newLineItem)
           this.list.push(newLineItem)
         } else if (this.formType === this.tableType.Rubric_2) {
           newLineItem[this.headerType.Description].name = outItem.name
@@ -1234,24 +1234,24 @@ export default {
             num: 0,
             rowId
           }
-          this.$logger.info('[' + this.mode + '] init new line ', newLineItem)
+          console.info('[' + this.mode + '] init new line ', newLineItem)
           this.list.push(newLineItem)
         }
       })
     },
     handleDragEnd() {
-      this.$logger.info('[' + this.mode + '] handleDragEnd', this.headers)
+      console.info('[' + this.mode + '] handleDragEnd', this.headers)
     },
 
     handleDeleteLine(deleteLine) {
-      this.$logger.info('[' + this.mode + '] handleDeleteLine', deleteLine)
+      console.info('[' + this.mode + '] handleDeleteLine', deleteLine)
       if (this.mode === EvaluationTableMode.Edit) {
         this.list = this.list.filter(item => item !== deleteLine)
       }
     },
 
     handleClickBodyItem(item, header) {
-      this.$logger.info('[' + this.mode + '][' + this.mode + '] handleClickBodyItem ' + header.label, item, 'header', header)
+      console.info('[' + this.mode + '][' + this.mode + '] handleClickBodyItem ' + header.label, item, 'header', header)
       if ([EvaluationTableHeader.Indicators,
         EvaluationTableHeader.AchievementLevel,
         EvaluationTableHeader.LevelDescriptor,
@@ -1269,7 +1269,7 @@ export default {
     },
 
     handleClickSubLevelItem(item, header, subLevel) {
-      this.$logger.info(subLevel + ' [' + this.mode + '][' + this.mode + '] handleClickSubLevelItem ' + header.label, item, 'header', header)
+      console.info(subLevel + ' [' + this.mode + '][' + this.mode + '] handleClickSubLevelItem ' + header.label, item, 'header', header)
       if ([EvaluationTableHeader.Indicators,
         EvaluationTableHeader.AchievementLevel,
         EvaluationTableHeader.LevelDescriptor,
@@ -1293,7 +1293,7 @@ export default {
     handleAddCriteria(header, item, event) {
       event.preventDefault()
       event.stopPropagation()
-      this.$logger.info('[' + this.mode + '] handleAddCriteria ' + header.type, header, item)
+      console.info('[' + this.mode + '] handleAddCriteria ' + header.type, header, item)
       if (this.mode === EvaluationTableMode.Edit) {
         if (this.formType === this.tableType.Rubric_2) {
           /**
@@ -1320,7 +1320,7 @@ export default {
            AU-General capabilities的入口，然后在第二列点击后看到21st Century Skills数据入口
            */
           const bindCurriculum = parseInt(this.$store.getters.bindCurriculum)
-          this.$logger.info('CenturySkills header.type ' + header.type, header.type === this.headerType.Description, header.type === this.headerType.Criteria)
+          console.info('CenturySkills header.type ' + header.type, header.type === this.headerType.Description, header.type === this.headerType.Criteria)
           if (header.type === this.headerType.Description) {
             if (bindCurriculum === 1 || bindCurriculum === 2) {
               this.showMenuList = [NavigationType.all21Century]
@@ -1348,7 +1348,7 @@ export default {
     handleInputIBCriteria (header, item, event) {
       event.preventDefault()
       event.stopPropagation()
-      this.$logger.info('handleInputIBCriteria ')
+      console.info('handleInputIBCriteria ')
       this.currentSelectHeader = header
       this.currentSelectLine = item
 
@@ -1389,11 +1389,11 @@ export default {
         isSelfInput: true
       }
 
-      this.$logger.info('self input currentSelectLine with criteria data ', this.currentSelectLine)
+      console.info('self input currentSelectLine with criteria data ', this.currentSelectLine)
     },
 
     handleEnsureSelectCriteria() {
-      this.$logger.info('[' + this.mode + '] handleEnsureSelectCriteria', 'this.list', this.list)
+      console.info('[' + this.mode + '] handleEnsureSelectCriteria', 'this.list', this.list)
       this.selectCurriculumVisible = false
 
       const selectedList = []
@@ -1431,10 +1431,10 @@ export default {
           isDescription: false // 标识选择任意非描述项
         }
         selectedList.push(descriptionItem)
-        this.$logger.info('selectedList add selected21CenturyItem', descriptionItem)
+        console.info('selectedList add selected21CenturyItem', descriptionItem)
       }
 
-      this.$logger.info('formType ' + this.formType + ' selectedList', selectedList)
+      console.info('formType ' + this.formType + ' selectedList', selectedList)
       if (this.formType === this.tableType.CenturySkills) {
         if (selectedList.length >= 1) {
           /**
@@ -1452,7 +1452,7 @@ export default {
               parentNameList: selectedList[0].parentNameList,
               isDescription: selectedList[0].isDescription
             }
-            this.$logger.info('[' + this.mode + '] update currentSelectLine with Description 1 data ', this.currentSelectLine)
+            console.info('[' + this.mode + '] update currentSelectLine with Description 1 data ', this.currentSelectLine)
 
             // 如果多选，从第二个元素开始新建行填充数据
             if (selectedList.length > 1) {
@@ -1479,7 +1479,7 @@ export default {
                     rowId
                   }
                   newLineItem.rowId = rowId
-                  this.$logger.info('[' + this.mode + '] CenturySkills add new line with Description data ', newLineItem)
+                  console.info('[' + this.mode + '] CenturySkills add new line with Description data ', newLineItem)
                   this.list.push(newLineItem)
                 }
               })
@@ -1490,7 +1490,7 @@ export default {
               rowId: this.currentSelectLine.rowId
             }
 
-            this.$logger.info('[' + this.mode + '] update currentSelectLine with criteria 1 data ', this.currentSelectLine)
+            console.info('[' + this.mode + '] update currentSelectLine with criteria 1 data ', this.currentSelectLine)
 
             // 如果多选，从第二个元素开始新建行填充数据
             if (selectedList.length > 1) {
@@ -1521,7 +1521,7 @@ export default {
                     rowId
                   }
                   newLineItem.rowId = rowId
-                  this.$logger.info('[' + this.mode + '] CenturySkills add new line with criteria data ', newLineItem)
+                  console.info('[' + this.mode + '] CenturySkills add new line with criteria data ', newLineItem)
                   this.list.push(newLineItem)
                 }
               })
@@ -1530,7 +1530,7 @@ export default {
         }
 
         this.list = this.list.filter(item => (!item.description || item.description.name) || (!item.criteria || item.criteria.name))
-        this.$logger.info('CenturySkills 过滤掉没有Description的行', this.list)
+        console.info('CenturySkills 过滤掉没有Description的行', this.list)
       } else if (this.formType === this.tableType.Rubric) {
         if (selectedList.length >= 1) {
           // 如果只选择了一个，使用第一个填充当前行数据
@@ -1561,7 +1561,7 @@ export default {
             isSelfInput: false
           }
 
-          this.$logger.info('[' + this.mode + '] update currentSelectLine with criteria data ', this.currentSelectLine)
+          console.info('[' + this.mode + '] update currentSelectLine with criteria data ', this.currentSelectLine)
 
           // 如果多选，从第二个元素开始新建行填充数据
           if (selectedList.length > 1) {
@@ -1609,16 +1609,16 @@ export default {
                   rowId
                 }
 
-                this.$logger.info('[' + this.mode + '] Rubric add new line with criteria data ', newLineItem)
+                console.info('[' + this.mode + '] Rubric add new line with criteria data ', newLineItem)
                 this.list.push(newLineItem)
               }
             })
           }
         }
         this.list = this.list.filter(item => (!item.criteria || item.criteria.name))
-        this.$logger.info('Rubric 过滤掉没有criteria的行', this.list)
+        console.info('Rubric 过滤掉没有criteria的行', this.list)
       } else if (this.formType === this.tableType.Rubric_2) {
-        this.$logger.info('[' + this.mode + '] tableType.Rubric selectedList', selectedList)
+        console.info('[' + this.mode + '] tableType.Rubric selectedList', selectedList)
         if (selectedList.length >= 1) {
           // 如果只选择了一个，使用第一个填充当前行数据
           this.currentSelectLine[this.headerType.Description] = {
@@ -1626,7 +1626,7 @@ export default {
             rowId: this.currentSelectLine.rowId
           }
 
-          this.$logger.info('[' + this.mode + '] update currentSelectLine description with criteria data ', this.currentSelectLine)
+          console.info('[' + this.mode + '] update currentSelectLine description with criteria data ', this.currentSelectLine)
 
           // 如果多选，从第二个元素开始新建行填充数据
           if (selectedList.length > 1) {
@@ -1651,16 +1651,16 @@ export default {
                 }
                 newLineItem.rowId = rowId
 
-                this.$logger.info('[' + this.mode + '] Rubric description add new line with criteria data ', newLineItem)
+                console.info('[' + this.mode + '] Rubric description add new line with criteria data ', newLineItem)
                 this.list.push(newLineItem)
               }
             })
           }
         }
         this.list = this.list.filter(item => (!item.description || item.description.name))
-        this.$logger.info('Rubric_2 过滤掉没有Description的行', this.list)
+        console.info('Rubric_2 过滤掉没有Description的行', this.list)
       } else {
-        this.$logger.info('[' + this.mode + '] rubric form no allow select')
+        console.info('[' + this.mode + '] rubric form no allow select')
       }
       // 重置选择的列表数据
       this.selectedAll21CenturyList = []
@@ -1672,15 +1672,15 @@ export default {
     },
 
     handleUpdateDescription(header, item) {
-      this.$logger.info('[' + this.mode + '] handleUpdateDescription', header, item)
+      console.info('[' + this.mode + '] handleUpdateDescription', header, item)
     },
 
     handleUpdateField(header, item) {
-      this.$logger.info('[' + this.mode + '] handleUpdateField', header, item)
+      console.info('[' + this.mode + '] handleUpdateField', header, item)
     },
 
     handleClickEnterCriteriaDescription(header, item) {
-      this.$logger.info('[' + this.mode + '] handleClickEnterCriteriaDescription', header, item)
+      console.info('[' + this.mode + '] handleClickEnterCriteriaDescription', header, item)
       if (this.mode === EvaluationTableMode.Edit) {
         this.inputDescription = item[this.headerType.Description].userInputText
         this.currentEnterDescriptionLine = item
@@ -1689,7 +1689,7 @@ export default {
     },
 
     handleClickEnterCriteria(header, item) {
-      this.$logger.info('[' + this.mode + '] handleClickEnterCriteria', header, item)
+      console.info('[' + this.mode + '] handleClickEnterCriteria', header, item)
       if (this.mode === EvaluationTableMode.Edit) {
         this.inputDescription = item[this.headerType.Criteria].userInputText
         this.currentEnterCriteriaLine = item
@@ -1698,7 +1698,7 @@ export default {
     },
 
     handleEnsureDescription() {
-      this.$logger.info('[' + this.mode + '] handleEnsureDescription ' + this.inputDescription)
+      console.info('[' + this.mode + '] handleEnsureDescription ' + this.inputDescription)
 
       if (this.currentEnterDescriptionLine) {
         this.currentEnterDescriptionLine[this.headerType.Description].userInputText = this.inputDescription
@@ -1716,7 +1716,7 @@ export default {
     },
 
     handleCancelDescription() {
-      this.$logger.info('[' + this.mode + '] handleEnsureDescription ' + this.inputDescription)
+      console.info('[' + this.mode + '] handleEnsureDescription ' + this.inputDescription)
       this.currentEnterDescriptionLine = null
       this.currentEnterCriteriaLine = null
       this.inputDescription = null
@@ -1726,13 +1726,13 @@ export default {
     handleAddEvidenceLine(lIndex, item, event) {
       event.stopPropagation()
       event.preventDefault()
-      this.$logger.info('[' + this.mode + '] handleAddEvidenceLine', lIndex, item)
+      console.info('[' + this.mode + '] handleAddEvidenceLine', lIndex, item)
       this.$emit('add-evidence', {
         index: lIndex, data: this.formBodyData[item.rowId], rowId: item.rowId
       })
     },
     handleSelectAll21CenturyListData(data) {
-      this.$logger.info('[' + this.mode + '] EvaluationTable handleSelectAll21CenturyListData', data)
+      console.info('[' + this.mode + '] EvaluationTable handleSelectAll21CenturyListData', data)
       const descriptionList = []
       data.forEach(dataItem => {
         const item = dataItem.item
@@ -1751,11 +1751,11 @@ export default {
         descriptionList.push(descriptionItem)
       })
       this.selectedAll21CenturyList = descriptionList
-      this.$logger.info('[' + this.mode + '] selectedAll21CenturyList ', descriptionList)
+      console.info('[' + this.mode + '] selectedAll21CenturyList ', descriptionList)
     },
 
     handleSelectCurriculumListData(data) {
-      this.$logger.info('[' + this.mode + '] EvaluationTable handleSelectCurriculumListData', data)
+      console.info('[' + this.mode + '] EvaluationTable handleSelectCurriculumListData', data)
       const descriptionList = []
       data.forEach(dataItem => {
         const descriptionItem = {
@@ -1765,11 +1765,11 @@ export default {
         descriptionList.push(descriptionItem)
       })
       this.selectedCurriculumList = descriptionList
-      this.$logger.info('[' + this.mode + '] handleSelectCurriculumListData ', descriptionList)
+      console.info('[' + this.mode + '] handleSelectCurriculumListData ', descriptionList)
     },
 
     handleSelectSubjectSpecificSkillListData(data) {
-      this.$logger.info('[' + this.mode + '] EvaluationTable handleSelectSubjectSpecificSkillListData', data)
+      console.info('[' + this.mode + '] EvaluationTable handleSelectSubjectSpecificSkillListData', data)
       const descriptionList = []
       data.forEach(dataItem => {
         // 处理提取年级和描述数据:
@@ -1790,7 +1790,7 @@ export default {
             description: description
           })
         })
-        this.$logger.info('[' + this.mode + '] handle subLevel', rawSubLevelList, newSubLevelList)
+        console.info('[' + this.mode + '] handle subLevel', rawSubLevelList, newSubLevelList)
         const descriptionItem = {
           name: dataItem.knowledgeData.name,
           subLevelDescription: newSubLevelList,
@@ -1800,11 +1800,11 @@ export default {
         descriptionList.push(descriptionItem)
       })
       this.selectedSubjectSpecificSkillList = descriptionList
-      this.$logger.info('[' + this.mode + '] handleSelectSubjectSpecificSkillListData ', descriptionList)
+      console.info('[' + this.mode + '] handleSelectSubjectSpecificSkillListData ', descriptionList)
     },
 
     handleSelect21CenturySkillListData(data) {
-      this.$logger.info('[' + this.mode + '] EvaluationTable handleSelectCurriculumListData', data)
+      console.info('[' + this.mode + '] EvaluationTable handleSelectCurriculumListData', data)
       const descriptionList = []
       data.forEach(dataItem => {
         const parentNameList = []
@@ -1823,14 +1823,14 @@ export default {
         descriptionList.push(descriptionItem)
       })
       this.selectedCurriculumList = descriptionList
-      this.$logger.info('[' + this.mode + '] handleSelectCurriculumListData ', descriptionList)
+      console.info('[' + this.mode + '] handleSelectCurriculumListData ', descriptionList)
 
       // 取消层级的选择
       LibraryEventBus.$emit(LibraryEvent.CancelCenturySkillsSelect)
     },
 
     handleSelectAssessmentType(data) {
-      this.$logger.info('[' + this.mode + '] EvaluationTable handleSelectAssessmentType', data)
+      console.info('[' + this.mode + '] EvaluationTable handleSelectAssessmentType', data)
       const descriptionList = []
       data.forEach(dataItem => {
         const descriptionItem = {
@@ -1841,11 +1841,11 @@ export default {
         descriptionList.push(descriptionItem)
       })
       this.selectedAssessmentList = descriptionList
-      this.$logger.info('[' + this.mode + '] handleSelectAssessmentType ', descriptionList)
+      console.info('[' + this.mode + '] handleSelectAssessmentType ', descriptionList)
     },
 
     handleSelectIdu(data) {
-      this.$logger.info('[' + this.mode + '] EvaluationTable handleSelectIdu', data)
+      console.info('[' + this.mode + '] EvaluationTable handleSelectIdu', data)
       const descriptionList = []
       data.forEach(dataItem => {
         // 处理提取年级和描述数据:
@@ -1862,7 +1862,7 @@ export default {
           } else {
             indexRangeArray = [indexRange]
           }
-          this.$logger.info('indexRangeArray', indexRangeArray, item)
+          console.info('indexRangeArray', indexRangeArray, item)
           const startIndex = parseInt(indexRangeArray[0])
           let endIndex = null
           if (indexRangeArray.length === 2) {
@@ -1876,7 +1876,7 @@ export default {
             isDescription: true
           })
         })
-        this.$logger.info('[' + this.mode + '] handle subLevel', rawSubLevelList, newSubLevelList)
+        console.info('[' + this.mode + '] handle subLevel', rawSubLevelList, newSubLevelList)
         const descriptionItem = {
           name: dataItem.knowledgeData.name,
           subLevelDescription: newSubLevelList
@@ -1885,13 +1885,13 @@ export default {
         descriptionList.push(descriptionItem)
       })
       this.selectedIduList = descriptionList
-      this.$logger.info('[' + this.mode + '] handleSelectIdu ', descriptionList)
+      console.info('[' + this.mode + '] handleSelectIdu ', descriptionList)
     },
     handleCancelSelectData() {
     },
 
     getTableStructData() {
-      this.$logger.info('getTableStructData', this.headers, this.list)
+      console.info('getTableStructData', this.headers, this.list)
       return {
         headers: this.headers,
         list: this.list,
@@ -1904,12 +1904,12 @@ export default {
       while (this.list.findIndex(item => item.rowId === rowId) !== -1) {
         rowId = 'row_' + Math.random()
       }
-      this.$logger.info('generateRowId ' + rowId)
+      console.info('generateRowId ' + rowId)
       return rowId
     },
 
     handleCenturySkillsSelect(data) {
-      this.$logger.info('NewBrowser handleCenturySkillsSelect', data)
+      console.info('NewBrowser handleCenturySkillsSelect', data)
       this.selected21CenturyItem = data.item
       this.selected21CenturyItemParent = data.parent
     },
@@ -1920,7 +1920,7 @@ export default {
     },
 
     handleUseClicked(text) {
-      this.$logger.info('handleUseClicked', text)
+      console.info('handleUseClicked', text)
       this.$emit('use-clicked-text', text)
     }
   }

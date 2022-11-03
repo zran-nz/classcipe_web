@@ -98,7 +98,7 @@ export default {
       }
     },
     '$route.path' (toPath) {
-      // logger.debug('icon route change ' + toPath)
+      // console.debug('icon route change ' + toPath)
       // if (this.announcement1.length === 0) {
       //
       // }

@@ -135,14 +135,14 @@ export default {
     }
   },
   created() {
-    this.$logger.info(`GoogleImage field ${this.field} contentId ${this.contentId}`)
+    console.info(`GoogleImage field ${this.field} contentId ${this.contentId}`)
     this.loadGooleScript()
   },
   mounted() {
     this.initCallback()
   },
   beforeDestroy() {
-    this.$logger.info('GoogleImage Destroy')
+    console.info('GoogleImage Destroy')
     window.__gcse = null
   },
   methods: {
@@ -194,7 +194,7 @@ export default {
       this.test11.execute(this.lastSearchKey)
     },
     select(url) {
-      this.$logger.info('select google image', url, {
+      console.info('select google image', url, {
         contentId: this.contentId,
         contentType: this.contentType
       })
@@ -208,7 +208,7 @@ export default {
         contentType: this.contentType
       })
         .then(url => {
-          this.$logger.info('uploadImageToAwsByUrl', url)
+          console.info('uploadImageToAwsByUrl', url)
           this.$EventBus.$emit(ClasscipeDriveEvent.INSERT_GOOGLE_IMAGE, {
             field: this.field,
             data: this.$classcipe.replaceToClasscipeCDN(url)

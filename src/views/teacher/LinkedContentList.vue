@@ -125,7 +125,7 @@ export default {
           this.subTaskList = [...unitList]
         }
         this.subTaskList = this.subTaskList.filter(content => content.createBy === this.$store.getters.email)
-        this.$logger.info('sub list', this.subTaskList)
+        console.info('sub list', this.subTaskList)
       } catch (e) {
         console.error('loadSlideData', e)
       } finally {
@@ -139,7 +139,7 @@ export default {
       })
     },
     handleShowContentPublish(data) {
-      this.$logger.info('handleShowContentPublish', data)
+      console.info('handleShowContentPublish', data)
       this.currentContent = data.content
       if ((this.currentContent.type === this.typeMap.task ||
         this.currentContent.type === this.typeMap.pd)) {
@@ -172,7 +172,7 @@ export default {
 
     doUpdatePublish (data) {
       data = data || this.currentContent
-      this.$logger.info('handleUpdatePublish', data)
+      console.info('handleUpdatePublish', data)
       const index = this.subTaskList.findIndex(item => item.id === data.id)
       if (index !== -1) {
         const targetStatus = data.status ? 0 : 1
@@ -183,11 +183,11 @@ export default {
           type: data.type
         }).then((res) => {
           if (res.code === 520 || res.code === 403) {
-            this.$logger.info('等待授权回调')
+            console.info('等待授权回调')
             this.$message.loading('Waiting for Google Slides auth...', 10)
             return
           }
-          this.$logger.info('handlePublishStatus res', res, 'currentContent', this.currentContent)
+          console.info('handlePublishStatus res', res, 'currentContent', this.currentContent)
           this.subTaskList[index].status = targetStatus
           if (targetStatus) {
             this.$refs.editPrice.showEditPrice()

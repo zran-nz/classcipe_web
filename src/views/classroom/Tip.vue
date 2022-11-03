@@ -270,7 +270,7 @@ export default {
       this.updateTip()
     },
     addMaterialList({ url, type }) {
-      this.$logger.info('addMaterialList', url, type)
+      console.info('addMaterialList', url, type)
       if (this.videoUrlList === null) {
         this.videoUrlList = []
       }

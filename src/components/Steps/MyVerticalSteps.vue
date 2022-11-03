@@ -46,7 +46,7 @@ export default {
   },
   methods: {
     handleSelectStep (step, index, force) {
-      this.$logger.info('handleSelectStep', step, index)
+      console.info('handleSelectStep', step, index)
       if (this.allowSwitch || force) {
         if (this.currentStepIndex !== index) {
           this.currentStepIndex = index
@@ -56,18 +56,18 @@ export default {
           })
         }
       } else {
-        this.$logger.info('handleSelectStep', 'allowSwitch is false')
+        console.info('handleSelectStep', 'allowSwitch is false')
       }
     },
     nextStep() {
-      this.$logger.info('nextStep')
+      console.info('nextStep')
       if (this.currentStepIndex < this.steps.length - 1) {
         // 组件允许强制跳转step
         this.handleSelectStep(this.steps[this.currentStepIndex + 1], this.currentStepIndex + 1, true)
       }
     },
     prevStep () {
-      this.$logger.info('prevStep')
+      console.info('prevStep')
       if (this.currentStepIndex > 0) {
         this.handleSelectStep(this.steps[this.currentStepIndex - 1], this.currentStepIndex - 1, true)
       }

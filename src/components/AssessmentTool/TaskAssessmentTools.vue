@@ -211,7 +211,7 @@ export default {
     }
   },
   created() {
-    this.$logger.info('TaskAssessmentTools created')
+    console.info('TaskAssessmentTools created')
     this.getAssessmentList()
     this.$EventBus.$on('assessment-saved', this.autoSaveMixinUpdateKeyId)
     this.$EventBus.$on('assessment-update-header', this.updateAssessmentHeader)
@@ -229,7 +229,7 @@ export default {
         pageNo: 1,
         pageSize: 100
       }).then(res => {
-        this.$logger.info('getAssessmentList res', res)
+        console.info('getAssessmentList res', res)
         if (res.code === 0) {
           const assessmentKeySet = new Set()
           res.result.records.forEach(item => {
@@ -248,7 +248,7 @@ export default {
             }
           })
 
-          this.$logger.info('init assessmentList', this.assessmentList)
+          console.info('init assessmentList', this.assessmentList)
           if (this.assessmentList.length) {
             this.activeAssessmentTableKey = this.assessmentList[0].key
           }
@@ -259,7 +259,7 @@ export default {
     },
 
     autoSaveMixinUpdateKeyId (data) {
-      this.$logger.info('autoSaveMixinUpdateKeyId', data)
+      console.info('autoSaveMixinUpdateKeyId', data)
       const { key, id } = data
       this.assessmentList.forEach(item => {
         if (item.key === key) {
@@ -268,7 +268,7 @@ export default {
       })
     },
     handleAddAssessmentTool (type) {
-      this.$logger.info('handleAddAssessmentTool', type)
+      console.info('handleAddAssessmentTool', type)
       const config = this.assessmentToolConfig[type]
       if (config) {
         const assessmentTool = JSON.parse(JSON.stringify(config))
@@ -279,7 +279,7 @@ export default {
           assessmentTool.bodyList.push(this.generateEmptyRowByAssessment(assessmentTool))
         }
         this.assessmentList.push(assessmentTool)
-        this.$logger.info('add assessment tool', assessmentTool)
+        console.info('add assessment tool', assessmentTool)
         this.activeAssessmentTableKey = assessmentTool.key
       }
     },
@@ -297,12 +297,12 @@ export default {
     },
 
     handleDeleteAssessmentTool (key) {
-      this.$logger.info('handleDeleteAssessmentTool', key)
+      console.info('handleDeleteAssessmentTool', key)
       this.assessmentList.splice(this.assessmentList.findIndex(item => item.key === key), 1)
     },
 
     handleSelectActiveTable (key) {
-      this.$logger.info('handleSelectActiveTable', key)
+      console.info('handleSelectActiveTable', key)
       this.activeAssessmentTableKey = key
     },
 
@@ -311,7 +311,7 @@ export default {
     },
 
     handleInsertSelectAssessmentTool (selectedAssessmentList) {
-      this.$logger.info('handleInsertSelectAssessmentTool', selectedAssessmentList)
+      console.info('handleInsertSelectAssessmentTool', selectedAssessmentList)
       const newAssessmentKeyList = []
       selectedAssessmentList.forEach(item => {
         const assessment = {
@@ -334,7 +334,7 @@ export default {
       })
       setTimeout(() => {
        this.$nextTick(() => {
-         this.$logger.info('newAssessmentKeyList', newAssessmentKeyList)
+         console.info('newAssessmentKeyList', newAssessmentKeyList)
          this.$refs.assessmentTool.forEach(compRef => {
            if (newAssessmentKeyList.includes(compRef.assessment.key)) {
              compRef.saveAssessment()
@@ -346,13 +346,13 @@ export default {
     },
 
     updateAssessmentHeader ({ key, headerNameList }) {
-      this.$logger.info(`update assessment ${key}`, headerNameList)
+      console.info(`update assessment ${key}`, headerNameList)
       const assessment = this.assessmentList.find(item => item.key === key)
       const assessmentIndex = this.assessmentList.findIndex(item => item.key === key)
-      this.$logger.info('find assessment ', assessment, ' at ' + assessmentIndex)
+      console.info('find assessment ', assessment, ' at ' + assessmentIndex)
       const assessmentOptionsLen = assessment.headerList.filter(item => item.type.startsWith(HeaderType.custom)).length
 
-      this.$logger.info(`assessmentOptionsLen ${assessmentOptionsLen} headerNameList.length ${headerNameList.length}`)
+      console.info(`assessmentOptionsLen ${assessmentOptionsLen} headerNameList.length ${headerNameList.length}`)
       if (assessmentOptionsLen === headerNameList.length) {
         // 如果选择的option和现有表头列相同，则更新对应title
         let index = 0
@@ -362,7 +362,7 @@ export default {
             index++
           }
         })
-        this.$logger.info('update header set', this.assessment.headerList)
+        console.info('update header set', this.assessment.headerList)
       } else if (assessmentOptionsLen < headerNameList.length) {
         // 如果选择的option列表比现有的表头多，新增对应的表头列
         const tempAssessment = JSON.parse(JSON.stringify(assessment))
@@ -374,7 +374,7 @@ export default {
             minorCustomNum++
           }
           const typeKey = `${HeaderType.custom}_${minorCustomNum}`
-          this.$logger.info(`wait create ${typeKey}`)
+          console.info(`wait create ${typeKey}`)
           headerTypeList.push(typeKey)
           tempAssessment.headerList.push({
             type: typeKey,
@@ -399,7 +399,7 @@ export default {
           tempAssessment.headerList.forEach((header) => {
             if (header.type.startsWith(HeaderType.custom)) {
               header.title = headerNameList[index % headerNameList.length]
-              this.$logger.info(`rename title to ${header.title}`)
+              console.info(`rename title to ${header.title}`)
               index++
             }
           })
@@ -423,7 +423,7 @@ export default {
         }
         this.assessmentList.splice(assessmentIndex, 1, tempAssessment)
       }
-      this.$logger.info('update header', this.assessmentList[assessmentIndex])
+      console.info('update header', this.assessmentList[assessmentIndex])
     }
   }
 }

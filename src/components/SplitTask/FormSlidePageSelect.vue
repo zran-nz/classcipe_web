@@ -45,7 +45,7 @@ export default {
     }
   },
   created() {
-    this.$logger.info('FormSlidePageSelect created', this.thumbnailList)
+    console.info('FormSlidePageSelect created', this.thumbnailList)
   },
   methods: {
     handleSelectPage (pageItem) {

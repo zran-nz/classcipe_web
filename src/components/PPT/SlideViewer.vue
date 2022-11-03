@@ -259,10 +259,10 @@ export default {
       }
     },
     handleBuyItem (content) {
-      this.$logger.info('handleBuyItem content', content)
+      console.info('handleBuyItem content', content)
       ContentBuy({ id: content.id, type: content.type }).then((response) => {
         if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
-          this.$logger.info('Duplicate response', response)
+          console.info('Duplicate response', response)
           this.$message.success('Buy successfully')
           this.$emit('buy', content.id)
         } else {
@@ -277,12 +277,12 @@ export default {
       this.$EventBus.$emit(SlideEvent.CANCEL_SELECT_TEMPLATE, this.slideItem)
     },
     handleGotoImgIndex(index) {
-      this.$logger.info('handleGotoImgIndex ' + index)
+      console.info('handleGotoImgIndex ' + index)
       this.currentImgIndex = index
       this.$refs.carousel.goTo(index)
     },
     scrollLeft () {
-      this.$logger.info('scrollLeft')
+      console.info('scrollLeft')
       const dom = document.getElementById('slide-img-list')
       dom.scrollTo({
         left: dom.scrollLeft - 400,
@@ -290,7 +290,7 @@ export default {
       })
     },
     scrollRight () {
-      this.$logger.info('scrollLeft')
+      console.info('scrollLeft')
       const dom = document.getElementById('slide-img-list')
       dom.scrollTo({
         left: dom.scrollLeft + 400,
@@ -310,7 +310,7 @@ export default {
       this.selectedGradeList = []
     },
     toggleSelectContentTag(gradeValue) {
-      this.$logger.info('toggleSelectContentTag', gradeValue)
+      console.info('toggleSelectContentTag', gradeValue)
       const index = this.selectedGradeList.indexOf(gradeValue)
       if (index === -1) {
         this.selectedGradeList.push(gradeValue)

@@ -82,7 +82,7 @@ export default {
     }
   },
   created () {
-    this.$logger.info('PptCommentPreview' + this.slideId + ' classId ' + this.classData.classId)
+    console.info('PptCommentPreview' + this.slideId + ' classId ' + this.classData.classId)
     this.loadData()
   },
   methods: {
@@ -91,7 +91,7 @@ export default {
         GetStudentResponse({ class_id: this.classData.classId }),
         TemplatesGetPublishedPresentation({ taskId: this.classData.contentId })
       ]).then(response => {
-        this.$logger.info('PptCommentPreview loadData', response)
+        console.info('PptCommentPreview loadData', response)
         const rawCommentDataList = response[0].data.presentation_comments
         rawCommentDataList.forEach((item) => {
           const data = JSON.parse(item.data)
@@ -115,7 +115,7 @@ export default {
                   imgUrl: response.result.contentUrl
                 })
               }).finally(() => {
-                this.$logger.info('current imgList.length ' + (this.imgList.length) + ' total:' + pageObjectIds.length)
+                console.info('current imgList.length ' + (this.imgList.length) + ' total:' + pageObjectIds.length)
                 if (this.imgList.length === pageObjectIds.length) {
                   this.currentPageId = this.imgList[this.currentImgIndex].pageId
                   this.loading = false
@@ -124,14 +124,14 @@ export default {
             })
           } else {
             this.loading = false
-            this.$logger.info('loaded data', this.imgList, this.commentData)
+            console.info('loaded data', this.imgList, this.commentData)
           }
         }
       })
     },
 
     handleAuthCallback () {
-      this.$logger.info('TaskPreview handleAuthCallback')
+      console.info('TaskPreview handleAuthCallback')
       TemplatesGetPublishedPresentation({ presentationId: this.slideId }).then(response => {
         if (response.code !== this.ErrorCode.ppt_google_token_expires && response.code !== this.ErrorCode.ppt_forbidden) {
           const pageObjectIds = response.result.pageObjectIds
@@ -147,7 +147,7 @@ export default {
                   imgUrl: response.result.contentUrl
                 })
               }).finally(() => {
-                this.$logger.info('current imgList.length ' + (this.imgList.length) + ' total:' + pageObjectIds.length)
+                console.info('current imgList.length ' + (this.imgList.length) + ' total:' + pageObjectIds.length)
                 if (this.imgList.length === pageObjectIds.length) {
                   this.currentPageId = this.imgList[this.currentImgIndex].pageId
                   this.loading = false
@@ -156,13 +156,13 @@ export default {
             })
           } else {
             this.loading = false
-            this.$logger.info('loaded data', this.imgList, this.commentData)
+            console.info('loaded data', this.imgList, this.commentData)
           }
         }
       })
     },
     handleGotoImgIndex (index) {
-      this.$logger.info('handleGotoImgIndex ' + index)
+      console.info('handleGotoImgIndex ' + index)
       this.currentImgIndex = index
       this.currentPageId = this.imgList[this.currentImgIndex].pageId
       this.$refs.carousel.goTo(index)

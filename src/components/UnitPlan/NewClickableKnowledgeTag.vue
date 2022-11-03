@@ -264,7 +264,7 @@ export default {
   },
   destroyed () {
     LibraryEventBus.$off(LibraryEvent.ContentListSelectClick, this.handleContentListSelectClick)
-    this.$logger.info('off NewClickableKnowledgeTag ContentListSelectClick handler')
+    console.info('off NewClickableKnowledgeTag ContentListSelectClick handler')
   },
   data () {
     return {
@@ -298,7 +298,7 @@ export default {
           type: TagOriginType.Origin
         })
       } else {
-        this.$logger.info('tag name ' + item.name + ' exist', item, tagNameSet)
+        console.info('tag name ' + item.name + ' exist', item, tagNameSet)
       }
 
       // descriptionTagMap按照subKnowledgeId初始化对应的tagList
@@ -311,7 +311,7 @@ export default {
 
       // descriptionTagMap筛选相同大纲的大纲描述和tag
       if (item.curriculumId === this.$store.getters.bindCurriculum) {
-        this.$logger.info('current bindCurriculum  match curriculumId, add ' + item.subKnowledgeId + ' to descriptionTagMap', item, descriptionTagMap[item.subKnowledgeId])
+        console.info('current bindCurriculum  match curriculumId, add ' + item.subKnowledgeId + ' to descriptionTagMap', item, descriptionTagMap[item.subKnowledgeId])
         const tagList = descriptionTagMap.get(item.subKnowledgeId)
         tagList.push({
           ...item,
@@ -319,7 +319,7 @@ export default {
         })
         descriptionTagMap.set(item.subKnowledgeId, tagList)
       } else {
-        this.$logger.info('skip! current bindCurriculum not match curriculumId', item, this.$store.getters.bindCurriculum)
+        console.info('skip! current bindCurriculum not match curriculumId', item, this.$store.getters.bindCurriculum)
       }
     })
 
@@ -331,7 +331,7 @@ export default {
           type: TagOriginType.Extension
         })
       } else {
-        this.$logger.info('Extension tag name ' + item.name + ' exist', item, tagNameSet)
+        console.info('Extension tag name ' + item.name + ' exist', item, tagNameSet)
       }
     })
 
@@ -342,16 +342,16 @@ export default {
         tagList,
         _updateTimestamp: new Date().getTime()
       }))
-      this.$logger.info('add ' + subKnowledgeId + ' tagList ', tagList)
+      console.info('add ' + subKnowledgeId + ' tagList ', tagList)
     }
     this.descriptionTagList = sortBy(this.descriptionTagList, '_updateTimestamp', 'asc').reverse()
-    this.$logger.info('after add tagList', this.tagList)
-    this.$logger.info('after add descriptionTagList', this.descriptionTagList)
-    this.$logger.info('after add subKnowledgeId2InfoMap', this.subKnowledgeId2InfoMap)
+    console.info('after add tagList', this.tagList)
+    console.info('after add descriptionTagList', this.descriptionTagList)
+    console.info('after add subKnowledgeId2InfoMap', this.subKnowledgeId2InfoMap)
   },
   watch: {
     searchList () {
-      this.$logger.info('update search tag list with list size ' + (this.searchList.length), this.searchList)
+      console.info('update search tag list with list size ' + (this.searchList.length), this.searchList)
       let tagList = this.tagList
       tagList = tagList.filter(item => item.type !== this.tagOriginType.Search)
       const existNameList = []
@@ -365,13 +365,13 @@ export default {
         }
       })
       this.tagList = tagList
-      this.$logger.info('after update search tag list', this.tagList)
+      console.info('after update search tag list', this.tagList)
     }
   },
   methods: {
     handleContentListSelectClick (data) {
       if (data.questionIndex === this.questionIndex) {
-        this.$logger.info('handleContentListSelectClick hit ' + this.questionIndex, data)
+        console.info('handleContentListSelectClick hit ' + this.questionIndex, data)
         const tagIndex = this.descriptionTagList.findIndex(tItem => tItem.subKnowledgeId === data.subKnowledgeId)
         if (tagIndex === -1) {
           this.subKnowledgeId2InfoMap.set(data.subKnowledgeId, {
@@ -384,11 +384,11 @@ export default {
           })
         }
         LibraryEventBus.$emit(LibraryEvent.ContentListSelectedListUpdate, { id: data.subKnowledgeId })
-        this.$logger.info('subKnowledgeId2InfoMap[' + data.subKnowledgeId + ']', this.subKnowledgeId2InfoMap.get(data.subKnowledgeId))
+        console.info('subKnowledgeId2InfoMap[' + data.subKnowledgeId + ']', this.subKnowledgeId2InfoMap.get(data.subKnowledgeId))
       }
     },
     handleKeyup () {
-      this.$logger.info('handleKeyup ', this.inputTag)
+      console.info('handleKeyup ', this.inputTag)
       this.debouncedSearchKnowledge(this.inputTag)
       this.createTagName = this.inputTag
     },
@@ -406,42 +406,42 @@ export default {
     },
 
     handleDescriptionTagClose (tag) {
-      this.$logger.info('handleDescriptionTagClose ', tag)
+      console.info('handleDescriptionTagClose ', tag)
       const tagIndex = this.descriptionTagList.findIndex(item => item.subKnowledgeId === tag.subKnowledgeId)
       const item = this.descriptionTagList[tagIndex]
-      this.$logger.info('raw handleDescriptionTagClose ', item)
+      console.info('raw handleDescriptionTagClose ', item)
       item.tagList = item.tagList.filter(item => item.name !== tag.name)
       this.descriptionTagList.splice(tagIndex, 1, item)
       this.$emit('remove-knowledge-tag', {
         questionIndex: this.questionIndex,
         ...tag
       })
-      this.$logger.info('after handleDescriptionTagClose ', this.descriptionTagList[tagIndex])
+      console.info('after handleDescriptionTagClose ', this.descriptionTagList[tagIndex])
     },
 
     handleActiveDescription (subKnowledge) {
-      this.$logger.info('handleActiveDescription TagList' + subKnowledge, ' old tag list', this.tagList, this.descriptionTagList)
+      console.info('handleActiveDescription TagList' + subKnowledge, ' old tag list', this.tagList, this.descriptionTagList)
       this.activeSubKnowledgeId = subKnowledge
-      this.$logger.info('activeSubKnowledgeId ' + this.activeSubKnowledgeId)
+      console.info('activeSubKnowledgeId ' + this.activeSubKnowledgeId)
       // 改变排序
       const tagIndex = this.descriptionTagList.findIndex(item => item.subKnowledgeId === this.activeSubKnowledgeId)
       const tagItem = this.descriptionTagList[tagIndex]
       tagItem._updateTimestamp = new Date().getTime()
       this.descriptionTagList.splice(tagIndex, 1, tagItem)
       this.descriptionTagList = sortBy(this.descriptionTagList, '_updateTimestamp', 'asc').reverse()
-      this.$logger.info('update sort ', this.descriptionTagList)
+      console.info('update sort ', this.descriptionTagList)
 
       console.info('dblclick desc searchKnowledge')
       KnowledgeQueryTagsByKnowledgeId({
         knowledgeId: this.activeSubKnowledgeId
       }).then((response) => {
-        this.$logger.info('KnowledgeQueryTagsByKnowledgeId response', response.result)
+        console.info('KnowledgeQueryTagsByKnowledgeId response', response.result)
         const descriptionList = response.result
 
         let tagList = [...this.tagList]
-        this.$logger.info('tag list filter before tag list' + this.tagOriginType.Description, tagList)
+        console.info('tag list filter before tag list' + this.tagOriginType.Description, tagList)
         tagList = tagList.filter(item => item.type !== this.tagOriginType.Description)
-        this.$logger.info('tag list filter after tag list' + this.tagOriginType.Description, tagList)
+        console.info('tag list filter after tag list' + this.tagOriginType.Description, tagList)
         const existNameList = []
         descriptionList.forEach(item => {
           if (existNameList.indexOf(item.name) === -1) {
@@ -453,12 +453,12 @@ export default {
           }
         })
         this.tagList = tagList
-        this.$logger.info('handleActiveDescription after update search tag list', this.tagList)
+        console.info('handleActiveDescription after update search tag list', this.tagList)
       })
     },
 
     handleCreateTagByInput () {
-      this.$logger.info('handleCreateTagByInput ' + this.createTagName)
+      console.info('handleCreateTagByInput ' + this.createTagName)
       const existTag = this.tagList.find(item => item.name === this.createTagName)
       if (existTag) {
         this.$message.warn('already exist same name tag')
@@ -472,7 +472,7 @@ export default {
     },
 
     handleDeleteCreatedTag (tag) {
-      this.$logger.info('handleDeleteCreatedTag ', tag)
+      console.info('handleDeleteCreatedTag ', tag)
       const tagList = []
       this.tagList.forEach(item => {
         if (!(item.type === this.tagOriginType.Create && item.name === tag.name)) {
@@ -480,11 +480,11 @@ export default {
         }
       })
       this.tagList = tagList
-      this.$logger.info('after handleDeleteCreatedTag tag list', this.tagList)
+      console.info('after handleDeleteCreatedTag tag list', this.tagList)
     },
 
     handleDeleteKnowledgeItem (subKnowledgeId) {
-      this.$logger.info('handleDeleteKnowledgeItem ' + subKnowledgeId, this.descriptionTagList)
+      console.info('handleDeleteKnowledgeItem ' + subKnowledgeId, this.descriptionTagList)
       const tagIndex = this.descriptionTagList.findIndex(item => item.subKnowledgeId === subKnowledgeId)
       const item = this.descriptionTagList[tagIndex]
       if (tagIndex !== -1) {
@@ -495,37 +495,37 @@ export default {
           })
         })
         this.descriptionTagList.splice(tagIndex, 1)
-        this.$logger.info('after delete ' + subKnowledgeId, this.descriptionTagList)
+        console.info('after delete ' + subKnowledgeId, this.descriptionTagList)
       } else {
-        this.$logger.info('descriptionTagMap dont exist ' + subKnowledgeId)
+        console.info('descriptionTagMap dont exist ' + subKnowledgeId)
       }
     },
 
     handleDbClickTagListTag (tag) {
-      this.$logger.info('handleDbClickTagListTag', tag)
+      console.info('handleDbClickTagListTag', tag)
       // name 搜索是否有匹配的大纲描述
       KnowledgeSearch({
         key: tag.name
       }).then((response) => {
         console.info('handleDbClickTagListTag searchKnowledge response', response)
         this.tagNameSearchList = response.result.filter(item => item.curriculumId === this.$store.getters.bindCurriculum)
-        this.$logger.info('after filter curriculumId tagNameSearchList', this.tagNameSearchList)
+        console.info('after filter curriculumId tagNameSearchList', this.tagNameSearchList)
         this.tagNameSearchListSelected = []
         this.tagNameSearchListDialogueVisible = true
       })
     },
 
     handleEnsureTagSearchList () {
-      this.$logger.info('handleEnsureTagSearchList', this.tagNameSearchListSelected)
+      console.info('handleEnsureTagSearchList', this.tagNameSearchListSelected)
       const ensureKnowledgeTagList = []
       this.tagNameSearchList.forEach(item => {
         if (this.tagNameSearchListSelected.indexOf(item.subKnowledgeId) !== -1) {
           ensureKnowledgeTagList.push(item)
         } else {
-          this.$logger.info(item.subKnowledgeId + ' dont exist in ', this.tagNameSearchListSelected)
+          console.info(item.subKnowledgeId + ' dont exist in ', this.tagNameSearchListSelected)
         }
       })
-      this.$logger.info('ensureKnowledgeTagList', ensureKnowledgeTagList)
+      console.info('ensureKnowledgeTagList', ensureKnowledgeTagList)
 
       ensureKnowledgeTagList.forEach(item => {
         let tagIndex = this.descriptionTagList.findIndex(tItem => tItem.subKnowledgeId === item.subKnowledgeId)
@@ -553,7 +553,7 @@ export default {
           })
           this.descriptionTagList.splice(tagIndex, 1, tagItem)
         } else {
-          this.$logger.info('skip! exist ' + item.name + ' ' + item.id)
+          console.info('skip! exist ' + item.name + ' ' + item.id)
         }
       })
 
@@ -563,43 +563,43 @@ export default {
     },
 
     tagNameSearchListChange (checkedValue) {
-      this.$logger.info('tagNameSearchListChange', checkedValue)
+      console.info('tagNameSearchListChange', checkedValue)
       this.tagNameSearchListSelected = checkedValue
     },
 
     handleCreateDescription () {
-      this.$logger.info('handleCreateDescription')
+      console.info('handleCreateDescription')
       this.associateLibraryVisible = true
     },
 
     handleEnsureAssociate () {
-      this.$logger.info('handleEnsureAssociate')
+      console.info('handleEnsureAssociate')
       this.associateLibraryVisible = false
     },
 
     handleTagItemDragStart (tag, event) {
-      this.$logger.info('handleTagItemDragStart', tag, event)
+      console.info('handleTagItemDragStart', tag, event)
       event.dataTransfer.setData('tag', JSON.stringify(tag))
     },
 
     handleTagItemDrop (item, event) {
       const subKnowledgeId = item.subKnowledgeId
       if (this.activeSubKnowledgeId === subKnowledgeId) {
-        this.$logger.info('handleTagItemDrop ' + subKnowledgeId, item, event)
+        console.info('handleTagItemDrop ' + subKnowledgeId, item, event)
         const knowledgeInfo = this.subKnowledgeId2InfoMap.get(subKnowledgeId)
-        this.$logger.info('knowledgeInfo ', knowledgeInfo)
+        console.info('knowledgeInfo ', knowledgeInfo)
         let rawTag = event.dataTransfer.getData('tag')
-        this.$logger.info('drag tag ', rawTag)
+        console.info('drag tag ', rawTag)
         rawTag = JSON.parse(rawTag)
         const tag = Object.assign({}, knowledgeInfo)
         delete tag.id
         tag.name = rawTag.name
-        this.$logger.info('ready add tag ', tag)
+        console.info('ready add tag ', tag)
 
         const tagIndex = this.descriptionTagList.findIndex(tItem => tItem.subKnowledgeId === subKnowledgeId)
         const tagItem = this.descriptionTagList[tagIndex]
         if (!tagItem.tagList.find(eItem => eItem.name === tag.name)) {
-          this.$logger.info('add tag', tag)
+          console.info('add tag', tag)
           tagItem.tagList.push({
             ...tag,
             type: TagOriginType.Origin
@@ -612,7 +612,7 @@ export default {
           KnowledgeQueryTagsByKnowledgeId({
             knowledgeId: subKnowledgeId
           }).then((response) => {
-            this.$logger.info('KnowledgeQueryTagsByKnowledgeId response check', response.result)
+            console.info('KnowledgeQueryTagsByKnowledgeId response check', response.result)
             const descriptionList = response.result
             descriptionList.forEach(item => {
               if (item.name === tag.name) {
@@ -627,13 +627,13 @@ export default {
                 name: tag.name,
                 description: tag.description
               }).then((response) => {
-                this.$logger.info('KnowledgeAddOrUpdate response', response)
+                console.info('KnowledgeAddOrUpdate response', response)
 
                 if (response.success) {
                   KnowledgeQueryTagsByKnowledgeId({
                     knowledgeId: tag.subKnowledgeId
                   }).then((response) => {
-                    this.$logger.info('KnowledgeQueryTagsByKnowledgeId sub response check', response.result)
+                    console.info('KnowledgeQueryTagsByKnowledgeId sub response check', response.result)
                     const descriptionList = response.result
                     descriptionList.forEach(item => {
                       if (item.name === tag.name) {
@@ -652,19 +652,19 @@ export default {
             }
           })
         } else {
-          this.$logger.info('skip! exist ' + tag.name + ' ' + tag.id)
+          console.info('skip! exist ' + tag.name + ' ' + tag.id)
           this.$message.warn('already exist same name tag')
         }
       } else {
-        this.$logger.info('not in edit mode', subKnowledgeId, this.activeSubKnowledgeId)
+        console.info('not in edit mode', subKnowledgeId, this.activeSubKnowledgeId)
       }
     },
 
     replaceTempTag (tag) {
-      this.$logger.info('replace tag', tag)
+      console.info('replace tag', tag)
       const tagIndex = this.descriptionTagList.findIndex(tItem => tItem.subKnowledgeId === (tag.subKnowledgeId || tag.id))
       const tagItem = this.descriptionTagList[tagIndex]
-      this.$logger.info('replace tag target list', tagItem.tagList)
+      console.info('replace tag target list', tagItem.tagList)
       tagItem.tagList = tagItem.tagList.filter(item => item.name !== tag.name)
       tagItem.tagList.push({
         ...tag,

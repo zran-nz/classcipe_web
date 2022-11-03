@@ -262,18 +262,18 @@ export default {
     }
   },
   created () {
-    this.$logger.info('NewMyContent filterType', this.filterType)
+    console.info('NewMyContent filterType', this.filterType)
     this.currentType = this.filterType
     this.currentTypeLabel = getLabelNameType(this.filterType)
-    this.$logger.info('currentTypeLabel ' + this.currentTypeLabel)
-    this.$logger.info('NewMyContent selectedList', this.selectedList)
+    console.info('currentTypeLabel ' + this.currentTypeLabel)
+    console.info('NewMyContent selectedList', this.selectedList)
     this.mySelectedList = this.selectedList.slice()
     this.getMyContent()
   },
   methods: {
 
     handleToggleDataListMode (mode) {
-      this.$logger.info('handleToggleDataListMode' + mode)
+      console.info('handleToggleDataListMode' + mode)
       this.dataListMode = mode
     },
 
@@ -353,13 +353,13 @@ export default {
     },
 
     handleToggleType (type) {
-      this.$logger.info('handleToggleType ' + type)
+      console.info('handleToggleType ' + type)
       this.createdType = type
       this.getMyContent()
     },
 
     handleToggleDisplayType (type) {
-      this.$logger.info('handleToggleDisplayType' + type)
+      console.info('handleToggleDisplayType' + type)
       if (this.currentType === type) {
         this.currentType = null
         this.currentTypeLabel = null
@@ -368,19 +368,19 @@ export default {
         this.currentTypeLabel = getLabelNameType(type)
       }
 
-      this.$logger.info('after handleToggleDisplayType' + this.currentType)
+      console.info('after handleToggleDisplayType' + this.currentType)
       this.getMyContent()
     },
 
     handleEnsureCreate () {
-      this.$logger.info('handleEnsureCreate ' + this.currentType + ' ' + this.createNewName)
+      console.info('handleEnsureCreate ' + this.currentType + ' ' + this.createNewName)
       this.createLoading = true
       this.createNewName = ''
       if (this.currentType === this.typeMap.evaluation) {
         EvaluationAddOrUpdate({
           name: this.createNewName
         }).then((response) => {
-          this.$logger.info('EvaluationAddOrUpdate response', response)
+          console.info('EvaluationAddOrUpdate response', response)
           this.editId = response.result.id
           this.createNewNameMode = 'input'
           const itemId = this.typeMap.evaluation + '-' + this.editId
@@ -394,7 +394,7 @@ export default {
         TaskAddOrUpdate({
           name: this.createNewName
         }).then((response) => {
-          this.$logger.info('TaskAddOrUpdate response', response)
+          console.info('TaskAddOrUpdate response', response)
           this.editId = response.result.id
           this.createNewNameMode = 'input'
           const itemId = this.typeMap.task + '-' + this.editId
@@ -405,7 +405,7 @@ export default {
           this.createLoading = false
         })
       } else {
-        this.$logger.info('handleEnsureCreate currentType is not supported')
+        console.info('handleEnsureCreate currentType is not supported')
         this.$message.warn('handleEnsureCreate currentType is not supported')
       }
     },
@@ -415,7 +415,7 @@ export default {
     },
 
     async handleEnsure () {
-      this.$logger.info('handleEnsure waitCancelAssociateMap', this.waitAddAssociateMap, 'waitCancelAssociateMap', this.waitCancelAssociateMap)
+      console.info('handleEnsure waitCancelAssociateMap', this.waitAddAssociateMap, 'waitCancelAssociateMap', this.waitCancelAssociateMap)
       this.ensureLoading = true
       if (this.waitCancelAssociateMap.size || this.waitAddAssociateMap.size) {
         // 开始关联数据
@@ -433,7 +433,7 @@ export default {
               toType: item.type
             })
           } else {
-            this.$logger.info('handleEnsure waitAddAssociateMap item is selected skip ' + id, item, this.selectedList)
+            console.info('handleEnsure waitAddAssociateMap item is selected skip ' + id, item, this.selectedList)
           }
         }
 
@@ -450,15 +450,15 @@ export default {
               toType: item.type
             })
           } else {
-            this.$logger.info('handleEnsure waitCancelAssociateMap item is no selected skip ' + id, item, this.selectedList)
+            console.info('handleEnsure waitCancelAssociateMap item is no selected skip ' + id, item, this.selectedList)
           }
         }
         this.ensureLoading = true
-        this.$logger.info('associate data', associateData)
+        console.info('associate data', associateData)
         if (associateData.otherContents.length) {
           await Associate(associateData)
         }
-        this.$logger.info('cancelAssociateData data', cancelAssociateData)
+        console.info('cancelAssociateData data', cancelAssociateData)
         if (cancelAssociateData.others.length) {
           await AssociateCancel(cancelAssociateData)
         }
@@ -485,7 +485,7 @@ export default {
           type: item.type,
           name: this.createNewName
         }).then((response) => {
-          this.$logger.info('Rename response', response)
+          console.info('Rename response', response)
           if (!response.success) {
             this.$message.error(response.message)
           }

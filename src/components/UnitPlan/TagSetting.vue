@@ -138,7 +138,7 @@ export default {
   methods: {
 
     handleActiveTagCategory (userTagItem) {
-      this.$logger.info('handleActiveTagCategory', userTagItem)
+      console.info('handleActiveTagCategory', userTagItem)
       this.currentActiveTagCategoryName = userTagItem.name
       this.currentActiveTagCategory = userTagItem
       this.displayTagList = userTagItem.keywords
@@ -146,14 +146,14 @@ export default {
     },
 
     handleEditTagCategory (userTagItem) {
-      this.$logger.info('handleEditTagCategory', userTagItem)
+      console.info('handleEditTagCategory', userTagItem)
       this.currentEditTagCategoryName = userTagItem.name
       this.userTagList.forEach(item => { item.editing = false })
       userTagItem.editing = true
     },
 
     handleEnsureUpdateTagCategory (userTagItem) {
-      this.$logger.info('handleEnsureUpdateTagCategory ' + this.currentEditTagCategoryName, userTagItem)
+      console.info('handleEnsureUpdateTagCategory ' + this.currentEditTagCategoryName, userTagItem)
       this.currentEditTagCategoryName = (this.currentEditTagCategoryName && this.currentEditTagCategoryName.trim()) ? this.currentEditTagCategoryName.trim() : 'Untitled category ' + (this.userTagList.length + 1)
       if (userTagItem.newTag) {
         this.handleCreateTagCategory(userTagItem)
@@ -163,10 +163,10 @@ export default {
     },
 
     handleCreateTagCategory (userTagItem) {
-      this.$logger.info('handleCreateTagCategory', userTagItem)
+      console.info('handleCreateTagCategory', userTagItem)
       this.tagLoading = true
       AddUserParentTag({ parentName: this.currentEditTagCategoryName }).then((response) => {
-        this.$logger.info('add AddUserParentTag ', response.result)
+        console.info('add AddUserParentTag ', response.result)
         if (response.success) {
           this.handleUpdateUserTags()
         } else {
@@ -179,11 +179,11 @@ export default {
     },
 
     handleUpdateTagCategory (userTagItem) {
-      this.$logger.info('handleUpdateTagCategory', userTagItem)
+      console.info('handleUpdateTagCategory', userTagItem)
       if (userTagItem.name && this.currentEditTagCategoryName && userTagItem.name !== this.currentEditTagCategoryName) {
         this.tagLoading = true
         UpdateUserParentTag({ name: userTagItem.name, newName: this.currentEditTagCategoryName }).then((response) => {
-          this.$logger.info('UpdateUserParentTag response', response.result)
+          console.info('UpdateUserParentTag response', response.result)
           if (response.success) {
             this.handleUpdateUserTags()
           } else {
@@ -197,7 +197,7 @@ export default {
     },
 
     handleInitCreateTagCategory () {
-      this.$logger.info('handleInitCreateTagCategory')
+      console.info('handleInitCreateTagCategory')
       this.currentEditTagName = 'Untitled category ' + (this.userTagList.length + 1)
       const newUserTagItem = {
         name: this.currentEditTagName,
@@ -222,7 +222,7 @@ export default {
     handleUpdateUserTags () {
       this.tagLoading = true
       FindCustomTags({}).then((response) => {
-        this.$logger.info('FindCustomTags response', response.result)
+        console.info('FindCustomTags response', response.result)
         if (response.success) {
           const userTags = []
           response.result.userTags.forEach((userTag) => {
@@ -233,7 +233,7 @@ export default {
             }
           })
           this.userTagList = userTags
-          this.$logger.info('userTagList', this.userTagList)
+          console.info('userTagList', this.userTagList)
           let firstTagCategory = this.userTagList.find(item => item.name && this.currentActiveTagCategoryName === item.name)
           if (!firstTagCategory) {
             firstTagCategory = this.userTagList.find(item => item.name && this.currentEditTagCategoryName === item.name)
@@ -247,7 +247,7 @@ export default {
             this.currentActiveTagCategory = firstTagCategory
             this.displayTagList = firstTagCategory.keywords
           }
-          this.$logger.info('currentActiveTagCategory', this.currentActiveTagCategory, 'displayTagList', this.displayTagList)
+          console.info('currentActiveTagCategory', this.currentActiveTagCategory, 'displayTagList', this.displayTagList)
           this.filterKeyword()
         } else {
           this.$message.error(response.message)
@@ -260,18 +260,18 @@ export default {
       if (this.currentActiveTagCategoryName) {
         this.tagSearchList = []
         const userTagItem = this.userTagList.find(item => item.name === this.currentActiveTagCategoryName)
-        this.$logger.info('userTagItem', userTagItem)
+        console.info('userTagItem', userTagItem)
         if (!userTagItem || (userTagItem.keywords && userTagItem.keywords.length === 0)) {
           return
         }
         this.tagSearchList = Array.from(userTagItem.keywords)
         this.tagSearchList = this.tagSearchList.filter(item => this.inputTag && this.inputTag.trim() && item.toLowerCase().indexOf(this.inputTag.toLowerCase()) > -1)
-        this.$logger.info('tagSearchList', this.tagSearchList)
+        console.info('tagSearchList', this.tagSearchList)
       }
     },
 
     handleEnsureCreateTag () {
-      this.$logger.info('handleEnsureCreateTag', this.inputTag)
+      console.info('handleEnsureCreateTag', this.inputTag)
       this.createTagName = this.inputTag
       this.inputTag = ''
       this.createTagInputVisible = false
@@ -279,7 +279,7 @@ export default {
     },
 
     handleCreateTagByInput () {
-      this.$logger.info('handleCreateTagByInput ' + this.createTagName)
+      console.info('handleCreateTagByInput ' + this.createTagName)
       let existTag = false
       const userTagItem = this.userTagList.find(item => item.name === this.currentActiveTagCategoryName)
       if (userTagItem && userTagItem.keywords) {
@@ -298,7 +298,7 @@ export default {
         }
         this.tagLoading = true
         AddUserTagNew(item).then((response) => {
-          this.$logger.info('add AddUserTagNew ', response.result)
+          console.info('add AddUserTagNew ', response.result)
           if (response.success) {
             this.handleUpdateUserTags()
             this.$message.success('Add tag successfully')
@@ -315,7 +315,7 @@ export default {
     },
 
     handleFilterSearchTag () {
-      this.$logger.info('tag handleFilterSearchTag', this.inputTag)
+      console.info('tag handleFilterSearchTag', this.inputTag)
       this.createTagName = this.inputTag
       this.filterKeyword()
     },
@@ -337,11 +337,11 @@ export default {
     },
 
     handleEnsureDeleteTag (keyword) {
-      this.$logger.info('handleEnsureDeleteTag ' + this.currentActiveTagCategoryName + ' ' + keyword)
+      console.info('handleEnsureDeleteTag ' + this.currentActiveTagCategoryName + ' ' + keyword)
       this.tagLoading = true
       // UserTagDeleteNew 传了parentName就删大类,传了name 就删下面的小类
       UserTagDeleteNew({ parentName: this.currentActiveTagCategoryName, name: keyword }).then((response) => {
-        this.$logger.info('add UserTagDeleteNew ', response.result)
+        console.info('add UserTagDeleteNew ', response.result)
         if (response.success) {
           this.handleUpdateUserTags()
           this.$message.success('Delete successfully')
@@ -370,11 +370,11 @@ export default {
     },
 
     handleEnsureDeleteTagCategory (category) {
-      this.$logger.info('handleEnsureDeleteTagCategory ' + category)
+      console.info('handleEnsureDeleteTagCategory ' + category)
       this.tagLoading = true
       // UserTagDeleteNew 传了parentName就删大类,传了name 就删下面的小类
       UserTagDeleteNew({ parentName: category }).then((response) => {
-        this.$logger.info('add UserTagDeleteNew ', response.result)
+        console.info('add UserTagDeleteNew ', response.result)
         if (response.success) {
           this.handleUpdateUserTags()
           this.$message.success('Delete successfully')
@@ -394,7 +394,7 @@ export default {
     },
 
     scrollLeft () {
-      this.$logger.info('scrollLeft')
+      console.info('scrollLeft')
       const tagCategoryTabDom = document.getElementById('user-tag-category-tabs')
       tagCategoryTabDom.scrollTo({
         left: tagCategoryTabDom.scrollLeft - 400,
@@ -402,7 +402,7 @@ export default {
       })
     },
     scrollRight () {
-      this.$logger.info('scrollRight')
+      console.info('scrollRight')
       const tagCategoryTabDom = document.getElementById('user-tag-category-tabs')
       tagCategoryTabDom.scrollTo({
         left: tagCategoryTabDom.scrollLeft + 400,
@@ -411,17 +411,17 @@ export default {
     },
 
     trySaveTagCategory () {
-      this.$logger.info('trySaveTagCategory')
+      console.info('trySaveTagCategory')
       const userTagItem = this.userTagList.find(item => item.editing && item.name)
       if (userTagItem) {
-        this.$logger.info('trySaveTagCategory userTagItem', userTagItem)
+        console.info('trySaveTagCategory userTagItem', userTagItem)
         if (userTagItem.newTag) {
           this.handleCreateTagCategory(userTagItem)
         } else {
           this.handleUpdateTagCategory(userTagItem)
         }
       } else {
-        this.$logger.info('no editing tag category')
+        console.info('no editing tag category')
       }
     }
   }

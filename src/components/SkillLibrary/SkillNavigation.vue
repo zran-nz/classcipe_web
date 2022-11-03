@@ -34,28 +34,28 @@ export default {
   computed: {
   },
   created () {
-    this.$logger.info('NewNavigation')
+    console.info('NewNavigation')
   },
   mounted () {
     SkillLibraryEventBus.$on(SkillLibraryEvent.SkillContentListUpdate, this.handleSkillContentListUpdate)
   },
   methods: {
     handleSkillContentListUpdate (data) {
-      this.$logger.info('handleSkillContentListUpdate', data)
+      console.info('handleSkillContentListUpdate', data)
       const currentTreeItem = Object.assign({}, data)
-      this.$logger.info('NewNavigation handleSkillContentListUpdate ', currentTreeItem)
+      console.info('NewNavigation handleSkillContentListUpdate ', currentTreeItem)
       const navPathObjList = [currentTreeItem.parentTreeData, currentTreeItem.currentTreeData]
       let parentItem = currentTreeItem.parentTreeData
       while (parentItem && parentItem.parent) {
         navPathObjList.unshift(Object.assign({}, parentItem.parent))
         parentItem = parentItem.parent
       }
-      this.$logger.info('nav path list', navPathObjList)
+      console.info('nav path list', navPathObjList)
       this.navPath = navPathObjList
     },
 
     handleSkillLibraryNavClick (path) {
-      this.$logger.info('handleSkillLibraryNavClick ', path)
+      console.info('handleSkillLibraryNavClick ', path)
       SkillLibraryEventBus.$emit(SkillLibraryEvent.SkillContentListItemClick, {
         item: path,
         parent: path.parent
@@ -64,7 +64,7 @@ export default {
   },
   destroyed () {
     SkillLibraryEventBus.$off(SkillLibraryEvent.SkillContentListUpdate, this.handleSkillContentListUpdate)
-    this.$logger.info('off NewNavigation handleSkillContentListUpdate handler')
+    console.info('off NewNavigation handleSkillContentListUpdate handler')
   }
 }
 </script>

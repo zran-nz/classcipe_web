@@ -126,9 +126,9 @@ export default {
         const status = await this.checkZoomAuth()
         if (!status) {
           this.enableZoom = zoom
-          this.$logger.info('reset item enableZoom', this.enableZoom)
+          console.info('reset item enableZoom', this.enableZoom)
         } else {
-          this.$logger.info('zoom auth success')
+          console.info('zoom auth success')
         }
       }
       this.scheduleReq.zoom = zoom ? 1 : 0
@@ -150,7 +150,7 @@ export default {
         this.scheduleReq.register.registerBefore = scheduleConfig.registerBefore
         this.scheduleReq.password = scheduleConfig.password
         this.scheduleReq.waitingRoom = scheduleConfig.waitingRoom
-        this.$logger.info('confirmSchedule', scheduleConfig)
+        console.info('confirmSchedule', scheduleConfig)
       } else if (this.userMode === USER_MODE.SCHOOL) {
         scheduleConfig = this.$refs['school-schedule'].getPaidInfo()
         this.scheduleReq.selectTeachers = scheduleConfig.selectTeachers
@@ -162,14 +162,14 @@ export default {
         this.scheduleReq.register.notifyStudents = scheduleConfig.notifyStudents
         this.scheduleReq.password = scheduleConfig.password
         this.scheduleReq.waitingRoom = scheduleConfig.waitingRoom
-        this.$logger.info('schoolScheduleInfo', scheduleConfig)
+        console.info('schoolScheduleInfo', scheduleConfig)
       }
       if (!this.scheduleReq.startDate || !this.scheduleReq.endDate) {
         this.$message.warn('Please select Schedule time!')
         return
       }
       // this.zoomSettingVisible = true
-      this.$logger.info('scheduleReq', this.scheduleReq)
+      console.info('scheduleReq', this.scheduleReq)
       const isNotShowSecurity = getCookie(TEACHER_SECURITY_NOT_SHOW)
       if (!isNotShowSecurity) {
         // TODO 查询是否已经进行老师认证
@@ -183,13 +183,13 @@ export default {
     },
 
     async handleConfirmAssign (data) {
-      this.$logger.info('ScheduleSession handleConfirmAssign ', data)
+      console.info('ScheduleSession handleConfirmAssign ', data)
       this.zoomSettingVisible = false
       this.scheduleReq.password = data.password
       this.scheduleReq.waitingRoom = data.waitingRoom
 
       await this.createSession(this.scheduleReq)
-      this.$logger.info('zoom auth success')
+      console.info('zoom auth success')
     },
 
     handleCloseAssign () {
@@ -198,11 +198,11 @@ export default {
 
     async createSession() {
       const scheduleReq = this.scheduleReq
-      this.$logger.info('try createSession scheduleReq', scheduleReq)
+      console.info('try createSession scheduleReq', scheduleReq)
       this.creating = true
       try {
         const res = await AddSessionV2(scheduleReq)
-        this.$logger.info('save scheduleReq', res)
+        console.info('save scheduleReq', res)
         if (res.result && res.success && res.code === 0) {
           this.$message.success('Schedule session successfully')
           if (res.result.length && res.result[0].taskClassId) {

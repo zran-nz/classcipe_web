@@ -53,7 +53,7 @@ export default {
   },
   methods: {
     handleSearch () {
-      this.$logger.info('search', this.data)
+      console.info('search', this.data)
       this.$emit('search', this.data)
     },
     handleUpdateValue () {
