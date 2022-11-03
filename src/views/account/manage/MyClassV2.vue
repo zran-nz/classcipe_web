@@ -268,6 +268,7 @@ export default {
       }
     }
     this.initDict()
+    window._classInitDict = this.initDict
     this.debounceLoad = debounce(this.initDict, 300)
   },
   computed: {
@@ -367,6 +368,7 @@ pageSize: 10000
         })
         this.classList = result.records
         const ungraded = []
+        this.classGroupList = {}
         this.gradeList.map(v => {
           this.classGroupList[v._id] = []
         })
@@ -378,12 +380,13 @@ pageSize: 10000
             isEdit: false,
             changeName: cls.name
           }
-          if (this.currentTab === 'gradeId' && v.term) return // subject class
+          if (this.currentTab === 'gradeId' && v.term) return console.log(v.name, 'is subject class', v.term) // subject class
           if (this.classGroupList[v.gradeId]) this.classGroupList[v.gradeId].push(v)
           else ungraded.push(v)
+          console.log(this.classGroupList[v.gradeId], v.gradeId, v.name)
         })
         this.classGroupList.ungraded = ungraded
-        console.log(rs?.val, this.classList, this.classGroupList)
+        console.log(11111111, rs?.val, this.classList, this.classGroupList)
         this.loading = false
         return
       }
