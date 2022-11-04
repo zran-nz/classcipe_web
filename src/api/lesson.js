@@ -1,7 +1,6 @@
 import lessonAPIRequest from '@/utils/lessonAPIRequest'
 
 export const lessonAPIUrl = {
-  GetMyClasses: '/class/get_my_classes',
   TurnOnStudentPaced: '/class/turn_on_student_paced',
   EndSession: '/class/end_session',
   ReopenSession: '/class/reopen_session',
@@ -9,17 +8,9 @@ export const lessonAPIUrl = {
   StartLesson: '/slide/start_lesson',
   GetStudents: '/class/get_students',
   GetStudentResponse: '/class/get_student_response',
-  SlideGetAll: '/slide/get_all',
   GetClassMembers: '/class/get_class_members'
 }
 
-export function getMyClasses (parameter) {
-  return lessonAPIRequest({
-    url: lessonAPIUrl.GetMyClasses,
-    method: 'post',
-    data: parameter
-  })
-}
 
 export function turnOnStudentPaced (parameter) {
   return lessonAPIRequest({
