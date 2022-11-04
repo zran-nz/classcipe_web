@@ -5,7 +5,7 @@ const webpack = require('webpack')
 const buildDate = JSON.stringify(new Date().toLocaleString())
 const createThemeColorReplacerPlugin = require('./config/plugin.config')
 const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
-const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
+// const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 
 function resolve (dir) {
   return path.join(__dirname, dir)
@@ -47,15 +47,15 @@ const vueConfig = {
     devtool: 'cheap-module-eval-souce-map',
     // webpack plugins
     plugins: [
-      new HardSourceWebpackPlugin({
-        root: process.cwd(),
-        directories: [],
-        environmentHash: {
-          root: process.cwd(),
-          directories: [],
-          files: ['package.json', 'yarn.lock']
-        }
-      }),
+      // new HardSourceWebpackPlugin({
+      //   root: process.cwd(),
+      //   directories: [],
+      //   environmentHash: {
+      //     root: process.cwd(),
+      //     directories: [],
+      //     files: ['package.json', 'yarn.lock']
+      //   }
+      // }),
       new SpeedMeasurePlugin(),
       // Ignore all locale files of moment.js
       new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
