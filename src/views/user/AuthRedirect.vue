@@ -22,7 +22,7 @@ export default {
         this.$message.error('Redirect Auth Failed,' + e)
       })
     }).catch(() => {
-      location.href = '/v2/login?call='+location.pathname
+      location.href = '/v2/login?call='+encodeURIComponent(location.pathname+location.search)
     })
   },
   methods: {

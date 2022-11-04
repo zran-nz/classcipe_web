@@ -56,7 +56,7 @@ export default {
       })
     }).catch(() => {
       this.handleOpener()
-      location.href = '/v2/login?call='+location.pathname
+      location.href = '/v2/login?call='+encodeURIComponent(location.pathname+location.search)
     })
   },
   methods: {

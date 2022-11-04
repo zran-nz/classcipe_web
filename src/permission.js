@@ -80,7 +80,7 @@ router.beforeEach((to, from, next) => {
               })
               // 失败时，获取用户信息失败时，调用登出，来清空历史保留信息
               store.dispatch('ClearAuth').then(() => {
-                location.href = loginRoutePath + '?call=' + location.pathname
+                location.href = loginRoutePath + '?call=' + encodeURIComponent(location.pathname+location.search)
                 // next({ path: loginRoutePath, query: { redirect: to.fullPath, role } })
               })
             })
@@ -92,8 +92,7 @@ router.beforeEach((to, from, next) => {
       next()
     }
   } else {
-    console.log(to, loginRoutePath, 22222222)
-    location.href = loginRoutePath + '?call=' + location.pathname
+    location.href = loginRoutePath + '?call=' + encodeURIComponent(location.pathname+location.search)
     // next({ path: loginRoutePath, query: { redirect: to.fullPath, role } })
     // NProgress.done() // if current page is login will not trigger afterEach hook, so manually handle it
   }
