@@ -6,41 +6,41 @@
     </div>
     <div class='top-menu'>
       <div class='menu menu-block' @dblclick.stop=''>
-        <sidebar-menu-item label='Library' path='/teacher/library'>
+        <SidebarMenuItem label='Library' path='/v2/library'>
           <template v-slot:icon>
             <library-icon />
           </template>
-        </sidebar-menu-item>
-        <sidebar-menu-item label='School resource' path='/teacher/resource' v-if='userMode === USER_MODE.SCHOOL'>
+        </SidebarMenuItem>
+        <SidebarMenuItem label='School resource' path='/teacher/resource' v-if='userMode === USER_MODE.SCHOOL'>
           <template v-slot:icon>
             <resource-icon />
           </template>
-        </sidebar-menu-item>
-        <sidebar-menu-item label='Published' path='/teacher/main/my-published'>
+        </SidebarMenuItem>
+        <SidebarMenuItem label='Published' path='/teacher/main/my-published'>
           <template v-slot:icon>
             <published-icon />
           </template>
-        </sidebar-menu-item>
-        <sidebar-menu-item label='My content' path='/teacher/main/created-by-me'>
+        </SidebarMenuItem>
+        <SidebarMenuItem label='My content' path='/teacher/main/created-by-me'>
           <template v-slot:icon>
             <my-content-icon />
           </template>
-        </sidebar-menu-item>
-        <sidebar-menu-item label='My saved' path='/teacher/main/my-favorite'>
+        </SidebarMenuItem>
+        <SidebarMenuItem label='My saved' path='/teacher/main/my-favorite'>
           <template v-slot:icon>
             <my-favorite-icon />
           </template>
-        </sidebar-menu-item>
-        <sidebar-menu-item label='Launch workshops' path='/teacher/main/live-workshops'>
+        </SidebarMenuItem>
+        <SidebarMenuItem label='Launch workshops' path='/teacher/main/live-workshops'>
           <template v-slot:icon>
             <live-workshops-icon />
           </template>
-        </sidebar-menu-item>
-        <sidebar-menu-item label='Live workshops' path='/teacher/main/my-register'>
+        </SidebarMenuItem>
+        <SidebarMenuItem label='Live workshops' path='/teacher/main/my-register'>
           <template v-slot:icon>
             <live-workshops-icon />
           </template>
-        </sidebar-menu-item>
+        </SidebarMenuItem>
 
         <sidebar-menu-list label='Classes' path-prefix='/teacher/class-session' :menu-list="classList" :active-id='activeClassId'>
           <template v-slot:icon>
@@ -48,21 +48,21 @@
           </template>
         </sidebar-menu-list>
 
-        <sidebar-menu-item label='Co-teaching' path=''>
+        <SidebarMenuItem label='Co-teaching' path=''>
           <template v-slot:icon>
             <co-teaching-icon />
           </template>
-        </sidebar-menu-item>
-        <!-- <sidebar-menu-item label='Managing' path='/teacher/managing' v-if="userMode === USER_MODE.SELF || (currentSchool && currentSchool.roleNames && currentSchool.roleNames.includes(schoolUserRole.admin))">
+        </SidebarMenuItem>
+        <!-- <SidebarMenuItem label='Managing' path='/teacher/managing' v-if="userMode === USER_MODE.SELF || (currentSchool && currentSchool.roleNames && currentSchool.roleNames.includes(schoolUserRole.admin))">
           <template v-slot:icon>
             <managing-icon />
           </template>
-        </sidebar-menu-item> -->
-        <sidebar-menu-item label='Calendar' path='/teacher/main/calendar'>
+        </SidebarMenuItem> -->
+        <SidebarMenuItem label='Calendar' path='/teacher/main/calendar'>
           <template v-slot:icon>
             <icon-font type="icon-rili" class="detail-font"/>
           </template>
-        </sidebar-menu-item>
+        </SidebarMenuItem>
       </div>
     </div>
     <AddPreference />

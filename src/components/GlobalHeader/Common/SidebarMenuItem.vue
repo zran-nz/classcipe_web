@@ -54,6 +54,7 @@ export default {
         sessionStorage.removeItem(SESSION_SHARE_TYPE)
       }
       this.onClick(this.label, this.path)
+      if (this.path.substring(0, 4) === '/v2/') location.href = this.path
       if (this.path) {
         this.$router.push(this.path)
       }
