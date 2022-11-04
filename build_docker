@@ -1,6 +1,7 @@
 git pull
 sudo chown ubuntu:ubuntu -R ./node_modules
-sudo docker exec -it --user $(id -u):$(id -g) dev.web sh -c /git/build
+sudo docker run --rm -it --user $(id -u):$(id -g) -v $PWD:/git node:14-alpine node:14-alpine sh -c /git/build
+# sudo docker exec -it --user $(id -u):$(id -g) dev.web sh -c /git/build
 git add dist/*
 git commit -a -m "auto build"
 git push
