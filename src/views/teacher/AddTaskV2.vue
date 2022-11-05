@@ -686,7 +686,6 @@ export default {
         contentType: 0,
         slideEditing: false
       },
-      gradeList: [],
 
       templateLoading: false,
 
@@ -802,21 +801,12 @@ export default {
   },
   methods: {
     initData() {
-      console.info('initData doing...')
-      GetMyGrades().then((response) => {
-        console.info('add task initData done', response)
-        this.gradeList = response.result
-      }).then(() => {
-        if (this.taskId) {
-          console.info('restore task data ' + this.taskId)
-          this.restoreTask(this.taskId, true)
-        } else {
-          this.contentLoading = false
-        }
-      }).catch((e) => {
-        this.$logger.error(e)
-        this.$message.error(this.$t('teacher.add-task.init-data-failed'))
-      })
+      console.info('initData doing...', this.taskId)
+      if (this.taskId) {
+        this.restoreTask(this.taskId, true)
+      } else {
+        this.contentLoading = false
+      }
     },
 
     handleUpdateCover (coverData) {
@@ -885,7 +875,6 @@ export default {
       if (needLoadThumbnail) {
         this.contentLoading = true
       }
-      console.info('restoreTask ' + taskId)
       this.saving = true
       TaskQueryById({
         id: taskId
@@ -893,6 +882,7 @@ export default {
         console.info('TaskQueryById ' + taskId, response.result)
         if (response.code === 0 && response.success) {
           const taskData = response.result
+          window.taskData = taskData
           if (!taskData.materialList) {
             taskData.materialList = []
           }
@@ -922,14 +912,6 @@ export default {
           this.form.bloomCategories = this.form.bloomCategories ? this.form.bloomCategories : undefined // 为了展示placeholder
           if (this.form.selectedTemplateList.length === 0) {
             this.form.showSelected = false
-          }
-          if (!taskData.gradeId) {
-            this.form.gradeId = undefined
-          } else {
-            // 年级在本国大纲不存在的情况
-            if (this.gradeList.filter(grade => grade.id === taskData.gradeId).length === 0) {
-              this.form.gradeId = undefined
-            }
           }
         } else {
           this.$message.error(response.message)

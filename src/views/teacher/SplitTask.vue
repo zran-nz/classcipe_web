@@ -599,7 +599,6 @@ export default {
         price: 0,
         isSelfLearning: false
       },
-      gradeList: [],
 
       thumbnailList: [],
       thumbnailListLoading: true,
@@ -727,15 +726,7 @@ export default {
   methods: {
     initData() {
       console.info('initData doing...')
-      GetMyGrades().then((response) => {
-        console.info('add task initData done', response)
-        this.gradeList = response.result
-      }).then(() => {
-        this.contentLoading = false
-      }).catch((e) => {
-        this.$logger.error(e)
-        this.$message.error(this.$t('teacher.add-task.init-data-failed'))
-      })
+      this.contentLoading = false
 
       TaskQueryById({
         id: this.parentTaskId
