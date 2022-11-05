@@ -23,7 +23,7 @@ export async function QueryForCalendar (parameter) {
   })
   if (status) { // load register data
     const start = new Date(new Date(parameter.startDate).getTime()+86400000).toISOString()
-    const end = new Date(new Date(parameter.endDate).getTime()-86400000).toISOString()
+    const end = new Date(new Date(parameter.endDate).getTime()).toISOString()
     const query = { status, zone: new Date().getTimezoneOffset(), start, end, school: parameter.schoolIds.split(',') }
     const list = await App.service('session').get('dateList', { query })
     for (const v of list) {
