@@ -1019,7 +1019,7 @@ export default {
     loadThumbnail(needRefresh) {
       this.thumbnailListLoading = true
       console.info('loadThumbnail ' + this.form.presentationId)
-      const slides = await App.service('slides').get('findBySlideId', { query: { id: this.form.presentationId, task: this.parentTaskId }})
+      const slides = await App.service('slides').get('findBySlideId', { query: { id: this.form.presentationId, rev: this.form.revisionId, task: this.parentTaskId }})
       this.thumbnailListLoading = false
       this.thumbnailList = []
       slides.pages.map(v => {
