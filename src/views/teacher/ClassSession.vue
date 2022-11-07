@@ -504,19 +504,15 @@ export default {
       }
     },
     goToClassPage(classId, pace) {
-      const ext = classId + '?token=' + storage.get('feathers-jwt')
       var height = document.documentElement.clientHeight * 0.7
       var width = document.documentElement.clientWidth * 0.7
       var strWindowFeatures = 'width=' + width + ',height=' + height + ',menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'
       var windowObjectReference
       if (pace === 'teacher-paced') {
         windowObjectReference = window.open('about:blank', '_blank', strWindowFeatures)
-        windowObjectReference.location = lessonHost + 't/' + ext
-        setTimeout(function () {
-          window.location.href = lessonHost + 'd/' + ext
-        }, 1000)
+        windowObjectReference.location = lessonHost + 't/' + classId + '?token=' + storage.get('feathers-jwt')
       } else {
-        window.location.href = lessonHost + 'd/' + ext
+        window.location.href = lessonHost + 'd/' + classId + '?token=' + storage.get('feathers-jwt') + '&status=student'
       }
     },
 
