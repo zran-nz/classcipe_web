@@ -66,7 +66,7 @@ export default {
     collaborateTips() {
       if (this.form.sourceFrom) {
         return 'The function of Collaboration cannot be used for non-original content'
-      } else if (!this.form.presentationId || this.form.presentationId.startsWith('fake_')) {
+      } else if (this.form.type !== 2 && !this.form.presentationId) {
         return 'Please create your slides first.'
       } else {
         return 'Collaborate'
