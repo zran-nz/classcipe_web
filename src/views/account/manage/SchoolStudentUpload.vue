@@ -64,9 +64,12 @@
     </div>
     <fixed-form-footer>
       <template v-slot:right>
-        <custom-text-button label='Add selected students' @click="handleAddUser">
+        <a-space>
+          <label for="">Total selected: {{ selectedLen }} </label>
+          <custom-text-button label='Add selected students' @click="handleAddUser">
 
-        </custom-text-button>
+          </custom-text-button>
+        </a-space>
       </template>
     </fixed-form-footer>
   </div>
@@ -85,7 +88,7 @@ import SchoolUserUpload from './schoolUser/SchoolUserUpload'
 import SchoolUserImport from './schoolUser/SchoolUserImport'
 
 import { listClass } from '@/api/v2/schoolClass'
-import { checkEmailParent, checkEmailStudent, batchAddStudent } from '@/api/v2/schoolUser'
+import { checkEmailParent, checkEmailStudent, batchAddStudent, getSchoolUsers } from '@/api/v2/schoolUser'
 
 import { mapState } from 'vuex'
 import moment from 'moment'
@@ -170,7 +173,8 @@ export default {
       uploadOptions: {
         classes: []
       },
-      chooseClass: this.classId
+      chooseClass: this.classId,
+      studentCount: 0
     }
   },
   created() {
@@ -179,11 +183,15 @@ export default {
   },
   computed: {
     ...mapState({
+      info: state => state.user.info,
       userMode: state => state.app.userMode,
       currentSchool: state => state.user.currentSchool
     }),
     title() {
       return 'Upload'
+    },
+    selectedLen() {
+      return this.$refs.schoolUserUpload.selectionRows.length
     }
   },
   methods: {
@@ -212,8 +220,14 @@ export default {
             queryType: 0,
             pageNo: 1,
             pageSize: 10000
+          }),
+          getSchoolUsers({
+            schoolId: this.currentSchool.id,
+            roles: 'student',
+            pageNo: 1,
+            pageSize: 1
           })
-        ]).then(([clsRes]) => {
+        ]).then(([clsRes, studentRes]) => {
           if (clsRes.code === 0) {
             this.classList = clsRes.result.records
             this.uploadOptions.classes = clsRes.result.records.map(item => ({
@@ -226,6 +240,9 @@ export default {
                 this.chooseClass = ''
               }
             }
+          }
+          if (studentRes && studentRes.code === 0 && studentRes.result) {
+            this.studentCount = studentRes.result.total
           }
         })
     },
@@ -319,7 +336,30 @@ export default {
           ...item,
           classes: this.chooseClass
         }))
-        this.loading = true
+        // 判断是否超出套餐限制
+        if (this.info.planInfo && this.info.planInfo.studentCount) {
+          const selectedLen = this.$refs.schoolUserUpload.selectionRows.length
+          if (selectedLen + this.studentCount > this.info.planInfo.studentCount) {
+            const diff = this.info.planInfo.studentCount - this.studentCount
+            this.$confirm({
+              title: 'Alert',
+              content: `The limits of your plan are ${this.info.planInfo.studentCount} people, there are already ${this.studentCount} people, you can add ${diff} people`,
+              centered: true,
+              okText: 'Confirm',
+              cancelText: 'Cancel',
+              okButtonProps: {
+                style: { display: 'none' }
+              },
+              onOk: () => {
+
+              },
+              onCancel: () => {
+
+              }
+            })
+            return
+          }
+        }
         batchAddStudent(params).then(res => {
           if (res.code === 0) {
             this.datas = []

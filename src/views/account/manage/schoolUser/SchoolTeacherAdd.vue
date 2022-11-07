@@ -156,7 +156,7 @@
 import { USER_MODE, SCHOOL_USER_STATUS } from '@/const/common'
 
 import { listClass } from '@/api/v2/schoolClass'
-import { addTeacher, updateTeacher, checkEmailTeacher, getTeacherInfo, resetPassword } from '@/api/v2/schoolUser'
+import { addTeacher, updateTeacher, checkEmailTeacher, getTeacherInfo, resetPassword, getTeacherCount } from '@/api/v2/schoolUser'
 import { listRole, geHeaderClassByUserId } from '@/api/v2/schoolRole'
 import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
 
@@ -236,7 +236,8 @@ export default {
       needAutoSave: false, // !this.id,
       userHeaderTeacherCls: [],
       classUnModify: false,
-      subjectOptions: []
+      subjectOptions: [],
+      teacherCount: 0
     }
   },
   computed: {
@@ -293,8 +294,11 @@ export default {
           }),
           getSubjectBySchoolId({
             schoolId: this.currentSchool.id
+          }),
+          getTeacherCount({
+            schoolId: this.currentSchool.id
           })
-        ]).then(([clsRes, roleRes, subjectRes]) => {
+        ]).then(([clsRes, roleRes, subjectRes, teacherRes]) => {
           if (clsRes.code === 0) {
             this.classList = clsRes.result.records.filter(cls => cls.classType !== 2)
             this.classUnModify = !!this.teacherId
@@ -331,6 +335,9 @@ export default {
               })
             })
             this.subjectOptions = options
+          }
+          if (teacherRes && teacherRes.code === 0 && teacherRes.result) {
+            this.teacherCount = teacherRes.result.sumCount
           }
         })
     },
@@ -451,11 +458,34 @@ export default {
           if (params.birthDay) {
             params.birthday = params.birthDay = moment.utc(params.birthDay).format('YYYY-MM-DD HH:mm:ss')
           }
-          this.loading = true
           let promise = addTeacher
           if (this.teacherId) {
             promise = updateTeacher
+          } else {
+            // 判断是否超出套餐限制
+            if (this.info.planInfo && this.info.planInfo.teacherCount) {
+              if (this.teacherCount === this.info.planInfo.teacherCount) {
+                this.$confirm({
+                  title: 'Alert',
+                  content: `You have reached the limits of people.`,
+                  centered: true,
+                  okText: 'Confirm',
+                  cancelText: 'Cancel',
+                  okButtonProps: {
+                    style: { display: 'none' }
+                  },
+                  onOk: () => {
+
+                  },
+                  onCancel: () => {
+
+                  }
+                })
+                return
+              }
+            }
           }
+          this.loading = true
           promise(params).then(res => {
             if (res.code === 0) {
               this.$message.success('Save successfully')

@@ -163,7 +163,7 @@
 
 <script>
 import { listClass } from '@/api/v2/schoolClass'
-import { addStudents, resetUserPassword, sendParentEmail, getStudentInfo, updateStudent, checkEmailStudent, checkEmailParent } from '@/api/v2/schoolUser'
+import { addStudents, resetUserPassword, sendParentEmail, getStudentInfo, updateStudent, checkEmailStudent, checkEmailParent, getSchoolUsers } from '@/api/v2/schoolUser'
 import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
 import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
 
@@ -173,6 +173,7 @@ import AvatarModal from '@/views/account/settings/AvatarModal'
 import { SubmitBeforeMixin } from '@/mixins/SubmitBeforeMixin'
 import { AutoSaveLocalMixin } from '@/mixins/AutoSaveLocalMixin'
 
+import { mapState } from 'vuex'
 import moment from 'moment'
 import { isEmail, randomString } from '@/utils/util'
 const { sortBy } = require('lodash-es')
@@ -256,10 +257,14 @@ export default {
       classUnModify: false,
       subjectOptions: [],
       curriculumOptions: [],
-      gradeOptions: []
+      gradeOptions: [],
+      studentCount: 0
     }
   },
   computed: {
+    ...mapState({
+      info: state => state.user.info
+    }),
     validatorRules: function () {
       return {
         firstName: [{ required: true, message: 'Please Input First Name!' }],
@@ -315,8 +320,14 @@ export default {
         }),
         getCurriculumBySchoolId({
           schoolId: this.currentSchool.id
+        }),
+        getSchoolUsers({
+          schoolId: this.currentSchool.id,
+          roles: 'student',
+          pageNo: 1,
+          pageSize: 1
         })
-      ]).then(([clsRes, subjectRes, gradeRes]) => {
+      ]).then(([clsRes, subjectRes, gradeRes, studentRes]) => {
         if (clsRes.code === 0) {
           this.classNameList = {}
           this.classList = clsRes.result.records
@@ -380,6 +391,9 @@ export default {
             })))
           })
           this.gradeOptions = grades
+        }
+        if (studentRes && studentRes.code === 0 && studentRes.result) {
+          this.studentCount = studentRes.result.total
         }
       })
     },
@@ -581,6 +595,28 @@ export default {
                 promise = updateStudent
               } else {
                 promise = addStudents
+                // 判断是否超出套餐限制
+                if (this.info.planInfo && this.info.planInfo.studentCount) {
+                  if (this.studentCount === this.info.planInfo.studentCount) {
+                    this.$confirm({
+                      title: 'Alert',
+                      content: `You have reached the limits of people.`,
+                      centered: true,
+                      okText: 'Confirm',
+                      cancelText: 'Cancel',
+                      okButtonProps: {
+                        style: { display: 'none' }
+                      },
+                      onOk: () => {
+
+                      },
+                      onCancel: () => {
+
+                      }
+                    })
+                    return
+                  }
+                }
               }
               this.loading = true
               promise(params).then(res => {

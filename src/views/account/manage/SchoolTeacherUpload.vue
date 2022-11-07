@@ -50,9 +50,12 @@
     </div>
     <fixed-form-footer>
       <template v-slot:right>
-        <custom-text-button label='Add selected teachers' @click="handleAddUser">
+        <a-space>
+          <label for="">Total selected: {{ selectedLen }} </label>
+          <custom-text-button label='Add selected teachers' @click="handleAddUser">
 
-        </custom-text-button>
+          </custom-text-button>
+        </a-space>
       </template>
     </fixed-form-footer>
   </div>
@@ -71,7 +74,7 @@ import SchoolUserUpload from './schoolUser/SchoolUserUpload'
 import SchoolUserImport from './schoolUser/SchoolUserImport'
 
 import { listClass } from '@/api/v2/schoolClass'
-import { checkEmailTeacher, batchAddTeacher } from '@/api/v2/schoolUser'
+import { checkEmailTeacher, batchAddTeacher, getTeacherCount } from '@/api/v2/schoolUser'
 
 import { mapState } from 'vuex'
 import moment from 'moment'
@@ -133,7 +136,8 @@ export default {
           scopedSlots: { customRender: 'action' }
         }
       ],
-      loading: false
+      loading: false,
+      teacherCount: 0
     }
   },
   created() {
@@ -142,11 +146,15 @@ export default {
   },
   computed: {
     ...mapState({
+      info: state => state.user.info,
       userMode: state => state.app.userMode,
       currentSchool: state => state.user.currentSchool
     }),
     title() {
       return 'Upload'
+    },
+    selectedLen() {
+      return this.$refs.schoolUserUpload.selectionRows.length
     }
   },
   methods: {
@@ -175,10 +183,16 @@ export default {
             queryType: 0,
             pageNo: 1,
             pageSize: 10000
+          }),
+          getTeacherCount({
+            schoolId: this.currentSchool.id
           })
-        ]).then(([clsRes]) => {
+        ]).then(([clsRes, teacherRes]) => {
           if (clsRes.code === 0) {
             this.classList = clsRes.result.records
+          }
+          if (teacherRes && teacherRes.code === 0 && teacherRes.result) {
+            this.teacherCount = teacherRes.result.sumCount
           }
         })
     },
@@ -241,7 +255,30 @@ export default {
     handleAddUser() {
       console.log(this.$refs.schoolUserUpload.selectionRows)
       if (this.$refs.schoolUserUpload.selectionRows.length > 0) {
-        this.loading = true
+        // 判断是否超出套餐限制
+        if (this.info.planInfo && this.info.planInfo.teacherCount) {
+          const selectedLen = this.$refs.schoolUserUpload.selectionRows.length
+          if (selectedLen + this.teacherCount > this.info.planInfo.teacherCount) {
+            const diff = this.info.planInfo.teacherCount - this.teacherCount
+            this.$confirm({
+              title: 'Alert',
+              content: `The limits of your plan are ${this.info.planInfo.teacherCount} people, there are already ${this.teacherCount} people, you can add ${diff} people`,
+              centered: true,
+              okText: 'Confirm',
+              cancelText: 'Cancel',
+              okButtonProps: {
+                style: { display: 'none' }
+              },
+              onOk: () => {
+
+              },
+              onCancel: () => {
+
+              }
+            })
+            return
+          }
+        }
         batchAddTeacher(this.$refs.schoolUserUpload.selectionRows).then(res => {
           if (res.code === 0) {
             this.datas = []
