@@ -11,9 +11,9 @@
         <a-radio-button :value="DriveType.GoogleImage" v-if='filterTabTypeList.indexOf(DriveType.GoogleImage) !== -1'>
           Google Image
         </a-radio-button>
-        <a-radio-button :value="DriveType.GoogleDrive" v-if='filterTabTypeList.indexOf(DriveType.GoogleDrive) !== -1'>
+        <!-- <a-radio-button :value="DriveType.GoogleDrive" v-if='filterTabTypeList.indexOf(DriveType.GoogleDrive) !== -1'>
           Google Drive
-        </a-radio-button>
+        </a-radio-button> -->
         <a-radio-button :value="DriveType.UploadVideo" v-if='filterTabTypeList.indexOf(DriveType.UploadVideo) !== -1'>
           Upload Video
         </a-radio-button>
