@@ -26,17 +26,17 @@
             <my-content-icon />
           </template>
         </SidebarMenuItem>
-        <SidebarMenuItem label='My saved' path='/teacher/main/my-favorite'>
+        <SidebarMenuItem label='My saved' path='/v2/my/saved'>
           <template v-slot:icon>
             <my-favorite-icon />
           </template>
         </SidebarMenuItem>
-        <SidebarMenuItem label='Launch workshops' path='/teacher/main/live-workshops'>
+        <SidebarMenuItem label='Workshop management' path='/v2/my/workshop'>
           <template v-slot:icon>
             <live-workshops-icon />
           </template>
         </SidebarMenuItem>
-        <SidebarMenuItem label='Live workshops' path='/teacher/main/my-register'>
+        <SidebarMenuItem label='Live workshop' path='/v2/my/register'>
           <template v-slot:icon>
             <live-workshops-icon />
           </template>
