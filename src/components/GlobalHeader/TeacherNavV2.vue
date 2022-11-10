@@ -31,12 +31,12 @@
             <my-favorite-icon />
           </template>
         </SidebarMenuItem>
-        <SidebarMenuItem label='Workshop management' path='/v2/my/workshop'>
+        <SidebarMenuItem label='Launch workshops' path='/v2/my/workshop'>
           <template v-slot:icon>
             <live-workshops-icon />
           </template>
         </SidebarMenuItem>
-        <SidebarMenuItem label='Live workshop' path='/v2/my/register'>
+        <SidebarMenuItem label='Live workshops' path='/v2/my/register'>
           <template v-slot:icon>
             <live-workshops-icon />
           </template>
