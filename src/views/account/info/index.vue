@@ -35,7 +35,8 @@
             </label>
             <a-button size="small" type="primary" @click="goToProfile">Go to profile</a-button>
           </div>
-          <div class="header-detail-plan">
+          <!-- 学校管理员才能看到 -->
+          <div class="header-detail-plan" v-if="!isNotAdmin">
             <!-- <div class='plan-name' v-if="info.planInfo && !info.planInfo.freeUsePlan">{{ info.planInfo.planName }} {{ planStatus }}Info</div>
             <div class='plan-name' v-else>Free plan</div> -->
             <div class='plan-name'>{{ planInfoStatus }}</div>
