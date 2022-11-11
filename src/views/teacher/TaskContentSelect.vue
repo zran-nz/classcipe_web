@@ -37,7 +37,7 @@ export default {
     },
     handleCloseImport() {
       if (window.history.length <= 1) {
-        this.$router.push({ path: '/teacher/main/live-workshops' })
+        location.href = '/v2/my/workshop'
         return false
       } else {
         this.$router.go(-1)

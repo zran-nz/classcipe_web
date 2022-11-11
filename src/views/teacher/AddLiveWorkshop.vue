@@ -676,7 +676,7 @@ export default {
 
     goBack() {
       if (window.history.length <= 1) {
-        this.$router.push({ path: '/teacher/main/live-workshops' })
+        location.href = '/v2/my/workshop'
         return false
       } else {
         this.$router.go(-1)
@@ -685,7 +685,7 @@ export default {
 
     handleBack () {
       if (window.history.length <= 1) {
-        this.$router.push({ path: '/teacher/main/live-workshops' })
+        location.href = '/v2/my/workshop'
         return false
       } else {
         this.$router.go(-1)
@@ -818,7 +818,7 @@ export default {
       AddSessionV2(params).then(res => {
          if (res.result && res.success && res.code === 0) {
           this.$message.success('Schedule session successfully')
-          this.$router.replace('/teacher/main/live-workshops?workshopsType=2&workshopsStatus=2')
+          location.href = '/v2/my/workshop'
         } else {
           this.$confirm({
             title: 'Warn',

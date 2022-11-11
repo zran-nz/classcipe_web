@@ -208,7 +208,7 @@ export default {
 
     handleBack () {
       if (window.history.length <= 1) {
-        this.$router.push({ path: '/teacher/main/live-workshops' })
+        location.href = '/v2/my/workshop'
         return false
       } else {
         this.$router.go(-1)
@@ -346,9 +346,7 @@ export default {
               if (res.result.length && res.result[0].taskClassId) {
                 this.finishAndGoBack(res.result[0].taskClassId)
               } else {
-                this.$router.replace({
-                  path: `/teacher/main/live-workshops?workshopsType=2&workshopsStatus=2`
-                })
+                location.href = '/v2/my/workshop'
               }
             }
           }
@@ -374,9 +372,7 @@ export default {
 
     finishAndGoBack(taskClassId) {
       if (this.scheduleReq.workshopType) {
-        this.$router.replace({
-          path: `/teacher/main/live-workshops?workshopsType=2&workshopsStatus=2`
-        })
+        location.href = '/v2/my/workshop'
       } else {
         this.$router.replace({
           path: `/teacher/class-session/${taskClassId}`
