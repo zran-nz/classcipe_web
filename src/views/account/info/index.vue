@@ -48,9 +48,9 @@
               v-if="info.planInfo && info.planInfo.schoolInfo && [2, 3, -1].includes(info.planInfo.schoolInfo.planStatus)">
               {{ expiredDay }}
             </div>
-            <div class="plan-pay" v-if="info.planInfo && info.planInfo.unPaidPrice && info.planInfo.unPaidPrice > 0 && info.planInfo.schoolInfo && [2, 3, -1].includes(info.planInfo.schoolInfo.planStatus)">
+            <!-- <div class="plan-pay" v-if="info.planInfo && info.planInfo.unPaidPrice && info.planInfo.unPaidPrice > 0 && info.planInfo.schoolInfo && [2, 3, -1].includes(info.planInfo.schoolInfo.planStatus)">
               <a-button type='primary'>Pay</a-button>
-            </div>
+            </div> -->
           </div>
           <div class="header-detail-storage">
             <a-progress :percent="storageProgress" class='cc-storage-progress' :show-info='false'/>
@@ -447,9 +447,9 @@ export default {
           msg.push(`Valid up to ${date} `) // ${days} ${unit}${days > 1 ? 's' : ''}`
         }
       }
-      if (remain > 0) {
-        msg.push(`Balance of $${remain} unpaid`)
-      }
+      // if (remain > 0) {
+      //   msg.push(`Balance of $${remain} unpaid`)
+      // }
       return msg.join('')
     },
     planStatus() {
