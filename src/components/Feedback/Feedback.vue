@@ -92,7 +92,7 @@ export default {
     },
     handleCloseFeedback () {
       console.log('handleCloseFeedback')
-      document.getElementById('chat-widget-container').style.display = 'none'
+      // document.getElementById('chat-widget-container').style.display = 'none'
       document.getElementById('feed-back').style.display = 'none'
     },
     handleSubmitFeedback (data) {
@@ -113,7 +113,7 @@ export default {
 #feed-back {
   position: fixed;
   right: 35px;
-  bottom: 140px;
+  bottom: 80px;
   color: #fff;
   line-height: 30px;
   border-radius: 5px;
@@ -207,10 +207,10 @@ export default {
 
 .classcipe-hidden-feedback img {
   z-index: 100;
-  width: 15px;
+  width: 1.5rem;
   position: absolute;
-  right: -5px;
-  top: -5px;
+  right: -1rem;
+  top: -1rem;
 }
 #feed-back:hover .classcipe-hidden-feedback {
   display: block;
