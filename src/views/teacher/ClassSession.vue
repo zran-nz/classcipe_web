@@ -45,7 +45,7 @@
               :school-resource-id="item.schoolId"
               :show-avatar-tips="true"
               :session='item'>
-              <template v-slot:cover-action>
+              <template v-slot:cover-action v-if="$route.query.queryType == 1">
                 <div class='cover-action'>
                   <div class='action-btn' @click.stop=''>
                     <custom-button bg-color='#0C90E3' color='#ffffff' label='Student pace' @click="handleStartOrJoin(item.session, classStatus.studentPaced)"></custom-button>

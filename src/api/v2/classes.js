@@ -216,5 +216,13 @@ export function ClassStatusUpdate (parameter) {
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
     }
+  }).then(async rs => {
+    const status = { End: 'close', Reopen: 'live' }
+    const del = { Restore: false, Archive: true }
+    const post = {}
+    if (status[parameter.statusStr]) post.status = status[parameter.statusStr]
+    else post.del = del[parameter.statusStr]
+    await App.service('session').patch('oldStatusSync', post, { query: { sid: parameter.sessionId }})
+    return rs
   })
 }
