@@ -970,6 +970,13 @@ export default {
       }
     },
     handleDateSelect(selectInfo) {
+      // 限制3小时
+      if (moment(selectInfo.end).diff(moment(selectInfo.start), 'hours') > 3) {
+        this.$message.error('Time span up to 3 hours')
+        const calendarApi = this.$refs.fullCalendar.getApi()
+        calendarApi.unselect()
+        return
+      }
       if (this.addable) {
         this.$refs.tooltip.style.visibility = 'visible'
         this.$refs.tooltip.style.top = selectInfo.jsEvent.clientY + 'px'
@@ -1117,6 +1124,10 @@ export default {
       if (moment().isAfter(start)) {
         current.setDates(event.oldEvent.start, event.oldEvent.end)
         return
+      }
+      // 限制3小时
+      if (moment(current.end).diff(start, 'hours') > 3) {
+        current.setDates(current.start, start.add(3, 'hours'))
       }
       if (event.event.id === 'DateSelect') {
         this.$emit('date-select', {
