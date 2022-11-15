@@ -33,7 +33,7 @@
       <a-spin tip='Loading...' :spinning="loading">
         <div class='content-list'>
           <template v-if='pagination.total !== 0 && !loading'>
-            <content-item
+            <ContentItem
               @reload="loadMyContent"
               @reFetch='loadMyContent'
               :show-type-name='true'
@@ -45,7 +45,7 @@
               :school-resource-id="item.schoolId"
               :show-avatar-tips="true"
               :session='item'>
-              <template v-slot:cover-action v-if="$route.query.queryType == 1">
+              <template v-slot:cover-action v-if="queryParams.queryType == 1">
                 <div class='cover-action'>
                   <div class='action-btn' @click.stop=''>
                     <custom-button bg-color='#0C90E3' color='#ffffff' label='Dashboard view' @click="goToClassPage(item.session.classId, classStatus.studentPaced)"></custom-button>
@@ -53,7 +53,7 @@
                   </div>
                 </div>
               </template>
-            </content-item>
+            </ContentItem>
           </template>
           <div class='empty-tips' v-if='pagination.total === 0 && !loading'>
             <no-more-resources />
@@ -113,7 +113,6 @@ import ContentFilter from '@/components/MyContentV2/ContentFilter'
 import RadioSwitch from '@/components/Common/RadioSwitch'
 import * as logger from '@/utils/logger'
 import {
-  SESSION_CLASS_TYPE,
   WORK_SHOPS_STATUS,
   WORK_SHOPS_TYPE,
   USER_MODE
@@ -189,7 +188,7 @@ export default {
       WORK_SHOPS_TYPE_VALUES: Object.values(WORK_SHOPS_TYPE),
       queryParams: {
         classId: '',
-        status: sessionStorage.getItem(SESSION_CLASS_TYPE) ? parseInt(sessionStorage.getItem(SESSION_CLASS_TYPE)) : WORK_SHOPS_STATUS.SCHEDULE.value, // 2: scheduled, 1: on-going, 3: ended
+        status: WORK_SHOPS_STATUS.SCHEDULE.value, // 2: scheduled, 1: on-going, 3: ended
         sessionName: '',
         queryType: 1,
         delFlag: 0
@@ -239,8 +238,7 @@ export default {
       classList: state => state.user.classList
     }),
     getSelectItem() {
-      const shareType = sessionStorage.getItem(SESSION_CLASS_TYPE) ? parseInt(sessionStorage.getItem(SESSION_CLASS_TYPE)) : WORK_SHOPS_STATUS.SCHEDULE.value
-      const index = this.menuList.findIndex(item => item.type === shareType)
+      const index = this.menuList.findIndex(item => item.type === this.queryParams.status)
       if (index > -1) {
         return this.menuList[index]
       }
@@ -274,7 +272,6 @@ export default {
   },
   created() {
     if (this.$route.query.workshopsStatus) {
-      sessionStorage.setItem(SESSION_CLASS_TYPE, this.$route.query.workshopsStatus)
       this.queryParams.status = this.$route.query.workshopsStatus
     }
     if (this.$route.query.queryType) {
@@ -421,7 +418,6 @@ export default {
     },
 
     handleSelectWorkStatus (item) {
-      sessionStorage.setItem(SESSION_CLASS_TYPE, item.type)
       this.queryParams.status = item.type
       this.$router.replace({
         path: `/teacher/class-session/${this.$route.params.classId}?workshopsStatus=${this.queryParams.status}&queryType=${this.queryParams.queryType}`
