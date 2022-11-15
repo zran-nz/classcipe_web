@@ -48,8 +48,8 @@
               <template v-slot:cover-action v-if="$route.query.queryType == 1">
                 <div class='cover-action'>
                   <div class='action-btn' @click.stop=''>
-                    <custom-button bg-color='#0C90E3' color='#ffffff' label='Student pace' @click="handleStartOrJoin(item.session, classStatus.studentPaced)"></custom-button>
-                    <custom-button bg-color='#0C90E3' color='#ffffff' label='Teacher pace' @click="handleStartOrJoin(item.session, classStatus.teacherPaced)"></custom-button>
+                    <custom-button bg-color='#0C90E3' color='#ffffff' label='Dashboard view' @click="goToClassPage(item.session.classId, classStatus.studentPaced)"></custom-button>
+                    <custom-button bg-color='#0C90E3' color='#ffffff' label='Classroom view' @click="goToClassPage(item.session.classId, classStatus.teacherPaced)"></custom-button>
                   </div>
                 </div>
               </template>
@@ -512,31 +512,9 @@ export default {
         windowObjectReference = window.open('about:blank', '_blank', strWindowFeatures)
         windowObjectReference.location = lessonHost + 't/' + classId + '?token=' + storage.get('feathers-jwt')
       } else {
-        window.location.href = lessonHost + 'd/' + classId + '?token=' + storage.get('feathers-jwt') + '&status=student'
+        window.location.href = lessonHost + 'd/' + classId + '?token=' + storage.get('feathers-jwt') // + '&status=student'
       }
     },
-
-    handleStartOrJoin (item, paced) {
-      console.info('handleStartOrJoin', item, 'paced:', paced)
-      return this.goToClassPage(item.classId, paced)
-      // this.loading = true
-      // if (item.status !== paced) {
-      //   const data = Object.assign({}, item)
-      //   // 状态需要提交后台处理
-      //   data.status = paced
-      //   // 课程开始时间未设置
-      //   if (!data.date) {
-      //     data.date = parseInt(moment.utc(new Date()).toDate().getTime() / 1000)
-      //   }
-
-      //   AddOrUpdateClass(data).then(response => {
-      //     item.loading = false
-      //   })
-      // } else {
-      //   this.goToClassPage(item.classId, paced)
-      //   this.loading = false
-      // }
-    }
   }
 }
 </script>
