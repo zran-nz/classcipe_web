@@ -38,7 +38,7 @@
         </SidebarMenuItem>
         <SidebarMenuItem label='Live workshops' path='/v2/my/register'>
           <template v-slot:icon>
-            <WorkspaceIcon />
+            <live-workshops-icon />
           </template>
         </SidebarMenuItem>
 
@@ -75,7 +75,6 @@ import ResourceIcon from '@/assets/v2/icons/order.svg?inline'
 import MyContentIcon from '@/assets/v2/icons/my_content.svg?inline'
 import MyFavoriteIcon from '@/assets/v2/icons/my_favorites.svg?inline'
 import LiveWorkshopsIcon from '@/assets/v2/icons/live_workshops.svg?inline'
-import WorkspaceIcon from '@/assets/v2/icons/workspaces.svg?inline'
 import ClassIcon from '@/assets/v2/icons/class.svg?inline'
 import CoTeachingIcon from '@/assets/v2/icons/Co-teaching.svg?inline'
 import LibraryIcon from '@/assets/v2/icons/library.svg?inline'
@@ -101,7 +100,6 @@ export default {
     MyContentIcon,
     MyFavoriteIcon,
     LiveWorkshopsIcon,
-    WorkspaceIcon,
     ResourceIcon,
     ClassIcon,
     LibraryIcon,
