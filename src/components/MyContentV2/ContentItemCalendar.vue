@@ -55,7 +55,7 @@
                 <div v-if="formatSessionType(data.sessionInfo.sessionType).name">
                   <a-tag :color="formatSessionType(data.sessionInfo.sessionType).color">{{ formatSessionType(data.sessionInfo.sessionType).name }}</a-tag>
                 </div>
-                <div v-if="data.sessionInfo && data.sessionInfo.zoomMeeting" class='zoom-icon' @click.prevent.stop="handleToZoom(content)">
+                <div v-if="data.sessionInfo && data.sessionInfo.zoomMeeting" class='zoom-icon'>
                   <img src='~@/assets/icons/zoom/img.png' />
                 </div>
                 <div class='info-item task-type-info' v-if='data.content.taskType'>
@@ -625,7 +625,6 @@ export default {
       height: 20px;
       display: flex;
       align-items: center;
-      cursor: pointer;
       img {
         // width: 0.4em /* 40/100 */;
         height: 20px;
