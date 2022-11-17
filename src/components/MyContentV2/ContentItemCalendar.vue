@@ -11,7 +11,7 @@
             <custom-button style="margin-top: 0.8rem;" bg-color='#0C90E3' color='#ffffff' label='Teacher pace' @click="goToClassPage(data.sessionInfo.id, classStatus.teacherPaced)"></custom-button>
           </div>
           <div class="action-btn" v-if="data.sessionInfo.type === 'workshop'">
-            <custom-button bg-color='#0C90E3' color='#ffffff' label='Enter workshop' @click="goToClassPage(data.sessionInfo.id, classStatus.studentPaced)"></custom-button>
+            <custom-button bg-color='#0C90E3' color='#ffffff' :label='isOwner ? "Enter workshop" : "Go to workshop"' @click="goToClassPage(data.sessionInfo.id, isOwner ? classStatus.teacherPaced : classStatus.studentPaced)"></custom-button>
           </div>
         </div>
       </div>
@@ -214,6 +214,7 @@ import OriginalTipsIcon from '@/assets/v2/icons/original_tips.svg?inline'
 import TagsLine from '@/components/TagsLine'
 import { lessonHost, lessonStatus } from '@/const/googleSlide'
 import storage from 'store'
+import { mapState } from 'vuex'
 
 import MoreIcon from '@/assets/v2/icons/more.svg?inline'
 import moment from 'moment'
@@ -243,7 +244,7 @@ export default {
   watch: {
     content: {
       handler(val) {
-        console.log(val)
+        console.log('data', val)
         this.data = cloneDeep(val)
         this.origin = cloneDeep(val)
         const responseLimitTime = this.data.sessionInfo.responseLimitTime
@@ -309,6 +310,9 @@ export default {
     }
   },
   computed: {
+    ...mapState({
+      userInfo: state => state.user.info
+    }),
     backgroundImg() {
       if (this.data.workshopsDetailInfo && this.data.workshopsDetailInfo.cover) {
         return this.data.workshopsDetailInfo.cover
@@ -344,6 +348,9 @@ export default {
         return true
       }
       return false
+    },
+    isOwner() {
+      return this.data.owner._id === this.userInfo.id
     }
   },
   methods: {
@@ -352,6 +359,7 @@ export default {
       this.unitList = cloneDeep(this.units)
     },
     goToClassPage(classId, pace) {
+      console.log('pace', pace)
       var height = document.documentElement.clientHeight * 0.7
       var width = document.documentElement.clientWidth * 0.7
       var strWindowFeatures = 'width=' + width + ',height=' + height + ',menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'
@@ -473,6 +481,7 @@ export default {
       background-repeat: no-repeat;
 
       .bottom-action {
+        z-index: 100;
         background: rgba(0, 0, 0, 0.7);
         padding: 0 0.6rem;
         position: absolute;
