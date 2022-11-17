@@ -244,7 +244,6 @@ export default {
   watch: {
     content: {
       handler(val) {
-        console.log('data', val)
         this.data = cloneDeep(val)
         this.origin = cloneDeep(val)
         const responseLimitTime = this.data.sessionInfo.responseLimitTime
@@ -263,7 +262,6 @@ export default {
     },
     units: {
       handler(val) {
-        console.log(val)
         this.unitList = cloneDeep(val)
       },
       deep: true,
@@ -359,7 +357,6 @@ export default {
       this.unitList = cloneDeep(this.units)
     },
     goToClassPage(classId, pace) {
-      console.log('pace', pace)
       var height = document.documentElement.clientHeight * 0.7
       var width = document.documentElement.clientWidth * 0.7
       var strWindowFeatures = 'width=' + width + ',height=' + height + ',menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'
