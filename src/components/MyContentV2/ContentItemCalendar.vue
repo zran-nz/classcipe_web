@@ -1,27 +1,51 @@
 <template>
-  <div class='content-item' v-if='data'>
-    <div class='cover'>
-      <div class='cover-block' :style="{'background-image': `url('${backgroundImg}')`}">
+  <div class="content-item" v-if="data">
+    <div class="cover">
+      <div class="cover-block" :style="{ 'background-image': `url('${backgroundImg}')` }">
         <div class="bottom-action">
-          <div class="preview" @click="$emit('close');$store.dispatch('setV2Box', content.sessionInfo)"><a-icon type="eye" /><span style="margin-left: 0.6rem">Preview</span></div>
+          <div
+            class="preview"
+            @click="
+              $emit('close')
+              $store.dispatch('setV2Box', content.sessionInfo)
+            "
+          >
+            <a-icon type="eye" /><span style="margin-left: 0.6rem">Preview</span>
+          </div>
         </div>
         <div class="cover-action">
-          <div class='action-btn' v-if="data.sessionInfo.type !== 'workshop'">
-            <custom-button bg-color='#0C90E3' color='#ffffff' label='Student pace' @click="goToClassPage(data.sessionInfo.id, classStatus.studentPaced)"></custom-button>
-            <custom-button style="margin-top: 0.8rem;" bg-color='#0C90E3' color='#ffffff' label='Teacher pace' @click="goToClassPage(data.sessionInfo.id, classStatus.teacherPaced)"></custom-button>
+          <div class="action-btn" v-if="data.sessionInfo.type !== 'workshop'">
+            <custom-button
+              bg-color="#0C90E3"
+              color="#ffffff"
+              label="Student pace"
+              @click="goToClassPage(data.sessionInfo.id, classStatus.studentPaced)"
+            ></custom-button>
+            <custom-button
+              style="margin-top: 0.8rem;"
+              bg-color="#0C90E3"
+              color="#ffffff"
+              label="Teacher pace"
+              @click="goToClassPage(data.sessionInfo.id, classStatus.teacherPaced)"
+            ></custom-button>
           </div>
           <div class="action-btn" v-if="data.sessionInfo.type === 'workshop'">
-            <custom-button bg-color='#0C90E3' color='#ffffff' :label='isOwner ? "Enter workshop" : "Go to workshop"' @click="goToClassPage(data.sessionInfo.id, isOwner ? classStatus.teacherPaced : classStatus.studentPaced)"></custom-button>
+            <custom-button
+              bg-color="#0C90E3"
+              color="#ffffff"
+              :label="isOwner ? 'Enter workshop' : 'Join workshop'"
+              @click="goToClassPage(data.sessionInfo.id, isOwner ? classStatus.teacherPaced : classStatus.studentPaced)"
+            ></custom-button>
           </div>
         </div>
       </div>
     </div>
-    <div class='detail'>
-      <div class='detail-content'>
-        <div class='base-info'>
-          <div class='name-con'>
+    <div class="detail">
+      <div class="detail-content">
+        <div class="base-info">
+          <div class="name-con">
             <a-tooltip :title="data.sessionInfo.sessionName">
-              <div class='name'>{{ data.sessionInfo.sessionName }}</div>
+              <div class="name">{{ data.sessionInfo.sessionName }}</div>
             </a-tooltip>
             <a-tooltip :title="data.sessionInfo.className">
               <div class="class">{{ data.sessionInfo.className }}</div>
@@ -44,48 +68,49 @@
           </div>
           <div class="detail-con">
             <div class="info-con">
-              <div class='subject'>
+              <div class="subject">
                 <a-space class="author-name">
-                  <a-tooltip :title="data.schoolId === '0' ? 'Personal' : data.schoolName ">
-                    <img v-if="data.userAvatar" :src="data.userAvatar" alt="">
-                    <img v-else src="~@/assets/icons/library/default-avatar.png"/>
+                  <a-tooltip :title="data.schoolId === '0' ? 'Personal' : data.schoolName">
+                    <img v-if="data.userAvatar" :src="data.userAvatar" alt="" />
+                    <img v-else src="~@/assets/icons/library/default-avatar.png" />
                   </a-tooltip>
-                  <label >{{ data.userRealName }}</label>
+                  <label>{{ data.userRealName }}</label>
                 </a-space>
                 <div v-if="formatSessionType(data.sessionInfo.sessionType).name">
-                  <a-tag :color="formatSessionType(data.sessionInfo.sessionType).color">{{ formatSessionType(data.sessionInfo.sessionType).name }}</a-tag>
+                  <a-tag :color="formatSessionType(data.sessionInfo.sessionType).color">{{
+                    formatSessionType(data.sessionInfo.sessionType).name
+                  }}</a-tag>
                 </div>
-                <div v-if="data.sessionInfo && data.sessionInfo.zoomMeeting" class='zoom-icon'>
-                  <img src='~@/assets/icons/zoom/img.png' />
+                <div v-if="data.sessionInfo && data.sessionInfo.zoomMeeting" class="zoom-icon">
+                  <img src="~@/assets/icons/zoom/img.png" />
                 </div>
-                <div class='info-item task-type-info' v-if='data.content.taskType'>
-                  <div class='self-type-wrapper'>
-                    <div class='self-field-label'>
-                      <div
-                        class='task-type-item green-active-task-type'
-                        v-if="data.content.taskType === 'FA'">
-                        <a-tooltip placement='top' title='Formative Assessment'>FA</a-tooltip>
+                <div class="info-item task-type-info" v-if="data.content.taskType">
+                  <div class="self-type-wrapper">
+                    <div class="self-field-label">
+                      <div class="task-type-item green-active-task-type" v-if="data.content.taskType === 'FA'">
+                        <a-tooltip placement="top" title="Formative Assessment">FA</a-tooltip>
+                      </div>
+                      <div class="task-type-item red-active-task-type" v-if="data.content.taskType === 'SA'">
+                        <a-tooltip placement="top" title="Summative Assessment">SA</a-tooltip>
                       </div>
                       <div
-                        class='task-type-item red-active-task-type'
-                        v-if="data.content.taskType === 'SA'">
-                        <a-tooltip placement='top' title='Summative Assessment'>SA</a-tooltip>
+                        class="task-type-item blue-active-task-type task-type-activity"
+                        v-if="data.content.taskType === 'Activity'"
+                      >
+                        <a-tooltip title="Teaching/Learning Activity" placement="top">Activity</a-tooltip>
                       </div>
                       <div
-                        class='task-type-item blue-active-task-type task-type-activity'
-                        v-if="data.content.taskType === 'Activity'">
-                        <a-tooltip title='Teaching/Learning Activity' placement='top'>Activity</a-tooltip>
-                      </div>
-                      <div
-                        class='task-type-item blue-active-task-type task-type-examine'
-                        v-if="data.content.taskType === 'IA'">
-                        <a-tooltip title='Internal Assessment' placement='top'>IA</a-tooltip>
+                        class="task-type-item blue-active-task-type task-type-examine"
+                        v-if="data.content.taskType === 'IA'"
+                      >
+                        <a-tooltip title="Internal Assessment" placement="top">IA</a-tooltip>
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="session-time">
-                  {{ data.sessionInfo.sessionStartTime | dayjs('HH:mm') }} - {{ data.sessionInfo.deadline | dayjs('HH:mm') }}
+                  {{ data.sessionInfo.sessionStartTime | dayjs('HH:mm') }} -
+                  {{ data.sessionInfo.deadline | dayjs('HH:mm') }}
                 </div>
               </div>
               <!-- <div class="class-con">
@@ -137,14 +162,13 @@
             </div>
           </div>
         </div>
-        <div class='right-info'>
-          <div class='update-time'>
-          </div>
+        <div class="right-info">
+          <div class="update-time"></div>
         </div>
       </div>
-      <div class='action'>
+      <div class="action">
         <template>
-          <a-space :size='10'>
+          <a-space :size="10">
             <!-- <a-dropdown :trigger="['click']" :getPopupContainer='trigger => trigger.parentElement'>
               <div class='more-action'>
                 <more-icon />
@@ -190,9 +214,7 @@
               </template>
             </custom-button> -->
 
-            <div class="review">
-              Student-review <a-switch default-checked @change="handleChangeReview" />
-            </div>
+            <div class="review">Student-review <a-switch default-checked @change="handleChangeReview" /></div>
           </a-space>
         </template>
       </div>
@@ -359,7 +381,12 @@ export default {
     goToClassPage(classId, pace) {
       var height = document.documentElement.clientHeight * 0.7
       var width = document.documentElement.clientWidth * 0.7
-      var strWindowFeatures = 'width=' + width + ',height=' + height + ',menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'
+      var strWindowFeatures =
+        'width=' +
+        width +
+        ',height=' +
+        height +
+        ',menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'
       var windowObjectReference
       if (pace === 'teacher-paced') {
         windowObjectReference = window.open('about:blank', '_blank', strWindowFeatures)
@@ -409,9 +436,7 @@ export default {
     handleDeleteItem() {
       this.$emit('delete', this.data)
     },
-    handleEvalute() {
-
-    },
+    handleEvalute() {},
     handleToZoom(item) {
       if (item && item.sessionInfo && item.sessionInfo.zoomMeeting) {
         try {
@@ -443,8 +468,8 @@ export default {
 }
 </script>
 
-<style lang='less' scoped>
-@import "~@/components/index.less";
+<style lang="less" scoped>
+@import '~@/components/index.less';
 
 .content-item {
   padding: 0px;
@@ -458,7 +483,6 @@ export default {
   border-radius: 7px;
 
   .cover {
-
     &:hover {
       .cover-action {
         background-color: rgba(0, 0, 0, 0.4) !important;
@@ -471,8 +495,8 @@ export default {
     .cover-block {
       position: relative;
       border-radius: 8px;
-      height: 220*4/5px;
-      width: 320*4/5px;
+      height: 220 * 4/5px;
+      width: 320 * 4/5px;
       background-position: center center;
       background-size: cover;
       background-repeat: no-repeat;
@@ -525,7 +549,7 @@ export default {
     display: flex;
     flex-direction: column;
     padding-left: 20px;
-    height: 220*4/5px;
+    height: 220 * 4/5px;
 
     .detail-content {
       display: flex;
@@ -547,7 +571,7 @@ export default {
             font-size: 16px;
             font-family: Arial;
             font-weight: bold;
-            color: #17181A;
+            color: #17181a;
             cursor: pointer;
             flex: 1;
             overflow: hidden;
@@ -607,7 +631,7 @@ export default {
               display: flex;
               flex-direction: column;
               .deadline-tip {
-                background: #14C39A;
+                background: #14c39a;
                 height: 30px;
                 line-height: 30px;
                 margin-top: 5px;
@@ -656,12 +680,12 @@ export default {
   svg {
     width: 40px;
     height: 36px;
-    fill: #494B52 !important;
+    fill: #494b52 !important;
   }
 
   &:hover {
     svg {
-      fill: #14C39A !important;
+      fill: #14c39a !important;
     }
   }
 }
@@ -712,19 +736,19 @@ export default {
 
     .green-active-task-type {
       background: rgba(21, 195, 154, 0.1);
-      border: 2px solid #15C39A;
+      border: 2px solid #15c39a;
       border-radius: 50%;
       font-weight: bold;
-      color: #15C39A;
+      color: #15c39a;
     }
 
     .red-active-task-type {
       background: rgba(255, 51, 85, 0.1);
-      border: 2px solid #FF3355;
+      border: 2px solid #ff3355;
       border-radius: 50%;
       opacity: 1;
       font-weight: bold;
-      color: #FF3355;
+      color: #ff3355;
       opacity: 1;
     }
 
@@ -742,5 +766,4 @@ export default {
     width: 500px;
   }
 }
-
 </style>
