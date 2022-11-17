@@ -1,15 +1,19 @@
 <template>
   <div class='content-item' v-if='data'>
     <div class='cover'>
-      <div class='cover-block' v-if="data.workshopsDetailInfo && data.workshopsDetailInfo.cover" :style="{'background-image': `url('${data.workshopsDetailInfo.cover || '//dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png'}')`}">
-      </div>
-      <div class='cover-block' v-else-if="data.cover" :style="{'background-image': `url('${data.cover || '//dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png'}')`}">
-      </div>
-      <div class='cover-block' v-else-if="data.sessionInfo && data.sessionInfo.image" :style="{'background-image': `url('${data.sessionInfo.image || '//dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png'}')`}">
-      </div>
-      <div class='cover-block' v-else-if="data.content && data.content.image" :style="{'background-image': `url('${data.content.image || '//dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png'}')`}">
-      </div>
-      <div class="cover-block" v-else style='background-image: url("//dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png");'>
+      <div class='cover-block' :style="{'background-image': `url('${backgroundImg}')`}">
+        <div class="bottom-action">
+          <div class="preview" @click="$emit('close');$store.dispatch('setV2Box', content.sessionInfo)"><a-icon type="eye" /><span style="margin-left: 0.6rem">Preview</span></div>
+        </div>
+        <div class="cover-action">
+          <div class='action-btn' v-if="data.sessionInfo.type !== 'workshop'">
+            <custom-button bg-color='#0C90E3' color='#ffffff' label='Student pace' @click="goToClassPage(data.sessionInfo.id, classStatus.studentPaced)"></custom-button>
+            <custom-button style="margin-top: 0.8rem;" bg-color='#0C90E3' color='#ffffff' label='Teacher pace' @click="goToClassPage(data.sessionInfo.id, classStatus.teacherPaced)"></custom-button>
+          </div>
+          <div class="action-btn" v-if="data.sessionInfo.type === 'workshop'">
+            <custom-button bg-color='#0C90E3' color='#ffffff' label='Enter workshop' @click="goToClassPage(data.sessionInfo.id, classStatus.studentPaced)"></custom-button>
+          </div>
+        </div>
       </div>
     </div>
     <div class='detail'>
@@ -84,7 +88,7 @@
                   {{ data.sessionInfo.sessionStartTime | dayjs('HH:mm') }} - {{ data.sessionInfo.deadline | dayjs('HH:mm') }}
                 </div>
               </div>
-              <div class="class-con">
+              <!-- <div class="class-con">
                 <div class="session-deadline">
                   <div class="session-deadline-tab" v-if="data.sessionInfo.type !== 'workshop'">
                     <a-radio-group v-model="data.sessionInfo.responseLimitMode" button-style="solid" size="small">
@@ -128,7 +132,7 @@
                     </a-space>
                   </div>
                 </div>
-              </div>
+              </div> -->
               <!-- <tags-line v-if="data.content && data.content.customTags && data.content.customTags.length > 0" :tags="data.content.customTags" /> -->
             </div>
           </div>
@@ -180,11 +184,11 @@
               </template>
             </custom-button> -->
 
-            <custom-button label='Preview' @click="$emit('close');$store.dispatch('setV2Box', content.sessionInfo)">
+            <!-- <custom-button label='Preview' @click="$emit('close');$store.dispatch('setV2Box', content.sessionInfo)">
               <template v-slot:icon>
                 <icon-font type="icon-xianshi" class="detail-font"/>
               </template>
-            </custom-button>
+            </custom-button> -->
 
             <div class="review">
               Student-review <a-switch default-checked @change="handleChangeReview" />
@@ -208,6 +212,8 @@ import ScheduleIcon from '@/assets/v2/icons/schedule.svg?inline'
 import DeleteIcon from '@/assets/v2/icons/delete.svg?inline'
 import OriginalTipsIcon from '@/assets/v2/icons/original_tips.svg?inline'
 import TagsLine from '@/components/TagsLine'
+import { lessonHost, lessonStatus } from '@/const/googleSlide'
+import storage from 'store'
 
 import MoreIcon from '@/assets/v2/icons/more.svg?inline'
 import moment from 'moment'
@@ -265,6 +271,7 @@ export default {
   },
   data() {
     return {
+      classStatus: lessonStatus,
       typeMap: typeMap,
       BG_COLORS: BG_COLORS,
       sessionTypeList: [
@@ -302,6 +309,25 @@ export default {
     }
   },
   computed: {
+    backgroundImg() {
+      if (this.data.workshopsDetailInfo && this.data.workshopsDetailInfo.cover) {
+        return this.data.workshopsDetailInfo.cover
+      }
+
+      if (this.data.cover) {
+        return this.data.cover
+      }
+
+      if (this.data.sessionInfo && this.data.sessionInfo.image) {
+        return this.data.sessionInfo.image
+      }
+
+      if (this.data.content && this.data.content.image) {
+        return this.data.content.image
+      }
+
+      return '//dcdkqlzgpl5ba.cloudfront.net/1392467808404684802/file/202208140641519097-20220814143449.png'
+    },
     responseLimitTime() {
       let responseLimitTime = 0
       if (this.data.sessionInfo.responseLimitMode === 1 && this.responseLimitTimeDeadline) {
@@ -324,6 +350,18 @@ export default {
     initData() {
       this.data = cloneDeep(this.content)
       this.unitList = cloneDeep(this.units)
+    },
+    goToClassPage(classId, pace) {
+      var height = document.documentElement.clientHeight * 0.7
+      var width = document.documentElement.clientWidth * 0.7
+      var strWindowFeatures = 'width=' + width + ',height=' + height + ',menubar=yes,location=yes,resizable=yes,scrollbars=true,status=true,top=100,left=200'
+      var windowObjectReference
+      if (pace === 'teacher-paced') {
+        windowObjectReference = window.open('about:blank', '_blank', strWindowFeatures)
+        windowObjectReference.location = lessonHost + 't/' + classId + '?token=' + storage.get('feathers-jwt')
+      } else {
+        window.location.href = lessonHost + 'd/' + classId + '?token=' + storage.get('feathers-jwt') + '&status=student'
+      }
     },
     editItem() {
       const item = this.data.sessionInfo
@@ -415,13 +453,64 @@ export default {
   border-radius: 7px;
 
   .cover {
+
+    &:hover {
+      .cover-action {
+        background-color: rgba(0, 0, 0, 0.4) !important;
+
+        .action-btn {
+          opacity: 1 !important;
+        }
+      }
+    }
     .cover-block {
+      position: relative;
       border-radius: 8px;
       height: 220*4/5px;
       width: 320*4/5px;
       background-position: center center;
       background-size: cover;
       background-repeat: no-repeat;
+
+      .bottom-action {
+        background: rgba(0, 0, 0, 0.7);
+        padding: 0 0.6rem;
+        position: absolute;
+        bottom: 0;
+        height: 30px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+        width: 100%;
+
+        .preview {
+          display: flex;
+          align-items: center;
+        }
+      }
+
+      .cover-action {
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0);
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-pack: center;
+        justify-content: center;
+        -ms-flex-align: center;
+        align-items: center;
+        height: 100%;
+        width: 100%;
+        transition: all 0.3s ease-in-out;
+
+        .action-btn {
+          opacity: 0;
+        }
+      }
     }
   }
 
