@@ -15,9 +15,7 @@
     <div class='form-content'>
       <div class='step-content' v-if='!contentLoading'>
         <div class='form-body root-locate-form' id='form-body'>
-          <div
-            class='form-page-item'
-          >
+          <div class='form-page-item'>
             <div class='form-field-item'>
               <div class='form-block tag-content-block' style="width: 50%">
                 <custom-form-item :required='true'>
@@ -151,8 +149,6 @@ export default {
         status: 0
       },
 
-      materialListFlag: false,
-
       thumbnailList: [],
       thumbnailListLoading: true
     }
@@ -180,32 +176,26 @@ export default {
       }).then(async response => {
         if (response.code === 0) {
           const taskData = response.result
-          if (!taskData.materialList) {
-            taskData.materialList = []
-          }
 
-          this.materialListFlag = taskData.materialList.length > 0
-          // 填充自定义字段
-          const customFieldData = taskData.customFieldData ? JSON.parse(taskData.customFieldData) : null
-          const displayCustomFieldData = {}
-          if (customFieldData) {
-            // 只显示配置中存在的字段,用id做key，改名后依旧可以使用老数据
-            this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
-              if (customFieldData.hasOwnProperty(customField.id)) {
-                displayCustomFieldData[customField.id] = customFieldData[customField.id]
-              } else {
-                displayCustomFieldData[customField.id] = ''
-              }
-            })
-          } else {
-            this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
-              displayCustomFieldData[customField.id] = ''
-            })
-          }
-          console.info('displayCustomFieldData', displayCustomFieldData)
-          taskData.customFieldData = displayCustomFieldData
-          this.allLearningObjectiveList = taskData.learnOuts.slice()
-          this.allTags = JSON.parse(JSON.stringify(taskData.customTags))
+          // // 填充自定义字段
+          // const customFieldData = taskData.customFieldData ? JSON.parse(taskData.customFieldData) : null
+          // const displayCustomFieldData = {}
+          // if (customFieldData) {
+          //   // 只显示配置中存在的字段,用id做key，改名后依旧可以使用老数据
+          //   this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
+          //     if (customFieldData.hasOwnProperty(customField.id)) {
+          //       displayCustomFieldData[customField.id] = customFieldData[customField.id]
+          //     } else {
+          //       displayCustomFieldData[customField.id] = ''
+          //     }
+          //   })
+          // } else {
+          //   this.$store.getters.formConfigData.taskCustomList.forEach(customField => {
+          //     displayCustomFieldData[customField.id] = ''
+          //   })
+          // }
+          // console.info('displayCustomFieldData', displayCustomFieldData)
+          // taskData.customFieldData = displayCustomFieldData
           taskData.id = null
           taskData.presentationId = null
           this.form = taskData
