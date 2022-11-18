@@ -80,11 +80,11 @@
                   </a-select>
                 </a-form-model-item>
               </a-col>
-              <a-col :span="24">
+              <!-- <a-col :span="24">
                 <a-form-model-item>
                   <a-input v-model="formModel.address" placeholder="Please enter address"/>
                 </a-form-model-item>
-              </a-col>
+              </a-col> -->
             </a-row>
           </a-form-model-item>
           <a-form-model-item label="Contact No.">
