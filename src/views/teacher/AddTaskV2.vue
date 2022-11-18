@@ -2,7 +2,7 @@
   <div class='my-full-form-wrapper' id='formRoot'>
     <fixed-form-header>
       <template v-slot:header>
-        <form-header
+        <FormHeader
           title='Create task'
           :form='form'
           :spin='saving'
@@ -20,7 +20,7 @@
           @collaborate='handleStartCollaborate'>
           <template v-slot:right>
           </template>
-        </form-header>
+        </FormHeader>
       </template>
       <template v-slot:nav>
         <my-vertical-steps
@@ -224,7 +224,7 @@
                 </div>
 
                 <div v-else-if='fieldItem.fieldName === taskField.Slides' class='form-block tag-content-block'>
-                  <form-slide
+                  <FormSlide
                     :source-type='contentType.task'
                     :source-id='taskId'
                     :disabled='!canEdit'
@@ -232,7 +232,7 @@
                     :show-materials-and-tips='false'
                     :show-selected="form.showSelected"
                     :show-edit-google-slide='form.taskMode === 1'
-                    :default-thumbnail-list='thumbnailList'
+                    :pages='dataSlides.pages'
                     :selected-template-list='form.selectedTemplateList'
                     :edit-loading="editGoogleSlideLoading"
                     :empty-tips="'No slides created yet, click “Edit google slide” to create the first page!'"
@@ -655,7 +655,6 @@ export default {
         image: '',
         copyFromSlide: null,
         presentationId: '',
-        pageObjectIds: '',
         name: 'Untitled Task',
         overview: '',
         tasks: [],
@@ -691,7 +690,7 @@ export default {
 
       selectedTaskIdList: [],
 
-      thumbnailList: [],
+      dataSlides: {},
 
       thumbnailListLoading: false,
 
@@ -1127,38 +1126,14 @@ export default {
       }
     },
 
-    loadThumbnail(needRefresh, hiddenMask = false) {
+    async loadThumbnail(needRefresh, hiddenMask = false) {
       console.info('loadThumbnail ' + this.form.presentationId)
-      if (!this.thumbnailListLoading) {
-        this.thumbnailListLoading = true
-        TemplatesGetPresentation({
-          taskId: this.form.id,
-          needRefresh: needRefresh
-        }).then(response => {
-          console.info('loadThumbnail response', response.result)
-          if (response.code === 0) {
-            this.restoreTask(this.form.id, false)
-            // 不加这段 thumbnailList无法设置，slides draft 就无法显示
-            const pageObjects = response.result.pageObjects
-            this.form.pageObjects = pageObjects
-            this.form.pageObjectIds = response.result.pageObjectIds.join(',')
-            this.thumbnailList = []
-            pageObjects.forEach(page => {
-              this.thumbnailList.push({ contentUrl: page.contentUrl, id: page.pageObjectId })
-            })
-            if (hiddenMask) {
-              this.form.slideEditing = false
-            }
-            // 不加这段 thumbnailList无法设置，slides draft 就无法显示
-          } else if (response.code === 403) {
-            this.$router.push({ path: '/teacher/main/created-by-me' })
-          } else if (response.code === this.ErrorCode.ppt_google_token_expires || response.code === this.ErrorCode.ppt_forbidden) {
-            console.info('等待授权事件通知')
-          }
-        }).finally(() => {
-          this.thumbnailListLoading = false
-        })
+      if (hiddenMask) {
+        this.form.slideEditing = false
       }
+      this.thumbnailListLoading = true
+      this.dataSlides = await App.service('slides').get('findBySlideId', { query: { id: this.form.presentationId, task: this.form.id }})
+      this.thumbnailListLoading = false
     },
 
     async handleEditGoogleSlide() {

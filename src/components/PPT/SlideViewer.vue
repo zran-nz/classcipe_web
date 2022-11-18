@@ -171,6 +171,10 @@ export default {
       type: Boolean,
       default: false
     },
+    pages: {
+      type: Array,
+      default: () => []
+    },
     defaultThumbnailList: {
       type: Array,
       default: () => []
@@ -216,6 +220,7 @@ export default {
   },
   computed: {
     imgList () {
+      if (!Acan.isEmpty(this.pages)) return this.pages.map(v => v.pic ? Fn.hashToUrl(v.pic) : v.url)
       if (this.defaultThumbnailList.length) {
         return this.defaultThumbnailList.map(item => item.contentUrl)
       } else if (this.thumbnailList && this.thumbnailList.length) {
