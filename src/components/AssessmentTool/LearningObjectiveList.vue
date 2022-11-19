@@ -202,6 +202,7 @@ export default {
     async initData () {
       this.learningObjectiveList.length = 0
       this.generalCapabilityList.length = 0
+      return
       const rs = await App.service('task-outline').get(this.$route.params.taskId)
       console.log('initData methods', rs)
       if (!rs.assess?.data) return
