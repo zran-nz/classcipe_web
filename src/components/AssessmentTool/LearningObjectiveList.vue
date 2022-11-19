@@ -6,12 +6,12 @@
         placeholder='Curriculum'
         v-model='mode'
         class='cc-select cc-lo-select-mid'>
-        <a-select-option :value="selectMode.subjectLearningObjectives">
+        <!-- <a-select-option :value="selectMode.subjectLearningObjectives">
           Learning objectives
-        </a-select-option>
-        <a-select-option :value="selectMode.generalCapabilities">
+        </a-select-option> -->
+        <!-- <a-select-option :value="selectMode.generalCapabilities">
           21st century skills
-        </a-select-option>
+        </a-select-option> -->
         <a-select-option :value="selectMode.studentPerformance">
           Student performance
         </a-select-option>
@@ -146,7 +146,7 @@ export default {
     return {
       TagType: TagType,
       selectMode: selectMode,
-      mode: selectMode.subjectLearningObjectives,
+      mode: selectMode.studentPerformance,
 
       learningObjectiveList: [],
       generalCapabilityList: [],
@@ -178,14 +178,14 @@ export default {
     }
   },
   watch: {
-    learnOuts: {
-      deep: true,
-      immediate: false,
-      handler (val) {
-        console.log('initData watch', val)
-        this.initData(val)
-      }
-    },
+    // learnOuts: {
+    //   deep: true,
+    //   immediate: false,
+    //   handler (val) {
+    //     console.log('initData watch', val)
+    //     this.initData(val)
+    //   }
+    // },
     selectedTagList: {
       deep: true,
       immediate: false,
@@ -199,28 +199,42 @@ export default {
     this.initTagData(this.selectedTagList)
   },
   methods: {
-
-    initData (learnOuts) {
-      console.log('initData methods', learnOuts)
-      const dataList = JSON.parse(JSON.stringify(learnOuts))
-      this.learningObjectiveList = []
-      this.generalCapabilityList = []
-      if (Array.isArray(dataList) && dataList.length > 0) {
-        dataList.forEach(item => {
-          this.learningObjectiveList.push(item)
-          item.generalCapabilities.forEach(capability => {
-            capability.learningObjectiveId = item.id
-            this.generalCapabilityList.push(capability)
+    async initData () {
+      this.learningObjectiveList.length = 0
+      this.generalCapabilityList.length = 0
+      const rs = await App.service('task-outline').get(this.$route.params.taskId)
+      console.log('initData methods', rs)
+      if (!rs.assess?.data) return
+      outlineToArr = (data) => {
+        const arr = []
+        const childToArr = (trr) => {
+          const mrr = []
+          trr.map(v => {
+            if (!Acan.isEmpty(v.child)) mrr.push(...childToArr(v.child))
+            else mrr.push(v.name)
           })
+        }
+        Object.values(data).map(o => {
+          if (!Acan.isEmpty(o.child)) arr.push(childToArr(o.child))
+          if (o.custom) arr.push(o.custom.map(v => v.name)) 
         })
-      } else {
-        this.learningObjectiveList = []
-        this.generalCapabilityList = []
+        return arr
       }
+      this.learningObjectiveList.push(...outlineToArr(rs.assess.data))
+      // const dataList = JSON.parse(JSON.stringify(learnOuts))
+      // if (Array.isArray(dataList) && dataList.length > 0) {
+      //   dataList.forEach(item => {
+      //     this.learningObjectiveList.push(item)
+      //     item.generalCapabilities.forEach(capability => {
+      //       capability.learningObjectiveId = item.id
+      //       this.generalCapabilityList.push(capability)
+      //     })
+      //   })
+      // }
     },
 
     initTagData (tagList) {
-      console.info('lo initTagData', tagList, JSON.stringify(tagList))
+      console.info('lo initTagData', tagList)
       const dataList = JSON.parse(JSON.stringify(tagList))
       if (Array.isArray(dataList) && dataList.length > 0) {
         const tagSet = new Set()

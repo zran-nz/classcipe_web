@@ -137,8 +137,7 @@ const classcipeConfig = {
       console.info('initTagData', token)
       return new Promise(async (resolve, reject) => {
         // eslint-disable-next-line no-undef
-        const result = await AppLogin(token)
-        console.info('initTagData AppLogin', result)
+        await AppLogin(token)
 
         // eslint-disable-next-line no-undef
         const pubTagList = await App.service('tags').get('pubList')

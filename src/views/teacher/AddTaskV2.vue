@@ -422,7 +422,7 @@
           </template>
           <template v-if='currentRightModule === rightModule.customTag'>
             <div v-if='!contentLoading'>
-              <custom-tag-v3
+              <CustomTagV3
                 :custom-tags.sync='form.customTags'
                 :tag-category-desc.sync='form.tagCategoryDesc'
                 :associate-id-type-list='associateIdTypeList'

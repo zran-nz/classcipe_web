@@ -117,8 +117,7 @@ export default {
         // eslint-disable-next-line no-undef
         console.log('ACCESS_TOKEN', storage.get(ACCESS_TOKEN))
         // eslint-disable-next-line no-undef
-        const result = await AppLogin(storage.get(ACCESS_TOKEN))
-        console.info('loadLinkCategoryData initTagData AppLogin', result)
+        await AppLogin(storage.get(ACCESS_TOKEN))
         // eslint-disable-next-line no-undef
         const publistTag = await App.service('tags').get('pubList', { query: { set: ['Task types', 'Inquiry stages'] } })
         console.info('publistTag', publistTag)

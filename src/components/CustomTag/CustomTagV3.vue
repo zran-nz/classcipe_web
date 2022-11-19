@@ -15,7 +15,7 @@
       <div class='tag-content-wrapper'>
         <div class='selected-tag'>
           <div class="skt-tag-list">
-            <div class="skt-tag-item" :class="{'active-category-tag': activeCategoryTagList.indexOf(tagItem.name) !== -1}" v-for="(tagItem) in selectedTagList" :key="tagItem.name" @click='activeCategory(tagItem)'>
+            <div class="skt-tag-item" :class="{'active-category-tag': activeCategoryTagList.indexOf(tagItem.name) !== -1}" v-for="(tagItem, i) in selectedTagList" :key="i" @click='activeCategory(tagItem)'>
               <a-tag
                 :closable="canCloseTag(tagItem)"
                 @close="disabled ? null : closeTag(tagItem)"
@@ -58,7 +58,7 @@
         <div class='category-content'>
           <template v-if="currentActiveTagCategory">
             <div class="search-tag-wrapper tag-wrapper" v-if="filterTagList.length > 0">
-              <div class="skt-tag-item" v-for="tagItem in filterTagList" :key="tagItem.tag" >
+              <div class="skt-tag-item" v-for="(tagItem, i) in filterTagList" :key="i" >
                 <a-tag
                   @click="selectedTagNameList.indexOf(tagItem.tag) !== -1 || disabled ? null : selectTag(currentActiveTagCategory, tagItem)"
                   :style="{ 'background-color': currentActiveTagCategory.tagColor || '#fff', 'border-color': currentActiveTagCategory.tagColor || '#15c39a'}"
@@ -107,7 +107,7 @@
         <custom-link-text text='Hide' v-if='!tagSelectContainerVisible' @click='tagSelectContainerVisible = true'></custom-link-text>
       </div>
       <div class='all-category-description' v-show='!tagSelectContainerVisible'>
-        <div class='category-description-item' v-for='categoryDesc in tagCategoryDesc' :key='categoryDesc.category'>
+        <div class='category-description-item' v-for='(categoryDesc, i) in tagCategoryDesc' :key='i'>
           <div class='category-title'>
             {{ categoryDesc.category }}
           </div>
