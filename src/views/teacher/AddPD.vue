@@ -114,13 +114,13 @@
 
               <div class='form-block tag-content-block' v-if='fieldName === PdField.Slides' :key='fieldName'>
                 <custom-form-item :show-label='false' :required-field='requiredFields.indexOf(PdField.Slides) !== -1'>
-                  <form-slide
+                  <FormSlide
                     :source-type='typeMap.pd'
                     :source-id='pdId'
                     :slide-id='form.presentationId'
                     :show-materials-and-tips='false'
                     :show-edit-google-slide='true'
-                    :default-thumbnail-list='thumbnailList'
+                    :pages='dataSlides.pages'
                     :selected-template-list='form.selectedTemplateList'
                     :edit-loading="editGoogleSlideLoading"
                     :empty-tips="'No slides created yet, click “Edit google slide” to create the first page!'"
@@ -375,7 +375,7 @@ export default {
       currentRightModule: null,
       rightModule: RightModule,
       thumbnailListLoading: false,
-      thumbnailList: [],
+      dataSlides: {},
 
       formBodyWidth: '50%',
       tagBodyWidth: '50%',
@@ -446,7 +446,7 @@ export default {
         }
       }).finally(() => {
         if (this.form.presentationId && needLoadThumbnail) {
-          this.loadThumbnail(false)
+          this.loadThumbnail()
         }
         this.saving = false
         this.tryAutoCheckRequiredField()
@@ -546,11 +546,16 @@ export default {
 
     handleAuthCallback() {
       console.info('handleAuthCallback')
-      this.loadThumbnail(false)
+      this.loadThumbnail()
     },
 
-    loadThumbnail(needRefresh, hiddenMask = false) {
+    async loadThumbnail() {
+      if (this.thumbnailListLoading) return
       console.info('loadThumbnail ' + this.form.presentationId)
+      this.thumbnailListLoading = true
+      this.dataSlides = await App.service('slides').get('findBySlideId', { query: { id: this.form.presentationId, task: this.form.id }})
+      this.thumbnailListLoading = false
+      return
       if (!this.thumbnailListLoading) {
         this.thumbnailListLoading = true
         TemplatesGetPresentation({
@@ -859,8 +864,14 @@ export default {
       this.shareVisible = true
     },
     async saveChanges () {
-      if (!this.thumbnailListLoading) {
-        this.loadThumbnail(true, true)
+      if (this.thumbnailListLoading) return
+      this.thumbnailListLoading = true
+      const rs = await App.service('slides').get('syncSlide', { id: this.form.presentationId, taskId: this.form.id, type: this.form.type })
+      this.thumbnailListLoading = false
+      if (rs.message) return toLogin('slide')
+      this.dataSlides = rs
+      if (hiddenMask) {
+        this.form.slideEditing = false
       }
     },
     async updateSlideEditing() {

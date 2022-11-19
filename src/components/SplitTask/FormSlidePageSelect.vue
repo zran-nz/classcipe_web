@@ -3,8 +3,8 @@
     <a-row>
       <a-col span='12'>
         <div class='cover-list'>
-          <div class='page-item' v-for='(pageItem) in thumbnailList' :key='pageItem.id' @click='handleSelectPage(pageItem)'>
-            <div class='page-cover' :class="{'active-page': selectedPageList.indexOf(pageItem) !== -1}" :style="{ backgroundImage: `url('${pageItem.contentUrl}')` }">
+          <div class='page-item' v-for='(pageItem, i) in pages' :key='i' @click='handleSelectPage(pageItem)'>
+            <div class='page-cover' :class="{'active-page': selectedPageList.indexOf(pageItem) !== -1}" :style="{ backgroundImage: `url('${getUrl(o)}')` }">
               <img src="~@/assets/icons/lesson/selected.png" class='selected-img' />
             </div>
           </div>
@@ -25,7 +25,7 @@
 export default {
   name: 'FormSlidePageSelect',
   props: {
-    thumbnailList: {
+    pages: {
       type: Array,
       default: () => []
     },
@@ -48,10 +48,13 @@ export default {
     console.info('FormSlidePageSelect created', this.thumbnailList)
   },
   methods: {
+    getUrl(o) {
+      return o.pic ? Fn.hashToUrl(o.pic) : o.url
+    },
     handleSelectPage (pageItem) {
       this.selectedPageList.indexOf(pageItem) === -1 ? this.selectedPageList.push(pageItem) : this.selectedPageList.splice(this.selectedPageList.indexOf(pageItem), 1)
       this.currentCover = pageItem
-      this.$emit('update:selectPageObjectIds', this.selectedPageList.map(page => page.id))
+      this.$emit('update:selectPageObjectIds', this.selectedPageList.map(page => page._id))
     }
   }
 }

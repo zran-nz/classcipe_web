@@ -55,7 +55,7 @@
                   <template slot='label'>
                     {{ 'Slides' | taskLabelName(splitTaskField.Slides, $store.getters.formConfigData) }}
                   </template>
-                  <form-slide-page-select :thumbnail-list='thumbnailList' :select-page-object-ids.sync='form.selectPageObjectIds' v-if='!thumbnailListLoading' :needPreview="false"/>
+                  <form-slide-page-select :pages='dataSlides.pages' :select-page-object-ids.sync='form.selectPageObjectIds' v-if='!thumbnailListLoading' :needPreview="false"/>
                   <a-skeleton v-if='thumbnailListLoading' />
                 </custom-form-item>
               </div>
@@ -149,7 +149,7 @@ export default {
         status: 0
       },
 
-      thumbnailList: [],
+      dataSlides: {},
       thumbnailListLoading: true
     }
   },
@@ -207,9 +207,12 @@ export default {
       })
       this.loadThumbnail(false)
     },
-    loadThumbnail(needRefresh) {
+    async loadThumbnail(needRefresh) {
+      const rs = await App.service('slides').get('findBySlideId', { query: { id: this.form.presentationId, task: this.form.id }})
+      console.log(rs, 111111)
+      this.dataSlides = rs
+      return
       this.thumbnailListLoading = true
-      console.info('loadThumbnail ' + this.form.presentationId)
       TemplatesGetPresentation({
         taskId: this.parentTaskId,
         needRefresh: needRefresh

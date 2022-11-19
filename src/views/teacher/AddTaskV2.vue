@@ -838,7 +838,7 @@ export default {
 
     handleAuthCallback() {
       console.info('handleAuthCallback')
-      this.loadThumbnail(false)
+      this.loadThumbnail()
     },
 
     handleNextStep () {
@@ -920,7 +920,7 @@ export default {
         this.saving = false
         this.loadCollaborateData(this.form.type, this.form.id)
         if (this.form.presentationId && needLoadThumbnail) {
-          this.loadThumbnail(false)
+          this.loadThumbnail()
         }
         // copy副本 为了判断数据变更
         this.oldForm = Object.assign({}, this.form)
@@ -1126,11 +1126,9 @@ export default {
       }
     },
 
-    async loadThumbnail(needRefresh, hiddenMask = false) {
+    async loadThumbnail() {
+      if (this.thumbnailListLoading) return
       console.info('loadThumbnail ' + this.form.presentationId)
-      if (hiddenMask) {
-        this.form.slideEditing = false
-      }
       this.thumbnailListLoading = true
       this.dataSlides = await App.service('slides').get('findBySlideId', { query: { id: this.form.presentationId, task: this.form.id }})
       this.thumbnailListLoading = false
@@ -1340,10 +1338,20 @@ export default {
       sessionStorage.setItem('task-step-' + this.taskId, data.index)
       this.checkIsFullBodyStep()
     },
-
+    toLogin(type, call) {
+      localStorage.setItem('publicPath', publicPath)
+      localStorage.setItem('loginCallUrl', call || location.pathname)
+      location.href = `/fio/google/auth?state=${JSON.stringify({ call: encodeURIComponent(call || location.pathname) })}${type ? '&type='+type : ''}${prompt ? '&prompt=1' : ''}`
+    },
     async saveChanges () {
-      if (!this.thumbnailListLoading) {
-        this.loadThumbnail(true, true)
+      if (this.thumbnailListLoading) return
+      this.thumbnailListLoading = true
+      const rs = await App.service('slides').get('syncSlide', { id: this.form.presentationId, taskId: this.form.id, type: this.form.type })
+      this.thumbnailListLoading = false
+      if (rs.message) return toLogin('slide')
+      this.dataSlides = rs
+      if (hiddenMask) {
+        this.form.slideEditing = false
       }
     },
 
