@@ -77,7 +77,12 @@ export const NoticeMixin = {
         record.busType === NotificationTypeMap.collaborateInvite) {
         this.gotoContent(record)
       } else if (record.busType === NotificationTypeMap.collaborateRejected) {
-        this.$router.push({ path: '/teacher/main/created-by-me' })
+        // this.$router.push({ path: '/teacher/main/created-by-me' })
+        this.$warning({
+          title: 'Alert',
+          content: (<div><h2>You have been rejected by the owner, you can not edit it.</h2></div>)
+        })
+        return
       } else if (record.busType === NotificationTypeMap.collaborateRemoved) {
         this.$warning({
           title: 'Alert',
