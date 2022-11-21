@@ -142,6 +142,11 @@ const vueConfig = {
         target: 'http://127.0.0.1:9003',
         ws: true,
         changeOrigin: true
+      },
+      '/cc-admin': {
+        target: 'http://127.0.0.1:3000',
+        ws: true,
+        changeOrigin: true
       }
     }
   },
