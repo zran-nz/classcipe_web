@@ -2,9 +2,10 @@ import { typeMap } from '@/const/teacher'
 import { NotificationTypeMap } from '@/views/dashboard/NotificationTypeMap'
 import { EditCementSend, ListCementByUser } from '@/api/notice'
 import { RECEIVE_MSG } from '@/store/mutation-types'
-import { mapActions } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 import { SourceType } from '@/components/MyContentV2/Constant'
 import { SESSION_SHARE_TYPE } from '@/const/common'
+import { checkIsSchoolTeacher } from '@/api/v2/checkMessage'
 
 export const NoticeMixin = {
   components: {
@@ -14,6 +15,11 @@ export const NoticeMixin = {
     return {
 
     }
+  },
+  computed: {
+    ...mapState({
+      userInfo: state => state.user.info
+    })
   },
   created () {
     this.$store.watch(
@@ -58,7 +64,7 @@ export const NoticeMixin = {
         sessionStorage.setItem(SESSION_SHARE_TYPE, SourceType.SharedByOthers.toString())
       }
     },
-    viewNotification (record) {
+    async viewNotification (record) {
       console.info('viewNotification', record)
       // 标记已读取
       if (record.readFlag === '0') {
@@ -75,6 +81,17 @@ export const NoticeMixin = {
         }, 4000)
       } else if (record.busType === NotificationTypeMap.collaborateAccepted ||
         record.busType === NotificationTypeMap.collaborateInvite) {
+          const typeIds = record.busId.split('#')
+          const rs = await App.service('content').get('oldCheckCollaboration', { query: { id: typeIds[1] } })
+
+          if (!rs) {
+            this.$warning({
+              title: 'Your access has expired',
+              content: (<div>If you still want to access, contact the document owner.</div>)
+            })
+            return
+          }
+
         this.gotoContent(record)
       } else if (record.busType === NotificationTypeMap.collaborateRejected) {
         // this.$router.push({ path: '/teacher/main/created-by-me' })
@@ -93,6 +110,22 @@ export const NoticeMixin = {
         if (record.busType === NotificationTypeMap.collaborateFavoriote) {
             record.readFlag = '1'
             return
+        }
+
+        if (record.openPage.includes('/account/info')) {
+          const schoolId = record.openPage.split('?')[1].split('=')[1]
+          const rs = await checkIsSchoolTeacher({
+            schoolId: schoolId,
+            userId: this.userInfo.id
+          })
+
+          if (!rs.result) {
+            this.$warning({
+              title: 'Your access has expired',
+              content: (<div>If you still want to access, contact the document owner.</div>)
+            })
+            return
+          }
         }
         // 链接跳转
         this.$router.push({ path: record.openPage })
