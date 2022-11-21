@@ -198,7 +198,7 @@ export default {
       WorkShopOptions: [
       {
         value: 1,
-        name: 'PD workshop',
+        name: 'workshop',
         index: 1,
         indeterminate: false,
         children: [
@@ -212,11 +212,6 @@ export default {
             index: 4
           }
         ]
-      }, {
-        value: 2,
-        indeterminate: false,
-        name: 'Student workshop',
-        index: 2
       }],
       MyCalendarOptions: [
         {
