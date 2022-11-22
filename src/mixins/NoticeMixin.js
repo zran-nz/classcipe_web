@@ -5,7 +5,7 @@ import { RECEIVE_MSG } from '@/store/mutation-types'
 import { mapActions, mapState } from 'vuex'
 import { SourceType } from '@/components/MyContentV2/Constant'
 import { SESSION_SHARE_TYPE } from '@/const/common'
-import { checkIsSchoolTeacher } from '@/api/v2/checkMessage'
+import { checkIsSchoolAdmin, checkIsSchoolTeacher } from '@/api/v2/checkMessage'
 
 export const NoticeMixin = {
   components: {
@@ -112,17 +112,31 @@ export const NoticeMixin = {
             return
         }
 
-        if (record.openPage.includes('/account/info')) {
-          const schoolId = record.openPage.split('?')[1].split('=')[1]
+        if (record.openPage.includes('/user/invite')) {
           const rs = await checkIsSchoolTeacher({
-            schoolId: schoolId,
+            schoolId: this.userInfo.school,
             userId: this.userInfo.id
           })
 
           if (!rs.result) {
             this.$warning({
               title: 'Your access has expired',
-              content: (<div>If you still want to access, contact the document owner.</div>)
+              content: (<div>If you still want to access, contact the school admin.</div>)
+            })
+            return
+          }
+        }
+
+        if (record.openPage.includes('/account/info')) {
+          const rs = await checkIsSchoolAdmin({
+            schoolId: this.userInfo.school,
+            userId: this.userInfo.id
+          })
+
+          if (!rs.result) {
+            this.$warning({
+              title: 'Your access has expired',
+              content: (<div>If you still want to access, contact the school admin.</div>)
             })
             return
           }
