@@ -392,7 +392,7 @@ export default {
         windowObjectReference = window.open('about:blank', '_blank', strWindowFeatures)
         windowObjectReference.location = lessonHost + 't/' + classId + '?token=' + storage.get('feathers-jwt')
       } else {
-        window.location.href = lessonHost + 'd/' + classId + '?token=' + storage.get('feathers-jwt') + '&status=student'
+        window.location.href = lessonHost + 's/' + classId + '?token=' + storage.get('feathers-jwt') + '&status=student'
       }
     },
     editItem() {
