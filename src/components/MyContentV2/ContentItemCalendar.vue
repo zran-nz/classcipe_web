@@ -370,7 +370,7 @@ export default {
       return false
     },
     isOwner() {
-      return this.data.owner._id === this.userInfo.id
+      return this.data.owner.email === this.userInfo.email
     }
   },
   methods: {
