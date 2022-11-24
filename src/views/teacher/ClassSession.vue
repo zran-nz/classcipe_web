@@ -342,14 +342,10 @@ export default {
     },
     handleImport(val) {
       console.info('handleImport', val)
-      const type = val === 'quick' ? typeMap.task : val
-      const source = val === 'quick' ? val : ''
-      const subpath = val === 'quick' ? '/v2' : ''
-      const path = `${subpath}/teacher/session-import/${type}/${this.$route.params.classId}?searchType=2&source=${source}`
       if (val === 'quick') {
-        console.log('PATH', `${window.origin}${path}`);
-        window.location.href = `${window.origin}${path}`
+        window.location.href = `${window.origin}/v2/com/quickSession/${this.$route.params.classId}`
       } else {
+      const path = `/teacher/session-import/${val}/${this.$route.params.classId}?searchType=2`
         this.$router.push(path)
       }
       // this.importType = type
