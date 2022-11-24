@@ -18,7 +18,7 @@
         </div>
         <a-radio-group class="schedule-view" @change="changeView" v-model="viewType" button-style="solid">
           <a-radio-button value="timeGridWeek">
-            Week
+            Weekyr
           </a-radio-button>
           <a-radio-button value="timeGridFourDay" v-if="showTerm && userMode === USER_MODE.SCHOOL">
             Term
