@@ -480,10 +480,11 @@ export default {
 
     handlePublicWorkshopSchedule () {
       console.info('handlePublicWorkshopSchedule', this.content)
+      window.location.href = '/v2/com/scheduleWorkshop/' + this.content.id + '/' + this.content.type
       // if (this.content.pageObjects.length && this.content.presentationId && !this.content.presentationId.startsWith('fake_buy_')) {
-        this.$router.push({
-          path: '/teacher/schedule-workshop/' + this.content.id + '/' + this.content.type
-        })
+        // this.$router.push({
+        //   path: '/teacher/schedule-workshop/' + this.content.id + '/' + this.content.type
+        // })
       // } else {
       //   this.$confirm({
       //     title: 'Warning',
