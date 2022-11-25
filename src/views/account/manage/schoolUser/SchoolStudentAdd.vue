@@ -519,7 +519,7 @@ export default {
           schoolId: this.currentSchool.id
         }).then(response => {
           if (response.code === 0 && response.result && response.result[0].exists) {
-            callback(new Error('This student already exists'))
+            callback(new Error('Existing student'))
           } else {
             callback()
           }

@@ -295,7 +295,7 @@ export default {
           if (parentEmailExist[item.parentEmail]) {
             status.push({
               col: 'parentEmail',
-              msg: 'Duplicate Parent'
+              msg: 'Existing student'
             })
           }
           item.status = status
@@ -484,7 +484,7 @@ export default {
           if (parentRes.result[0].exists) {
             status.push({
               col: 'parentEmail',
-              msg: 'Duplicate Parent'
+              msg: 'Existing student'
             })
           }
         }
