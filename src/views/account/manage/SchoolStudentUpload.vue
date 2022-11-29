@@ -376,10 +376,11 @@ export default {
     // 当前导入的文件中如果有重复的，则除第一个外，其他也是重复状态
     reJustifyInviteEmail(datas) {
       const isExist = {}
+      const isParentExist = {}
       datas.forEach(item => {
         if (isEmail(item.inviteEmail)) {
           if (isExist[item.inviteEmail]) {
-            const msgs = item.status ? item.status.map(sta => sta.col === 'inviteEmail').map(i => i.msg).filter(item => !!item) : []
+            const msgs = item.status ? item.status.filter(sta => sta.col === 'inviteEmail').map(i => i.msg).filter(item => !!item) : []
             if (!msgs.includes('Local Duplicate')) {
               msgs.push('Local Duplicate')
             }
@@ -389,12 +390,32 @@ export default {
               msg: msgs.join(',')
             })
           } else {
-            const msgs = item.status ? item.status.map(sta => sta.col === 'inviteEmail').map(i => i.msg).filter(item => !!item).join(',') : ''
+            const msgs = item.status ? item.status.filter(sta => sta.col === 'inviteEmail').map(i => i.msg).filter(item => !!item).join(',') : ''
             item.status.push({
               col: 'inviteEmail',
               msg: msgs.replace('Local Duplicate', '').split(',').filter(item => !!item).join(',')
             })
             isExist[item.inviteEmail] = true
+          }
+        }
+
+        if (item.firstName && item.lastName && item.parentEmail) {
+          if (isParentExist[item.firstName + item.lastName + item.parentEmail]) {
+            const msgs = item.status ? item.status.filter(sta => sta.col === 'parentEmail').map(i => i.msg).filter(item => !!item) : []
+            if (!msgs.includes('Existing student')) {
+              msgs.push('Existing student')
+            }
+            item.status.push({
+              col: 'parentEmail',
+              msg: msgs.join(',')
+            })
+          } else {
+            const msgs = item.status ? item.status.filter(sta => sta.col === 'parentEmail').map(i => i.msg).filter(item => !!item).join(',') : ''
+            item.status.push({
+              col: 'parentEmail',
+              msg: msgs.replace('Existing student', '').split(',').filter(item => !!item).join(',')
+            })
+            isParentExist[item.firstName + item.lastName + item.parentEmail] = true
           }
         }
       })
