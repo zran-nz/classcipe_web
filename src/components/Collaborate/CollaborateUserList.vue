@@ -1,5 +1,5 @@
 <template>
-  <div class="collaborate" @click='showUser = false'>
+  <div class="collaborate" @click="showUser = false">
     <div class="toggle-header">
       <div class="toggle-mode-type-wrapper">
         <div class="header-icon"><img src="~@/assets/icons/collaborate/group.png" /></div>
@@ -10,15 +10,16 @@
       <div class="user-search-wrapper">
         <a-skeleton :loading="loading" active>
           <div class="search-content">
-            <div class='search-left' :style="{ width: selectedUserEmailList.length === 0 ? '600px' : '500px' }">
+            <div class="search-left" :style="{ width: selectedUserEmailList.length === 0 ? '600px' : '500px' }">
               <div
-                :class="{'tag-input-wrapper': true, 'active': active, 'tag-dom': true}"
-                @click.stop="handleFocusInput">
+                :class="{ 'tag-input-wrapper': true, active: active, 'tag-dom': true }"
+                @click.stop="handleFocusInput"
+              >
                 <div class="tag-input-list tag-dom">
                   <div class="tag-list tag-dom">
-                    <div class="tag-item tag-dom" v-for="(user) in selectedUserList" :key="user.email">
+                    <div class="tag-item tag-dom" v-for="user in selectedUserList" :key="user.email">
                       <a-tag closable @close="handleCloseTag(user.email)" class="tag-dom input-tag-item">
-                        <a-avatar size="small" :src="user.avatar"/>
+                        <a-avatar size="small" :src="user.avatar" />
                         {{ user.email }}
                       </a-tag>
                     </div>
@@ -26,7 +27,7 @@
                     <div class="tag-input tag-dom">
                       <span class="input-expander">{{ userNameOrEmail }}</span>
                       <input
-                        v-if='debounceSearchUser'
+                        v-if="debounceSearchUser"
                         type="text"
                         :placeholder="selectedUserEmailList.length === 0 ? 'Invite teacher by email' : ''"
                         @keyup.enter="debounceSearchUser"
@@ -35,21 +36,35 @@
                         @keyup="debounceSearchUser"
                         v-model="userNameOrEmail"
                         ref="input"
-                        class="search-input">
+                        class="search-input"
+                      />
                     </div>
                   </div>
                 </div>
               </div>
-              <div class='search-user-list' @click.stop='' v-if='showUser'>
-                <div class="user-list" :style="{ width: selectedUserEmailList.length === 0 ? '590px' : '500px' }" v-if="displaySelectUserList.length && active">
+              <div class="search-user-list" @click.stop="" v-if="showUser">
+                <div
+                  class="user-list"
+                  :style="{ width: selectedUserEmailList.length === 0 ? '590px' : '500px' }"
+                  v-if="displaySelectUserList.length && active"
+                >
                   <a-skeleton :loading="loading" active>
-                    <div class="user-item" v-for="user in displaySelectUserList" :key="user.email" @click="handleAddToSelect(user)">
+                    <div
+                      class="user-item"
+                      v-for="user in displaySelectUserList"
+                      :key="user.email"
+                      @click="handleAddToSelect(user)"
+                    >
                       <div class="user-avatar-email">
                         <div class="avatar">
-                          <img :src="user.avatar" v-if="collaborateHistoryUserEmails.indexOf(user.email) !== -1" alt=''/>
-                          <img src="~@/assets/icons/collaborate/group.png" v-else alt=''/>
+                          <img
+                            :src="user.avatar"
+                            v-if="collaborateHistoryUserEmails.indexOf(user.email) !== -1"
+                            alt=""
+                          />
+                          <img src="~@/assets/icons/collaborate/group.png" v-else alt="" />
                         </div>
-                        <div class='email-name'>
+                        <div class="email-name">
                           <div class="user-name">
                             {{ user.email }}
                           </div>
@@ -58,10 +73,9 @@
                           </div>
                         </div>
                       </div>
-                      <div class="action" >
+                      <div class="action">
                         <div slot="actions">
-                          <div class="action-wrapper">
-                          </div>
+                          <div class="action-wrapper"></div>
                         </div>
                       </div>
                     </div>
@@ -70,8 +84,8 @@
               </div>
             </div>
             <a-dropdown v-if="selectedUserEmailList.length">
-              <div class='my-collaborate-select'>
-                <span class='permission-set'>{{ permission }}</span>
+              <div class="my-collaborate-select">
+                <span class="permission-set">{{ permission }}</span>
                 <a-icon type="caret-down" />
               </div>
               <a-menu slot="overlay">
@@ -88,7 +102,7 @@
               </a-menu>
             </a-dropdown>
           </div>
-          <div class='send-message' v-if='selectedUserEmailList.length'>
+          <div class="send-message" v-if="selectedUserEmailList.length">
             <a-checkbox default-checked @change="onChangeSendMessage" class="message-check-wrapper">
               Send a message
             </a-checkbox>
@@ -99,21 +113,20 @@
                 v-model="inviteMessage"
                 placeholder="Entre message"
                 aria-placeholder="Entre message"
-                class="my-collaborate-textarea" />
+                class="my-collaborate-textarea"
+              />
             </div>
           </div>
 
-          <template v-if='selectedUserEmailList.length === 0'>
-            <div
-              class="collaborate-user"
-              v-if="collaborateUserList.length">
+          <template v-if="selectedUserEmailList.length === 0">
+            <div class="collaborate-user" v-if="collaborateUserList.length">
               <div class="collaborate-user-list">
-                <div class="user-item" v-for="(user,index) in collaborateUserList" :key="index">
+                <div class="user-item" v-for="(user, index) in collaborateUserList" :key="index">
                   <div class="user-avatar-email">
                     <div class="avatar">
                       <img :src="user.userAvatar" />
                     </div>
-                    <div class='email-name'>
+                    <div class="email-name">
                       <div class="user-name">
                         {{ user.nickName }}
                       </div>
@@ -133,31 +146,43 @@
                       Application was rejected
                     </span>
                   </div>
-                  <div class="action" >
+                  <div class="action">
                     <div slot="actions">
-                      <div v-if="user.agreeFlag === collaborateStatus.apply" >
+                      <div v-if="user.agreeFlag === collaborateStatus.apply">
                         <div class="action-wrapper">
-                          <a-button class="action-item action-cancel" shape="round" @click="handleAccept(user,collaborateStatus.refuse)">Reject</a-button>
-                          <a-button class="action-ensure action-item" :loading="agreeLoading" type="primary" shape="round" @click="handleAccept(user,collaborateStatus.agree)">Approve</a-button>
+                          <a-button
+                            class="action-item action-cancel"
+                            shape="round"
+                            @click="handleAccept(user, collaborateStatus.refuse)"
+                          >Reject</a-button
+                          >
+                          <a-button
+                            class="action-ensure action-item"
+                            :loading="agreeLoading"
+                            type="primary"
+                            shape="round"
+                            @click="handleAccept(user, collaborateStatus.agree)"
+                          >Approve</a-button
+                          >
                         </div>
                       </div>
                       <div class="action-wrapper" v-else>
                         <div style="width: 80px">
                           <a-dropdown>
                             <a-menu slot="overlay">
-                              <a-menu-item @click="handleChange(user,'Edit',index)">
+                              <a-menu-item @click="handleChange(user, 'Edit', index)">
                                 <span>Edit</span>
                               </a-menu-item>
-                              <a-menu-item @click="handleChange(user,'Viewer',index)">
+                              <a-menu-item @click="handleChange(user, 'Viewer', index)">
                                 <span>Viewer</span>
                               </a-menu-item>
                               <a-divider style="margin: 10px 0;" />
-                              <a-menu-item @click="handleRemove(user,index)">
+                              <a-menu-item @click="handleRemove(user, index)">
                                 <span>Remove</span>
                               </a-menu-item>
                             </a-menu>
-                            <div class='my-collaborate-list-item-select'>
-                              <span class='permission-set'>{{ user.permissions }}</span>
+                            <div class="my-collaborate-list-item-select">
+                              <span class="permission-set">{{ user.permissions }}</span>
                               <a-icon type="caret-down" />
                             </div>
                           </a-dropdown>
@@ -181,48 +206,65 @@
             <div class="link-wrapper">
               <div class="link-setting">
                 <a-tooltip placement="top" title="Click to Reset link">
-                  <img @click="resetLink" src="~@/assets/icons/collaborate/refresh.png" class="refresh-icon" alt=''/>
+                  <img @click="resetLink" src="~@/assets/icons/collaborate/refresh.png" class="refresh-icon" alt="" />
                 </a-tooltip>
-                <div class="link-text" >
+                <div class="link-text">
                   {{ linkUrl }}
                 </div>
                 <div class="action-copy" @click="handleCopy()" style="width:40px;font-size: 20px;cursor: pointer;">
-                  <a-tooltip placement="top" title="Copy link">  <a-icon type="link" /></a-tooltip>
+                  <a-tooltip placement="top" title="Copy link"> <a-icon type="link"/></a-tooltip>
                 </div>
                 <div class="action-copy" @click="handleEmail()" style="width:40px;font-size: 20px;cursor: pointer;">
-                  <a-tooltip placement="top" title="Send email">   <a-icon type="mail" /></a-tooltip>
+                  <a-tooltip placement="top" title="Send email"> <a-icon type="mail"/></a-tooltip>
                 </div>
               </div>
               <div class="link-approve">
-                <a-radio @click="changeApprove" :checked="approveFlag">Approval is required for collaborating via this link</a-radio>
+                <a-radio
+                  @click="changeApprove"
+                  :checked="approveFlag"
+                >Approval is required for collaborating via this link</a-radio
+                >
               </div>
             </div>
           </template>
 
-          <div class="action-line" v-if='selectedUserEmailList.length'>
+          <div class="action-line" v-if="selectedUserEmailList.length">
             <a-button
               :disabled="selectedUserList.length === 0"
               :loading="conformLoading"
               class="button-item"
               type="primary"
               shape="round"
-              @click="handleEnsureSelect"> Confirm </a-button>
+              @click="handleEnsureSelect"
+            >
+              Confirm
+            </a-button>
           </div>
         </a-skeleton>
       </div>
     </div>
 
-    <a-modal width="600px" title="Invite by email" @cancel="sendEmailVisibility=false" :footer="null" :visible="sendEmailVisibility">
+    <a-modal
+      width="600px"
+      title="Invite by email"
+      @cancel="sendEmailVisibility = false"
+      :footer="null"
+      :visible="sendEmailVisibility"
+    >
       <a-form-model ref="form" :model="model" :rules="validatorRules">
         <a-form-model-item prop="email" label="email" :labelCol="labelCol" :wrapperCol="wrapperCol">
           <a-input placeholder="Please input invite email" v-model="model.email" />
         </a-form-model-item>
-        <a-button type="primary" :loading="sendLoading" @click="handleSendEmail" style="margin-left: 40%;margin-bottom: 20px;">
+        <a-button
+          type="primary"
+          :loading="sendLoading"
+          @click="handleSendEmail"
+          style="margin-left: 40%;margin-bottom: 20px;"
+        >
           Send an email
         </a-button>
       </a-form-model>
     </a-modal>
-
   </div>
 </template>
 
@@ -238,7 +280,7 @@ import {
   CollaboratesUpdateLink,
   QueryContentCollaborates
 } from '@/api/collaborate'
-import * as logger from '@/utils/logger'
+// import * as logger from '@/utils/logger'
 import { CollaborateStatus } from '@/const/teacher'
 import { isEmail } from '@/utils/util'
 // import { MSG } from '@/websocket/cmd'
@@ -265,23 +307,26 @@ export default {
     }
   },
   computed: {
-    inputWidth () {
+    inputWidth() {
       const value = this.inputValue || ''
       const length = value.trim().length * 20 + 22
       return (length > 100 ? length : 100) + 'px'
     },
-    selectedUserEmailList () {
+    selectedUserEmailList() {
       return this.selectedUserList.map(user => {
         return user.email
       })
     },
-    linkUrl () {
-      return this.collaborate.link ? (location.origin + '/collaborate/' + this.collaborate.link.linkCode) : ''
+    linkUrl() {
+      return this.collaborate.link ? location.origin + '/collaborate/' + this.collaborate.link.linkCode : ''
     },
-    displaySelectUserList () {
+    displaySelectUserList() {
       const displayUserList = []
       this.userList.forEach(user => {
-        if (this.selectedUserEmailList.indexOf(user.email.trim()) === -1 && user.email.trim() !== this.$store.getters.userInfo.email) {
+        if (
+          this.selectedUserEmailList.indexOf(user.email.trim()) === -1 &&
+          user.email.trim() !== this.$store.getters.userInfo.email
+        ) {
           displayUserList.push(user)
         }
       })
@@ -291,9 +336,8 @@ export default {
       vueSocket: 'vueSocket'
     })
   },
-  watch: {
-  },
-  data () {
+  watch: {},
+  data() {
     return {
       active: false,
       loading: false,
@@ -318,9 +362,7 @@ export default {
       collaborateHistoryUserEmails: [],
       sendEmailVisibility: false,
       validatorRules: {
-        email: [
-          { required: true, type: 'email', message: 'Please input right email!', trigger: 'blur' }
-        ]
+        email: [{ required: true, type: 'email', message: 'Please input right email!', trigger: 'blur' }]
       },
       model: {},
       sendLoading: false,
@@ -335,7 +377,7 @@ export default {
       debounceSearchUser: null
     }
   },
-  created () {
+  created() {
     this.debounceSearchUser = debounce(this.searchUser, 500)
     this.queryContentCollaborates()
     this.findHistoryUsers()
@@ -345,12 +387,12 @@ export default {
     ClasscipeEventBus.$off(ClasscipeEvent.GOOGLE_AUTH_REFRESH, this.handleEnsureSelect)
   },
   methods: {
-    handleFocusInput () {
+    handleFocusInput() {
       console.log('handleFocusInput')
       this.$refs['input'].focus()
       this.active = true
     },
-    handleCloseTag (email) {
+    handleCloseTag(email) {
       console.info('handleCloseTag ' + email)
       const list = []
       this.selectedUserList.forEach(user => {
@@ -390,7 +432,7 @@ export default {
       this.searchUser()
       this.showUser = false
     },
-    searchUser () {
+    searchUser() {
       console.info('searchUser ' + this.userNameOrEmail)
       this.showUser = true
       if (!this.userNameOrEmail) {
@@ -398,30 +440,41 @@ export default {
         return
       } else if (!isEmail(this.userNameOrEmail.trim())) {
         // 已经邀请的用户中选择
-        this.userList = this.collaborateHistoryUsers.filter(item =>
-          item.email.trim().toLowerCase().indexOf(this.userNameOrEmail.trim().toLowerCase()) !== -1 ||
-          item.nickname.trim().toLowerCase().indexOf(this.userNameOrEmail.trim().toLowerCase()) !== -1)
+        this.userList = this.collaborateHistoryUsers.filter(
+          item =>
+            item.email
+              .trim()
+              .toLowerCase()
+              .indexOf(this.userNameOrEmail.trim().toLowerCase()) !== -1 ||
+            item.nickname
+              .trim()
+              .toLowerCase()
+              .indexOf(this.userNameOrEmail.trim().toLowerCase()) !== -1
+        )
         return
       }
       console.info('CollaboratesSearchUser ' + this.userNameOrEmail)
-      CollaboratesSearchUser({ name: this.userNameOrEmail.trim() }).then(response => {
-        console.info('SearchUser response', response)
-        this.userList = response.result
-      }).finally(() => {
-        this.loading = false
-      })
-    },
-    findHistoryUsers () {
-      CollaboratesSearchUser({ name: '' }).then(response => {
-        console.info('SearchUser response', response)
-        this.collaborateHistoryUsers = response.result
-        this.collaborateHistoryUserEmails = response.result.map(user => {
-          return user.email
+      CollaboratesSearchUser({ name: this.userNameOrEmail.trim() })
+        .then(response => {
+          console.info('SearchUser response', response)
+          this.userList = response.result
         })
-      }).finally(() => {
-      })
+        .finally(() => {
+          this.loading = false
+        })
     },
-    handleAddToSelect (user) {
+    findHistoryUsers() {
+      CollaboratesSearchUser({ name: '' })
+        .then(response => {
+          console.info('SearchUser response', response)
+          this.collaborateHistoryUsers = response.result
+          this.collaborateHistoryUserEmails = response.result.map(user => {
+            return user.email
+          })
+        })
+        .finally(() => {})
+    },
+    handleAddToSelect(user) {
       console.info('handleAddToSelect ' + user.email + ' permisson ' + this.permission)
       const index = this.selectedUserList.findIndex(item => item.email === user.email)
       if (index !== -1) {
@@ -435,134 +488,150 @@ export default {
       console.info('selectedUserList ', this.selectedUserList)
     },
 
-    handleToggleType (currentType) {
+    handleToggleType(currentType) {
       console.info('handleToggleType ' + currentType)
       this.userSelectMode = currentType
     },
 
-    handleCancel () {
+    handleCancel() {
       console.info('handleCancel')
       this.$emit('cancel')
     },
-    handleCopy () {
+    handleCopy() {
       console.info('handleCopy')
-      this.$copyText(this.linkUrl).then(() => {
-        this.$message.success('Copy successfully')
-      }).catch(() => {
-        this.$message.error('Copy failed')
-      })
+      this.$copyText(this.linkUrl)
+        .then(() => {
+          this.$message.success('Copy successfully')
+        })
+        .catch(() => {
+          this.$message.error('Copy failed')
+        })
     },
     handleEmail() {
       console.info('handleEmail')
       this.sendEmailVisibility = true
     },
-    resetLink () {
+    resetLink() {
       this.collaborate.link.needUpdateCode = true
-      CollaboratesUpdateLink(this.collaborate.link).then(response => {
-        console.info('CollaboratesUpdateLink response:', response)
-        if (response.success) {
-          this.collaborate.link = response.result
-          this.$message.success('Reset link successfully')
-        }
-      }).finally(() => {
-
-      })
+      CollaboratesUpdateLink(this.collaborate.link)
+        .then(response => {
+          console.info('CollaboratesUpdateLink response:', response)
+          if (response.success) {
+            this.collaborate.link = response.result
+            this.$message.success('Reset link successfully')
+          }
+        })
+        .finally(() => {})
     },
-    changeApprove () {
+    changeApprove() {
       this.approveFlag = !this.approveFlag
       this.collaborate.link.approveFlag = this.approveFlag
       if (this.approveFlag) {
         this.collaborate.link.needUpdateCode = true
       }
-      CollaboratesUpdateLink(this.collaborate.link).then(response => {
-        console.info('CollaboratesUpdateLink response:', response)
-        if (response.success) {
-          this.collaborate.link = response.result
-          this.$copyText(this.linkUrl).then(() => {
-            this.$message.success('The link has been reset and copied in your clipboard')
-          }).catch(() => {
-            this.$message.error('Copy failed')
-          })
-        }
-      }).finally(() => {
-      })
+      CollaboratesUpdateLink(this.collaborate.link)
+        .then(response => {
+          console.info('CollaboratesUpdateLink response:', response)
+          if (response.success) {
+            this.collaborate.link = response.result
+            this.$copyText(this.linkUrl)
+              .then(() => {
+                this.$message.success('The link has been reset and copied in your clipboard')
+              })
+              .catch(() => {
+                this.$message.error('Copy failed')
+              })
+          }
+        })
+        .finally(() => {})
     },
-    queryContentCollaborates () {
+    queryContentCollaborates() {
       this.collaborate = {}
       this.loading = true
-      QueryContentCollaborates({ id: this.contentId, type: this.contentType }).then(response => {
-        console.info('QueryContentCollaborates response:', response)
-        if (response.success) {
-          this.collaborate = response.result
-          this.collaborateUserList = this.collaborate.users
-          this.approveFlag = this.collaborate.link.approveFlag
-        }
-      }).finally(() => {
-        this.loading = false
-        this.$emit('confirmSelect', this.collaborate)
-      })
+      QueryContentCollaborates({ id: this.contentId, type: this.contentType })
+        .then(response => {
+          console.info('QueryContentCollaborates response:', response)
+          if (response.success) {
+            this.collaborate = response.result
+            this.collaborateUserList = this.collaborate.users
+            this.approveFlag = this.collaborate.link.approveFlag
+          }
+        })
+        .finally(() => {
+          this.loading = false
+          this.$emit('confirmSelect', this.collaborate)
+        })
     },
 
-    onChangeSendMessage (e) {
+    onChangeSendMessage(e) {
       console.log(e.target.checked)
       this.sendMessage = e.target.checked
     },
-    back () {
+    back() {
       this.showUser = false
       this.selectedUserList = []
       this.userNameOrEmail = ''
     },
-    handleAccept (item, flag) {
+    handleAccept(item, flag) {
       console.info('handleAccept', item)
       this.agreeLoading = true
-      CollaboratesAgree({ id: item.id, agreeFlag: flag }).then(res => {
-        console.info('handleApply', res)
-        if (flag === this.collaborateStatus.agree) {
-          this.$message.success('Agree successfully')
-        } else {
-          this.$message.success('Disagree successfully')
-        }
-      }).then(() => {
-        this.agreeLoading = false
-        this.queryContentCollaborates()
-      })
+      CollaboratesAgree({ id: item.id, agreeFlag: flag })
+        .then(res => {
+          console.info('handleApply', res)
+          if (flag === this.collaborateStatus.agree) {
+            this.$message.success('Agree successfully')
+          } else {
+            this.$message.success('Disagree successfully')
+          }
+        })
+        .then(() => {
+          this.agreeLoading = false
+          this.queryContentCollaborates()
+        })
     },
-    handleChange (user, permissions, index) {
+    handleChange(user, permissions, index) {
       user.permissions = permissions
       this.$set(this.collaborateUserList, index, user)
       console.info('handleChange', user)
-      CollaboratesUpdate(user).then(res => {
-        console.info('handleChange', res)
-        this.$message.success('Update successfully')
-      }).then(() => {
-        // this.vueSocket.sendMessageToUsers(MSG, [user.userId],
-        //   {
-        //     busType: NotificationTypeMap.changeCollaborate,
-        //     busId: user.sourceId
-        //   })
-      })
+      CollaboratesUpdate(user)
+        .then(res => {
+          console.info('handleChange', res)
+          this.$message.success('Update successfully')
+        })
+        .then(() => {
+          // this.vueSocket.sendMessageToUsers(MSG, [user.userId],
+          //   {
+          //     busType: NotificationTypeMap.changeCollaborate,
+          //     busId: user.sourceId
+          //   })
+        })
     },
     handleRemove(user, index) {
       console.info('handleRemove', user)
-      var that = this
+      const that = this
+      const content = `${
+        user.nickName ? 'Do you confirm to remove this user?' : `Do you confirm to remove user ${user.nickName} ?`
+      }`
       this.$confirm({
         title: 'Confirm remove user',
-        content: 'Are you confirm remove user ' + user.nickName + ' ?',
+        content,
         centered: true,
         onOk: () => {
-          CollaboratesRemove(user).then(response => {
-            console.info('handleRemove', response)
-            this.$message.success('Remove successfully')
-          }).finally(() => {
-            that.collaborateUserList.splice(index, 1)
-            // that.collaborate.users = that.collaborateUserList
-            // that.$emit('confirmSelect', that.collaborate)
-            that.queryContentCollaborates()
-          })
+          CollaboratesRemove(user)
+            .then(response => {
+              console.info('handleRemove', response)
+              this.$message.success('Remove successfully')
+            })
+            .finally(() => {
+              that.collaborateUserList.splice(index, 1)
+              // that.collaborate.users = that.collaborateUserList
+              // that.$emit('confirmSelect', that.collaborate)
+              that.queryContentCollaborates()
+            })
         }
       })
     },
-    handleSendEmail () {
+    handleSendEmail() {
       const that = this
       // 触发表单验证
       this.$refs.form.validate(valid => {
@@ -572,14 +641,16 @@ export default {
             id: this.contentId,
             type: this.contentType,
             email: this.model.email
-          }).then(res => {
-            console.info('handleChange', res)
-            this.$message.success('Send successfully')
-          }).finally(() => {
-            that.sendLoading = false
-            that.sendEmailVisibility = false
-            that.model.email = ''
           })
+            .then(res => {
+              console.info('handleChange', res)
+              this.$message.success('Send successfully')
+            })
+            .finally(() => {
+              that.sendLoading = false
+              that.sendEmailVisibility = false
+              that.model.email = ''
+            })
         } else {
           return false
         }
@@ -595,7 +666,7 @@ export default {
 }
 </style>
 <style lang="less" scoped>
-@import "~@/components/index.less";
+@import '~@/components/index.less';
 
 .toggle-header {
   user-select: none;
@@ -609,11 +680,11 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
-    .header-icon{
+    .header-icon {
       padding-right: 5px;
-      img{
-        width:40px;
-        margin:5px;
+      img {
+        width: 40px;
+        margin: 5px;
       }
     }
     font-size: 16px;
@@ -659,14 +730,16 @@ export default {
       }
       &::-webkit-scrollbar-track {
         border-radius: 3px;
-        background: rgba(0,0,0,0.00);
-        -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+        background: rgba(0, 0, 0, 0);
+        -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.08);
+        box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.08);
       }
       /* 滚动条滑块 */
       &::-webkit-scrollbar-thumb {
         border-radius: 5px;
-        background: rgba(0,0,0,0.12);
-        -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+        background: rgba(0, 0, 0, 0.12);
+        -webkit-box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
       }
       .empty-user {
         padding: 15px 0;
@@ -769,8 +842,8 @@ export default {
                 }
               }
             }
-            .action-ensure{
-              margin-left:10px;
+            .action-ensure {
+              margin-left: 10px;
             }
           }
         }
@@ -794,7 +867,7 @@ export default {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin:20px;
+  margin: 20px;
 
   .icon {
     img {
@@ -820,36 +893,36 @@ export default {
     margin-left: 10px;
   }
 }
-.message-check-wrapper{
+.message-check-wrapper {
   margin: 10px auto;
   color: #111;
 }
 
-.link-wrapper{
-  clear:both;
+.link-wrapper {
+  clear: both;
   width: 100%;
   padding-top: 20px;
-  .link-setting{
+  .link-setting {
     margin: 0 auto;
     height: 50px;
-    background: #F7F9FD;
+    background: #f7f9fd;
     opacity: 1;
     border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    .refresh-icon{
+    .refresh-icon {
       margin-left: 10px;
       width: 15px;
       cursor: pointer;
     }
-    .action-copy{
-      color: #07AB84;
+    .action-copy {
+      color: #07ab84;
       display: flex;
       justify-content: center;
       align-items: center;
     }
-    .link-text{
+    .link-text {
       user-select: all;
       text-align: center;
       overflow: hidden;
@@ -867,7 +940,7 @@ export default {
       }
     }
   }
-  .link-approve{
+  .link-approve {
     margin: 10px auto;
     font-size: 12px;
     padding: 0 10px;
@@ -892,11 +965,11 @@ export default {
   background: #f1f3f4;
   -webkit-border-radius: 6px 6px 0 0;
   border-radius: 6px 6px 0 0;
-  border-bottom: 1px solid #15C39A;
+  border-bottom: 1px solid #15c39a;
   padding: 4px 12px;
 
   &:hover {
-    background: #E3E5E6;
+    background: #e3e5e6;
   }
   .tag-input-list {
     display: flex;
@@ -959,7 +1032,7 @@ export default {
 
 .active {
   outline: 0;
-  background: #E3E5E6;
+  background: #e3e5e6;
 }
 
 .input-tag-item {
@@ -967,13 +1040,13 @@ export default {
   padding: 3px 10px;
   margin: 4px;
   background: #ffffff;
-  border: 1px solid #D8D8D8;
+  border: 1px solid #d8d8d8;
   font-size: 13px;
   font-family: Inter-Bold;
   cursor: pointer;
   line-height: 24px;
   font-weight: 500;
-  color: #11142D;
+  color: #11142d;
 
   &:hover {
     background: white;
@@ -984,7 +1057,7 @@ export default {
 .view-back {
   cursor: pointer;
   margin-right: 10px;
-  position:absolute;
+  position: absolute;
   left: 10px;
   .back-icon {
     img {
@@ -1012,7 +1085,7 @@ export default {
 
   &:hover {
     color: #333;
-    background: #E3E5E6;
+    background: #e3e5e6;
   }
 }
 
@@ -1034,7 +1107,7 @@ export default {
 
   &:hover {
     color: #333;
-    background: #E3E5E6;
+    background: #e3e5e6;
   }
 }
 
@@ -1043,7 +1116,7 @@ export default {
   .user-list {
     z-index: 100;
     position: fixed;
-    border-top: 1px solid #15C39A;
+    border-top: 1px solid #15c39a;
     background: #fff;
     display: flex;
     max-height: 380px;
@@ -1058,14 +1131,16 @@ export default {
     }
     &::-webkit-scrollbar-track {
       border-radius: 3px;
-      background: rgba(0,0,0,0.00);
-      -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+      background: rgba(0, 0, 0, 0);
+      -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.08);
+      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.08);
     }
     /* 滚动条滑块 */
     &::-webkit-scrollbar-thumb {
       border-radius: 5px;
-      background: rgba(0,0,0,0.12);
-      -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+      background: rgba(0, 0, 0, 0.12);
+      -webkit-box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
     }
     .empty-user {
       padding: 15px 0;
@@ -1083,7 +1158,7 @@ export default {
       &:hover {
         background: #f3f3f3;
       }
-      &:last-child{
+      &:last-child {
         border-bottom: none;
       }
       .user-avatar-email {
@@ -1165,8 +1240,5 @@ export default {
       }
     }
   }
-}
-
-.send-message {
 }
 </style>
