@@ -4,7 +4,6 @@
     <div class="filter-tab">
       <div style="width: 300px;">
         <!-- <a-input-search placeholder="Search here" v-model="queryParams.searchKey" @search="handleSearch"></a-input-search> -->
-
       </div>
       <a-space class="filter-opt">
         <a-button type="primary" @click="handleAddSubject">Add Subject</a-button>
@@ -23,8 +22,8 @@
           <template v-if="text && text.length > 0">
             <div class="user-tag" v-for="item in record.teachers" :key="item.userId">
               <div class="avatar">
-                <img :src="item.avatar" v-if="item.avatar"/>
-                <img v-else src="~@/assets/icons/library/default-avatar.png"/>
+                <img :src="item.avatar" v-if="item.avatar" />
+                <img v-else src="~@/assets/icons/library/default-avatar.png" />
               </div>
               <div class="user-name-email">
                 <div class="user-name">
@@ -41,24 +40,21 @@
           </template>
         </a-space>
         <a-space class="popover-link" slot="action" slot-scope="text, record">
-          <a-popover
-            placement="left"
-            title="Choose User"
-            trigger="click">
+          <a-popover placement="left" title="Choose User" trigger="click">
             <div slot="content" class="search-popver">
               <a-space class="search-con">
                 <a-input-search
                   v-model="searchKeyMember"
                   :allow-clear="true"
-                  placeholder="Search and add by name/email"></a-input-search>
+                  placeholder="Search and add by name/email"
+                ></a-input-search>
                 <a-button @click="goTeachers">Add new</a-button>
               </a-space>
               <div class="search-user" v-for="item in filterMembers" :key="item.userId">
-
                 <div class="user-avatar">
                   <div class="avatar">
-                    <img :src="item.avatar" v-if="item.avatar"/>
-                    <img v-else src="~@/assets/icons/library/default-avatar.png"/>
+                    <img :src="item.avatar" v-if="item.avatar" />
+                    <img v-else src="~@/assets/icons/library/default-avatar.png" />
                   </div>
                 </div>
                 <div class="user-name-email">
@@ -74,10 +70,9 @@
                     Add
                   </a-button>
                 </div>
-
               </div>
             </div>
-            <a :id="'popover_'+record.id" type="link" @click="handleResetFilter(record)">Add</a>
+            <a :id="'popover_' + record.id" type="link" @click="handleResetFilter(record)">Add</a>
           </a-popover>
 
           <!-- <a type="link" @click="handleDelete(record)">Delete</a> -->
@@ -98,8 +93,7 @@ const { debounce } = require('lodash-es')
 
 export default {
   name: 'SchoolRoleSubject',
-  components: {
-  },
+  components: {},
   props: {
     school: {
       type: Object,
@@ -191,12 +185,19 @@ export default {
     filterMembers() {
       let members = []
       if (this.currentRecord) {
-        members = this.teacherList.filter(teacher => !this.currentRecord.teachers || !this.currentRecord.teachers.find(head => head.userId === teacher.uid))
+        members = this.teacherList.filter(
+          teacher =>
+            !this.currentRecord.teachers || !this.currentRecord.teachers.find(head => head.userId === teacher.uid)
+        )
       }
       if (this.searchKeyMember) {
         const userName = ((this.currentRecord.firstname || '') + (this.currentRecord.lastname || '')).toLowerCase()
         members = members.filter(item => {
-          return item.email && (item.email.toLowerCase().indexOf((this.searchKeyMember || '').toLowerCase() || '') > -1 || userName.indexOf((this.searchKeyMember || '').toLowerCase() || '') > -1)
+          return (
+            item.email &&
+            (item.email.toLowerCase().indexOf((this.searchKeyMember || '').toLowerCase() || '') > -1 ||
+              userName.indexOf((this.searchKeyMember || '').toLowerCase() || '') > -1)
+          )
         })
       }
       return members
@@ -213,15 +214,18 @@ export default {
       this.loading = true
       getRoleSubjectLeaders({
         schoolId: this.currentSchool.id
-      }).then(res => {
-        if (res.code === 0) {
-          this.dataSource = res.result
-        }
-      }).finally(() => {
-        this.loading = false
       })
+        .then(res => {
+          if (res.code === 0) {
+            this.dataSource = res.result
+          }
+        })
+        .finally(() => {
+          this.loading = false
+        })
     },
     initDict() {
+      alert('init')
       // 获取所有班级用于筛选
       Promise.all([
         getSubjectBySchoolId({
@@ -235,14 +239,17 @@ export default {
           let subjects = []
           subjectRes.result.forEach(parent => {
             if (parent.subjectList && parent.subjectList.length > 0) {
-              subjects = subjects.concat(parent.subjectList.map(item => ({
-                ...item,
-                curriculumId: parent.curriculumId
-              })))
+              subjects = subjects.concat(
+                parent.subjectList.map(item => ({
+                  ...item,
+                  curriculumId: parent.curriculumId
+                }))
+              )
             }
           })
           const options = []
           subjects.forEach(item => {
+            // TODO: delete this
             options.push({
               curriculumId: item.curriculumId,
               subjectId: item.subjectId,
@@ -268,7 +275,7 @@ export default {
         schoolId: this.currentSchool.id,
         schoolUserStatus: 1,
         roles: 'teacher'
-      }).then((res) => {
+      }).then(res => {
         if (res.success) {
           this.teacherList = res.result.records
         }
@@ -304,24 +311,24 @@ export default {
             schoolId: this.currentSchool.id,
             subjectId: cls.subjectId,
             userId: item.userId
-          }).then(res => {
-            if (res.code === 0) {
-              this.$message.success('Delete user successfully')
-              this.initSchoolUsers()
-              this.debounceLoad()
-              this.$store.dispatch('GetInfo')
-            } else {
-              this.loading = false
-            }
-          }).catch(() => {
-            this.loading = false
           })
+            .then(res => {
+              if (res.code === 0) {
+                this.$message.success('Delete user successfully')
+                this.initSchoolUsers()
+                this.debounceLoad()
+                this.$store.dispatch('GetInfo')
+              } else {
+                this.loading = false
+              }
+            })
+            .catch(() => {
+              this.loading = false
+            })
         }
       })
     },
-    doFilter(val, record) {
-
-    },
+    doFilter(val, record) {},
     handleResetFilter(record) {
       this.currentRecord = { ...record }
       this.searchKeyMember = ''
@@ -350,19 +357,21 @@ export default {
         schoolId: this.currentSchool.id,
         subjectId: cls.subjectId,
         userId: user.uid
-      }).then(res => {
-        if (res.code === 0) {
-          this.$message.success('Add user successfully')
-          this.initSchoolUsers()
-          this.debounceLoad()
-          this.$store.dispatch('GetInfo')
-          document.getElementById(`popover_${cls.id}`).click()
-        } else {
-          this.loading = false
-        }
-      }).catch(() => {
-        this.loading = false
       })
+        .then(res => {
+          if (res.code === 0) {
+            this.$message.success('Add user successfully')
+            this.initSchoolUsers()
+            this.debounceLoad()
+            this.$store.dispatch('GetInfo')
+            document.getElementById(`popover_${cls.id}`).click()
+          } else {
+            this.loading = false
+          }
+        })
+        .catch(() => {
+          this.loading = false
+        })
     },
     formatViewName(id) {
       const findSubject = this.subjectOptions.find(subject => subject.subjectId === id)
@@ -402,7 +411,7 @@ export default {
   position: absolute;
   right: -15px;
   top: -15px;
-  cursor:pointer;
+  cursor: pointer;
 }
 
 .user-avatar {
@@ -416,7 +425,7 @@ export default {
 }
 .user-name-email {
   display: flex;
-  flex-direction:column;
+  flex-direction: column;
   width: 200px;
   line-height: 24px;
   font-family: Inter-Bold;
@@ -425,7 +434,7 @@ export default {
   align-items: flex-start;
   .email {
     padding-left: 10px;
-    font-size: 12px;;
+    font-size: 12px;
   }
   .user-name {
     text-align: center;
@@ -440,7 +449,7 @@ export default {
 .user-option {
   width: 150px;
 }
-.action-wrapper{
+.action-wrapper {
   flex: 1;
 }
 .search-popver {
@@ -452,7 +461,7 @@ export default {
     }
   }
   .search-user {
-    display:flex;
+    display: flex;
     padding: 5px;
     margin: 5p -16px;
     width: auto;
