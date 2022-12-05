@@ -16,16 +16,19 @@
         <div class="contact-content">
           <div
             class="contact-item"
-            @click="toogleContact(item.id)"
-            :class="{active: item.id === currentContact}"
+            @click="toggleContact(item.id)"
+            :class="{ active: item.id === currentContact }"
             v-for="(item, index) in contactListFilter"
-            :key="'teacher_'+index">
+            :key="'teacher_' + index"
+          >
             <a-badge :count="item.noRead">
               <img class="contact-item-avatar" :src="item.avatar" />
             </a-badge>
             <div class="contact-item-detail">
               <div class="contact-item-title">{{ item.name }}</div>
-              <div class="contact-item-des">{{ (item.messages && item.messages.length > 0) ? item.messages[0].content : '' }}</div>
+              <div class="contact-item-des">
+                {{ item.messages && item.messages.length > 0 ? item.messages[0].content : '' }}
+              </div>
             </div>
           </div>
         </div>
@@ -34,13 +37,15 @@
     <div class="chat-wrap">
       <div class="chat-content" ref="chatList">
         <template v-for="(item, index) in dataSource">
-          <div :key="'item_msg_' + item.id" class="chat-item" :class="{self: item.ownerId === user.info.id}">
+          <div :key="'item_msg_' + item.id" class="chat-item" :class="{ self: item.ownerId === user.info.id }">
             <img class="chat-avatar" :src="item.avatar" />
             <div class="chat-message" v-html="item.message">
               {{ item.message }}
             </div>
           </div>
-          <div v-show="!isSameNext(item.date, index)" :key="'item_date_' + item.id" class="chat-time">{{ item.date }}</div>
+          <div v-show="!isSameNext(item.date, index)" :key="'item_date_' + item.id" class="chat-time">
+            {{ item.date }}
+          </div>
         </template>
       </div>
       <div class="chat-line"></div>
@@ -65,148 +70,161 @@
 </template>
 
 <script>
-  import moment from 'moment'
+import moment from 'moment'
 
-  import TextEditor from '@/components/Editor/WangEditor'
+import TextEditor from '@/components/Editor/WangEditor'
 
-  import { mapState } from 'vuex'
-  export default {
-    name: 'ChatList',
-    components: {
-      TextEditor
-    },
-    data() {
-      return {
-        dataSource: [{
+import { mapState } from 'vuex'
+export default {
+  name: 'ChatList',
+  components: {
+    TextEditor
+  },
+  data() {
+    return {
+      dataSource: [
+        {
           id: 1,
           owner: 'Teacher A',
           ownerId: 1,
           avatar: 'https://lh3.googleusercontent.com/a/AATXAJz5xyNabdkLEyV9BXw74tgHPSu9zPMpek2eSUsU=s96-c',
           message: 'interface IImageGuide] nterface IImageGuide] nterface IImageGuide] nterface IImageGuide]',
           date: '2022-03-08 12:00:00'
-        }, {
+        },
+        {
           id: 3,
           owner: 'Teacher A',
           ownerId: 2,
           avatar: 'https://lh3.googleusercontent.com/a/AATXAJz5xyNabdkLEyV9BXw74tgHPSu9zPMpek2eSUsU=s96-c',
           message: 'interface IImageGuide] nterface IImageGuide] nterface IImageGuide] nterface IImageGuide]',
           date: '2022-03-08 14:00:00'
-        }, {
+        },
+        {
           id: 2,
           owner: 'jacob',
           ownerId: '1496403869212160002',
           avatar: 'https://lh3.googleusercontent.com/a/AATXAJz5xyNabdkLEyV9BXw74tgHPSu9zPMpek2eSUsU=s96-c',
-          message: 'You can subscribe to any of your calendars (i.e. iCal, Google Calendar, Outlook etc.) by clicking My Full Calendar from your "Dashboard". From there you can click on Subscribe to Calendar. jf',
+          message:
+            'You can subscribe to any of your calendars (i.e. iCal, Google Calendar, Outlook etc.) by clicking My Full Calendar from your "Dashboard". From there you can click on Subscribe to Calendar. jf',
           date: moment().format('YYYY-MM-DD hh:mm:ss')
-        }],
-        contactList: [{
+        }
+      ],
+      contactList: [
+        {
           id: 1,
           name: 'Teacher A',
           avatar: 'https://lh3.googleusercontent.com/a/AATXAJz5xyNabdkLEyV9BXw74tgHPSu9zPMpek2eSUsU=s96-c',
-          messages: [{
-            content: 'You can subscribe to any of your calendars (i.e. iCal, Google Calendar, Outlook etc.)'
-          }],
+          messages: [
+            {
+              content: 'You can subscribe to any of your calendars (i.e. iCal, Google Calendar, Outlook etc.)'
+            }
+          ],
           noRead: 0
-        }, {
+        },
+        {
           id: 2,
           name: 'Teacher B',
           avatar: 'https://lh3.googleusercontent.com/a/AATXAJz5xyNabdkLEyV9BXw74tgHPSu9zPMpek2eSUsU=s96-c',
-          messages: [{
-            content: 'You can subscribe to any of your calendars (i.e. iCal, Google Calendar, Outlook etc.)'
-          }],
+          messages: [
+            {
+              content: 'You can subscribe to any of your calendars (i.e. iCal, Google Calendar, Outlook etc.)'
+            }
+          ],
           noRead: 3
-        }, {
+        },
+        {
           id: 3,
           name: 'Teacher C',
           avatar: 'https://lh3.googleusercontent.com/a/AATXAJz5xyNabdkLEyV9BXw74tgHPSu9zPMpek2eSUsU=s96-c',
-          messages: [{
-            content: 'You can subscribe to any of your calendars (i.e. iCal, Google Calendar, Outlook etc.)'
-          }],
+          messages: [
+            {
+              content: 'You can subscribe to any of your calendars (i.e. iCal, Google Calendar, Outlook etc.)'
+            }
+          ],
           noRead: 5
-        }],
-        currentContact: 1,
-        subForm: {
-          content: ''
-        },
-        queryForm: {
-          keyword: ''
-        },
-        contactSendBack: []
-      }
-    },
-    computed: {
-      contactListFilter() {
-        return this.contactList.filter(item => item.name.toLowerCase().indexOf(this.queryForm.keyword) > -1)
+        }
+      ],
+      currentContact: 1,
+      subForm: {
+        content: ''
       },
-      ...mapState({
-        user: state => state.user
+      queryForm: {
+        keyword: ''
+      },
+      contactSendBack: []
+    }
+  },
+  computed: {
+    contactListFilter() {
+      return this.contactList.filter(item => item.name.toLowerCase().indexOf(this.queryForm.keyword) > -1)
+    },
+    ...mapState({
+      user: state => state.user
+    })
+  },
+  created() {
+    this.initData()
+  },
+  mounted() {
+    this.goBottom()
+  },
+  methods: {
+    initData() {
+      this.contactSendBack = this.contactList.map(item => {
+        return {
+          id: item.id,
+          content: ''
+        }
       })
     },
-    created() {
-      this.initData()
-    },
-    mounted() {
+    triggerSearch() {},
+    toggleContact(id) {
+      this.currentContact = id
+      this.subForm.content = this.contactSendBack.find(item => item.id === id).content
       this.goBottom()
     },
-    methods: {
-      initData() {
-        this.contactSendBack = this.contactList.map(item => {
-          return {
-            id: item.id,
-            content: ''
-          }
-        })
-      },
-      triggerSearch() {
-
-      },
-      toogleContact(id) {
-        this.currentContact = id
-        this.subForm.content = this.contactSendBack.find(item => item.id === id).content
-        this.goBottom()
-      },
-      changeContent(val) {
-        // this.subForm.content = val
-        this.contactSendBack.find(item => item.id === this.currentContact).content = val
-      },
-      isSameNext(val, index) {
-        let next = moment()
-        const nextData = this.dataSource[index + 1]
-        if (nextData) {
-          next = moment(nextData.date)
-        }
-        if (moment(val).isSame(next, 'day') || moment(val).isSame(moment())) {
-          return true
-        } else {
-          return false
-        }
-      },
-      handleSend() {
-        const message = this.contactSendBack.find(item => item.id === this.currentContact).content
-        this.dataSource.push({
-          id: Math.random(),
-          owner: 'jacob',
-          ownerId: '1496403869212160002',
-          avatar: 'https://lh3.googleusercontent.com/a/AATXAJz5xyNabdkLEyV9BXw74tgHPSu9zPMpek2eSUsU=s96-c',
-          message: message,
-          date: moment().format('YYYY-MM-DD hh:mm:ss')
-        })
-        this.initSend()
-      },
-      initSend() {
-        this.subForm.content = ''
-        this.changeContent('')
-        this.goBottom()
-      },
-      goBottom() {
-        this.$nextTick(() => {
-          if (this.$refs.chatList) {
-            this.$refs.chatList.scrollTop = this.$refs.chatList.scrollHeight
-          }
-        })
+    changeContent(val) {
+      // this.subForm.content = val
+      this.contactSendBack.find(item => item.id === this.currentContact).content = val
+    },
+    isSameNext(val, index) {
+      let next = moment()
+      const nextData = this.dataSource[index + 1]
+      if (nextData) {
+        next = moment(nextData.date)
       }
+      if (moment(val).isSame(next, 'day') || moment(val).isSame(moment())) {
+        return true
+      } else {
+        return false
+      }
+    },
+    handleSend() {
+      const message = this.contactSendBack.find(item => item.id === this.currentContact).content
+      this.dataSource.push({
+        id: Math.random(),
+        owner: 'jacob',
+        ownerId: '1496403869212160002',
+        avatar: 'https://lh3.googleusercontent.com/a/AATXAJz5xyNabdkLEyV9BXw74tgHPSu9zPMpek2eSUsU=s96-c',
+        message: message,
+        date: moment().format('YYYY-MM-DD hh:mm:ss')
+      })
+      this.initSend()
+    },
+    initSend() {
+      this.subForm.content = ''
+      this.changeContent('')
+      this.goBottom()
+    },
+    goBottom() {
+      this.$nextTick(() => {
+        if (this.$refs.chatList) {
+          this.$refs.chatList.scrollTop = this.$refs.chatList.scrollHeight
+        }
+      })
     }
   }
+}
 </script>
 
 <style scoped lang="less">
@@ -236,7 +254,7 @@
         color: #666;
         height: 30px;
         line-height: 30px;
-        padding:0 15px;
+        padding: 0 15px;
       }
       .contact-content {
         display: flex;
@@ -358,8 +376,8 @@
       .chat-send__text {
         /deep/ textarea {
           resize: none;
-          border: none!important;
-          box-shadow: none!important;
+          border: none !important;
+          box-shadow: none !important;
           padding-left: 20px;
         }
       }

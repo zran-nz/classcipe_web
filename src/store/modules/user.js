@@ -8,7 +8,7 @@ import {
   IS_ADD_PREFERENCE,
   SET_CLASS_LIST,
   SET_CURRENT_SCHOOL,
-  TOOGLE_USER_MODE,
+  TOGGLE_USER_MODE,
   USER_INFO
 } from '@/store/mutation-types'
 import { delCookie, setCookie, welcome } from '@/utils/util'
@@ -115,7 +115,7 @@ const user = {
 
   actions: {
     // Google 登录
-    LoginWithToken ({ commit }, accessToken) {
+    LoginWithToken({ commit }, accessToken) {
       return new Promise((resolve, reject) => {
         console.info('LoginWithToken', accessToken)
         if (accessToken && accessToken.toString().trim()) {
@@ -132,134 +132,142 @@ const user = {
     },
 
     // 登录
-    Login ({ commit }, userInfo) {
+    Login({ commit }, userInfo) {
       return new Promise((resolve, reject) => {
-        login(userInfo).then(response => {
-          console.info('Login', response)
-          if (response.success) {
-            const result = response.result
-            storage.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
-            commit('SET_TOKEN', result.token)
-            window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
-            // setCookie(ACCESS_TOKEN, result.token)
-            appLogin(result.token)
-            resolve(response)
-          } else {
-            reject(response)
-          }
-        }).catch(error => {
-          console.info('Login err')
-          reject(error)
-        })
+        login(userInfo)
+          .then(response => {
+            console.info('Login', response)
+            if (response.success) {
+              const result = response.result
+              storage.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
+              commit('SET_TOKEN', result.token)
+              window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
+              // setCookie(ACCESS_TOKEN, result.token)
+              appLogin(result.token)
+              resolve(response)
+            } else {
+              reject(response)
+            }
+          })
+          .catch(error => {
+            console.info('Login err')
+            reject(error)
+          })
       })
     },
 
     // 注册+登录
-    SignUp ({ commit }, userInfo) {
+    SignUp({ commit }, userInfo) {
       return new Promise((resolve, reject) => {
-        signUp(userInfo).then(response => {
-          console.info('SignUp', response)
-          if (response.success) {
-            const result = response.result
-            storage.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
-            commit('SET_TOKEN', result.token)
-            window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
-            // setCookie(ACCESS_TOKEN, result.token)
-            appLogin(result.token)
-            resolve(response)
-          } else {
-            reject(response)
-          }
-        }).catch(error => {
-          console.info('SignUp err')
-          reject(error)
-        })
+        signUp(userInfo)
+          .then(response => {
+            console.info('SignUp', response)
+            if (response.success) {
+              const result = response.result
+              storage.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
+              commit('SET_TOKEN', result.token)
+              window.sessionStorage.setItem(SESSION_ACTIVE_KEY, result.token)
+              // setCookie(ACCESS_TOKEN, result.token)
+              appLogin(result.token)
+              resolve(response)
+            } else {
+              reject(response)
+            }
+          })
+          .catch(error => {
+            console.info('SignUp err')
+            reject(error)
+          })
       })
     },
 
     // 获取用户信息
-    GetInfo ({ commit }) {
+    GetInfo({ commit }) {
       return new Promise((resolve, reject) => {
         const token = storage.get(ACCESS_TOKEN)
-        getInfo(token).then(response => {
-          console.info('GetInfo result', response)
+        getInfo(token)
+          .then(response => {
+            console.info('GetInfo result', response)
 
-          if (response.success) {
-            const result = response.result
-            commit('SET_ROLES', result.currentRole ? [result.currentRole] : [])
-            commit('SET_PERMISSIONS', result.currentRole ? [result.currentRole] : [])
-            commit('SET_INFO', result)
-            commit('SET_NAME', { name: result.nickname, welcome: welcome() })
-            commit('SET_AVATAR', result.avatar)
-            commit('SET_EMAIL', result.email)
-            commit('SET_BIND_CURRICULUM', result.bindCurriculum)
-            commit('SET_SKILL_CATEGORY', result.skillCategory)
-            commit('SET_CURRENT_ROLE', result.currentRole)
-            commit('SET_IS_ADD_PREFERENCE', result.isAddPreference)
-            commit('SET_DISABLED_QUESTION', result.disableQuestion)
-            // 没有设置学校默认个人模式
-            let userMode = result.school === '0' ? USER_MODE.SELF : USER_MODE.SCHOOL
-            // 被学校移除了
-            if (result.schoolList.length === 0 && userMode === USER_MODE.SCHOOL) {
-              userMode = USER_MODE.SELF
-            }
-            storage.set(TOOGLE_USER_MODE, userMode)
-            commit(TOOGLE_USER_MODE, userMode)
-            const schoolIndex = result.schoolList.findIndex(item => item.id === result.school)
-            commit('SET_CURRENT_SCHOOL', schoolIndex > -1 ? result.schoolList[schoolIndex] : null)
-            // 实时获取套餐信息
-            getPlan().then(planRes => {
-              if (planRes.code === 0) {
-                result.planInfo = planRes.result
-                commit('SET_INFO', result)
-                storage.set(USER_INFO, result)
+            if (response.success) {
+              const result = response.result
+              commit('SET_ROLES', result.currentRole ? [result.currentRole] : [])
+              commit('SET_PERMISSIONS', result.currentRole ? [result.currentRole] : [])
+              commit('SET_INFO', result)
+              commit('SET_NAME', { name: result.nickname, welcome: welcome() })
+              commit('SET_AVATAR', result.avatar)
+              commit('SET_EMAIL', result.email)
+              commit('SET_BIND_CURRICULUM', result.bindCurriculum)
+              commit('SET_SKILL_CATEGORY', result.skillCategory)
+              commit('SET_CURRENT_ROLE', result.currentRole)
+              commit('SET_IS_ADD_PREFERENCE', result.isAddPreference)
+              commit('SET_DISABLED_QUESTION', result.disableQuestion)
+              // 没有设置学校默认个人模式
+              let userMode = result.school === '0' ? USER_MODE.SELF : USER_MODE.SCHOOL
+              // 被学校移除了
+              if (result.schoolList.length === 0 && userMode === USER_MODE.SCHOOL) {
+                userMode = USER_MODE.SELF
               }
-            })
-            storage.set(USER_INFO, result)
-            storage.set(CURRENT_ROLE, result.currentRole)
-            storage.set(IS_ADD_PREFERENCE, result.isAddPreference)
-            window.sessionStorage.setItem(SESSION_ACTIVE_KEY, storage.get(ACCESS_TOKEN))
-            // 交换最新的后台token
-            resolve(response)
-          } else {
-            reject(response.message)
-          }
-        }).catch(error => {
-          reject(error)
-        })
+              storage.set(TOGGLE_USER_MODE, userMode)
+              commit(TOGGLE_USER_MODE, userMode)
+              const schoolIndex = result.schoolList.findIndex(item => item.id === result.school)
+              commit('SET_CURRENT_SCHOOL', schoolIndex > -1 ? result.schoolList[schoolIndex] : null)
+              // 实时获取套餐信息
+              getPlan().then(planRes => {
+                if (planRes.code === 0) {
+                  result.planInfo = planRes.result
+                  commit('SET_INFO', result)
+                  storage.set(USER_INFO, result)
+                }
+              })
+              storage.set(USER_INFO, result)
+              storage.set(CURRENT_ROLE, result.currentRole)
+              storage.set(IS_ADD_PREFERENCE, result.isAddPreference)
+              window.sessionStorage.setItem(SESSION_ACTIVE_KEY, storage.get(ACCESS_TOKEN))
+              // 交换最新的后台token
+              resolve(response)
+            } else {
+              reject(response.message)
+            }
+          })
+          .catch(error => {
+            reject(error)
+          })
       })
     },
 
-    ChangeRole ({ commit }, roleInfo) {
+    ChangeRole({ commit }, roleInfo) {
       console.info('ChangeRole', roleInfo)
       return new Promise((resolve, reject) => {
-        changeRole(roleInfo).then(response => {
-          console.info('ChangeRole response', response)
-          const result = response.result.userInfo
-          commit('SET_ROLES', result.currentRole ? [result.currentRole] : [])
-          commit('SET_PERMISSIONS', result.currentRole ? [result.currentRole] : [])
-          commit('SET_INFO', result)
+        changeRole(roleInfo)
+          .then(response => {
+            console.info('ChangeRole response', response)
+            const result = response.result.userInfo
+            commit('SET_ROLES', result.currentRole ? [result.currentRole] : [])
+            commit('SET_PERMISSIONS', result.currentRole ? [result.currentRole] : [])
+            commit('SET_INFO', result)
 
-          commit('SET_NAME', { name: result.username, welcome: welcome() })
-          commit('SET_AVATAR', result.avatar)
-          commit('SET_EMAIL', result.email)
-          commit('SET_BIND_CURRICULUM', result.bindCurriculum)
-          commit('SET_CURRENT_ROLE', result.currentRole)
-          commit('SET_IS_ADD_PREFERENCE', result.isAddPreference)
-          // 不同角色菜单不一样需要重新生成
-          commit('SET_ROUTERS', [])
-          storage.set(CURRENT_ROLE, result.currentRole)
-          storage.set(IS_ADD_PREFERENCE, result.isAddPreference)
-          storage.set(USER_INFO, result)
-          resolve()
-        }).catch(error => {
-          reject(error)
-        })
+            commit('SET_NAME', { name: result.username, welcome: welcome() })
+            commit('SET_AVATAR', result.avatar)
+            commit('SET_EMAIL', result.email)
+            commit('SET_BIND_CURRICULUM', result.bindCurriculum)
+            commit('SET_CURRENT_ROLE', result.currentRole)
+            commit('SET_IS_ADD_PREFERENCE', result.isAddPreference)
+            // 不同角色菜单不一样需要重新生成
+            commit('SET_ROUTERS', [])
+            storage.set(CURRENT_ROLE, result.currentRole)
+            storage.set(IS_ADD_PREFERENCE, result.isAddPreference)
+            storage.set(USER_INFO, result)
+            resolve()
+          })
+          .catch(error => {
+            reject(error)
+          })
       })
     },
 
     // 登出
-    Logout ({ commit, state }) {
+    Logout({ commit, state }) {
       commit('SET_TOKEN', '')
       commit('SET_ROLES', [])
       commit('SET_NAME', '')
@@ -284,7 +292,7 @@ const user = {
     },
 
     // CLear Info
-    ClearAuth ({ commit, state }) {
+    ClearAuth({ commit, state }) {
       console.trace(123123)
       commit('SET_TOKEN', '')
       commit('SET_ROLES', [])
@@ -316,19 +324,21 @@ const user = {
           myClass: true,
           pageNo: 1,
           pageSize: 10000
-        }).then((response) => {
-          if (response.success) {
-            const result = (response.result.records || response.result).filter(item => item.status !== 2)
-            commit('SET_CLASS_LIST', result)
-            storage.set(SET_CLASS_LIST, result)
-
-            resolve(result)
-          } else {
-            reject(response.message)
-          }
-        }).finally(() => {
-          resolve()
         })
+          .then(response => {
+            if (response.success) {
+              const result = (response.result.records || response.result).filter(item => item.status !== 2)
+              commit('SET_CLASS_LIST', result)
+              storage.set(SET_CLASS_LIST, result)
+
+              resolve(result)
+            } else {
+              reject(response.message)
+            }
+          })
+          .finally(() => {
+            resolve()
+          })
       })
     },
 

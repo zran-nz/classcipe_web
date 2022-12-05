@@ -55,7 +55,7 @@ import LibraryIconSvg from '@/assets/icons/header/Librar_icony.svg?inline'
 import EditIconSvg from '@/assets/icons/header/bianji.svg?inline'
 import SousuoIconSvg from '@/assets/icons/header/sousuo.svg?inline'
 import ManageIconSvg from '@/assets/icons/header/Managing_icon.svg?inline'
-import { TOOGLE_USER_MODE, ACCESS_TOKEN } from '@/store/mutation-types'
+import { TOGGLE_USER_MODE, ACCESS_TOKEN } from '@/store/mutation-types'
 import { lessonHost } from '@/const/googleSlide'
 import { USER_MODE } from '@/const/common'
 
@@ -102,7 +102,7 @@ export default {
     this.init()
   },
   methods: {
-    ...mapMutations([TOOGLE_USER_MODE, 'SET_CURRENT_SCHOOL']),
+    ...mapMutations([TOGGLE_USER_MODE, 'SET_CURRENT_SCHOOL']),
     ...mapActions(['GetClassList']),
     init() {
       const current = this.currentSchool.id ? this.currentSchool : (this.info.schoolList && this.info.schoolList.length > 0) ? { ...this.info.schoolList[0] } : {}
@@ -110,14 +110,14 @@ export default {
       this.GetClassList()
     },
     handleChange(val) {
-      this[TOOGLE_USER_MODE](val)
+      this[TOGGLE_USER_MODE](val)
       // 如果是学校模式，当前路由如果是library，则跳出到mytask
       if (val === USER_MODE.SCHOOL && this.$route.name === 'StudentLibraryV2') {
         this.$router.push({ path: '/student/main/my-task' })
       }
     },
     handleChangeSchool(val) {
-      this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
+      this[TOGGLE_USER_MODE](USER_MODE.SCHOOL)
       const item = this.info.schoolList.find(item => item.id === val.key)
       this.SET_CURRENT_SCHOOL(item)
     },

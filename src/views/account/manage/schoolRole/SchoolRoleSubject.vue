@@ -6,7 +6,7 @@
         <!-- <a-input-search placeholder="Search here" v-model="queryParams.searchKey" @search="handleSearch"></a-input-search> -->
       </div>
       <a-space class="filter-opt">
-        <a-button type="primary" @click="handleAddSubject">Add Subject</a-button>
+        <a-button type="primary" @click="handleAddSubject">Add Subject 123</a-button>
       </a-space>
     </div>
     <div class="table-con">
@@ -88,8 +88,7 @@ import { getRoleSubjectLeaders, bindRoleSubjectLeader } from '@/api/v2/schoolRol
 import { getSchoolUsers } from '@/api/v2/schoolUser'
 import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
 import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
-
-const { debounce } = require('lodash-es')
+import { debounce } from 'lodash-es'
 
 export default {
   name: 'SchoolRoleSubject',
@@ -203,9 +202,9 @@ export default {
       return members
     }
   },
-  created() {
+  async created () {
     this.debounceLoad = debounce(this.loadData, 300)
-    this.initDict()
+    await this.initDict()
     this.initSchoolUsers()
   },
   methods: {
@@ -224,49 +223,48 @@ export default {
           this.loading = false
         })
     },
-    initDict() {
+    async initDict() {
+      // TODO: check
       alert('init')
       // 获取所有班级用于筛选
-      Promise.all([
-        getSubjectBySchoolId({
-          schoolId: this.currentSchool.id
-        }),
-        getCurriculumBySchoolId({
-          schoolId: this.currentSchool.id
+      const res = Promise.all([
+        getSubjectBySchoolId({ schoolId: this.currentSchool.id }),
+        getCurriculumBySchoolId({ schoolId: this.currentSchool.id })
+      ])
+      const [subjectRes, currentRes] = res
+      if (subjectRes.success) {
+        let subjects = []
+        subjectRes.result.forEach(parent => {
+          if (parent.subjectList && parent.subjectList.length > 0) {
+            subjects = subjects.concat(
+              parent.subjectList.map(item => ({
+                ...item,
+                curriculumId: parent.curriculumId
+              }))
+            )
+          }
         })
-      ]).then(([subjectRes, currentRes]) => {
-        if (subjectRes.success) {
-          let subjects = []
-          subjectRes.result.forEach(parent => {
-            if (parent.subjectList && parent.subjectList.length > 0) {
-              subjects = subjects.concat(
-                parent.subjectList.map(item => ({
-                  ...item,
-                  curriculumId: parent.curriculumId
-                }))
-              )
-            }
-          })
-          const options = []
-          subjects.forEach(item => {
-            // TODO: delete this
+        const options = []
+        subjects.forEach(item => {
+          if (item.curriculumId && item.subjectId && item.subjectName) {
             options.push({
               curriculumId: item.curriculumId,
               subjectId: item.subjectId,
               subjectName: item.subjectName
             })
+          } else if (item.curriculumId && item.parentSubjectId && item.parentSubjectName) {
             options.push({
               curriculumId: item.curriculumId,
               subjectId: item.parentSubjectId,
               subjectName: item.parentSubjectName
             })
-          })
-          this.subjectOptions = options
-        }
-        if (currentRes.success) {
-          this.curriculumOptions = currentRes.result
-        }
-      })
+          }
+        })
+        this.subjectOptions = options
+      }
+      if (currentRes.success) {
+        this.curriculumOptions = currentRes.result
+      }
     },
     initSchoolUsers() {
       getSchoolUsers({
@@ -281,7 +279,6 @@ export default {
         }
       })
     },
-
     handleAdd() {
       if (!this.currentRole || !this.currentRole.id) {
         this.$message.error('Please select a role!')

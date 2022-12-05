@@ -1,67 +1,83 @@
 <template>
-  <div class='user-profile-avatar'>
-    <div class='notification' @click='handleToNotification'>
-      <a-badge :count="msgUnreadCount" >
+  <div class="user-profile-avatar">
+    <div class="notification" @click="handleToNotification">
+      <a-badge :count="msgUnreadCount">
         <a-icon type="mail" :style="{ fontSize: '20px', color: '#999' }" />
       </a-badge>
     </div>
     <a-dropdown :getPopupContainer="trigger => trigger.parentElement" v-model="dropVis">
-      <a-avatar v-if="currentAvatar" :src='currentAvatar' />
-      <img v-else src="~@/assets/icons/library/default-avatar.png"/>
-      <div class='profile-info' slot="overlay">
-        <div class='base-info'>
-          <div class='avatar'>
-            <a-avatar v-if="currentAvatar" :src='currentAvatar' />
-            <img v-else src="~@/assets/icons/library/default-avatar.png"/>
+      <a-avatar v-if="currentAvatar" :src="currentAvatar" />
+      <img v-else src="~@/assets/icons/library/default-avatar.png" />
+      <div class="profile-info" slot="overlay">
+        <div class="base-info">
+          <div class="avatar">
+            <a-avatar v-if="currentAvatar" :src="currentAvatar" />
+            <img v-else src="~@/assets/icons/library/default-avatar.png" />
           </div>
-          <div class='base'>
-            <div class='name'>{{ currentRealName }}</div>
-            <div class='email'>{{ $store.getters.userInfo.email }}</div>
-          </div>
-        </div>
-        <div class='storage-info'>
-          <a-progress :percent="storageProgress" class='cc-storage-progress' :show-info='false'/>
-          <div class='storage-info-text'>
-            {{ consumedSize | sizeFormat }} of {{ totalSize | sizeFormat }}
+          <div class="base">
+            <div class="name">{{ currentRealName }}</div>
+            <div class="email">{{ $store.getters.userInfo.email }}</div>
           </div>
         </div>
-        <div class='plan-upgrade'>
+        <div class="storage-info">
+          <a-progress :percent="storageProgress" class="cc-storage-progress" :show-info="false" />
+          <div class="storage-info-text">{{ consumedSize | sizeFormat }} of {{ totalSize | sizeFormat }}</div>
+        </div>
+        <div class="plan-upgrade">
           <a-space>
-            <div class='free-plan' v-if="info.planInfo && !info.planInfo.freeUsePlan">{{ info.planInfo.planName }}</div>
-            <div class='free-plan' v-else>Free plan</div>
-            <div class='upgrade'>Upgrade</div>
+            <div class="free-plan" v-if="info.planInfo && !info.planInfo.freeUsePlan">{{ info.planInfo.planName }}</div>
+            <div class="free-plan" v-else>Free plan</div>
+            <div class="upgrade">Upgrade</div>
           </a-space>
-          <div class='plan-end' v-if='info.planInfo && info.planInfo.planUser && info.planInfo.planUser.planEndTime && !info.planInfo.freeUsePlan'>
+          <div
+            class="plan-end"
+            v-if="
+              info.planInfo &&
+                info.planInfo.planUser &&
+                info.planInfo.planUser.planEndTime &&
+                !info.planInfo.freeUsePlan
+            "
+          >
             Ends on {{ info.planInfo.planUser.planEndTime }}
           </div>
           <!-- <div class='plan-end' v-if='info.planInfo.freeUsePlan'>
             trial
           </div> -->
         </div>
-        <a-divider class='cc-small-divider' />
-        <div class='class-info'>
-          <div class='class-list'>
-            <div :class="{'class-item': true, 'active': userMode === USER_MODE.SELF}" @click='handleChangePersonal'>
-              <div class='class-avatar'>
-                <a-avatar v-if="$store.getters.userInfo.avatar" :src='$store.getters.userInfo.avatar' />
-                <img v-else src="~@/assets/icons/library/default-avatar.png"/>
+        <a-divider class="cc-small-divider" />
+        <div class="class-info">
+          <div class="class-list">
+            <div :class="{ 'class-item': true, active: userMode === USER_MODE.SELF }" @click="handleChangePersonal">
+              <div class="class-avatar">
+                <a-avatar v-if="$store.getters.userInfo.avatar" :src="$store.getters.userInfo.avatar" />
+                <img v-else src="~@/assets/icons/library/default-avatar.png" />
               </div>
-              <div class='class-base-info'>
-                <div class='class-name'>Personal</div>
-                <div class='class-updated-by'>{{ $store.getters.userInfo.firstname }} {{ $store.getters.userInfo.lastname }}</div>
+              <div class="class-base-info">
+                <div class="class-name">Personal</div>
+                <div class="class-updated-by">
+                  {{ $store.getters.userInfo.firstname }} {{ $store.getters.userInfo.lastname }}
+                </div>
                 <!-- <div class='active-dot' v-if='userMode === USER_MODE.SELF'></div> -->
               </div>
             </div>
-            <div :class="{'class-item': true, 'active': userMode === USER_MODE.SCHOOL && currentSchool.id === schoolItem.id}" v-for='schoolItem in info.schoolList' :key='schoolItem.id' @click='handleChangeSchool(schoolItem)'>
-              <div class='class-avatar'>
-                <a-avatar v-if="schoolItem.schoolUser.avatar" :src='schoolItem.schoolUser.avatar' />
+            <div
+              :class="{
+                'class-item': true,
+                active: userMode === USER_MODE.SCHOOL && currentSchool.id === schoolItem.id
+              }"
+              v-for="schoolItem in info.schoolList"
+              :key="schoolItem.id"
+              @click="handleChangeSchool(schoolItem)"
+            >
+              <div class="class-avatar">
+                <a-avatar v-if="schoolItem.schoolUser.avatar" :src="schoolItem.schoolUser.avatar" />
                 <a-avatar v-else style="color: #f56a00; backgroundColor: #fde3cf">
                   {{ schoolItem.schoolName ? schoolItem.schoolName[0].toUpperCase() : 'C' }}
                 </a-avatar>
               </div>
-              <div class='class-base-info'>
-                <div class='class-name'>{{ schoolItem.schoolName }}</div>
-                <div class='class-updated-by'>
+              <div class="class-base-info">
+                <div class="class-name">{{ schoolItem.schoolName }}</div>
+                <div class="class-updated-by">
                   <template v-if="schoolItem.schoolUser.firstname || schoolItem.schoolUser.lastname">
                     {{ schoolItem.schoolUser.firstname }} {{ schoolItem.schoolUser.lastname }}
                   </template>
@@ -77,19 +93,19 @@
             </div>
           </div>
         </div>
-        <a-divider class='cc-small-divider' />
+        <a-divider class="cc-small-divider" />
         <!-- <div class='profile profile-menu-item' @click='handleToSettings'>
           Profile
         </div> -->
-        <div class='account profile-menu-item' @click='handleToAccounts' v-if="isAuth">
-          <template v-if='userMode === USER_MODE.SCHOOL'>
+        <div class="account profile-menu-item" @click="handleToAccounts" v-if="isAuth">
+          <template v-if="userMode === USER_MODE.SCHOOL">
             School account
           </template>
           <template v-else>
             Account
           </template>
         </div>
-        <div class='logout profile-menu-item' @click='handleLogout'>
+        <div class="logout profile-menu-item" @click="handleLogout">
           Logout
         </div>
       </div>
@@ -101,7 +117,7 @@
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { Modal } from 'ant-design-vue'
 import { SwitchUserModeSchool } from '@/api/user'
-import { TOOGLE_USER_MODE } from '@/store/mutation-types'
+import { TOGGLE_USER_MODE } from '@/store/mutation-types'
 import { USER_MODE } from '@/const/common'
 import { SchoolUserRole } from '@/const/role'
 import { ListCementByUser } from '@/api/notice'
@@ -130,17 +146,17 @@ export default {
       userMode: state => state.app.userMode,
       msgUnreadCount: state => state.websocket.msgUnreadCount
     }),
-    msgTotal () {
+    msgTotal() {
       return parseInt(this.msg1Count) + parseInt(this.msg2Count)
     },
     consumedSize() {
-     return this.userMode === USER_MODE.SELF ? this.info.usedSpace * 1024 : this.currentSchool.usedSpace * 1024
+      return this.userMode === USER_MODE.SELF ? this.info.usedSpace * 1024 : this.currentSchool.usedSpace * 1024
     },
     totalSize() {
       return this.info.planInfo ? this.info.planInfo.storageSpace * this.unit : this.unit
     },
-    storageProgress () {
-      return Math.round(this.consumedSize / this.totalSize * 100)
+    storageProgress() {
+      return Math.round((this.consumedSize / this.totalSize) * 100)
     },
     isAuth() {
       // if (this.userMode === USER_MODE.SELF) return true
@@ -178,10 +194,10 @@ export default {
     this.hasSetCurriculum()
   },
   methods: {
-    ...mapMutations([TOOGLE_USER_MODE, 'SET_CURRENT_SCHOOL']),
+    ...mapMutations([TOGGLE_USER_MODE, 'SET_CURRENT_SCHOOL']),
     ...mapActions(['GetClassList']),
 
-    timerFun () {
+    timerFun() {
       this.stopTimer = false
       const myTimer = setInterval(() => {
         // 停止定时器
@@ -193,38 +209,40 @@ export default {
       }, 6000)
     },
     initData() {
-      ListCementByUser().then((res) => {
-        if (res.success) {
-          this.announcement1 = res.result.anntMsgList
-          this.msg1Count = res.result.anntMsgTotal
-          this.$store.commit('SET_UNREAD_COUNT', this.msg1Count ? this.msg1Count : 0)
-          this.$store.commit('SET_SHARED_COUNT', res.result.collaborate ? res.result.collaborate : 0)
-        }
-      }).catch(error => {
-        this.$logger.error('系统消息通知异常', error)
-        this.stopTimer = true
-        this.$logger.error('清理timer')
-      })
+      ListCementByUser()
+        .then(res => {
+          if (res.success) {
+            this.announcement1 = res.result.anntMsgList
+            this.msg1Count = res.result.anntMsgTotal
+            this.$store.commit('SET_UNREAD_COUNT', this.msg1Count ? this.msg1Count : 0)
+            this.$store.commit('SET_SHARED_COUNT', res.result.collaborate ? res.result.collaborate : 0)
+          }
+        })
+        .catch(error => {
+          this.$logger.error('系统消息通知异常', error)
+          this.stopTimer = true
+          this.$logger.error('清理timer')
+        })
     },
-    handleToSettings () {
+    handleToSettings() {
       this.$router.push({ path: '/account/settings' })
     },
-    handleToAccounts () {
+    handleToAccounts() {
       this.$router.push({ path: '/account/info' })
     },
-    handleToNotification () {
+    handleToNotification() {
       this.$router.push({ path: '/notification' })
     },
-    handleLogout (e) {
+    handleLogout(e) {
       Modal.confirm({
         title: this.$t('layouts.usermenu.dialog.title'),
         content: this.$t('layouts.usermenu.dialog.content'),
-        onOk: async() => {
+        onOk: async () => {
           await this.$store.dispatch('Logout')
           await AppLogout('www', null)
           location.href = '/v2/'
         },
-        onCancel () {}
+        onCancel() {}
       })
     },
 
@@ -234,7 +252,7 @@ export default {
         isPersonal: true,
         schoolId: ''
       }).finally(() => {
-        this[TOOGLE_USER_MODE](USER_MODE.SELF)
+        this[TOGGLE_USER_MODE](USER_MODE.SELF)
         // this.SET_CURRENT_SCHOOL(null)
         this.GetClassList()
         this.$router.replace('/teacher/main/created-by-me')
@@ -250,7 +268,7 @@ export default {
         schoolId: val.id
       }).then(res => {
         // 获取对应学校班级
-        this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
+        this[TOGGLE_USER_MODE](USER_MODE.SCHOOL)
         // const item = this.info.schoolList.find(item => item.id === val.id)
         // this.SET_CURRENT_SCHOOL(item)
         this.GetClassList(val.id)
@@ -296,8 +314,7 @@ export default {
             sessionStorage.setItem(sessionKey, 1)
             this.$router.push('/manage/curriculum')
           },
-          onCancel: () => {
-          }
+          onCancel: () => {}
         })
       }
     },
@@ -313,8 +330,8 @@ export default {
 }
 </script>
 
-<style lang='less' scoped>
-@import "~@/components/index.less";
+<style lang="less" scoped>
+@import '~@/components/index.less';
 
 .user-profile-avatar {
   background-color: #fff;
@@ -342,7 +359,7 @@ export default {
     padding: 10px 15px;
     background-color: #fff;
     width: 240px;
-    border: 2px solid #EFF1F4;
+    border: 2px solid #eff1f4;
     box-shadow: 0px 3px 9px 1px rgba(37, 37, 37, 0.06);
     border-radius: 3px;
 
@@ -370,7 +387,7 @@ export default {
           font-size: 14px;
           font-family: Arial;
           font-weight: bold;
-          color: #3D3F44;
+          color: #3d3f44;
           line-height: 22px;
           user-select: none;
           cursor: pointer;
@@ -393,7 +410,7 @@ export default {
       .storage-info-text {
         cursor: pointer;
         font-family: Arial;
-        color: #17181A;
+        color: #17181a;
         line-height: 25px;
         font-weight: bold;
         font-size: 12px;
@@ -406,7 +423,7 @@ export default {
         font-size: 13px;
         font-family: Arial;
         font-weight: bold;
-        color: #153C76;
+        color: #153c76;
         line-height: 15px;
       }
 
@@ -454,7 +471,7 @@ export default {
           .class-name {
             font-size: 14px;
             font-family: Arial;
-            color: #3D3F44;
+            color: #3d3f44;
             line-height: 22px;
             user-select: none;
             cursor: pointer;
@@ -499,7 +516,7 @@ export default {
       font-size: 14px;
       font-family: Arial;
       font-weight: bold;
-      color: #1B1C20;
+      color: #1b1c20;
       border-radius: 8px;
 
       &:hover {

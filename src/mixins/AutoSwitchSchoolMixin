@@ -2,7 +2,7 @@ import { USER_MODE } from '@/const/common'
 
 import { SwitchUserModeSchool } from '@/api/user'
 
-import { TOOGLE_USER_MODE } from '@/store/mutation-types'
+import { TOGGLE_USER_MODE } from '@/store/mutation-types'
 import { mapState, mapMutations, mapActions } from 'vuex'
 
 export const AutoSwitchSchoolMixin = {
@@ -32,7 +32,7 @@ export const AutoSwitchSchoolMixin = {
     })
   },
   methods: {
-    ...mapMutations([TOOGLE_USER_MODE]),
+    ...mapMutations([TOGGLE_USER_MODE]),
     ...mapActions(['GetClassList']),
     autoSwitchSchool(schoolId) {
       this.$store.dispatch('GetInfo').then(() => {
@@ -43,7 +43,7 @@ export const AutoSwitchSchoolMixin = {
             schoolId: isExist.id
           }).then(res => {
             // 获取对应学校班级
-            this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
+            this[TOGGLE_USER_MODE](USER_MODE.SCHOOL)
             this.$store.dispatch('GetInfo')
             this.GetClassList(isExist.id)
           })

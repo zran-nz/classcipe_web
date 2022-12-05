@@ -14,10 +14,11 @@ import {
   TOGGLE_MULTI_TAB,
   TOGGLE_NAV_THEME,
   TOGGLE_WEAK,
-  TOOGLE_USER_MODE,
+  TOGGLE_USER_MODE,
   HIDDEN_HEADER,
   TOGGLE_DEVICE,
-  SET_PROMOTE_CODE, SET_GLOBAL_LOADING
+  SET_PROMOTE_CODE,
+  SET_GLOBAL_LOADING
 } from '@/store/mutation-types'
 import { loadLanguageAsync } from '@/locales'
 import { getSysConfig } from '@/api/common'
@@ -110,9 +111,9 @@ const app = {
     [DOWNLOAD_URL]: (state, downloadUrl) => {
       state.downloadUrl = downloadUrl
     },
-    [TOOGLE_USER_MODE]: (state, userMode) => {
+    [TOGGLE_USER_MODE]: (state, userMode) => {
       state.userMode = userMode
-      storage.set(TOOGLE_USER_MODE, userMode)
+      storage.set(TOGGLE_USER_MODE, userMode)
     },
     [TOGGLE_DEVICE]: (state, device) => {
       state.device = device
@@ -126,7 +127,8 @@ const app = {
       state.globalLoading = globalLoading
       storage.set(SET_GLOBAL_LOADING, globalLoading)
     },
-    setV2Box: (state, data) => { // data: { id:, type: }
+    setV2Box: (state, data) => {
+      // data: { id:, type: }
       if (!data) {
         state.v2Show = false
         state.v2Box = { path: '/v2Box' }
@@ -137,8 +139,16 @@ const app = {
           return
         }
         const type = { 4: 'task', 2: 'unit', 9: 'pd', 8: 'video', slide: 'session' }[data.type] || data.type
-        if (data.type === 'workshop') state.v2Box = { path: `/${type}${data?.school ? '/'+data.school+'/' : '/'}${data._id || data.id}`, query: { header: data.header || 0 } }
-        else state.v2Box = { path: `/${type}${data?.isLib ? '/' : '/view/'}${data._id || data.id}`, query: { header: data.header || 0 } }
+        if (data.type === 'workshop')
+          state.v2Box = {
+            path: `/${type}${data?.school ? '/' + data.school + '/' : '/'}${data._id || data.id}`,
+            query: { header: data.header || 0 }
+          }
+        else
+          state.v2Box = {
+            path: `/${type}${data?.isLib ? '/' : '/view/'}${data._id || data.id}`,
+            query: { header: data.header || 0 }
+          }
       }
     }
   },
@@ -151,34 +161,38 @@ const app = {
       console.log('v2Box:', data.id, data.type, rootState.user.email, authur || data, data.isLib, 11111)
       commit('setV2Box', data)
     },
-    setLang ({ commit }, lang) {
+    setLang({ commit }, lang) {
       return new Promise((resolve, reject) => {
         commit(APP_LANGUAGE, lang)
-        loadLanguageAsync(lang).then(() => {
-          resolve()
-        }).catch((e) => {
-          reject(e)
-        })
+        loadLanguageAsync(lang)
+          .then(() => {
+            resolve()
+          })
+          .catch(e => {
+            reject(e)
+          })
       })
     },
-    getSysConfig ({ commit }) {
+    getSysConfig({ commit }) {
       return new Promise((resolve, reject) => {
-        getSysConfig().then(response => {
-          const result = response.result
-          console.info('getSysConfig', result)
-          const config = {}
-          result.forEach(item => {
-            config[item.title] = item.value
+        getSysConfig()
+          .then(response => {
+            const result = response.result
+            console.info('getSysConfig', result)
+            const config = {}
+            result.forEach(item => {
+              config[item.title] = item.value
+            })
+            commit(SYS_CONFIG, config)
+            console.info('config detail', config)
+            if (config.downloadUrl) {
+              commit(DOWNLOAD_URL, config.downloadUrl)
+            }
+            resolve(result)
           })
-          commit(SYS_CONFIG, config)
-          console.info('config detail', config)
-          if (config.downloadUrl) {
-            commit(DOWNLOAD_URL, config.downloadUrl)
-          }
-          resolve(result)
-        }).catch(error => {
-          reject(error)
-        })
+          .catch(error => {
+            reject(error)
+          })
       })
     }
   }

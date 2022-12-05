@@ -40,7 +40,7 @@ export const NAV_THEME = {
 
 export const WEBSOCKET_TYPE_INIT = 'websocket_init'
 
-export const TOOGLE_USER_MODE = 'user_mode'
+export const TOGGLE_USER_MODE = 'user_mode'
 
 export const FORM_CONFIG_PREVIEW_DATA = 'form_config_preview_data'
 export const FORM_CONFIG_DATA = 'form_config_data'

@@ -1,54 +1,59 @@
 <template>
   <div class="teacher-nav top-nav-v2">
-    <div class='toggle-switcher'>
-      <a-icon type="left" v-show='!collapsed' @click.native='hiddenMenu' />
-      <a-icon type="right" v-show='collapsed' @click.native='expandMenuThrottle' />
+    <div class="toggle-switcher">
+      <a-icon type="left" v-show="!collapsed" @click.native="hiddenMenu" />
+      <a-icon type="right" v-show="collapsed" @click.native="expandMenuThrottle" />
     </div>
-    <div class='top-menu'>
-      <div class='menu menu-block' @dblclick.stop=''>
-        <SidebarMenuItem label='Library' path='/v2/library'>
+    <div class="top-menu">
+      <div class="menu menu-block" @dblclick.stop="">
+        <SidebarMenuItem label="Library" path="/v2/library">
           <template v-slot:icon>
             <library-icon />
           </template>
         </SidebarMenuItem>
-        <SidebarMenuItem label='School resource' path='/teacher/resource' v-if='userMode === USER_MODE.SCHOOL'>
+        <SidebarMenuItem label="School resource" path="/teacher/resource" v-if="userMode === USER_MODE.SCHOOL">
           <template v-slot:icon>
             <resource-icon />
           </template>
         </SidebarMenuItem>
-        <SidebarMenuItem label='Published' path='/teacher/main/my-published'>
+        <SidebarMenuItem label="Published" path="/teacher/main/my-published">
           <template v-slot:icon>
             <published-icon />
           </template>
         </SidebarMenuItem>
-        <SidebarMenuItem label='My content' path='/teacher/main/created-by-me'>
+        <SidebarMenuItem label="My content" path="/teacher/main/created-by-me">
           <template v-slot:icon>
             <my-content-icon />
           </template>
         </SidebarMenuItem>
-        <SidebarMenuItem label='My saved' path='/v2/my/saved'>
+        <SidebarMenuItem label="My saved" path="/v2/my/saved">
           <template v-slot:icon>
             <my-favorite-icon />
           </template>
         </SidebarMenuItem>
-        <SidebarMenuItem label='Launch workshops' path='/v2/my/workshop'>
+        <SidebarMenuItem label="Launch workshops" path="/v2/my/workshop">
           <template v-slot:icon>
             <live-workshops-icon />
           </template>
         </SidebarMenuItem>
-        <SidebarMenuItem label='Live workshops' path='/v2/my/register'>
+        <SidebarMenuItem label="Live workshops" path="/v2/my/register">
           <template v-slot:icon>
             <WorkspaceIcon />
           </template>
         </SidebarMenuItem>
 
-        <sidebar-menu-list label='Classes' path-prefix='/teacher/class-session' :menu-list="classList" :active-id='activeClassId'>
+        <sidebar-menu-list
+          label="Classes"
+          path-prefix="/teacher/class-session"
+          :menu-list="classList"
+          :active-id="activeClassId"
+        >
           <template v-slot:icon>
             <class-icon />
           </template>
         </sidebar-menu-list>
 
-        <SidebarMenuItem label='Co-teaching' path=''>
+        <SidebarMenuItem label="Co-teaching" path="">
           <template v-slot:icon>
             <co-teaching-icon />
           </template>
@@ -58,9 +63,9 @@
             <managing-icon />
           </template>
         </SidebarMenuItem> -->
-        <SidebarMenuItem label='Calendar' path='/teacher/main/calendar'>
+        <SidebarMenuItem label="Calendar" path="/teacher/main/calendar">
           <template v-slot:icon>
-            <icon-font type="icon-rili" class="detail-font"/>
+            <icon-font type="icon-rili" class="detail-font" />
           </template>
         </SidebarMenuItem>
       </div>
@@ -69,7 +74,6 @@
   </div>
 </template>
 <script>
-
 import * as logger from '@/utils/logger'
 import ResourceIcon from '@/assets/v2/icons/order.svg?inline'
 import MyContentIcon from '@/assets/v2/icons/my_content.svg?inline'
@@ -83,7 +87,7 @@ import ManagingIcon from '@/assets/v2/icons/managing.svg?inline'
 import PublishedIcon from '@/assets/v2/icons/publish.svg?inline'
 import ScheduleIcon from '@/assets/v2/icons/schedule.svg?inline'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { HIDDEN_SIDEBAR, TOOGLE_USER_MODE } from '@/store/mutation-types'
+import { HIDDEN_SIDEBAR, TOGGLE_USER_MODE } from '@/store/mutation-types'
 import { SchoolUserRole } from '@/const/role'
 import { USER_MODE } from '@/const/common'
 import { SwitchUserModeSchool } from '@/api/user'
@@ -111,7 +115,7 @@ export default {
     ScheduleIcon,
     AddPreference
   },
-  data () {
+  data() {
     return {
       defaultSelectedKeys: [],
       selectedKeys: [],
@@ -125,7 +129,7 @@ export default {
     }
   },
   watch: {
-    '$route.path' (to) {
+    '$route.path'(to) {
       console.debug('nav watch route path change ' + to)
       // this.selectedKeys = [to]
     }
@@ -168,7 +172,7 @@ export default {
       }
     }
   },
-  mounted () {
+  mounted() {
     this.defaultSelectedKeys.push(this.$route.path)
   },
   created() {
@@ -178,10 +182,14 @@ export default {
     })
   },
   methods: {
-    ...mapMutations([TOOGLE_USER_MODE, 'SET_CURRENT_SCHOOL']),
+    ...mapMutations([TOGGLE_USER_MODE, 'SET_CURRENT_SCHOOL']),
     ...mapActions(['GetClassList']),
     init() {
-      const current = this.currentSchool?.id ? this.currentSchool : (this.info.schoolList && this.info.schoolList.length > 0) ? { ...this.info.schoolList[0] } : {}
+      const current = this.currentSchool?.id
+        ? this.currentSchool
+        : this.info.schoolList && this.info.schoolList.length > 0
+        ? { ...this.info.schoolList[0] }
+        : {}
       this.SET_CURRENT_SCHOOL(current)
       this.GetClassList(current.id)
       // this.listClass()
@@ -205,16 +213,16 @@ export default {
       }).finally(() => {
         // this.justifyCurrentRoute()
         this.SET_CURRENT_SCHOOL()
-        this[TOOGLE_USER_MODE](USER_MODE.SELF)
+        this[TOGGLE_USER_MODE](USER_MODE.SELF)
       })
     },
     handleChangeSchool(val) {
       SwitchUserModeSchool({
-          isPersonal: false,
-          schoolId: val.id
+        isPersonal: false,
+        schoolId: val.id
       }).then(res => {
         // 获取对应学校班级
-        this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
+        this[TOGGLE_USER_MODE](USER_MODE.SCHOOL)
         const item = this.info.schoolList.find(item => item.id === val.id)
         this.SET_CURRENT_SCHOOL(item)
         this.GetClassList(item.id)
@@ -223,10 +231,15 @@ export default {
     },
     justifyCurrentRoute() {
       // 当前mode是school，且没有admin权限，则跳出去
-      if (this.userMode === USER_MODE.SCHOOL &&
-        !(this.currentSchool && this.currentSchool.roleNames &&
-        this.currentSchool?.roleNames.includes(this.schoolUserRole.admin))) {
-          this.$router.push({ path: '/teacher/main/created-by-me' })
+      if (
+        this.userMode === USER_MODE.SCHOOL &&
+        !(
+          this.currentSchool &&
+          this.currentSchool.roleNames &&
+          this.currentSchool?.roleNames.includes(this.schoolUserRole.admin)
+        )
+      ) {
+        this.$router.push({ path: '/teacher/main/created-by-me' })
       }
       // 没经过usermodemixin schoolmixin处理的直接刷新当前页
       const hasMixin = ['/teacher/managing', '/account/settings']
@@ -240,27 +253,27 @@ export default {
         // window.location.reload()
       }
     },
-    triggerSearch () {
+    triggerSearch() {
       console.info('teacher triggerSearch ' + this.searchText)
       this.$emit('triggerSearch', 'teacher', this.searchText)
       this.$router.push({ path: '/teacher/main/created-by-me', query: { searchKey: this.searchText } })
     },
-    goToUnitPlan () {
+    goToUnitPlan() {
       this.$router.push({
         path: '/teacher/unit-plan-redirect/create'
       })
     },
-    showTaskModeChoose () {
+    showTaskModeChoose() {
       this.showTaskMode = true
     },
     closeTaskModeChoose() {
       this.showTaskMode = false
     },
-    handleSwitchRole (role) {
+    handleSwitchRole(role) {
       console.info('handleSwitchRole ' + role)
       this.$emit('switch-role', role)
     },
-    handleToSettings () {
+    handleToSettings() {
       this.$router.push({ path: '/account/settings' })
     },
 
@@ -278,7 +291,7 @@ export default {
       this.$store.commit(HIDDEN_SIDEBAR, true)
     },
 
-    handleSwitchMenu (path) {
+    handleSwitchMenu(path) {
       if (path) {
         this.$router.push({
           path
@@ -286,7 +299,7 @@ export default {
       }
     },
 
-    resizeSidebar () {
+    resizeSidebar() {
       console.info('resizeSidebar', window.innerWidth)
       if (window.innerWidth <= 1000) {
         this.$store.commit(HIDDEN_SIDEBAR, true)
@@ -298,8 +311,8 @@ export default {
 }
 </script>
 
-<style lang='less' scoped>
-@import "~@/components/index.less";
+<style lang="less" scoped>
+@import '~@/components/index.less';
 
 .menu-block {
   margin-bottom: 10px;
@@ -329,11 +342,10 @@ export default {
   }
 
   .switch-school-personal {
-
     .current-role {
       font-family: Arial;
       font-weight: 400;
-      color: #F1F3F8;
+      color: #f1f3f8;
       cursor: pointer;
       user-select: none;
     }
@@ -383,5 +395,4 @@ export default {
     opacity: 1;
   }
 }
-
 </style>

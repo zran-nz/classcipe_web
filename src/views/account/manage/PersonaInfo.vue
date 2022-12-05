@@ -1,15 +1,16 @@
 <template>
-  <div class='my-full-form-wrapper' id='formRoot'>
+  <div class="my-full-form-wrapper" id="formRoot">
     <fixed-form-header>
       <template v-slot:header>
         <form-header
-          title='Personal Info'
-          :show-share='false'
-          :show-collaborate='false'
-          :is-preview-mode='true'
-          @back='goBack'>
+          title="Personal Info"
+          :show-share="false"
+          :show-collaborate="false"
+          :is-preview-mode="true"
+          @back="goBack"
+        >
           <template v-slot:back>
-            <img @click.stop="$router.push('/')" src="~@/assets/logo/50.png" class='single-logo-img' alt='classcipe' />
+            <img @click.stop="$router.push('/')" src="~@/assets/logo/50.png" class="single-logo-img" alt="classcipe" />
           </template>
           <template v-slot:left>
             <a-space :size="5" align="center" @click.stop>
@@ -18,27 +19,21 @@
               <label style="font-weight: normal">Personal Info</label>
             </a-space>
           </template>
-          <template v-slot:right>
-          </template>
+          <template v-slot:right> </template>
         </form-header>
       </template>
     </fixed-form-header>
     <div class="form-content">
       <a-spin :spinning="loading">
-        <a-form-model
-          layout="horizontal"
-          :model="formModel"
-          v-bind="formItemLayout"
-          :rules="validatorRules"
-          ref="form">
+        <a-form-model layout="horizontal" :model="formModel" v-bind="formItemLayout" :rules="validatorRules" ref="form">
           <a-form-model-item :colon="false" style="display:flex;align-items: center;">
             <div slot="label" class="ant-upload-preview" @click="$refs.avatarModal.edit(1)">
-              <a-icon type="cloud-upload-o" class="upload-icon"/>
+              <a-icon type="cloud-upload-o" class="upload-icon" />
               <div class="mask">
-                <a-icon type="plus"/>
+                <a-icon type="plus" />
               </div>
-              <img :src="formModel.avatar" v-if="formModel.avatar"/>
-              <img src="~@/assets/icons/library/default-avatar.png" v-else/>
+              <img :src="formModel.avatar" v-if="formModel.avatar" />
+              <img src="~@/assets/icons/library/default-avatar.png" v-else />
             </div>
             <div>{{ formModel.email }}</div>
             <a-row :gutter="10">
@@ -54,13 +49,13 @@
               </a-col>
             </a-row>
           </a-form-model-item>
-          <a-divider/>
+          <a-divider />
           <div class="profile-title">
             {{ userMode === USER_MODE.SELF ? 'Personal account' : `School account: ${currentSchool.schoolName}` }}
           </div>
           <a-form-model-item label="Role" v-if="userMode === USER_MODE.SCHOOL">
             <a-space class="profile-text profile-data">
-              <a-tag v-for="roleName in rolesName" :key="'roleName_'+roleName"> {{ roleName }} </a-tag>
+              <a-tag v-for="roleName in rolesName" :key="'roleName_' + roleName"> {{ roleName }} </a-tag>
             </a-space>
           </a-form-model-item>
           <a-form-model-item label="Member since">
@@ -175,11 +170,7 @@
               placeholder="Please Select a Age"
               :getPopupContainer="target => target.parentNode"
             >
-              <a-select-option
-                v-for="param in ageOptions"
-                :value="param"
-                :key="'age-' + param"
-              >
+              <a-select-option v-for="param in ageOptions" :value="param" :key="'age-' + param">
                 {{ param }}
               </a-select-option>
             </a-select>
@@ -190,11 +181,7 @@
               placeholder="Please Select a Gender"
               :getPopupContainer="target => target.parentNode"
             >
-              <a-select-option
-                v-for="param in genderOptions"
-                :value="param.value"
-                :key="'gender-' + param.label"
-              >
+              <a-select-option v-for="param in genderOptions" :value="param.value" :key="'gender-' + param.label">
                 {{ param.label }}
               </a-select-option>
             </a-select>
@@ -202,25 +189,34 @@
           <a-form-model-item label="Linked School(s)">
             <div class="profile-text profile-data">
               <a-space v-if="linkedSchool.length > 0">
-                <a-tag color="#ffc001" v-for="item in linkedSchool" :key="'linkedSchool_'+item"> {{ item }} </a-tag>
+                <a-tag color="#ffc001" v-for="item in linkedSchool" :key="'linkedSchool_' + item"> {{ item }} </a-tag>
               </a-space>
               <!-- <div v-if="linkedSchool.length===0 && currentRole === 'teacher'"> -->
-              <a-button size="small" style="line-height: 20px;" type="primary" @click="handleRefer">Refer principal</a-button>
+              <a-button size="small" style="line-height: 20px;" type="primary" @click="handleRefer"
+                >Refer principal</a-button
+              >
               <!-- </div> -->
-              <div class='no-linked-school-name' v-if="linkedSchool.length===0 && currentRole === 'student'">You have not linked to any school</div>
+              <div class="no-linked-school-name" v-if="linkedSchool.length === 0 && currentRole === 'student'">
+                You have not linked to any school
+              </div>
             </div>
           </a-form-model-item>
           <a-form-model-item label="Self intro">
-            <a-textarea :auto-size="{ minRows: 3}" size="large" v-model="formModel.notes" placeholder="input your self intro" />
+            <a-textarea
+              :auto-size="{ minRows: 3 }"
+              size="large"
+              v-model="formModel.notes"
+              placeholder="input your self intro"
+            />
           </a-form-model-item>
-          <a-form-model-item class="form-btn" :wrapperCol="{offset: 6}">
+          <a-form-model-item class="form-btn" :wrapperCol="{ offset: 6 }">
             <a-button :loading="loading" @click="handleSave" type="primary">Save</a-button>
           </a-form-model-item>
         </a-form-model>
       </a-spin>
     </div>
-    <avatar-modal ref="avatarModal" @ok="setAvatar"/>
-    <refer-school ref="referSchool"/>
+    <avatar-modal ref="avatarModal" @ok="setAvatar" />
+    <refer-school ref="referSchool" />
   </div>
 </template>
 
@@ -240,7 +236,7 @@ import { getCountry, getCity } from '@/api/v2/country'
 import countryCode from '@/api/countryCode'
 import { editUser, SwitchUserModeSchool } from '@/api/user'
 import { createSchool, getSchools, queryById } from '@/api/school'
-import { TOOGLE_USER_MODE } from '@/store/mutation-types'
+import { TOGGLE_USER_MODE } from '@/store/mutation-types'
 
 import { mapState, mapMutations } from 'vuex'
 import { UpdatePersonalInfo } from '@/api/login'
@@ -265,16 +261,20 @@ export default {
       USER_MODE: USER_MODE,
       SCHOOL_USER_STATUS: SCHOOL_USER_STATUS,
       ageOptions: [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
-      genderOptions: [{
-        label: 'Male',
-        value: '0'
-      }, {
-        label: 'Female',
-        value: '1'
-      }, {
-        label: 'Other',
-        value: '-1'
-      }],
+      genderOptions: [
+        {
+          label: 'Male',
+          value: '0'
+        },
+        {
+          label: 'Female',
+          value: '1'
+        },
+        {
+          label: 'Other',
+          value: '-1'
+        }
+      ],
       country: [],
       countryCode: countryCode,
       loading: false,
@@ -353,7 +353,7 @@ export default {
     }
   },
   methods: {
-    ...mapMutations([TOOGLE_USER_MODE]),
+    ...mapMutations([TOGGLE_USER_MODE]),
     goBack() {
       this.$router.go(-1)
     },
@@ -375,7 +375,7 @@ export default {
           schoolId: '0'
         }).then(res => {
           // 获取对应学校班级
-          this[TOOGLE_USER_MODE](USER_MODE.SELF)
+          this[TOGGLE_USER_MODE](USER_MODE.SELF)
           this.$store.dispatch('GetInfo')
           this.GetClassList('0')
           this.loadData()
@@ -422,9 +422,7 @@ export default {
       }
     },
     filterOptions(input, option) {
-      return (
-        option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
-      )
+      return option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
     },
     changeCountry(val) {
       this.formModel.city = undefined
@@ -438,26 +436,30 @@ export default {
         getCity({
           country: current.code,
           q: val
-        }).then(res => {
-          this.citys = res
-        }).finally(() => {
-          this.fetching = false
         })
+          .then(res => {
+            this.citys = res
+          })
+          .finally(() => {
+            this.fetching = false
+          })
       }
     },
-    setAvatar (url) {
+    setAvatar(url) {
       this.formModel.avatar = url
       const userData = {
         avatar: this.formModel.avatar,
         id: this.formModel.id
       }
-      editUser(userData).then(response => {
-        console.info('update preference and edit user response', response)
-      }).finally(() => {
-        this.$store.dispatch('GetInfo').then(() => {
-          this.loadData()
+      editUser(userData)
+        .then(response => {
+          console.info('update preference and edit user response', response)
         })
-      })
+        .finally(() => {
+          this.$store.dispatch('GetInfo').then(() => {
+            this.loadData()
+          })
+        })
     },
     handleRefer() {
       this.$refs.referSchool.doCreate({
@@ -492,7 +494,7 @@ export default {
       })
     },
     createSchool() {
-       // 保存的时候在真正创建学校
+      // 保存的时候在真正创建学校
       const res = {
         id: new Date().getTime(),
         name: this.searchText
@@ -505,52 +507,56 @@ export default {
       this.$refs.form.validate(valid => {
         if (valid) {
           // TODO
-           const school = this.myCreateSchoolOptions.find(item => item.id === this.formModel.school)
+          const school = this.myCreateSchoolOptions.find(item => item.id === this.formModel.school)
           const createdSchool = this.schoolOptions.find(item => item.id === this.formModel.school)
           if (school || (createdSchool && createSchool.country !== this.formModel.country)) {
             this.loading = true
             createSchool({
               name: (school || createdSchool).name,
               country: this.formModel.country
-            }).then(res => {
-              if (res.success) {
-                if (school) {
-                  school.id = res.result.id
-                }
-                if (createdSchool) {
-                  this.schoolOptions.push({
-                    id: res.result.id,
-                    name: res.result.name,
-                    country: this.formModel.country
+            })
+              .then(res => {
+                if (res.success) {
+                  if (school) {
+                    school.id = res.result.id
+                  }
+                  if (createdSchool) {
+                    this.schoolOptions.push({
+                      id: res.result.id,
+                      name: res.result.name,
+                      country: this.formModel.country
+                    })
+                  }
+                  this.formModel.school = res.result.id
+                  UpdatePersonalInfo({
+                    ...this.formModel
+                  }).then(res => {
+                    if (res.success) {
+                      this.$message.success('Update successfully')
+                      this.$store.dispatch('GetInfo')
+                    } else {
+                      this.$message.error(res.message)
+                    }
                   })
                 }
-                this.formModel.school = res.result.id
-                UpdatePersonalInfo({
-                  ...this.formModel
-                }).then(res => {
-                  if (res.success) {
-                    this.$message.success('Update successfully')
-                    this.$store.dispatch('GetInfo')
-                  } else {
-                    this.$message.error(res.message)
-                  }
-                })
-              }
-            }).finally(res => {
-              this.loading = false
-            })
+              })
+              .finally(res => {
+                this.loading = false
+              })
           } else {
             this.loading = true
             UpdatePersonalInfo({
               ...this.formModel
-            }).then(res => {
-              if (res.success) {
-                this.$message.success('Update successfully')
-                this.$store.dispatch('GetInfo')
-              }
-            }).finally(() => {
-              this.loading = false
             })
+              .then(res => {
+                if (res.success) {
+                  this.$message.success('Update successfully')
+                  this.$store.dispatch('GetInfo')
+                }
+              })
+              .finally(() => {
+                this.loading = false
+              })
           }
         }
       })
@@ -563,7 +569,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-@import "~@/components/index.less";
+@import '~@/components/index.less';
 .cc-fixed-form-header {
   height: 60px;
 }
@@ -581,7 +587,7 @@ export default {
 }
 .form-btn {
   .ant-btn {
-    line-height: 1.5!important;
+    line-height: 1.5 !important;
   }
 }
 .ant-upload-preview {
@@ -632,7 +638,8 @@ export default {
     }
   }
 
-  img, .mask {
+  img,
+  .mask {
     width: 100%;
     max-width: 120px;
     height: 100%;
@@ -704,5 +711,4 @@ export default {
     }
   }
 }
-
 </style>

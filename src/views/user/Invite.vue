@@ -5,20 +5,10 @@
         <div class="title">
           {{ labelTxt }}
         </div>
-        <a-button
-          v-if="!alreayApply"
-          type="primary"
-          block
-          :loading="loading"
-          size="large"
-          @click="handleBtn">{{ btnText }}</a-button>
-        <a-button
-          v-else
-          type="primary"
-          block
-          :loading="loading"
-          size="large"
-          @click="goHome">Go Home</a-button>
+        <a-button v-if="!alreayApply" type="primary" block :loading="loading" size="large" @click="handleBtn">{{
+          btnText
+        }}</a-button>
+        <a-button v-else type="primary" block :loading="loading" size="large" @click="goHome">Go Home</a-button>
       </div>
       <div v-if="invalid" class="title">
         <img src="~@/assets/icons/invite/invalidLink.png" class="no-result" alt="" />
@@ -31,7 +21,7 @@
 import { checkInvite } from '@/api/schoolUser'
 import { acceptInvite } from '@/api/v2/schoolUser'
 import { SwitchUserModeSchool } from '@/api/user'
-import { TOOGLE_USER_MODE } from '@/store/mutation-types'
+import { TOGGLE_USER_MODE } from '@/store/mutation-types'
 import { USER_MODE } from '@/const/common'
 
 import { mapActions, mapMutations, mapState } from 'vuex'
@@ -39,7 +29,7 @@ import store from '@/store'
 
 export default {
   name: 'Invite',
-  components: { },
+  components: {},
   data() {
     return {
       inviteCode: '',
@@ -60,7 +50,7 @@ export default {
       }
     }
   },
-  created () {
+  created() {
     const paramSearch = new URLSearchParams(window.location.search)
     const inviteCode = paramSearch.get('inviteCode')
     this.inviteCode = inviteCode
@@ -74,7 +64,7 @@ export default {
     })
   },
   methods: {
-    ...mapMutations([TOOGLE_USER_MODE, 'SET_CURRENT_SCHOOL']),
+    ...mapMutations([TOGGLE_USER_MODE, 'SET_CURRENT_SCHOOL']),
     ...mapActions(['GetClassList']),
     async checkInviteCode() {
       this.checkLoading = true
@@ -100,7 +90,7 @@ export default {
           if (this.isInSchool) {
             if (this.isAdmin) {
               // if (existSchools.roleNames.map(item => item.toLowerCase()).includes('admin')) {
-                this.doRedirect()
+              this.doRedirect()
               // }
             } else {
               // 1 active // 2 pending
@@ -149,7 +139,7 @@ export default {
       //     schoolId: this.schoolId
       //   }).then(res => {
       //     // 获取对应学校班级
-      //     this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
+      //     this[TOGGLE_USER_MODE](USER_MODE.SCHOOL)
       //     this.GetClassList(this.schoolId)
       //     this.$store.dispatch('GetInfo').then(() => {
       //       this.$router.push('/manage/school-info')
@@ -160,27 +150,27 @@ export default {
       // }
       this.$store.dispatch('GetInfo').then(() => {
         SwitchUserModeSchool({
-            isPersonal: false,
-            schoolId: this.schoolId
-          }).then(res => {
-            // 获取对应学校班级
-            this[TOOGLE_USER_MODE](USER_MODE.SCHOOL)
-            this.GetClassList(this.currentSchool.id)
-            this.$store.dispatch('GetInfo').then(() => {
-              if (this.isAdmin) {
-                this.$router.push('/manage/school-info')
-              } else {
-                this.$router.push('/account/info')
-              }
-            })
+          isPersonal: false,
+          schoolId: this.schoolId
+        }).then(res => {
+          // 获取对应学校班级
+          this[TOGGLE_USER_MODE](USER_MODE.SCHOOL)
+          this.GetClassList(this.currentSchool.id)
+          this.$store.dispatch('GetInfo').then(() => {
+            if (this.isAdmin) {
+              this.$router.push('/manage/school-info')
+            } else {
+              this.$router.push('/account/info')
+            }
           })
+        })
       })
     }
   }
 }
 </script>
 
-<style scoped lang='less'>
+<style scoped lang="less">
 @import '~@/components/index.less';
 .main-content {
   text-align: center;
