@@ -2,19 +2,27 @@
   <div class="role-con">
     <a-icon class="close" type="close-circle" @click="handleClose" />
     <div class="filter-tab">
-      <div style="width: 300px;">
+      <a-row style="width: 300px;">
         <!-- <a-input-search placeholder="Search here" v-model="queryParams.searchKey" @search="handleSearch"></a-input-search> -->
-      </div>
+        <a-select
+          v-model="currentCurriculumId"
+          style="width: 140px"
+          placeholder="Select a curriculum"
+          :options="allCurriculums"
+          @change="handleCurriculumIdChange"
+        ></a-select>
+        <close-circle-outlined @click="currentCurriculumId = null" />
+      </a-row>
       <a-space class="filter-opt">
-        <a-button type="primary" @click="handleAddSubject">Add Subject 123</a-button>
+        <a-button type="primary" @click="handleAddSubject">Add Subject</a-button>
       </a-space>
     </div>
     <div class="table-con">
       <a-table
         ref="table"
-        :rowKey="item => item.id"
+        :rowKey="item => item.subjectId"
         :columns="columns"
-        :dataSource="dataSource"
+        :dataSource="filteredDataSource"
         :pagination="false"
         :loading="loading"
       >
@@ -41,7 +49,7 @@
         </a-space>
         <a-space class="popover-link" slot="action" slot-scope="text, record">
           <a-popover placement="left" title="Choose User" trigger="click">
-            <div slot="content" class="search-popver">
+            <div slot="content" class="search-popover">
               <a-space class="search-con">
                 <a-input-search
                   v-model="searchKeyMember"
@@ -87,6 +95,7 @@
 import { getRoleSubjectLeaders, bindRoleSubjectLeader } from '@/api/v2/schoolRole'
 import { getSchoolUsers } from '@/api/v2/schoolUser'
 import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
+import { getAllCurriculums } from '@/api/preference'
 import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
 import { debounce } from 'lodash-es'
 
@@ -106,7 +115,6 @@ export default {
   watch: {
     school: {
       handler(val) {
-        console.log(val)
         this.currentSchool = { ...val }
         this.loadData()
         this.initSchoolUsers()
@@ -117,7 +125,6 @@ export default {
     },
     role: {
       handler(val) {
-        console.log(val)
         this.currentRole = { ...val }
         this.loadData()
       },
@@ -142,6 +149,7 @@ export default {
       searchKeyMember: '',
       loading: false,
       dataSource: [],
+      filteredDataSource: [],
       selectedRowKeys: [],
       selectionRows: [],
       ipagination: {
@@ -152,7 +160,9 @@ export default {
           return range[0] + '-' + range[1] + ' of ' + total + ''
         },
         total: 0
-      }
+      },
+      allCurriculums: [],
+      currentCurriculumId: null
     }
   },
   computed: {
@@ -202,7 +212,7 @@ export default {
       return members
     }
   },
-  async created () {
+  async created() {
     this.debounceLoad = debounce(this.loadData, 300)
     await this.initDict()
     this.initSchoolUsers()
@@ -216,7 +226,7 @@ export default {
       })
         .then(res => {
           if (res.code === 0) {
-            this.dataSource = res.result
+            this.dataSource = res.result.filter(e => e.subjectId && e.subjectName)
           }
         })
         .finally(() => {
@@ -224,14 +234,13 @@ export default {
         })
     },
     async initDict() {
-      // TODO: check
-      alert('init')
       // 获取所有班级用于筛选
-      const res = Promise.all([
+      const res = await Promise.all([
         getSubjectBySchoolId({ schoolId: this.currentSchool.id }),
-        getCurriculumBySchoolId({ schoolId: this.currentSchool.id })
+        getCurriculumBySchoolId({ schoolId: this.currentSchool.id }),
+        getAllCurriculums()
       ])
-      const [subjectRes, currentRes] = res
+      const [subjectRes, currentRes, allCurriculumRes] = res
       if (subjectRes.success) {
         let subjects = []
         subjectRes.result.forEach(parent => {
@@ -246,24 +255,27 @@ export default {
         })
         const options = []
         subjects.forEach(item => {
-          if (item.curriculumId && item.subjectId && item.subjectName) {
-            options.push({
-              curriculumId: item.curriculumId,
-              subjectId: item.subjectId,
-              subjectName: item.subjectName
-            })
-          } else if (item.curriculumId && item.parentSubjectId && item.parentSubjectName) {
-            options.push({
-              curriculumId: item.curriculumId,
-              subjectId: item.parentSubjectId,
-              subjectName: item.parentSubjectName
-            })
+          const option = { curriculumId: item.curriculumId }
+          if (item.subjectId && item.subjectName) {
+            option.subjectId = item.subjectId
+            option.subjectName = item.subjectName
+          } else if (item.parentSubjectId && item.parentSubjectName) {
+            option.subjectId = item.parentSubjectId
+            option.subjectName = item.parentSubjectName
           }
+          options.push(option)
         })
         this.subjectOptions = options
+        this.filteredDataSource = this.subjectOptions
       }
       if (currentRes.success) {
         this.curriculumOptions = currentRes.result
+      }
+      if (allCurriculumRes.success) {
+        this.allCurriculums = allCurriculumRes.result.map(e => ({
+          value: e.id,
+          label: e.name
+        }))
       }
     },
     initSchoolUsers() {
@@ -325,7 +337,11 @@ export default {
         }
       })
     },
-    doFilter(val, record) {},
+    handleCurriculumIdChange() {
+      if (this.currentCurriculumId) {
+        this.filteredDataSource = this.subjectOptions.filter(e => `${e.curriculumId}` === this.currentCurriculumId)
+      }
+    },
     handleResetFilter(record) {
       this.currentRecord = { ...record }
       this.searchKeyMember = ''
@@ -372,7 +388,6 @@ export default {
     },
     formatViewName(id) {
       const findSubject = this.subjectOptions.find(subject => subject.subjectId === id)
-      console.log(findSubject)
       if (findSubject && this.curriculumOptions) {
         const cur = this.curriculumOptions.find(item => item.curriculumId === findSubject.curriculumId)
         if (cur) {
@@ -449,7 +464,7 @@ export default {
 .action-wrapper {
   flex: 1;
 }
-.search-popver {
+.search-popover {
   height: 300px;
   overflow: auto;
   /deep/ &.ant-popover {
