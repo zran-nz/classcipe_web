@@ -238,7 +238,9 @@ export default {
       const res = await Promise.all([
         getSubjectBySchoolId({ schoolId: this.currentSchool.id }),
         getCurriculumBySchoolId({ schoolId: this.currentSchool.id }),
-        getAllCurriculums()
+        getAllCurriculums(),
+        // App.service('curriculum').get('pubList'),
+        App.service('conf-school').get('get', { query: { key: 'Curriculum', rid: this.currentSchool.id } })
       ])
       const [subjectRes, currentRes, allCurriculumRes] = res
       if (subjectRes.success) {

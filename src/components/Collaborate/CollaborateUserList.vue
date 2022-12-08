@@ -610,7 +610,7 @@ export default {
       console.info('handleRemove', user)
       const that = this
       const content = `${
-        user.nickName ? 'Do you confirm to remove this user?' : `Do you confirm to remove user ${user.nickName} ?`
+        user.nickName ? `Do you confirm to remove user ${user.nickName} ?` : 'Do you confirm to remove this user?'
       }`
       this.$confirm({
         title: 'Confirm remove user',
