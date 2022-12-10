@@ -196,22 +196,13 @@ export default {
       this.collaborateUserList = userList
     },
     handleBack() {
-      console.info('handleBack')
       if (this.needConfirm) {
         this.$confirm({
           title: 'Confirm to leave',
           content: 'Do you confirm to leave the current page?',
           centered: true,
           onOk: () => {
-            if (this.isPreviewMode || this.backByRouter) {
-              this.$emit('back')
-            } else {
-              if (this.isOwner) {
-                this.$router.push({ path: '/teacher/main/created-by-me' })
-              } else {
-                this.$router.push({ path: '/teacher/main/created-by-me' })
-              }
-            }
+            history.back()
           }
         })
       } else {
