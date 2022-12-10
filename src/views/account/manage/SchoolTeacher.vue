@@ -9,11 +9,11 @@
           :is-preview-mode='true'
           @back='goBack'>
           <template v-slot:back>
-            <img @click.stop="$router.push('/')" src="~@/assets/logo/50.png" class='single-logo-img' alt='classcipe' />
+            <img @click.stop="openV2('/v2/')" src="~@/assets/logo/50.png" class='single-logo-img' alt='classcipe' />
           </template>
           <template v-slot:left>
             <a-space :size="5" align="center" @click.stop>
-              <label style="cursor: pointer" @click="$router.push('/account/info')">Account Info</label>
+              <label style="cursor: pointer" @click="openV2('/v2/account/info')">Account Info</label>
               <label for="">></label>
               <template v-if="onlyClass">
                 <label style="cursor: pointer" @click="routerRefresh">School Teacher</label>

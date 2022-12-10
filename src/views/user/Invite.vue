@@ -160,7 +160,7 @@ export default {
             if (this.isAdmin) {
               this.$router.push('/manage/school-info')
             } else {
-              this.$router.push('/account/info')
+              this.openV2('/v2/account/info')
             }
           })
         })
