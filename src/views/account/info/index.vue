@@ -507,7 +507,7 @@ export default {
       this.initGuide()
     },
     goBack() {
-      this.$router.push('/')
+      this.openV2('/v2/')
     },
     loadData() {
       Promise.all([

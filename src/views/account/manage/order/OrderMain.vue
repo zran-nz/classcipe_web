@@ -4,8 +4,8 @@
       <a-layout-sider>
         <!-- <div class="school-name">{{ head }}</div> -->
         <a-space class="school-name" :size="5" align="center" @click.stop>
-          <!-- <img @click.stop="$router.push('/')" src="~@/assets/logo/50.png" class='single-logo-img' style="width: 20px;" alt='classcipe' /> -->
-          <label style="cursor: pointer" @click="$router.push('/account/info')">Account Info</label>
+          <!-- <img @click.stop="openV2('/v2/')" src="~@/assets/logo/50.png" class='single-logo-img' style="width: 20px;" alt='classcipe' /> -->
+          <label style="cursor: pointer" @click="openV2('/v2/account/info')">Account Info</label>
           <label for="">></label>
           <label style="font-weight: normal">Orders</label>
         </a-space>

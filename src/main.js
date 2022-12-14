@@ -37,6 +37,9 @@ import VueObserveVisibility from 'vue-observe-visibility'
 // "sass-loader": "^10.2.0",
 // import vuetify from './plugins/vuetify'
 Vue.prototype.$EventBus = EventBus
+Vue.prototype.openV2 = (url) => {
+  window.open(url, '_self')
+}
 Vue.use(preview, { maxSpreadZoom: 4 })
 Vue.use(VueClipboard)
 

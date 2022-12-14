@@ -59,14 +59,14 @@ export default {
   },
   methods: {
     goHome () {
-      this.$router.push('/')
+      this.openV2('/v2/')
     },
 
     handleLogin () {
-      this.$router.push('/')
+      this.openV2('/v2/')
     },
     handleSignUp () {
-      this.$router.push('/')
+      this.openV2('/v2/')
     },
 
     handleSwitchRole (role) {
