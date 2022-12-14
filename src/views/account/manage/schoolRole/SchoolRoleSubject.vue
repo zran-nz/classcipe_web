@@ -3,7 +3,7 @@
     <a-icon class="close" type="close-circle" @click="handleClose" />
     <div class="filter-tab">
       <a-row style="width: 300px;">
-        <!-- <a-input-search placeholder="Search here" v-model="queryParams.searchKey" @search="handleSearch"></a-input-search> -->
+        <!-- TODO: and new router -->
         <a-select
           v-model="currentCurriculumId"
           style="width: 140px"
@@ -11,7 +11,6 @@
           :options="allCurriculums"
           @change="handleCurriculumIdChange"
         ></a-select>
-        <close-circle-outlined @click="currentCurriculumId = null" />
       </a-row>
       <a-space class="filter-opt">
         <a-button type="primary" @click="handleAddSubject">Add Subject</a-button>
@@ -92,6 +91,7 @@
 </template>
 
 <script>
+// TODO: refactor in new web (WIP)
 import { getRoleSubjectLeaders, bindRoleSubjectLeader } from '@/api/v2/schoolRole'
 import { getSchoolUsers } from '@/api/v2/schoolUser'
 import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
@@ -238,9 +238,9 @@ export default {
       const res = await Promise.all([
         getSubjectBySchoolId({ schoolId: this.currentSchool.id }),
         getCurriculumBySchoolId({ schoolId: this.currentSchool.id }),
-        getAllCurriculums(),
+        getAllCurriculums()
         // App.service('curriculum').get('pubList'),
-        App.service('conf-school').get('get', { query: { key: 'Curriculum', rid: this.currentSchool.id } })
+        // App.service('conf-school').get('get', { query: { key: 'Curriculum', rid: this.currentSchool.id } })
       ])
       const [subjectRes, currentRes, allCurriculumRes] = res
       if (subjectRes.success) {
@@ -274,6 +274,7 @@ export default {
         this.curriculumOptions = currentRes.result
       }
       if (allCurriculumRes.success) {
+        console.error(this.allCurriculums)
         this.allCurriculums = allCurriculumRes.result.map(e => ({
           value: e.id,
           label: e.name
