@@ -25,6 +25,7 @@
         </form-header>
       </template>
     </fixed-form-header>
+
     <div class="form-content">
       <div class="filter-tab">
         <a-space>
@@ -48,6 +49,7 @@
           <school-user-import :disabled="!chooseClass" :dataKey="dataKey" :action="importExcelUrl" @success="handleImportGet"/>
         </a-space>
       </div>
+
       <div class="form-tab">
         <school-user-upload
           ref="schoolUserUpload"
@@ -306,7 +308,7 @@ export default {
           item.key = Math.random() * 100 + new Date().getTime()
           return item
         })
-        this.datas = this.datas.concat(convert)
+        this.datas = convert
         this.reJustifyInviteEmail(this.datas)
       }).finally(() => {
         console.log(this.datas)
