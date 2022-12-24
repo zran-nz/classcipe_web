@@ -308,7 +308,18 @@ export default {
           item.key = Math.random() * 100 + new Date().getTime()
           return item
         })
-        this.datas = convert
+        const array = this.datas.concat(convert)
+        const uniqueEmails = []
+        const unique = array.filter(e => {
+          if (!uniqueEmails.includes(e.inviteEmail)) {
+            uniqueEmails.push(e.inviteEmail)
+            return true
+          }
+          return false
+        })
+        if (unique.length !== array.length) this.$message.warn('Warning, some duplicated users are auto removed!')
+        console.warn(array, unique)
+        this.datas = unique
         this.reJustifyInviteEmail(this.datas)
       }).finally(() => {
         console.log(this.datas)
