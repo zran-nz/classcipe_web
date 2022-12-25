@@ -60,7 +60,7 @@
         <a-button type="primary" @click="goAcademic" style="align-self: 'flex-start'" :disabled="!schoolCurriculumOptions.curriculum.length">Set term(s)</a-button>
       </div>
 
-      <div class="form-tab" v-if="!schoolCurriculumOptions.curriculum.length">
+      <div class="form-tab" v-if="schoolCurriculumOptions.curriculum && !schoolCurriculumOptions.curriculum.length">
         <a-spin :spinning="loading">
           <div class="list-view" v-if="allDatas[currentTab] && allDatas[currentTab].length > 0">
             <template v-for="(parentView, parentIndex) in allDatas[currentTab]">
