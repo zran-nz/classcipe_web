@@ -91,7 +91,7 @@
 
       <div v-else class="no-subject">
         <img src='~@/assets/newBrowser/no-subject.png'/>
-        <p>None academic because you dont set the academic</p>
+        <p>None academic because you don't set the academic</p>
       </div>
     </div>
 

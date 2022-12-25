@@ -40,11 +40,27 @@
         >
           <div slot="content" class="opt-list">
             <a-button type="primary" v-if="currentTab === 'gradeId'" @click="$store.dispatch('setV2Box', { path: `/setting/grade/${currentSchool.id}`, query: { header: 0 } })">Set grade(s)</a-button>
-            <a-button type="primary" v-if="currentTab === 'subject'" @click="goAcademic">Set term(s)</a-button>
+            <a-row v-if="currentTab === 'subject'" type="flex">
+              <a-space>
+                <a-button type="primary" v-if="currentTab === 'subject'" @click="goCurriculum">Set curriculum</a-button>
+              </a-space>
+            </a-row>
           </div>
         </guide-content>
       </div>
-      <div class="form-tab">
+
+      <!-- TODO 962 -->
+      <div v-if="currentTab === 'subject'" style="padding: 6px 20px;">
+        <a-radio-group v-model="currentSchoolCurriculum">
+          <a-radio-button v-for="curriculum in schoolCurriculumOptions.curriculum" :key="curriculum" :value="curriculum">{{ curriculum }}</a-radio-button>
+        </a-radio-group>
+      </div>
+
+      <div style="padding: 1px 20px;" v-if="currentTab === 'subject'">
+        <a-button type="primary" @click="goAcademic" style="align-self: 'flex-start'" :disabled="!schoolCurriculumOptions.curriculum.length">Set term(s)</a-button>
+      </div>
+
+      <div class="form-tab" v-if="!schoolCurriculumOptions.curriculum.length">
         <a-spin :spinning="loading">
           <div class="list-view" v-if="allDatas[currentTab] && allDatas[currentTab].length > 0">
             <template v-for="(parentView, parentIndex) in allDatas[currentTab]">
@@ -113,11 +129,12 @@
                             </a-input>
                           </div>
                           <div :class="{'class-con': true, 'archive': currentTab === 'archive'}">
-                            <div :class="{'class-con-item': true, 'pointer': currentTab !== 'archive' && userMode !== USER_MODE.SELF}" @click="handleEditTeachers(cls)">
+                            <!-- TODO 1088 -->
+                            <!-- <div :class="{'class-con-item': true, 'pointer': currentTab !== 'archive' && userMode !== USER_MODE.SELF}" @click="handleEditTeachers(cls)">
                               <div class="con-item-label">Teachers</div>
                               <div class="con-item-detail" v-if="currentTab === 'archive' || userMode === USER_MODE.SELF">{{ cls.teacherCount || 0 }}</div>
                               <a v-else for="">{{ cls.teacherCount || 0 }}</a>
-                            </div>
+                            </div> -->
                             <div :class="{'class-con-item': true, 'pointer': currentTab !== 'archive'}" @click="handleEditStudents(cls)">
                               <div class="con-item-label">Students</div>
                               <div class="con-item-detail">
@@ -208,7 +225,7 @@ import {
 
 import { mapState } from 'vuex'
 import moment from 'moment'
-const { debounce, groupBy, uniqBy } = require('lodash-es')
+const { debounce, groupBy } = require('lodash-es')
 
 export default {
   name: 'MyClassV2',
@@ -231,6 +248,8 @@ export default {
       subjectOptions: [],
       yearsOptions: [],
       termsOptions: [],
+      schoolCurriculumOptions: {},
+      currentSchoolCurriculum: '',
       restoreChooseOptions: [],
       currentTab: 'gradeId',
       gradeList: [],
@@ -362,9 +381,9 @@ export default {
         this.gradeList = rs?.val ?? []
         const { result } = await listClass({
           schoolId: this.currentSchool.id,
-queryType: this.currentTab === 'archive' ? 2 : '',
+          queryType: this.currentTab === 'archive' ? 2 : '',
           pageNo: 1,
-pageSize: 10000
+          pageSize: 10000
         })
         this.classList = result.records
         const ungraded = []
@@ -405,8 +424,10 @@ pageSize: 10000
           queryType: this.currentTab === 'archive' ? 2 : '',
           pageNo: 1,
           pageSize: 10000
-        })
-      ]).then(([subjectRes, gradeRes, termRes, clsRes]) => {
+        }),
+        await App.service('conf-school').get('get', { query: { key: 'Curriculum', rid: this.currentSchool.id } })
+      ]).then(([subjectRes, gradeRes, termRes, clsRes, schoolCurriculumRes]) => {
+        console.warn(subjectRes, gradeRes, termRes, clsRes)
         if (subjectRes.success) {
           let subjects = []
           subjectRes.result.forEach(item => {
@@ -457,6 +478,12 @@ pageSize: 10000
         if (clsRes.success && clsRes.result) {
           this.totalClass = clsRes.result.records
           this.loadData()
+        }
+        if (schoolCurriculumRes) {
+          this.schoolCurriculumOptions = schoolCurriculumRes.val
+          if (this.schoolCurriculumOptions.curriculum && this.schoolCurriculumOptions.curriculum.length) {
+            this.currentSchoolCurriculum = this.schoolCurriculumOptions.curriculum[0]
+          }
         }
       }).finally(() => {
         this.initGuide()
@@ -688,30 +715,6 @@ studentCount: 0
       })
     },
     handleRestore(cls) {
-      // 如果之前的grade，subject现在不存在了，需要重新选择
-      // if (cls.classType === 0) {
-      //   const isExist = this.gradeOptions.find(item => item.gradeId === cls.gradeId)
-      //   if (!isExist) {
-      //     this.restoreChooseOptions = this.gradeOptions.map(item => ({
-      //       ...item,
-      //       id: item.gradeId,
-      //       name: item.gradeName
-      //     }))
-      //     this.$refs.restoreChoose.doCreate(cls)
-      //     return
-      //   }
-      // } else if (cls.classType === 1) {
-      //   const isExist = this.subjectOptions.find(item => item.subjectId === cls.subject)
-      //   if (!isExist) {
-      //     this.restoreChooseOptions = this.subjectOptions.map(item => ({
-      //       ...item,
-      //       id: item.subjectId,
-      //       name: item.subjectName
-      //     }))
-      //     this.$refs.restoreChoose.doCreate(cls)
-      //     return
-      //   }
-      // }
       this.doRestore(cls)
     },
     doRestore(cls) {
@@ -821,6 +824,9 @@ studentCount: 0
     },
     goAcademic() {
       this.$router.push('/manage/academic')
+    },
+    goCurriculum() {
+      this.openV2('/v2/account/curriculum/my')
     }
   }
 }
@@ -845,7 +851,6 @@ studentCount: 0
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
   height: 60px;
   padding: 0 20px;
   .tab-list {
@@ -853,7 +858,7 @@ studentCount: 0
     box-sizing: border-box;
     display: flex;
     align-items: center;
-   .tab-item {
+    .tab-item {
       margin: 0 20px;
       font-size: 16px;;
       font-family: Arial;
@@ -1039,7 +1044,4 @@ studentCount: 0
     }
   }
 }
-// .undrag {
-//   pointer-events: none;
-// }
 </style>
