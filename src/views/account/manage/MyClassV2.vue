@@ -52,7 +52,7 @@
       <!-- TODO 962 -->
       <div v-if="currentTab === 'subject'" style="padding: 6px 20px;">
         <a-radio-group v-model="currentSchoolCurriculum">
-          <a-radio-button v-for="curriculum in schoolCurriculumOptions.curriculum" :key="curriculum" :value="curriculum">{{ curriculum }}</a-radio-button>
+          <a-radio-button v-for="curriculum in schoolCurriculumOptions.curriculum" :key="curriculum" :value="curriculum">{{ getCurriculumNameByCode(curriculum) }}</a-radio-button>
         </a-radio-group>
       </div>
 
@@ -60,7 +60,7 @@
         <a-button type="primary" @click="goAcademic" style="align-self: 'flex-start'" :disabled="!schoolCurriculumOptions.curriculum.length">Set term(s)</a-button>
       </div>
 
-      <div class="form-tab" v-if="schoolCurriculumOptions.curriculum && !schoolCurriculumOptions.curriculum.length">
+      <div class="form-tab">
         <a-spin :spinning="loading">
           <div class="list-view" v-if="allDatas[currentTab] && allDatas[currentTab].length > 0">
             <template v-for="(parentView, parentIndex) in allDatas[currentTab]">
@@ -255,6 +255,7 @@ export default {
       gradeList: [],
       classList: [],
       ungradedList: [],
+      schoolCurriculumList: [],
       classGroupList: {},
       loading: false,
       queryParams: {
@@ -425,8 +426,9 @@ export default {
           pageNo: 1,
           pageSize: 10000
         }),
-        await App.service('conf-school').get('get', { query: { key: 'Curriculum', rid: this.currentSchool.id } })
-      ]).then(([subjectRes, gradeRes, termRes, clsRes, schoolCurriculumRes]) => {
+        await App.service('conf-school').get('get', { query: { key: 'Curriculum', rid: this.currentSchool.id } }),
+        await App.service('curriculum').get('pubList')
+      ]).then(([subjectRes, gradeRes, termRes, clsRes, schoolCurriculumRes, schoolCurriculumListRes]) => {
         console.warn(subjectRes, gradeRes, termRes, clsRes)
         if (subjectRes.success) {
           let subjects = []
@@ -484,6 +486,9 @@ export default {
           if (this.schoolCurriculumOptions.curriculum && this.schoolCurriculumOptions.curriculum.length) {
             this.currentSchoolCurriculum = this.schoolCurriculumOptions.curriculum[0]
           }
+        }
+        if (schoolCurriculumListRes) {
+          this.schoolCurriculumList = schoolCurriculumListRes
         }
       }).finally(() => {
         this.initGuide()
@@ -827,6 +832,13 @@ studentCount: 0
     },
     goCurriculum() {
       this.openV2('/v2/account/curriculum/my')
+    },
+    getCurriculumNameByCode (code) {
+      const current = this.schoolCurriculumList.find((e) => e.code === code)
+      if (current) {
+        return current.name
+      }
+      return ''
     }
   }
 }
