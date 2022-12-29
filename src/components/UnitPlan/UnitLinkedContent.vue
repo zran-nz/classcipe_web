@@ -166,7 +166,7 @@ export default {
             }
             Associate(associateData).then((res) => {
               console.info('associate success')
-              this.$router.push('/teacher/add-task-v2/' + taskId)
+              location.href = `/v2/com/task/edit/${taskId}`
             }).finally(() => {
               this.creatingTask = false
             })

@@ -305,17 +305,13 @@ export default {
           path: '/teacher/unit-plan-redirect/' + item.id
         })
       } else if (item.type === typeMap.task) {
-        this.$router.push({
-          path: '/teacher/task-redirect/' + item.id
-        })
+        location.href = `/v2/com/task/edit/${item.id}`
       } else if (item.type === typeMap.video) {
         this.$router.push({
           path: '/teacher/video-redirect/' + item.id
         })
       } else if (item.type === typeMap.pd) {
-        this.$router.push({
-          path: '/teacher/pd-content-redirect/' + item.id
-        })
+        location.href = `/v2/com/pd/edit/${item.id}`
       }
     },
 
