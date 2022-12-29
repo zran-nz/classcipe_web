@@ -1737,7 +1737,7 @@ export default {
           const formQuestion = this.form.questions.map(item => {
             return item.name
           })
-          response.result.forEach(item => {
+          response.result?.forEach(item => {
             if (item.name && formQuestion.indexOf(item.name) === -1) {
               if (this.recommendQuestionList.filter(q => q.name === item.name).length === 0) {
                 this.recommendQuestionList.push(item)
