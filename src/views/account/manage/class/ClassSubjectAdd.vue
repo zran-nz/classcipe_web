@@ -131,6 +131,8 @@ export default {
   },
   data() {
     return {
+      USER_MODE,
+
       gradeOptions: [],
       subjectOptions: [],
       termsOptions: [],

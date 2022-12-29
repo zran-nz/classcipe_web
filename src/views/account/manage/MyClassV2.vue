@@ -129,12 +129,11 @@
                             </a-input>
                           </div>
                           <div :class="{'class-con': true, 'archive': currentTab === 'archive'}">
-                            <!-- TODO 1088 -->
-                            <!-- <div :class="{'class-con-item': true, 'pointer': currentTab !== 'archive' && userMode !== USER_MODE.SELF}" @click="handleEditTeachers(cls)">
+                            <div v-if="userMode !== USER_MODE.SELF" :class="{'class-con-item': true, 'pointer': currentTab !== 'archive' && userMode !== USER_MODE.SELF}" @click="handleEditTeachers(cls)">
                               <div class="con-item-label">Teachers</div>
                               <div class="con-item-detail" v-if="currentTab === 'archive' || userMode === USER_MODE.SELF">{{ cls.teacherCount || 0 }}</div>
                               <a v-else for="">{{ cls.teacherCount || 0 }}</a>
-                            </div> -->
+                            </div>
                             <div :class="{'class-con-item': true, 'pointer': currentTab !== 'archive'}" @click="handleEditStudents(cls)">
                               <div class="con-item-label">Students</div>
                               <div class="con-item-detail">
