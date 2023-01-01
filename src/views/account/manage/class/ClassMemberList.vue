@@ -28,12 +28,13 @@
                     <div style="display:flex">
                       <div class="user-avatar">
                         <div class="avatar">
-                          <img :src="item.avatar" />
+                          <img v-if="item.avatar" :src="item.avatar" alt="avatar" />
+                          <img v-else src="~@/assets/icons/library/default-avatar.png" alt="default-avatar">
                         </div>
                       </div>
                       <div class="user-name-email">
                         <div class="user-name">
-                          {{ item.nickname || `${item.firstname} ${item.lastname}` }}
+                          {{ nameFormatter(item) }}
                         </div>
                         <div class="email">
                           {{ item.email }}
@@ -163,6 +164,7 @@ import SchoolStudentAdd from '../schoolUser/SchoolStudentAdd'
 import SchoolUserUpload from '../schoolUser/SchoolUserUpload'
 
 import { isEmpty, isEmail } from '@/utils/util'
+import nameFormatter from '@/utils/formatters/nameFormatter'
 const { mergeWith } = require('lodash-es')
 
 export default {
@@ -290,7 +292,7 @@ export default {
           dataIndex: 'nickname',
           key: 'name',
           customRender: (text, item, index) => {
-            return text || (`${item.firstname} ${item.lastname}`) || item.email
+            return text || this.nameFormatter(item)
           }
         },
         ...this.form.role === 'teacher' ? [
@@ -332,6 +334,9 @@ export default {
     }
   },
   methods: {
+    nameFormatter(item) {
+      nameFormatter(item)
+    },
     async initMemberList() {
       const res = await getSchoolUsers({
         schoolId: this.currentSchool.id,
