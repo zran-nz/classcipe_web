@@ -49,7 +49,7 @@
         </guide-content>
       </div>
 
-      <!-- TODO 962 -->
+      <!-- TODO 962, change to new page route -->
       <div v-if="currentTab === 'subject'" style="padding: 6px 20px;">
         <a-radio-group v-model="currentSchoolCurriculum">
           <a-radio-button v-for="curriculum in schoolCurriculumOptions.curriculum" :key="curriculum" :value="curriculum">{{ getCurriculumNameByCode(curriculum) }}</a-radio-button>

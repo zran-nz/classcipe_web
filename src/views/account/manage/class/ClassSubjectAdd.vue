@@ -10,7 +10,7 @@
           @validate="doValidate"
           ref="form">
           <a-form-model-item label="Class Name" prop="name">
-            <a-input v-model="formModel.name" placeholder="input class name" />
+            <a-input v-model="formModel.name" placeholder="Input class name" />
           </a-form-model-item >
           <a-form-model-item label="Subject" prop="subject">
             <!-- <a-tree-select
@@ -23,9 +23,10 @@
           /> -->
             <a-select
               :getPopupContainer="trigger => trigger.parentElement"
-              v-model='formModel.subject'
+              v-model="formModel.subject"
               @change="changeSubject"
-              placeholder='Please select subject'>
+              placeholder="Set curriculum"
+            >
               <a-select-option v-for='item in subjectOptions.filter(sub => !curriculumId || sub.curriculumId === curriculumId)' :key='item.subjectId'>
                 {{ curriculumMap[curriculumOptions[item.curriculumId]] || curriculumOptions[item.curriculumId] }} - {{ item.subjectName }}
               </a-select-option >
@@ -150,7 +151,7 @@ export default {
       formModel: {
         id: this.id,
         name: '',
-        subject: '',
+        subject: null,
         subjectName: '',
         ownJoin: false,
         gradeId: '',
@@ -383,7 +384,7 @@ export default {
     },
     changeSubject(subjectId) {
       const find = this.subjectOptions.find(item => item.subjectId === subjectId)
-      this.formModel.subjectName = find.subjectName
+      this.formModel.subjectName = find.subjectName || null
     },
     onChangeTerm(value) {
       this.formModel.termTime = []
