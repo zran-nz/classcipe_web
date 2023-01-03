@@ -32,9 +32,9 @@
               </a-select-option >
             </a-select>
           </a-form-model-item >
-          <a-form-model-item :labelCol="{span: 12}" :wrapperCol="{span: 12}" label="Student-self registration">
+          <!-- <a-form-model-item :labelCol="{span: 12}" :wrapperCol="{span: 12}" label="Student-self registration">
             <a-switch @change="changeOwnJoin" v-model="formModel.ownJoin" />
-          </a-form-model-item>
+          </a-form-model-item> -->
           <template v-if="formModel.ownJoin">
             <a-form-model-item label="Grade">
               <a-select
@@ -76,7 +76,7 @@
       </div>
       <div class="content-right">
         <a-row :gutter=16 class="calendar-con">
-          <term-calendar :termId="formModel.term" :choose="origin.blockSetting" @date-select="handleSelectBlock"/>
+          <term-calendar :termId="formModel.term" :isNowLineVisible="false" :choose="origin.blockSetting" @date-select="handleSelectBlock"/>
           <div v-if="formModel.ownJoin && !formModel.blockSetting" class="error_field">Please Select Block</div>
         </a-row>
       </div>
@@ -317,7 +317,7 @@ export default {
             const term = year.children.find(term => term.value === this.formModel.term)
             if (term) {
               termArr = [year.value, term.value]
-              this.formModel.termTime = [moment(term.startTime).format('DD/MM/YYYY'), moment(term.endTime).format('DD/MM/YYYY')]
+              this.formModel.termTime = [moment(term.startTime).format('YYYY/DD/MM'), moment(term.endTime).format('YYYY/DD/MM')]
             }
           }
         })
@@ -394,7 +394,7 @@ export default {
         const term = year.children.find(item => item.value === value[1])
         console.log(term)
         if (term) {
-          this.formModel.termTime = [moment(term.startTime).format('DD/MM/YYYY'), moment(term.endTime).format('DD/MM/YYYY')]
+          this.formModel.termTime = [moment(term.startTime).format('YYYY/DD/MM'), moment(term.endTime).format('YYYY/DD/MM')]
         }
       } else {
         this.formModel.term = ''

@@ -1,9 +1,5 @@
 <template>
-  <FullCalendar
-    ref="fullCalendar"
-    :options="calendarOptions"
-    class="schedule-calendar"
-  >
+  <FullCalendar ref="fullCalendar" :options="calendarOptions" class="schedule-calendar">
     <template v-slot:eventContent="info">
       <slot name="eventContent" :info="info">{{ info.event.title }}</slot>
     </template>
@@ -24,75 +20,74 @@ export default {
     eventsApi: {
       type: Function,
       default: (date, successCb, failCb) => successCb([]),
-      required: true
+      required: true,
     },
     slotDuration: {
       type: String,
-      default: '00:15:00'
+      default: '00:15:00',
     },
     slotMinTime: {
       type: String,
-      default: '00:00:00'
+      default: '00:00:00',
     },
     slotMaxTime: {
       type: String,
-      default: '24:00:00'
+      default: '24:00:00',
     },
     scrollTime: {
       type: String,
-      default: '06:00:00'
+      default: '06:00:00',
     },
     slotLabelInterval: {
       type: String,
-      default: '01:00'
+      default: '01:00',
     },
     editable: {
       type: Boolean,
-      default: true
+      default: true,
     },
     selectable: {
       type: Boolean,
-      default: true
+      default: true,
     },
     headerToolbar: {
       type: [Object, Boolean],
       default: () => ({
         left: 'prev,next,today',
         center: 'title',
-        right: 'dayGridMonth,timeGridWeek,timeGridDay' // ,timeGridFourDay'
-      })
+        right: 'dayGridMonth,timeGridWeek,timeGridDay', // ,timeGridFourDay'
+      }),
     },
     selfViews: {
       type: Object,
-      default: () => {}
+      default: () => {},
     },
     initView: {
       type: String,
-      default: 'timeGridWeek'
+      default: 'timeGridWeek',
     },
     selectAllow: {
       type: Function,
-      default: () => true
+      default: () => true,
     },
     dayHeaderContent: {
       type: Function,
-      default: (info) => info.text
+      default: (info) => info.text,
     },
     validRange: {
       type: Function,
-      default: () => {}
-    }
-
+      default: () => {},
+    },
   },
   components: {
-    FullCalendar
+    FullCalendar,
   },
   data() {
     return {
       loading: false,
       // fullcalendar
       calendarOptions: {
-        plugins: [ dayGridPlugin, interactionPlugin, timeGridPlugin ],
+        plugins: [dayGridPlugin, interactionPlugin, timeGridPlugin],
         initialView: this.initView,
         headerToolbar: this.headerToolbar,
         views: this.selfViews,
@@ -124,15 +119,15 @@ export default {
           hour: '2-digit',
           minute: '2-digit',
           hour12: false,
-          meridiem: false
+          meridiem: false,
         },
-        slotLabelFormat: function(date) {
+        slotLabelFormat: function (date) {
           return moment(date.date).format('HH:mm')
         },
         viewDidMount: this.handleViewDidMount,
         selectAllow: this.selectAllow,
-        validRange: this.validRange
-      }
+        validRange: this.validRange,
+      },
     }
   },
   mounted() {
@@ -194,8 +189,8 @@ export default {
           calendarApi && calendarApi.refetchEvents()
         }
       })
-    }
-  }
+    },
+  },
 }
 </script>
 

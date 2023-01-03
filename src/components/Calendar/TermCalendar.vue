@@ -63,6 +63,10 @@ export default {
     choose: {
       type: String,
       default: ''
+    },
+    isNowLineVisible: {
+      type: Boolean,
+      default: true
     }
   },
   watch: {
@@ -296,11 +300,17 @@ export default {
     // 将当前时间线延长成整个table而不是某天的格子里
     handleViewDidMount() {
       this.$nextTick(() => {
-        const nowLine = document.getElementsByClassName('fc-timegrid-now-indicator-line')
-        if (nowLine && nowLine.length > 0) {
-          // const cloneLine = nowLine[0].cloneNode(true)
-          const fcBody = document.getElementsByClassName('fc-timegrid-body')[0]
-          fcBody.insertBefore(nowLine[0], fcBody.firstChild)
+        if (!this.isNowLineVisible) {
+          const $nowLine = document.querySelector('.fc-timegrid-now-indicator-line')
+          const $nowIndicator = document.querySelector('.fc-timegrid-now-indicator-arrow')
+          $nowLine.style.display = 'none'
+          $nowIndicator.style.display = 'none'
+        } else {
+          const nowLine = document.getElementsByClassName('fc-timegrid-now-indicator-line')
+          if (nowLine && nowLine.length > 0) {
+            const fcBody = document.getElementsByClassName('fc-timegrid-body')[0]
+            fcBody.insertBefore(nowLine[0], fcBody.firstChild)
+          }
         }
       })
     },
