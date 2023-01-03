@@ -317,7 +317,7 @@ export default {
             const term = year.children.find(term => term.value === this.formModel.term)
             if (term) {
               termArr = [year.value, term.value]
-              this.formModel.termTime = [moment(term.startTime).format('YYYY/DD/MM'), moment(term.endTime).format('YYYY/DD/MM')]
+              this.formModel.termTime = [new Date(term.startTime).toLocaleDateString(), new Date(term.endTime).toLocaleDateString()]
             }
           }
         })
@@ -394,7 +394,7 @@ export default {
         const term = year.children.find(item => item.value === value[1])
         console.log(term)
         if (term) {
-          this.formModel.termTime = [moment(term.startTime).format('YYYY/DD/MM'), moment(term.endTime).format('YYYY/DD/MM')]
+          this.formModel.termTime = [new Date(term.startTime).toLocaleDateString(), new Date(term.endTime).toLocaleDateString()]
         }
       } else {
         this.formModel.term = ''

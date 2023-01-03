@@ -171,8 +171,8 @@ export default {
           let promise = addTerm
           if (this.model.id) promise = editTerm
           const params = { ...this.model }
-          params.startTime = moment(params.startTime).startOf('day').utc().format('YYYY-MM-DD HH:mm:ss')
-          params.endTime = moment(params.endTime).endOf('day').utc().format('YYYY-MM-DD HH:mm:ss')
+          params.startTime = moment(params.startTime).startOf('day').format('YYYY-MM-DD HH:mm:ss')
+          params.endTime = moment(params.endTime).endOf('day').format('YYYY-MM-DD HH:mm:ss')
           promise(params).then((res) => {
             if (res.success) {
               that.$message.success(res.message)
