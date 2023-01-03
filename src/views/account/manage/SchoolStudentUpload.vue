@@ -311,8 +311,8 @@ export default {
         const array = this.datas.concat(convert)
         const uniqueEmails = []
         const unique = array.filter(e => {
-          if (!uniqueEmails.includes(e.inviteEmail)) {
-            uniqueEmails.push(e.inviteEmail)
+          if (!uniqueEmails.includes(e.parentEmail)) {
+            uniqueEmails.push(e.parentEmail)
             return true
           }
           return false
