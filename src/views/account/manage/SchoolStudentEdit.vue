@@ -69,6 +69,9 @@ export default {
     }
   },
   created() {
+    if (this.userMode != USER_MODE.SCHOOL) {
+      this.openV2('/v2/account/info')
+    }
     this.debounceLoad = debounce(this.loadData, 300)
   },
   computed: {

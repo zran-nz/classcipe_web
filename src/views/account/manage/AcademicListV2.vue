@@ -145,6 +145,9 @@ export default {
     }
   },
   created() {
+    if (this.userMode != USER_MODE.SCHOOL) {
+      this.openV2('/v2/account/info')
+    }
     this.initData()
     this.debounceInit = debounce(this.initData, 300)
   },

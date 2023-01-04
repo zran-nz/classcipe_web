@@ -275,6 +275,9 @@ export default {
     }
   },
   created() {
+    if (this.userMode != USER_MODE.SCHOOL) {
+      this.openV2('/v2/account/info')
+    }
     const query = this.$route.query
     if (query) {
       if (query.tab) {

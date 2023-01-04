@@ -180,6 +180,9 @@ export default {
     }
   },
   created() {
+    if (this.userMode != USER_MODE.SCHOOL) {
+      this.openV2('/v2/account/info')
+    }
     this.debounceLoad = debounce(this.loadData, 300)
     this.initDict()
   },
@@ -340,6 +343,9 @@ export default {
 
     },
     handleAddUser() {
+      if (this.userMode != USER_MODE.SCHOOL) {
+        this.openV2('/v2/account/info')
+      }
       if (!this.chooseClass) {
         this.$message.error('Please select class')
         return
