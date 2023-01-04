@@ -141,6 +141,9 @@ export default {
     }
   },
   created() {
+    if (this.userMode != USER_MODE.SCHOOL) {
+      this.openV2('/v2/account/info')
+    }
     this.debounceLoad = debounce(this.loadData, 300)
     this.initDict()
   },
@@ -253,6 +256,9 @@ export default {
 
     },
     handleAddUser() {
+      if (this.userMode != USER_MODE.SCHOOL) {
+        this.openV2('/v2/account/info')
+      }
       console.log(this.$refs.schoolUserUpload.selectionRows)
       if (this.$refs.schoolUserUpload.selectionRows.length > 0) {
         // 判断是否超出套餐限制

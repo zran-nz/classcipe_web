@@ -255,6 +255,9 @@ export default {
     }
   },
   created() {
+    if (this.userMode != USER_MODE.SCHOOL) {
+      this.openV2('/v2/account/info')
+    }
     if (this.$route.query) {
       if (this.$route.query.tab) {
         const find = this.tabsList.find(item => item.value + '' === this.$route.query.tab + '')

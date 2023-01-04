@@ -214,6 +214,8 @@ import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
 import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
 import { termList } from '@/api/academicTermInfo'
 
+import storage from 'store'
+
 import {
   listClass,
   saveClass,
@@ -275,6 +277,11 @@ export default {
       },
       viewDatas: [],
       selectedGrades: []
+    }
+  },
+  beforeUpdate() {
+    if (storage.get('user_mode') !== this.userMode) {
+      this.openV2('/v2/account/info')
     }
   },
   created() {

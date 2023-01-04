@@ -449,6 +449,9 @@ export default {
       })
     },
     handleSave() {
+      if (this.userMode != USER_MODE.SCHOOL) {
+        this.openV2('/v2/account/info')
+      }
       this.$refs.form.validate(valid => {
         if (valid) {
           const params = { ...this.formModel }
