@@ -133,12 +133,12 @@
               <a-tooltip title="Student InActive" v-if="record.beforeArchiveStatus === 0 || status === 0">
                 <a-icon style="color: #8D9496" type="check-circle" theme="filled" />
               </a-tooltip>
-              <a-tooltip title="Parent Active" v-if="record.parentEmailStatus" >
+              <!-- <a-tooltip title="Parent Active" v-if="record.parentEmailStatus" >
                 <a-icon style="color:#007990" type="check-circle" theme="filled" />
               </a-tooltip>
               <a-tooltip title="Parent InActive" v-else >
                 <a-icon style="color: #8D9496" type="check-circle" theme="filled" />
-              </a-tooltip>
+              </a-tooltip> -->
             </a-space>
           </div>
           <a-space slot="action" slot-scope="text, record">
