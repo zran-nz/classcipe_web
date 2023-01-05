@@ -118,6 +118,7 @@ import CustomTextButton from '@/components/Common/CustomTextButton'
 
 import { mapState } from 'vuex'
 import moment from 'moment'
+import storage from 'store'
 const { debounce } = require('lodash-es')
 
 export default {
@@ -145,7 +146,7 @@ export default {
     }
   },
   created() {
-    if (this.userMode != USER_MODE.SCHOOL) {
+    if (storage.get('user_mode') != USER_MODE.SCHOOL || storage.get('SET_CURRENT_SCHOOL')?.id !== this.currentSchool.id) {
       this.openV2('/v2/account/info')
     }
     this.initData()
