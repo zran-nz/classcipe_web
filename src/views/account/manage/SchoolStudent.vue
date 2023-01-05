@@ -194,6 +194,8 @@ import { mapState } from 'vuex'
 import cloneDeep from 'lodash.clonedeep'
 const { debounce, sortBy } = require('lodash-es')
 
+import storage from 'store'
+
 export default {
   name: 'SchoolStudent',
   mixins: [UserModeMixin, CurrentSchoolMixin, JeecgListMixin],
@@ -274,10 +276,14 @@ export default {
       chooseCls: ''
     }
   },
-  created() {
-    if (this.userMode != USER_MODE.SCHOOL) {
+  beforeUpdate() {
+    if (storage.get('user_mode') != USER_MODE.SCHOOL) {
       this.openV2('/v2/account/info')
+    } else if (storage.get('SET_CURRENT_SCHOOL')?.id !== this.currentSchool.id) {
+      window.location.reload()
     }
+  },
+  created() {
     const query = this.$route.query
     if (query) {
       if (query.tab) {

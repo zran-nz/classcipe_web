@@ -175,6 +175,7 @@ import SchoolUserInvite from './schoolUser/SchoolUserInvite'
 
 import { mapState } from 'vuex'
 import cloneDeep from 'lodash.clonedeep'
+import storage from 'store'
 const { debounce, sortBy } = require('lodash-es')
 
 export default {
@@ -254,10 +255,14 @@ export default {
       onlyClass: null
     }
   },
-  created() {
-    if (this.userMode != USER_MODE.SCHOOL) {
+  beforeUpdate() {
+    if (storage.get('user_mode') != USER_MODE.SCHOOL) {
       this.openV2('/v2/account/info')
+    } else if (storage.get('SET_CURRENT_SCHOOL')?.id !== this.currentSchool.id) {
+      window.location.reload()
     }
+  },
+  created() {
     if (this.$route.query) {
       if (this.$route.query.tab) {
         const find = this.tabsList.find(item => item.value + '' === this.$route.query.tab + '')

@@ -79,6 +79,7 @@ import { checkEmailTeacher, batchAddTeacher, getTeacherCount } from '@/api/v2/sc
 import { mapState } from 'vuex'
 import moment from 'moment'
 import { isEmpty, isEmail } from '@/utils/util'
+import storage from 'store'
 const { debounce, mergeWith } = require('lodash-es')
 
 export default {
@@ -140,10 +141,14 @@ export default {
       teacherCount: 0
     }
   },
-  created() {
-    if (this.userMode != USER_MODE.SCHOOL) {
+  beforeUpdate() {
+    if (storage.get('user_mode') != USER_MODE.SCHOOL) {
       this.openV2('/v2/account/info')
+    } else if (storage.get('SET_CURRENT_SCHOOL')?.id !== this.currentSchool.id) {
+      window.location.reload()
     }
+  },
+  created() {
     this.debounceLoad = debounce(this.loadData, 300)
     this.initDict()
   },

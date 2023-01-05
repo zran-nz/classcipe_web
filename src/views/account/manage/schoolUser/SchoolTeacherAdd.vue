@@ -171,6 +171,8 @@ import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import moment from 'moment'
 import { mapState } from 'vuex'
 const { sortBy } = require('lodash-es')
+
+import storage from 'store'
 export default {
   name: 'SchoolTeacherAdd',
   components: {
@@ -265,6 +267,13 @@ export default {
     classArrDetail() {
       const clses = this.classList.filter(cc => this.formModel.classArr.includes(cc.id))
       return sortBy(clses, 'classType')
+    }
+  },
+  beforeUpdate() {
+    if (storage.get('user_mode') != USER_MODE.SCHOOL) {
+      this.openV2('/v2/account/info')
+    } else if (storage.get('SET_CURRENT_SCHOOL')?.id !== this.currentSchool.id) {
+      window.location.reload()
     }
   },
   created() {

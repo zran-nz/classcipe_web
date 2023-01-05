@@ -134,6 +134,7 @@ import countryCode from '@/api/countryCode'
 import { updateSchool, queryById } from '@/api/school'
 
 import { mapState } from 'vuex'
+import storage from 'store'
 const { debounce } = require('lodash-es')
 
 export default {
@@ -175,10 +176,14 @@ export default {
       citys: []
     }
   },
-  created() {
-    if (this.userMode != USER_MODE.SCHOOL) {
+  beforeUpdate() {
+    if (storage.get('user_mode') != USER_MODE.SCHOOL) {
       this.openV2('/v2/account/info')
+    } else if (storage.get('SET_CURRENT_SCHOOL')?.id !== this.currentSchool.id) {
+      window.location.reload()
     }
+  },
+  created() {
     this.debounceLoad = debounce(this.loadData, 300)
     this.fetchCity = debounce(this.fetchCity, 300)
     this.initDict()

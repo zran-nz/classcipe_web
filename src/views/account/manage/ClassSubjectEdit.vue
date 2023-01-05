@@ -41,6 +41,7 @@ import FormHeader from '@/components/FormHeader/FormHeader'
 import ClassSubjectAdd from './class/ClassSubjectAdd'
 
 import { mapState } from 'vuex'
+import storage from 'store'
 const { debounce } = require('lodash-es')
 
 export default {
@@ -63,10 +64,14 @@ export default {
       SCHOOL_USER_STATUS: SCHOOL_USER_STATUS
     }
   },
-  created() {
-    if (this.userMode != USER_MODE.SCHOOL) {
+  beforeUpdate() {
+    if (storage.get('user_mode') != USER_MODE.SCHOOL) {
       this.openV2('/v2/account/info')
+    } else if (storage.get('SET_CURRENT_SCHOOL')?.id !== this.currentSchool.id) {
+      window.location.reload()
     }
+  },
+  created() {
     this.debounceLoad = debounce(this.loadData, 300)
   },
   computed: {
