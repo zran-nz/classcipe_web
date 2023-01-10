@@ -107,7 +107,7 @@ import { mapState } from 'vuex'
 
 import cloneDeep from 'lodash.clonedeep'
 import { uniqBy } from 'lodash-es'
-import moment from 'moment'
+
 export default {
   name: 'ClassSubjectAdd',
   components: {
@@ -135,6 +135,7 @@ export default {
       USER_MODE,
 
       gradeOptions: [],
+      gradeList: [],
       subjectOptions: [],
       termsOptions: [],
       blockOptions: {},
@@ -173,7 +174,9 @@ export default {
       autoSaveLocalKey: 'FORM_CLASS_SUBJECT_',
       needAutoSave: !this.id,
       formQuery: false,
-      curriculumId: ''
+      curriculumId: '',
+      schoolCurriculum: null,
+      schoolCurriculumList: null
     }
   },
   computed: {
@@ -217,8 +220,9 @@ export default {
         }),
         termList({
           schoolId: this.currentSchool.id
-        })
-      ]).then(([subjectRes, gradeRes, termRes]) => {
+        }),
+        App.service('curriculum').get('pubList', { query: { $limit: 1000 } })
+      ]).then(([subjectRes, gradeRes, termRes, schoolCurriculumListRes]) => {
         if (subjectRes.success) {
           // this.subjectOptions = res.result.map(item => {
           //   return {
@@ -269,12 +273,17 @@ export default {
           })
         }
         if (gradeRes.success) {
+          this.gradeList = gradeRes.result
           let grades = []
           gradeRes.result.forEach(item => {
             grades = grades.concat(item.gradeSettingInfo || [])
             this.curriculumOptions[item.curriculumId] = item.curriculumName
           })
           this.gradeOptions = grades
+        }
+        if (schoolCurriculumListRes) {
+          const res = schoolCurriculumListRes
+          this.schoolCurriculumList = res
         }
       }).finally(() => {
         this.loading = false
@@ -353,10 +362,14 @@ export default {
     handleSave() {
       this.$refs.form.validate(valid => {
         if (valid) {
+          const curriculumCode = this.getCurriculumCodeById(this.curriculumId)
+          if (!curriculumCode) return
           const params = { ...this.formModel }
           params.schoolId = this.currentSchool.id
           params.ownJoin = Number(params.ownJoin)
           params.classType = 1
+          // new subject: au:Mathematics
+          params.subject = `${curriculumCode}:${params.subjectName}`
           this.loading = true
           if (this.userMode === USER_MODE.SELF) {
             params.userId = this.info.id
@@ -364,6 +377,7 @@ export default {
           } else {
             params.classMode = 1
           }
+          // console.log(params, this.curriculumOptions)
           saveClass(params).then(res => {
             if (res.success && res.code === 0) {
               this.$store.dispatch('GetInfo')
@@ -408,6 +422,21 @@ export default {
     },
     goTerm() {
       this.$router.push('/manage/academic')
+    },
+    getCurriculumCodeById(id) {
+      const currentGrade = this.gradeList.find(e => e.curriculumId === id)
+      let name = ''
+      if (currentGrade) {
+        name = currentGrade.curriculumName
+      } else {
+        return ''
+      }
+      const currentCurriculum = this.schoolCurriculumList.find(e => e.name === name)
+      if (currentCurriculum) {
+        return currentCurriculum.code
+      } else {
+        return ''
+      }
     }
   }
 }
