@@ -65,8 +65,8 @@ export default {
     }
   },
   created() {
-    console.log(storage.get('user_mode'),storage.get('SET_CURRENT_SCHOOL'),this.currentSchool.id, '<======created=====')
-    if (storage.get('user_mode') != USER_MODE.SCHOOL || storage.get('SET_CURRENT_SCHOOL')?.id !== this.currentSchool.id) {
+    console.log(storage.get('user_mode'), storage.get('SET_CURRENT_SCHOOL'), this.currentSchool.id, '<======created=====')
+    if (storage.get('user_mode') !== USER_MODE.SCHOOL || storage.get('SET_CURRENT_SCHOOL')?.id !== this.currentSchool.id) {
       this.openV2('/v2/account/info')
     }
     this.debounceLoad = debounce(this.loadData, 300)
@@ -99,6 +99,10 @@ export default {
 
     },
     handleSave(data) {
+      if (document.referrer) {
+        this.$router.go(-1)
+        return
+      }
       this.$router.push('/manage/class/list?tab=subject')
     }
   }
