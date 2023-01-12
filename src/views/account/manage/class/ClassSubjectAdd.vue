@@ -22,13 +22,14 @@
             search-placeholder="Please select subject"
           /> -->
             <a-select
+              v-if="schoolCurriculumOptions"
               :getPopupContainer="trigger => trigger.parentElement"
               v-model="formModel.subject"
               @change="changeSubject"
               placeholder="Set curriculum"
             >
-              <a-select-option v-for='item in subjectOptions.filter(sub => !curriculumId || sub.curriculumId === curriculumId)' :key='item.subjectId'>
-                {{ curriculumMap[curriculumOptions[item.curriculumId]] || curriculumOptions[item.curriculumId] }} - {{ item.subjectName }}
+              <a-select-option v-for='item in schoolCurriculumOptions' :key='item.id'>
+                {{ item.name }}
               </a-select-option >
             </a-select>
           </a-form-model-item >
@@ -90,7 +91,7 @@
 <script>
 import { USER_MODE } from '@/const/common'
 
-import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
+// import { getSubjectBySchoolId } from '@/api/academicSettingSubject'
 import { getCurriculumBySchoolId } from '@/api/academicSettingCurriculum'
 import { termList } from '@/api/academicTermInfo'
 import { saveClass, classDetail } from '@/api/v2/schoolClass'
@@ -106,7 +107,7 @@ import { CurrentSchoolMixin } from '@/mixins/CurrentSchoolMixin'
 import { mapState } from 'vuex'
 
 import cloneDeep from 'lodash.clonedeep'
-import { uniqBy } from 'lodash-es'
+// import { uniqBy } from 'lodash-es'
 
 export default {
   name: 'ClassSubjectAdd',
@@ -124,7 +125,6 @@ export default {
   watch: {
     id: {
       handler(val) {
-        console.log(val)
         this.formModel.id = val
         this.initForm()
       }
@@ -193,6 +193,33 @@ export default {
         maxStudent: [{ required: this.formModel.ownJoin, message: 'Please Input Student Number!' }],
         blockSetting: [{ required: this.formModel.ownJoin, message: 'Please Select Block!' }]
       }
+    },
+    schoolCurriculumOptions() {
+      if (this.schoolCurriculum && this.schoolCurriculum.curriculum.length) {
+        const subjects = []
+        this.schoolCurriculum.curriculum.forEach(code => {
+          this.schoolCurriculum.subjects[code].forEach(subjectName => {
+            subjects.push({
+              curriculumCode: code,
+              curriculumName: this.getCurriculumNameByCode(code),
+              subjectName,
+              id: `${code}:${subjectName}`,
+              name: `${this.getCurriculumNameByCode(code)} - ${subjectName}`
+            })
+          })
+        })
+        return subjects
+      } else {
+        return null
+      }
+    },
+    validSubjects() {
+      if (!this.schoolCurriculumList) return []
+      const list = []
+      this.schoolCurriculumList.forEach(e => {
+        e.subjects.forEach(subject => list.push(`${e.code}:${subject._id}`))
+      })
+      return list
     }
   },
   created() {
@@ -212,47 +239,15 @@ export default {
     initData() {
       this.loading = true
       Promise.all([
-        getSubjectBySchoolId({
-          schoolId: this.currentSchool.id
-        }),
         getCurriculumBySchoolId({
           schoolId: this.currentSchool.id
         }),
         termList({
           schoolId: this.currentSchool.id
         }),
-        App.service('curriculum').get('pubList', { query: { $limit: 1000 } })
-      ]).then(([subjectRes, gradeRes, termRes, schoolCurriculumListRes]) => {
-        if (subjectRes.success) {
-          // this.subjectOptions = res.result.map(item => {
-          //   return {
-          //     key: item.curriculumId,
-          //     value: item.curriculumId,
-          //     title: item.curriculumName,
-          //     children: item.subjectList.map(sub => ({
-          //       key: sub.subjectId,
-          //       value: sub.subjectId,
-          //       title: sub.subjectName
-          //     }))
-          //   }
-          // })
-          let subjects = []
-          subjectRes.result.forEach(item => {
-            if (item.subjectList && item.subjectList.length > 0) {
-              subjects = subjects.concat(item.subjectList.map(sub => ({
-                ...sub,
-                curriculumId: item.curriculumId
-              })))
-            }
-          })
-          this.subjectOptions = uniqBy(subjects.map(item => {
-            return {
-              subjectId: item.parentSubjectId,
-              subjectName: item.parentSubjectName,
-              curriculumId: item.curriculumId
-            }
-          }), 'subjectId')
-        }
+        App.service('curriculum').get('pubList', { query: { $limit: 1000 } }),
+        App.service('conf-school').get('get', { query: { key: 'Curriculum', rid: this.currentSchool.id, del: false, $limit: 1000 } })
+      ]).then(([gradeRes, termRes, schoolCurriculumListRes, schoolCurriculumRes]) => {
         if (termRes.success) {
           this.termsOptions = termRes.result.map(year => {
             return {
@@ -284,6 +279,13 @@ export default {
         if (schoolCurriculumListRes) {
           const res = schoolCurriculumListRes
           this.schoolCurriculumList = res
+        }
+        if (schoolCurriculumRes) {
+          const res = schoolCurriculumRes
+          this.schoolCurriculum = res.val
+          const options = res.val.subjects
+          this.subjectOptions = options
+          console.warn(res.val, options)
         }
       }).finally(() => {
         this.loading = false
@@ -335,12 +337,12 @@ export default {
         }
         this.formModel.termArr = termArr
       }
+      let subject = this.formModel.subject || ''
+      if (!this.validSubjects.includes(subject)) subject = ''
+      this.formModel.subject = subject
     },
     doCreate(record) {
-      console.log(record)
-      this.doEdit({
-        ...record
-      })
+      this.doEdit({ ...record })
       this.$nextTick(() => {
         this.initValidate(!!this.id)
       })
@@ -349,7 +351,6 @@ export default {
       this.fillValidate(key, value)
     },
     doEdit(record) {
-      console.log(record)
       this.formModel = cloneDeep({
         ...this.initValue,
         ...record,
@@ -362,22 +363,21 @@ export default {
     handleSave() {
       this.$refs.form.validate(valid => {
         if (valid) {
-          const curriculumCode = this.getCurriculumCodeById(this.curriculumId)
-          if (!curriculumCode) return
+          // const curriculumCode = this.getCurriculumCodeById(this.curriculumId)
+          // if (!curriculumCode) return
           const params = { ...this.formModel }
           params.schoolId = this.currentSchool.id
           params.ownJoin = Number(params.ownJoin)
           params.classType = 1
           // new subject: au:Mathematics
-          params.subject = `${curriculumCode}:${params.subjectName}`
-          this.loading = true
+          params.subject = `${params.curriculumCode}:${params.subjectName}`
           if (this.userMode === USER_MODE.SELF) {
             params.userId = this.info.id
             params.classMode = 2
           } else {
             params.classMode = 1
           }
-          // console.log(params, this.curriculumOptions)
+          this.loading = true
           saveClass(params).then(res => {
             if (res.success && res.code === 0) {
               this.$store.dispatch('GetInfo')
@@ -397,8 +397,9 @@ export default {
       })
     },
     changeSubject(subjectId) {
-      const find = this.subjectOptions.find(item => item.subjectId === subjectId)
-      this.formModel.subjectName = find.subjectName || null
+      const [ curriculumCode, subjectName ] = subjectId.split(':')
+      this.formModel.subjectName = subjectName
+      this.formModel.curriculumCode = curriculumCode
     },
     onChangeTerm(value) {
       this.formModel.termTime = []
@@ -434,6 +435,14 @@ export default {
       const currentCurriculum = this.schoolCurriculumList.find(e => e.name === name)
       if (currentCurriculum) {
         return currentCurriculum.code
+      } else {
+        return ''
+      }
+    },
+    getCurriculumNameByCode(code) {
+      const currentCurriculum = this.schoolCurriculumList.find(e => e.code === code)
+      if (currentCurriculum) {
+        return currentCurriculum.name
       } else {
         return ''
       }
