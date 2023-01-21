@@ -15,7 +15,7 @@
             <a-space :size="5" align="center" @click.stop>
               <label style="cursor: pointer" @click="openV2('/v2/account/info')">Account Info</label>
               <label for="">></label>
-              <label style="cursor: pointer" @click="$router.push('/manage/class/list?tab=subject')">Subject Class</label>
+              <label style="cursor: pointer" @click="openV2('/v2/account/classes/subject')">Subject Class</label>
               <label for="">></label>
               <label style="font-weight: normal">Add Student</label>
             </a-space>

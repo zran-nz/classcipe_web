@@ -15,7 +15,7 @@
             <a-space :size="5" align="center" @click.stop>
               <label style="cursor: pointer" @click="openV2('/v2/account/info')">Account Info</label>
               <label for="">></label>
-              <label style="cursor: pointer" @click="$router.push('/manage/class/list?tab=subject')">{{ userMode === USER_MODE.SELF ? 'Personal' : 'School' }} Class</label>
+              <label style="cursor: pointer" @click="openV2('/v2/account/classes/subject')">{{ userMode === USER_MODE.SELF ? 'Personal' : 'School' }} Class</label>
               <label for="">></label>
               <label style="font-weight: normal">{{ title }}</label>
             </a-space>
@@ -103,7 +103,8 @@ export default {
         this.$router.go(-1)
         return
       }
-      this.$router.push('/manage/class/list?tab=subject')
+      window.openV2('/v2/account/classes/subject')
+      // this.$router.push('/manage/class/list?tab=subject')
     }
   }
 }

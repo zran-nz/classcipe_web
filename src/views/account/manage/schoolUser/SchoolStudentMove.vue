@@ -233,7 +233,8 @@ export default {
       }
     },
     goClass() {
-      this.$router.push('/manage/class/list')
+      // this.$router.push('/manage/class/list')
+      window.openV2('/v2/account/classes/standard')
     }
   }
 }

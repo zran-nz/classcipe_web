@@ -16,7 +16,7 @@
               <label style="cursor: pointer" @click="openV2('/v2/account/info')">Account Info</label>
               <label for="">></label>
               <template v-if="onlyClass">
-                <label style="cursor: pointer" @click="$router.push('/manage/class/list')">School Class</label>
+                <label style="cursor: pointer" @click="openV2('/v2/account/classes/subject')">School Class</label>
                 <label for="">></label>
                 <label style="cursor: pointer" @click="$router.push('/manage/teacher/list?classId=' + onlyClass.id)">{{ onlyClass.name }}</label>
                 <label for="">></label>
