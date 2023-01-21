@@ -208,9 +208,9 @@ export default {
             })
           })
         })
-        return subjects
+        return subjects.filter(e => e.curriculumCode === this.$route.query.curriculumId)
       } else {
-        return null
+        return []
       }
     },
     validSubjects() {
