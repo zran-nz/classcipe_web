@@ -70,9 +70,9 @@ export default {
     }
   },
   created() {
-    if (storage.get('user_mode') != USER_MODE.SCHOOL || storage.get('SET_CURRENT_SCHOOL')?.id !== this.currentSchool.id) {
-      this.openV2('/v2/account/info')
-    }
+    // if (storage.get('user_mode') != USER_MODE.SCHOOL || storage.get('SET_CURRENT_SCHOOL')?.id !== this.currentSchool.id) {
+    //   this.openV2('/v2/account/info')
+    // }
     this.debounceLoad = debounce(this.loadData, 300)
   },
   computed: {

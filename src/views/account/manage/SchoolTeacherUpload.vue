@@ -142,11 +142,11 @@ export default {
     }
   },
   beforeUpdate() {
-    if (storage.get('user_mode') != USER_MODE.SCHOOL) {
-      this.openV2('/v2/account/info')
-    } else if (storage.get('SET_CURRENT_SCHOOL')?.id !== this.currentSchool.id) {
-      window.location.reload()
-    }
+    // if (storage.get('user_mode') != USER_MODE.SCHOOL) {
+    //   this.openV2('/v2/account/info')
+    // } else if (storage.get('SET_CURRENT_SCHOOL')?.id !== this.currentSchool.id) {
+    //   window.location.reload()
+    // }
   },
   created() {
     this.debounceLoad = debounce(this.loadData, 300)
@@ -261,9 +261,9 @@ export default {
 
     },
     handleAddUser() {
-      if (this.userMode != USER_MODE.SCHOOL) {
-        this.openV2('/v2/account/info')
-      }
+      // if (this.userMode != USER_MODE.SCHOOL) {
+      //   this.openV2('/v2/account/info')
+      // }
       console.log(this.$refs.schoolUserUpload.selectionRows)
       if (this.$refs.schoolUserUpload.selectionRows.length > 0) {
         // 判断是否超出套餐限制
