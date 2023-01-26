@@ -150,8 +150,10 @@ export default {
     // if (storage.get('user_mode') != USER_MODE.SCHOOL || storage.get('SET_CURRENT_SCHOOL')?.id !== this.currentSchool.id) {
     //   this.openV2('/v2/account/info')
     // }
+    console.warn('academic create')
     this.initData()
     this.debounceInit = debounce(this.initData, 300)
+    console.warn('academic get data')
   },
   computed: {
     ...mapState({
@@ -172,9 +174,9 @@ export default {
       // 模式切换，个人还是学校 个人接口
       this.debounceInit()
     },
-    initData() {
-      this.initClass()
-      this.loadData()
+    async initData() {
+      await this.initClass()
+      await this.loadData()
     },
     initClass() {
       listClass({
@@ -235,7 +237,7 @@ export default {
       })
       this.$refs.modalForm.disableSubmit = false
     },
-     handleEditTerm(parent, item) {
+    handleEditTerm(parent, item) {
       this.$refs.termForm.title = 'Edit Academic Term'
       this.$refs.termForm.mode = 'edit'
       // 前面一个term的截止时间
