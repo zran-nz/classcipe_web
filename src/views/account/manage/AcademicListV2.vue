@@ -150,10 +150,8 @@ export default {
     // if (storage.get('user_mode') != USER_MODE.SCHOOL || storage.get('SET_CURRENT_SCHOOL')?.id !== this.currentSchool.id) {
     //   this.openV2('/v2/account/info')
     // }
-    console.warn('academic create')
     this.initData()
     this.debounceInit = debounce(this.initData, 300)
-    console.warn('academic get data')
   },
   computed: {
     ...mapState({

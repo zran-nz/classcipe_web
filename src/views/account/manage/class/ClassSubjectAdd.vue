@@ -153,7 +153,8 @@ export default {
         id: this.id,
         name: '',
         subject: null,
-        subjectName: '',
+        subjectId: '',
+        // subjectName: '',
         ownJoin: false,
         gradeId: '',
         maxStudent: 200,
@@ -198,13 +199,13 @@ export default {
       if (this.schoolCurriculum && this.schoolCurriculum.curriculum.length) {
         const subjects = []
         this.schoolCurriculum.curriculum.forEach(code => {
-          this.schoolCurriculum.subjects[code].forEach(subjectName => {
+          this.schoolCurriculum.subjects[code].forEach(subjectId => {
             subjects.push({
               curriculumCode: code,
               curriculumName: this.getCurriculumNameByCode(code),
-              subjectName,
-              id: `${code}:${subjectName}`,
-              name: `${this.getCurriculumNameByCode(code)} - ${subjectName}`
+              subjectName: this.getSubjectName(code, subjectId),
+              id: `${code}:${subjectId}`,
+              name: `${this.getCurriculumNameByCode(code)} - ${this.getSubjectName(code, subjectId)}`
             })
           })
         })
@@ -370,7 +371,7 @@ export default {
           params.ownJoin = Number(params.ownJoin)
           params.classType = 1
           // new subject: au:Mathematics
-          params.subject = `${params.curriculumCode}:${params.subjectName}`
+          params.subject = `${params.curriculumCode}:${params.subjectId}`
           if (this.userMode === USER_MODE.SELF) {
             params.userId = this.info.id
             params.classMode = 2
@@ -396,9 +397,9 @@ export default {
         this.initValidate(!!this.id)
       })
     },
-    changeSubject(subjectId) {
-      const [ curriculumCode, subjectName ] = subjectId.split(':')
-      this.formModel.subjectName = subjectName
+    changeSubject(id) {
+      const [ curriculumCode, subjectId ] = id.split(':')
+      this.formModel.subjectId = subjectId
       this.formModel.curriculumCode = curriculumCode
     },
     onChangeTerm(value) {
@@ -445,6 +446,21 @@ export default {
         return currentCurriculum.name
       } else {
         return ''
+      }
+    },
+    getSubjectName(code, id) {
+      const currentCurriculum = this.schoolCurriculumList.find(e => e.code === code)
+      if (currentCurriculum) {
+        let subjectName = ''
+        for (const e of currentCurriculum.subjects) {
+          if (e._id === id) subjectName = e.name
+          if (e.child.length) {
+            const childSubject = e.child.find(s => s._id === id)
+            console.warn(childSubject)
+            if (childSubject) subjectName = childSubject.name
+          }
+        }
+        if (subjectName) return subjectName
       }
     }
   }
