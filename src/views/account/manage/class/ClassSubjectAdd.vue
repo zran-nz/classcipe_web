@@ -26,7 +26,7 @@
               :getPopupContainer="trigger => trigger.parentElement"
               v-model="formModel.subject"
               @change="changeSubject"
-              placeholder="Set curriculum"
+              placeholder="Set subject"
             >
               <a-select-option v-for='item in schoolCurriculumOptions' :key='item.id'>
                 {{ item.name }}
@@ -177,7 +177,8 @@ export default {
       formQuery: false,
       curriculumId: '',
       schoolCurriculum: null,
-      schoolCurriculumList: null
+      schoolCurriculumList: null,
+      schoolCurriculumOptions: []
     }
   },
   computed: {
@@ -195,30 +196,18 @@ export default {
         blockSetting: [{ required: this.formModel.ownJoin, message: 'Please Select Block!' }]
       }
     },
-    schoolCurriculumOptions() {
-      if (this.schoolCurriculum && this.schoolCurriculum.curriculum.length) {
-        const subjects = []
-        this.schoolCurriculum.curriculum.forEach(code => {
-          this.schoolCurriculum.subjects[code].forEach(subjectId => {
-            subjects.push({
-              curriculumCode: code,
-              curriculumName: this.getCurriculumNameByCode(code),
-              subjectName: this.getSubjectName(code, subjectId),
-              id: `${code}:${subjectId}`,
-              name: `${this.getCurriculumNameByCode(code)} - ${this.getSubjectName(code, subjectId)}`
-            })
-          })
-        })
-        return subjects.filter(e => e.curriculumCode === this.$route.query.curriculumId)
-      } else {
-        return []
-      }
-    },
     validSubjects() {
       if (!this.schoolCurriculumList) return []
       const list = []
       this.schoolCurriculumList.forEach(e => {
-        e.subjects.forEach(subject => list.push(`${e.code}:${subject._id}`))
+        e.subjects.forEach(subject => {
+          if (!list.includes(`${e.code}:${subject._id}`)) {
+            list.push(`${e.code}:${subject._id}`)
+          }
+          if (subject.child.length) {
+            subject.child.forEach(c => list.push(`${e.code}:${c._id}`))
+          }
+        })
       })
       return list
     }
@@ -240,12 +229,8 @@ export default {
     initData() {
       this.loading = true
       Promise.all([
-        getCurriculumBySchoolId({
-          schoolId: this.currentSchool.id
-        }),
-        termList({
-          schoolId: this.currentSchool.id
-        }),
+        getCurriculumBySchoolId({ schoolId: this.currentSchool.id }),
+        termList({ schoolId: this.currentSchool.id }),
         App.service('curriculum').get('pubList', { query: { $limit: 1000 } }),
         App.service('conf-school').get('get', { query: { key: 'Curriculum', rid: this.currentSchool.id, del: false, $limit: 1000 } })
       ]).then(([gradeRes, termRes, schoolCurriculumListRes, schoolCurriculumRes]) => {
@@ -286,7 +271,28 @@ export default {
           this.schoolCurriculum = res.val
           const options = res.val.subjects
           this.subjectOptions = options
-          console.warn(res.val, options)
+
+          if (this.schoolCurriculum && this.schoolCurriculum.curriculum.length) {
+            const subjects = []
+            this.schoolCurriculum.curriculum.forEach(code => {
+              this.schoolCurriculum.subjects[code].forEach(subjectId => {
+                subjects.push({
+                  curriculumCode: code,
+                  curriculumName: this.getCurriculumNameByCode(code),
+                  subjectName: this.getSubjectName(code, subjectId),
+                  id: `${code}:${subjectId}`,
+                  name: `${this.getCurriculumNameByCode(code)} - ${this.getSubjectName(code, subjectId)}`
+                })
+              })
+            })
+            if (this.$route.query.curriculumId) {
+              this.schoolCurriculumOptions = subjects.filter(e => e.curriculumCode === this.$route.query.curriculumId)
+            } else {
+              this.schoolCurriculumOptions = subjects
+            }
+          } else {
+            this.schoolCurriculumOptions = []
+          }
         }
       }).finally(() => {
         this.loading = false
@@ -323,7 +329,6 @@ export default {
     initSels() {
       if (this.formModel.term) {
         let termArr = []
-        console.log(this.termsOptions)
         this.termsOptions.forEach(year => {
           if (year.children && year.children.length > 0) {
             const term = year.children.find(term => term.value === this.formModel.term)
@@ -358,7 +363,6 @@ export default {
         ownJoin: Boolean(record.ownJoin)
       })
       this.origin = cloneDeep(this.formModel)
-      console.log(this.origin)
       this.initSels()
     },
     handleSave() {
@@ -408,7 +412,6 @@ export default {
         this.formModel.term = value.slice(value.length - 1)[0]
         const year = this.termsOptions.find(item => item.value === value[0])
         const term = year.children.find(item => item.value === value[1])
-        console.log(term)
         if (term) {
           this.formModel.termTime = [new Date(term.startTime).toLocaleDateString(), new Date(term.endTime).toLocaleDateString()]
         }
@@ -418,7 +421,6 @@ export default {
       this.$refs.form.validateField(['termArr'])
     },
     handleSelectBlock(val) {
-      console.log(val)
       this.formModel.blockSetting = val
       this.$refs.form.validateField(['blockSetting'])
     },
@@ -456,7 +458,6 @@ export default {
           if (e._id === id) subjectName = e.name
           if (e.child.length) {
             const childSubject = e.child.find(s => s._id === id)
-            console.warn(childSubject)
             if (childSubject) subjectName = childSubject.name
           }
         }
