@@ -3,7 +3,8 @@
     <div id="app">
       <router-view />
       <!--只允许登陆后才可以反馈-->
-      <feedback v-if="showFeedback" />
+      <!-- hide old feedback -->
+      <!-- <feedback v-if="showFeedback" /> -->
       <IframePreview />
       <div id='global-loading' v-show='globalLoading'>
         <div class='loading-gif'>
