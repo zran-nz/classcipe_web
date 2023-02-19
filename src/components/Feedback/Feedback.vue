@@ -1,5 +1,5 @@
 <template>
-  <div class='my-feed-back'>
+  <div v-if="isOldFeedbackShow" class='my-feed-back'>
     <div
       id='feed-back'
       class="classcipe-feedback">
@@ -50,16 +50,24 @@ export default {
       feedbackTypeVisible: false,
       feedbackModalVisible: false,
       feedbackImgData: null,
-      captureCreating: false
+      captureCreating: false,
+      isOldFeedbackShow: true
+    }
+  },
+  mounted() {
+    const existFeedback = document.getElementById('classcipe-feedback')
+  // if feedback exist, don't show old feedback
+    if (existFeedback) {
+      this.isOldFeedbackShow = false
+    } else {
+      this.isOldFeedbackShow = true
     }
   },
   methods: {
-
     handleSelectChatFeedback () {
       this.feedbackTypeVisible = false
       document.getElementById('chat-widget-container').style.display = 'block'
     },
-
     handleSelectCaptureFeedback () {
       this.feedbackTypeVisible = false
       console.info('handleSelectCaptureFeedback')
