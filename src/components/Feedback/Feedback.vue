@@ -56,8 +56,9 @@ export default {
   },
   mounted() {
     const existFeedback = document.getElementById('classcipe-feedback')
-  // if feedback exist, don't show old feedback
-    if (existFeedback) {
+    const isInIframe = window.self !== window.top
+    // if feedback exist, don't show old feedback
+    if (existFeedback || isInIframe) {
       this.isOldFeedbackShow = false
     } else {
       this.isOldFeedbackShow = true
