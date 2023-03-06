@@ -216,26 +216,27 @@ export default {
       let minDate = ''
       if (item.terms && item.terms.length > 0) {
         const last = item.terms[item.terms.length - 1]
-        minDate = moment.utc(last.endTime).local().format('YYYY-MM-DD HH:mm:ss')
+        minDate = moment.utc(last.endTime).format('YYYY-MM-DD HH:mm:ss')
       } else {
-        minDate = moment.utc(item.startTime).startOf('day').local().format('YYYY-MM-DD HH:mm:ss')
+        minDate = moment.utc(item.startTime).startOf('day').format('YYYY-MM-DD HH:mm:ss')
       }
       this.$refs.termForm.add({
         parentId: item.id,
         minDate: minDate,
-        maxDate: moment.utc(item.endTime).endOf('day').local().format('YYYY-MM-DD HH:mm:ss')
+        maxDate: moment.utc(item.endTime).endOf('day').format('YYYY-MM-DD HH:mm:ss')
       })
     },
     handleEdit(record) {
       this.$refs.modalForm.title = 'Edit Academic Year'
       this.$refs.modalForm.edit({
         ...record,
-        startTime: moment.utc(record.startTime).local().format('YYYY-MM-DD HH:mm:ss'),
-        endTime: moment.utc(record.endTime).local().format('YYYY-MM-DD HH:mm:ss')
+        startTime: moment.utc(record.startTime).format('YYYY-MM-DD HH:mm:ss'),
+        endTime: moment.utc(record.endTime).format('YYYY-MM-DD HH:mm:ss')
       })
       this.$refs.modalForm.disableSubmit = false
     },
     handleEditTerm(parent, item) {
+      console.warn('edit', parent, item)
       this.$refs.termForm.title = 'Edit Academic Term'
       this.$refs.termForm.mode = 'edit'
       // 前面一个term的截止时间
@@ -244,20 +245,20 @@ export default {
         const currentIndex = parent.terms.findIndex(term => term.id === item.id)
         const last = parent.terms[currentIndex - 1]
         if (last) {
-          minDate = moment.utc(last.endTime).local().format('YYYY-MM-DD HH:mm:ss')
+          minDate = moment.utc(last.endTime).format('YYYY-MM-DD HH:mm:ss')
         } else {
-          minDate = moment.utc(parent.startTime).startOf('day').local().format('YYYY-MM-DD HH:mm:ss')
+          minDate = moment.utc(parent.startTime).startOf('day').format('YYYY-MM-DD HH:mm:ss')
         }
       } else {
-        minDate = moment.utc(parent.startTime).startOf('day').local().format('YYYY-MM-DD HH:mm:ss')
+        minDate = moment.utc(parent.startTime).startOf('day').format('YYYY-MM-DD HH:mm:ss')
       }
       this.$refs.termForm.edit({
         parentId: parent.id,
         minDate: minDate,
-        maxDate: moment.utc(parent.endTime).endOf('day').local().format('YYYY-MM-DD HH:mm:ss'),
+        maxDate: moment.utc(parent.endTime).endOf('day').format('YYYY-MM-DD HH:mm:ss'),
         ...item,
-        startTime: moment.utc(item.startTime).local().format('YYYY-MM-DD HH:mm:ss'),
-        endTime: moment.utc(item.endTime).local().format('YYYY-MM-DD HH:mm:ss')
+        startTime: moment.utc(item.startTime).format('YYYY-MM-DD HH:mm:ss'),
+        endTime: moment.utc(item.endTime).format('YYYY-MM-DD HH:mm:ss')
       })
     },
     handleEditBlock(item) {
@@ -346,7 +347,7 @@ export default {
       this.debounceInit()
     },
     formatDate(item) {
-      return `${moment.utc(item.startTime).local().format('MMMM YYYY')} - ${moment.utc(item.endTime).local().format('MMMM YYYY')}`
+      return `${moment.utc(item.startTime).format('MMMM YYYY')} - ${moment.utc(item.endTime).format('MMMM YYYY')}`
     },
     isCurrent(item) {
       return moment().isBefore(moment(item.endTime)) && moment().isAfter(moment(item.startTime))
