@@ -277,7 +277,7 @@
                     </div>
                   </div>
                 </div>
-                <!-- <div class='form-block tag-content-block material-list-block' style='clear: both' :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] && form[fieldItem.fieldName].length && isCopyContent}" v-if='(fieldItem.visible || (form[fieldItem.fieldName] && form[fieldItem.fieldName].length)) && isCopyContent && fieldItem.fieldName === taskField.MaterialList'>
+                <div class='form-block tag-content-block material-list-block' style='clear: both' :class="{'third-hidden-data': !fieldItem.visible && form[fieldItem.fieldName] && form[fieldItem.fieldName].length && isCopyContent}" v-if='(fieldItem.visible || (form[fieldItem.fieldName] && form[fieldItem.fieldName].length)) && isCopyContent && fieldItem.fieldName === taskField.MaterialList'>
                   <collaborate-tooltip :form-id="taskId" :fieldName=taskField.MaterialList />
                   <custom-form-item :required='emptyRequiredFields.indexOf(taskField.MaterialList) !== -1' :required-field='requiredFields.indexOf(taskField.MaterialList) !== -1'>
                     <template slot='label'>
@@ -355,7 +355,7 @@
                       <delete-icon color='#F16A39' />
                     </a-popconfirm>
                   </div>
-                </div> -->
+                </div>
               </div>
             </template>
             <div class='form-field-item custom-field' v-for='custFieldItem in $store.getters.formConfigData.taskCustomList' :key='custFieldItem.id'>
